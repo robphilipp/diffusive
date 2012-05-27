@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" >
+
+<!-- Configuration that sets the log4j debugging on, and sets the global threshold to TRACE -->
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="true" threshold="trace">
+
+	<!-- 
+		A P P E N D E R S
+	-->
+	<!-- Sending output to the console -->
+	<appender name="Console" class="org.apache.log4j.ConsoleAppender">
+		<param name="target" value="System.out"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" 
+				   value="%-5p %10r (%d{yyyy.MM.dd HH:mm:ss}) [%t]  %n%c %n%l %n%m%n%n"/>
+		</layout>
+	</appender>
+	
+	<!-- Sends logging information to a log file "log4j.log" that
+		 is capped to a size of 1 MB, and has the same layout pattern as the 
+		 Console appender -->
+<!-- <appender name="RollingFile" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="log4j.log"/>
+		<param name="MaxFileSize" value="1000000"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" 
+				   value="%-5p %10r (%d{yyyy.MM.dd HH:mm:ss}) [%t]  %n%c %n%l %n%m%n%n"/>
+		</layout>
+	</appender> -->
+	
+	<!-- Sends logging information to a file in an html format -->
+<!-- <appender name="HTMLFile" class="org.apache.log4j.FileAppender">
+		<param name="File" value="log4j.html"/>
+		<param name="Append" value="false"/>
+		<layout class="org.apache.log4j.HTMLLayout">
+			<param name="LocationInfo" value="true"/>
+			<param name="Title" value="Mortgage Cash Flow Viewer Log"/>
+		</layout>
+	</appender> -->
+	
+	<!-- Sends logging information to a file in an xml format -->
+<!-- <appender name="XMLFile" class="org.apache.log4j.FileAppender">
+		<param name="File" value="analytics_hub_log.xml"/>
+		<param name="Append" value="false"/>
+		<layout class="org.apache.log4j.xml.XMLLayout">
+			<param name="LocationInfo" value="true"/>
+		</layout>
+	</appender> -->
+	
+	<!-- 
+		L O G G E R S
+	-->
+	<logger name="log4j.logger.com.amazonaws">
+		<level value="warn"/>
+		<appender-ref ref="Console"/>
+	</logger>
+
+	<root>
+		<level value="info"/>
+		<appender-ref ref="Console"/>
+<!-- 	<appender-ref ref="RollingFile"/>
+		<appender-ref ref="HTMLFile"/>
+		<appender-ref ref="XMLFile"/> -->
+	</root>
+	
+</log4j:configuration>
