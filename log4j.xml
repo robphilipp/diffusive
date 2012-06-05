@@ -11,8 +11,7 @@
 	<appender name="Console" class="org.apache.log4j.ConsoleAppender">
 		<param name="target" value="System.out"/>
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" 
-				   value="%-5p %10r (%d{yyyy.MM.dd HH:mm:ss}) [%t]  %n%c %n%l %n%m%n%n"/>
+			<param name="ConversionPattern" value="%-5p %10r (%d{yyyy.MM.dd HH:mm:ss}) [%t]  %n%c %n%l %n%m%n%n"/>
 		</layout>
 	</appender>
 	
@@ -50,11 +49,6 @@
 	<!-- 
 		L O G G E R S
 	-->
-	<logger name="log4j.logger.com.amazonaws">
-		<level value="warn"/>
-		<appender-ref ref="Console"/>
-	</logger>
-
 	<root>
 		<level value="info"/>
 		<appender-ref ref="Console"/>

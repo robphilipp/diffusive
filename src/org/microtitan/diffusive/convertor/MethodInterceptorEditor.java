@@ -27,29 +27,48 @@ public class MethodInterceptorEditor extends ExprEditor {
 	{
 		final String className = methodCall.getClassName();
 		final String methodName = methodCall.getMethodName();
+		final StringBuffer code = new StringBuffer();
 		try
 		{
 			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null )
 			{
 				// write the code to replace the method call with a Diffusive call
-				final StringBuffer code = new StringBuffer( "{\n" );
-				
+//				final StringBuffer code = new StringBuffer( "{\n" );
+
+//				code.append( "{\n" );
+//				
+//				code.append( "  org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger( $class );\n" );
+//				code.append( "  if( logger.isDebugEnabled() )\n" );
+//				code.append( "  {\n " );
+//				code.append( "    java.lang.StringBuffer message = new java.lang.StringBuffer();\n" );
+//				code.append( "    message.append( \"(diffused): " + className + "." + methodName + "\" );\n" );
+//				code.append( "    message.append( \"  Object: \" + $0.getClass().getName() );\n" );
+//				int i = 1;
+//				for( CtClass arg : methodCall.getMethod().getParameterTypes() )
+//				{
+//					code.append( "    message.append( \"  Method Param: value=\" + $" + i + " + \"; type=" + arg.getName() + "\" );\n" );
+//					++i;
+//				}
+//				code.append( "    message.append( \"  Return: \" + $type.getName() );\n" );
+//				code.append( "    logger.debug( message.toString() );\n" );
+//				code.append( "  }\n" );
+
 				// TODO replace this with a logger, which will require adding a logger field
-				code.append( "\tSystem.out.println( \"(diffused): " + className + "." + methodName + "\" );\n" );
-				code.append( "\tSystem.out.println( \"  Object: \" + $0.getClass().getName() );\n" );
-				code.append( "\tSystem.out.println( \"  A: \" + $0.getA() );\n" );
+				code.append( "    System.out.println( \"(diffused): " + className + "." + methodName + "\" );\n" );
+				code.append( "    System.out.println( \"  Object: \" + $0.getClass().getName() );\n" );
+				code.append( "    System.out.println( \"  A: \" + $0.getA() );\n" );
 				int i = 1;
 				for( CtClass arg : methodCall.getMethod().getParameterTypes() )
 				{
-					code.append( "\tSystem.out.println( \"  Method Param: value=\" + $" + i + " + \"; type=" + arg.getName() + "\" );\n" );
+					code.append( "    System.out.println( \"  Method Param: value=\" + $" + i + " + \"; type=" + arg.getName() + "\" );\n" );
 					++i;
 				}
-				code.append( "\tSystem.out.println( \"  Return: \" + $type.getName() );\n" );
+				code.append( "    System.out.println( \"  Return: \" + $type.getName() );\n" );
 
 				// the actual Diffusive call
-				code.append( "\t$_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( $0, \"" + methodName + "\", $$ );" );
+				code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( $0, \"" + methodName + "\", $$ );" );
 				
-				code.append( "\n}" );
+//				code.append( "\n}" );
 				
 				// make the call to replace the code in the method call
 				methodCall.replace( code.toString() );
@@ -62,7 +81,7 @@ public class MethodInterceptorEditor extends ExprEditor {
 					message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
 					message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
 					message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
-					message.append( "  Line Number: " + methodCall.getLineNumber() );
+					message.append( "  Line Number: " + methodCall.getLineNumber() + Constants.NEW_LINE );
 					message.append( "  Replacement Code: " + Constants.NEW_LINE );
 					message.append( code.toString() );
 					LOGGER.debug( message.toString() );
@@ -118,8 +137,9 @@ public class MethodInterceptorEditor extends ExprEditor {
 			message.append( "  Method Name: " + className + Constants.NEW_LINE );
 			message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
 			message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
-			message.append( "  Line Number: " + methodCall.getLineNumber() );
+			message.append( "  Line Number: " + methodCall.getLineNumber() + Constants.NEW_LINE );
 			message.append( "  Replacement Code: " + Constants.NEW_LINE );
+			message.append( code.toString() );
 			LOGGER.debug( message.toString() );
 			
 			throw new IllegalArgumentException( message.toString(), exception );

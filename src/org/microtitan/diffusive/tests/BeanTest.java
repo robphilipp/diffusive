@@ -1,7 +1,12 @@
 package org.microtitan.diffusive.tests;
 
+
+
+
 public class BeanTest {
 
+//	private static final Logger LOGGER = Logger.getLogger( BeanTest.class );
+	
 	private Bean bean;
 	
 	private BeanTest()
@@ -11,12 +16,14 @@ public class BeanTest {
 	
 	private void print()
 	{
-		System.out.println( "Bean value are " + bean.getA() + " and " + bean.getB() );
+//		LOGGER.debug( " Bean value are " + bean.getA() + " and " + bean.getB() );
+		System.out.println( " Bean value are " + bean.getA() + " and " + bean.getB() );
 	}
 	
 	private void concat()
 	{
-		System.out.println( "Concatenated beans: " + bean.getA() + bean.getB() );
+//		LOGGER.debug( " Concatenated beans: " + bean.getA() + bean.getB() );
+		System.out.println( " Concatenated beans: " + bean.getA() + bean.getB() );
 	}
 	
 	private void changeValues( final String prefix )
@@ -27,6 +34,9 @@ public class BeanTest {
 	
 	public static void main( String[] args )
 	{
+//		DOMConfigurator.configure( "log4j.xml" );
+//		Logger.getRootLogger().setLevel( Level.DEBUG );
+
 		final BeanTest test = new BeanTest();
 		test.print();
 		test.changeValues( "--new--" );

@@ -1,5 +1,7 @@
 package org.microtitan.diffusive.launcher;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import javassist.ClassPool;
@@ -33,8 +35,8 @@ public class DiffusiveLauncher {
 	
 	private static final Logger LOGGER = Logger.getLogger( DiffusiveLauncher.class );
 	
-	private String classNameToRun;
-	private String[] programArguments;
+	private final String classNameToRun;
+	private final String[] programArguments;
 	
 	private DiffusiveTranslator translator;
 
@@ -123,7 +125,10 @@ public class DiffusiveLauncher {
 	}
 	
 	/**
-	 * 
+	 * Runs the "main" method for the class name, passing in the command-line arguments handed to this
+	 * objects constructor.
+	 * @see DiffusiveLauncher#classNameToRun
+	 * @see DiffusiveLauncher#programArguments
 	 */
 	public void run()
 	{
@@ -131,9 +136,9 @@ public class DiffusiveLauncher {
 	}
 
 	/**
-	 * 
-	 * @param classNameToRun
-	 * @param programArguments
+	 * Runs the "main" method for the specified class name, passing in the specified command-line arguments
+	 * @param classNameToRun The name of the class for which to run the "main" method
+	 * @param programArguments The command-line arguments passed to the "main" method
 	 */
 	public static void run( final String classNameToRun, final String...programArguments )
 	{
@@ -155,6 +160,57 @@ public class DiffusiveLauncher {
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( Loader.class.getName() + " failed to load and run the specified class" );
+		}
+	}
+	
+	/**
+	 * Runs the application without using Javassist to instrument the code for diffusion. This simply
+	 * allows you to test you application through the system class loader. Mainly available for debugging.
+	 * @param classNameToRun The name of the class for which to run it "main" method
+	 * @param programArguments The command-line arguments passed to the "main" method
+	 */
+	public static void runClean( final String classNameToRun, final String...programArguments )
+	{
+		try
+		{
+			// load the target class to be run
+			final Class< ? > clazz = DiffusiveLauncher.class.getClassLoader().loadClass( classNameToRun );
+			
+			// grab the type of the program arguments (should all be String)
+			final Class< ? >[] progArgsType = new Class[] { programArguments.getClass() };
+			
+			// find the "main" method for the class (throws exception if can't be found)
+			final Method mainMethod = clazz.getDeclaredMethod( "main", progArgsType );
+			
+			// invoke the "main" of the class (first arg null because main is static)
+			mainMethod.invoke( null, new Object[] { programArguments } );
+		}
+		catch( ClassNotFoundException | 
+			   NoSuchMethodException | 
+			   SecurityException | 
+			   IllegalAccessException | 
+			   IllegalArgumentException | 
+			   InvocationTargetException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Unable to launch application" + Constants.NEW_LINE );
+			message.append( "  Name of class to run: " + classNameToRun + Constants.NEW_LINE );
+			message.append( "  Name of method to run: main" + Constants.NEW_LINE );
+			message.append( "  Program arguments (command line arguments): " );
+			if( programArguments.length > 0 )
+			{
+				for( String arg : programArguments )
+				{
+					message.append( Constants.NEW_LINE + "    " + arg );
+				}
+			}
+			else
+			{
+				message.append( "[none]" );
+			}
+			message.append( Constants.NEW_LINE );
+			LOGGER.error( message.toString(), e );
+			throw new IllegalArgumentException( message.toString(), e );
 		}
 	}
 	
@@ -184,5 +240,6 @@ public class DiffusiveLauncher {
 		final String classNameToRun = args[ 0 ];
 		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
 		run( classNameToRun, programArgs );
+//		runClean( classNameToRun, programArgs );
 	}
 }

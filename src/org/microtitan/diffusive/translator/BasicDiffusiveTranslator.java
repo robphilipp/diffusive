@@ -90,7 +90,7 @@ public class BasicDiffusiveTranslator implements DiffusiveTranslator {
 			final CtClass ctClass = pool.get( classname );
 			
 			// sets the expression editor used to replace the calls to @Diffusive methods with
-			// and a Diffuser (throws a CannotCompileException if it fails to compile the
+			// a Diffuser (throws a CannotCompileException if it fails to compile the
 			// source code produced by the expression editor)
 			ctClass.instrument( expressionEditor );
 			
