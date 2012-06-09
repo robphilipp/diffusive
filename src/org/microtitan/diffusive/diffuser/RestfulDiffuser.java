@@ -13,5 +13,4 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		// add the jersey client stuff in here...create a calculator, send the object to the calculator
 		return null;
 	}
-
 }

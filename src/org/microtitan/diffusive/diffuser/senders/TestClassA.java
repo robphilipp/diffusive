@@ -13,8 +13,13 @@ public class TestClassA implements Serializable {
 		this.reference = reference;
 	}
 	
+//	public TestClassA()
+//	{
+//		reference = new TestClassB();
+//	}
+	
 	public String toString()
 	{
-		return "A: " + reference.toString();
+		return "A: " + reference.toString() + "; serialVersionUID: " + serialVersionUID;
 	}
 }

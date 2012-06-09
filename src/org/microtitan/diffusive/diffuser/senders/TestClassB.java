@@ -8,7 +8,17 @@ public class TestClassB implements Serializable {
 
 	private String message;
 	
-	public TestClassB( final String message )
+//	public TestClassB( final String message )
+//	{
+//		this.message = message;
+//	}
+	
+//	public TestClassB()
+//	{
+//		message = "";
+//	}
+	
+	public void setMessage( final String message )
 	{
 		this.message = message;
 	}

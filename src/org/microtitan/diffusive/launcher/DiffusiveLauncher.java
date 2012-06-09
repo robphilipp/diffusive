@@ -132,7 +132,7 @@ public class DiffusiveLauncher {
 	 */
 	public void run()
 	{
-		run( classNameToRun, programArguments );
+		run( translator, classNameToRun, programArguments );
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class DiffusiveLauncher {
 	 * @param classNameToRun The name of the class for which to run the "main" method
 	 * @param programArguments The command-line arguments passed to the "main" method
 	 */
-	public static void run( final String classNameToRun, final String...programArguments )
+	public static void run( final DiffusiveTranslator translator, final String classNameToRun, final String...programArguments )
 	{
 		try
 		{
@@ -151,7 +151,7 @@ public class DiffusiveLauncher {
 			final Loader loader = new Loader( pool );
 			
 			// add up the class loader with the translator
-			loader.addTranslator( pool, new BasicDiffusiveTranslator( new MethodInterceptorEditor() ) );
+			loader.addTranslator( pool, translator );
 			
 			// invoke the "main" method of the class named in the "className" variable
 			loader.run( classNameToRun, programArguments );
@@ -239,7 +239,8 @@ public class DiffusiveLauncher {
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
 		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
-		run( classNameToRun, programArgs );
+		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultExpressionEditor() );
+		run( translator, classNameToRun, programArgs );
 //		runClean( classNameToRun, programArgs );
 	}
 }
