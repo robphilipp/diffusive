@@ -1,4 +1,4 @@
-package org.microtitan.diffusive.diffuser.senders;
+package org.microtitan.diffusive.tests;
 
 import java.io.Serializable;
 
