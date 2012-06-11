@@ -7,6 +7,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 
+/**
+ * Executes the specified method on the specified object in the local process.
+ * 
+ * @author Robert Philipp
+ */
 public class LocalDiffuser extends AbstractDiffuser {
 	
 	private static final Logger LOGGER = Logger.getLogger( LocalDiffuser.class );
