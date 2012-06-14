@@ -11,7 +11,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.convertor.MethodInterceptorEditor;
+import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.tests.BeanTest;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
@@ -59,11 +59,11 @@ public class DiffusiveLauncher {
 	 * @param programArguments
 	 * 
 	 * @see DiffusiveTranslator
-	 * @see MethodInterceptorEditor
+	 * @see MethodIntercepterEditor
 	 */
 	public DiffusiveLauncher( final String classNameToRun, final String...programArguments )
 	{
-		this( createDefaultTranslator( createDefaultExpressionEditor() ), classNameToRun, programArguments );
+		this( createDefaultTranslator( createDefaultMethodIntercepter() ), classNameToRun, programArguments );
 	}
 	
 	/**
@@ -71,20 +71,29 @@ public class DiffusiveLauncher {
 	 * @param expressionEditor
 	 * @return
 	 */
-	private static DiffusiveTranslator createDefaultTranslator( final MethodInterceptorEditor expressionEditor )
+	private static DiffusiveTranslator createDefaultTranslator( final MethodIntercepterEditor expressionEditor )
 	{
 		return new BasicDiffusiveTranslator( expressionEditor );
 	}
 
-	/**
-	 * 
-	 * @return
+	/*
+	 * Creates a default method intercepter using the specified {@link Diffuser}
+	 * @param diffuser The diffuser used with the default method intercepter
+	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
 	 */
-	private static MethodInterceptorEditor createDefaultExpressionEditor()
+	private static MethodIntercepterEditor createDefaultMethodIntercepter( /*final Diffuser diffuser*/ )
 	{
-		return new MethodInterceptorEditor();
+		return new MethodIntercepterEditor( /*diffuser*/ );
 	}
-
+	
+//	/*
+//	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
+//	 */
+//	private static MethodIntercepterEditor createDefaultMethodIntercepter()
+//	{
+//		return createDefaultMethodIntercepter( new LocalDiffuser() );
+//	}
+	
 	/**
 	 * 
 	 * @param translator
@@ -110,9 +119,9 @@ public class DiffusiveLauncher {
 	 * @param expressionEditor
 	 * @return
 	 */
-	public MethodInterceptorEditor setExpressionEditor( final MethodInterceptorEditor expressionEditor )
+	public MethodIntercepterEditor setExpressionEditor( final MethodIntercepterEditor expressionEditor )
 	{
-		final MethodInterceptorEditor oldEditor = translator.setExpressionEditor( expressionEditor );
+		final MethodIntercepterEditor oldEditor = translator.setExpressionEditor( expressionEditor );
 		if( LOGGER.isInfoEnabled() )
 		{
 			final StringBuffer message = new StringBuffer();
@@ -147,8 +156,8 @@ public class DiffusiveLauncher {
 			// get the default class pool
 			final ClassPool pool = ClassPool.getDefault();
 
-			// create a loader for that pool
-			final Loader loader = new Loader( pool );
+			// create a loader for that pool, setting the class loader for this class as the parent
+			final Loader loader = new Loader( DiffusiveLauncher.class.getClassLoader(), pool );
 			
 			// add up the class loader with the translator
 			loader.addTranslator( pool, translator );
@@ -236,10 +245,17 @@ public class DiffusiveLauncher {
 			args = new String[] { BeanTest.class.getName() };
 		}
 		
+		// TODO have the configuration code (currently in BeanTest) inserted into the main of the class-to-run
+		// set the use of the RESTful diffuser
+//		final Serializer serializer = new ObjectSerializer();
+//		final List< URI > endpoints = Arrays.asList( URI.create( "http://localhost:8182/diffuser" ) );
+//		final Diffuser restfulDiffuser = new RestfulDiffuser( serializer, endpoints );
+//		KeyedDiffuserRepository.getInstance().setDiffuser( new RestfulDiffuser( serializer, endpoints ) );
+		
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
 		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
-		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultExpressionEditor() );
+		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultMethodIntercepter( /*restfulDiffuser*/ ) );
 		run( translator, classNameToRun, programArgs );
 //		runClean( classNameToRun, programArgs );
 	}

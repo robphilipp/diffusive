@@ -2,11 +2,17 @@ package org.microtitan.diffusive.diffuser;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
+import org.microtitan.diffusive.diffuser.serializer.ObjectSerializer;
+import org.microtitan.diffusive.diffuser.serializer.Serializer;
 
 
 public class KeyedDiffuserRepository {
@@ -40,10 +46,10 @@ public class KeyedDiffuserRepository {
 	}
 	
 	/**
-	 * Returns the named instance if the key exists, or a new object
+	 * Returns the named INSTANCE if the key exists, or a new object
 	 * with the key name if the key doesn't already exist. 
-	 * @param key The key associated, or to be associated, with the registry instance
-	 * @return the named instance if the key exists, or a new object if the key 
+	 * @param key The key associated, or to be associated, with the registry INSTANCE
+	 * @return the named INSTANCE if the key exists, or a new object if the key 
 	 * doesn't exist
 	 */
 	public static KeyedDiffuserRepository getInstance( final Object key )
@@ -55,7 +61,7 @@ public class KeyedDiffuserRepository {
 
 			if( instance == null )
 			{
-				// lazily create instance
+				// lazily create INSTANCE
 				instance = new KeyedDiffuserRepository();
 
 				// add it to map
@@ -85,7 +91,7 @@ public class KeyedDiffuserRepository {
 			instance = instances.get( key );
 
 			// if key exists, then add the new object to the map as a
-			// a key to the same instance
+			// a key to the same INSTANCE
 			if( instance != null )
 			{
 				// add the new key to the map of instances
@@ -193,8 +199,16 @@ public class KeyedDiffuserRepository {
 	 */
 	private KeyedDiffuserRepository()
 	{
-		this.diffuser = new LocalDiffuser();
+		this.diffuser = createDefaultDiffuser();
 		this.propertyChangeSupport = new PropertyChangeSupport( this );
+	}
+	
+	private static Diffuser createDefaultDiffuser()
+	{
+//		final Serializer serializer = new ObjectSerializer();
+//		final List< URI > endpoints = Arrays.asList( URI.create( "http://localhost:8182/diffuser" ) );
+//		return new RestfulDiffuser( serializer, endpoints );
+		return new LocalDiffuser();
 	}
 	
 	public Diffuser getDiffuser()

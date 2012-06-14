@@ -14,10 +14,22 @@ import org.microtitan.diffusive.annotations.Diffusive;
  *  
  * @author Robert Philipp
  */
-public class MethodInterceptorEditor extends ExprEditor {
+public class MethodIntercepterEditor extends ExprEditor {
 	
-	private static final Logger LOGGER = Logger.getLogger( MethodInterceptorEditor.class );
+	private static final Logger LOGGER = Logger.getLogger( MethodIntercepterEditor.class );
 
+//	private Diffuser diffuser;
+	
+	public MethodIntercepterEditor( /*final Diffuser diffuser*/ )
+	{
+//		this.diffuser = diffuser;
+	}
+	
+//	public Diffuser getDiffuser()
+//	{
+//		return diffuser;
+//	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see javassist.expr.ExprEditor#edit(javassist.expr.MethodCall)
@@ -55,8 +67,10 @@ public class MethodInterceptorEditor extends ExprEditor {
 
 				// TODO replace this with a logger, which will require adding a logger field
 				code.append( "    System.out.println( \"(diffused): " + className + "." + methodName + "\" );\n" );
+				code.append( "    System.out.println( \"  Class Loader Name: \" + $0.getClass().getClassLoader().getClass().getName() );\n" );
+				code.append( "    System.out.println( \"  Class Loader Instance: \" + $0.getClass().getClassLoader().toString() );\n" );
 				code.append( "    System.out.println( \"  Object: \" + $0.getClass().getName() );\n" );
-				code.append( "    System.out.println( \"  A: \" + $0.getA() );\n" );
+//				code.append( "    System.out.println( \"  A: \" + $0.getA() );\n" );
 				int i = 1;
 				for( CtClass arg : methodCall.getMethod().getParameterTypes() )
 				{
@@ -140,7 +154,7 @@ public class MethodInterceptorEditor extends ExprEditor {
 			message.append( "  Line Number: " + methodCall.getLineNumber() + Constants.NEW_LINE );
 			message.append( "  Replacement Code: " + Constants.NEW_LINE );
 			message.append( code.toString() );
-			LOGGER.debug( message.toString() );
+			LOGGER.debug( message.toString(), exception );
 			
 			throw new IllegalArgumentException( message.toString(), exception );
 		}

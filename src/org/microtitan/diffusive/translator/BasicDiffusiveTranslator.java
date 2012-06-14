@@ -8,13 +8,14 @@ import javassist.NotFoundException;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.convertor.MethodInterceptorEditor;
+import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
+import org.microtitan.diffusive.diffuser.Diffuser;
 
 /**
  * Observer of the {@link Loader}, which calls the {@link #start(ClassPool)} and {@link #onLoad(ClassPool, String)}
- * method of an instance of this object. These methods can be used to translate the byte code before it is loaded.
+ * method of an INSTANCE of this object. These methods can be used to translate the byte code before it is loaded.
  * 
- * In this case only the {@link #onLoad(ClassPool, String)} method responds by inserting a {@link MethodInterceptorEditor}
+ * In this case only the {@link #onLoad(ClassPool, String)} method responds by inserting a {@link MethodIntercepterEditor}
  * that is used to intercept method calls to methods that are annotated with {@code @Diffusive}.
  * 
  * @author Robert Philipp
@@ -23,45 +24,73 @@ public class BasicDiffusiveTranslator implements DiffusiveTranslator {
 	
 	private static final Logger LOGGER = Logger.getLogger( BasicDiffusiveTranslator.class );
 	
-	private MethodInterceptorEditor expressionEditor;
+	private MethodIntercepterEditor expressionEditor;
 	
 	/**
-	 * Constructor that accepts a {@link MethodInterceptorEditor} which will be used to generate the source 
+	 * Constructor that accepts a {@link MethodIntercepterEditor} which will be used to generate the source 
 	 * code that replaces the intercepted method call
-	 * @param expressionEditor The {@link MethodInterceptorEditor} used to create the source code that replaces
+	 * @param expressionEditor The {@link MethodIntercepterEditor} used to create the source code that replaces
 	 * the intercepted method call
 	 */
-	public BasicDiffusiveTranslator( final MethodInterceptorEditor expressionEditor )
+	public BasicDiffusiveTranslator( final MethodIntercepterEditor expressionEditor )
 	{
 		this.expressionEditor = expressionEditor;
 	}
+	
+	/**
+	 * Constructor that sets as its default expression editor, the {@link MethodIntercepterEditor} with
+	 * the specified {@link Diffuser}.
+	 * @param the specified {@link Diffuser}
+	 */
+	public BasicDiffusiveTranslator( final Diffuser diffuser )
+	{
+		this.expressionEditor = createDefaultMethodIntercepter( /*diffuser*/ );
+	}
 
 	/**
-	 * Constructor that sets as its default expression editor, the {@link MethodInterceptorEditor}
+	 * Constructor that sets as its default expression editor, the {@link MethodIntercepterEditor}
 	 */
 	public BasicDiffusiveTranslator()
 	{
-		this( new MethodInterceptorEditor() );
+		this( createDefaultMethodIntercepter() );
 	}
-
+	
+	/*
+	 * Creates a default method intercepter using the specified {@link Diffuser}
+	 * @param diffuser The diffuser used with the default method intercepter
+	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
+	 */
+	private static MethodIntercepterEditor createDefaultMethodIntercepter( /*final Diffuser diffuser*/ )
+	{
+		return new MethodIntercepterEditor( /*diffuser*/ );
+	}
+	
+//	/*
+//	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
+//	 */
+//	private static MethodIntercepterEditor createDefaultMethodIntercepter()
+//	{
+//		return createDefaultMethodIntercepter( new LocalDiffuser() );
+//	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.microtitan.diffusive.translator.DiffusiveTranslator#getExpressionEditor()
 	 */
 	@Override
-	public MethodInterceptorEditor getExpressionEditor()
+	public MethodIntercepterEditor getExpressionEditor()
 	{
 		return expressionEditor;
 	}
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.microtitan.diffusive.translator.DiffusiveTranslator#setExpressionEditor(org.microtitan.diffusive.convertor.MethodInterceptorEditor)
+	 * @see org.microtitan.diffusive.translator.DiffusiveTranslator#setExpressionEditor(org.microtitan.diffusive.convertor.MethodIntercepterEditor)
 	 */
 	@Override
-	public MethodInterceptorEditor setExpressionEditor( final MethodInterceptorEditor expressionEditor )
+	public MethodIntercepterEditor setExpressionEditor( final MethodIntercepterEditor expressionEditor )
 	{
-		final MethodInterceptorEditor oldEditor = this.expressionEditor;
+		final MethodIntercepterEditor oldEditor = this.expressionEditor;
 		this.expressionEditor = expressionEditor;
 		return oldEditor;
 	}
