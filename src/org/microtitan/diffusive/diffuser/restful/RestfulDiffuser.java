@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.AbstractDiffuser;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 
@@ -35,5 +36,18 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		// TODO Auto-generated method stub
 		// add the jersey client stuff in here...create a calculator, send the object to the calculator
 		return null;
+	}
+	
+	@Override
+	public String toString()
+	{
+		final StringBuffer buffer = new StringBuffer();
+		buffer.append( "Serializer: " + serializer.toString() + Constants.NEW_LINE );
+		buffer.append( "Client Endpoints: " + Constants.NEW_LINE );
+		for( URI uri : clientEndpoints )
+		{
+			buffer.append( "  " + uri.toString() + Constants.NEW_LINE );
+		}
+		return buffer.toString();
 	}
 }

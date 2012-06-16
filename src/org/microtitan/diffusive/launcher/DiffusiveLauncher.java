@@ -266,6 +266,15 @@ public class DiffusiveLauncher {
 			args = new String[] { BeanTest.class.getName() };
 		}
 		
+		// TODO this needs to be set up through a configuration or programatically. Probably best through a RESTfulDiffusiveLauncher,
+		// a LocalDiffusiveLauncher, a NullDiffusiveLauncher, etc..
+		// run and set up the local RESTful Diffuser server
+		final URI serverUri = URI.create( "http://localhost:8182/" );
+		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( serverUri );
+		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
+		application.addSingletonResource( resource );
+		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
+		
 		// TODO have the configuration code (currently in BeanTest) inserted into the main of the class-to-run
 		// set the use of the RESTful diffuser
 //		final Serializer serializer = new ObjectSerializer();
@@ -273,12 +282,6 @@ public class DiffusiveLauncher {
 //		final Diffuser restfulDiffuser = new RestfulDiffuser( serializer, endpoints );
 //		KeyedDiffuserRepository.getInstance().setDiffuser( new RestfulDiffuser( serializer, endpoints ) );
 
-		final URI serverUri = URI.create( "http://localhost:8182/" );
-		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
-		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
-		application.addSingletonResource( resource );
-		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
-		
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
 		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
