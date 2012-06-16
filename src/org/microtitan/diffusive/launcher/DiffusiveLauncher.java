@@ -1,7 +1,9 @@
 package org.microtitan.diffusive.launcher;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.Arrays;
 
 import javassist.ClassPool;
@@ -13,6 +15,9 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserManagerResource;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.tests.BeanTest;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
@@ -168,7 +173,23 @@ public class DiffusiveLauncher {
 		catch( Throwable exception )
 		{
 			final StringBuffer message = new StringBuffer();
-			message.append( Loader.class.getName() + " failed to load and run the specified class" );
+			message.append( Loader.class.getName() + " failed to load and run the specified class" + Constants.NEW_LINE );
+			message.append( "  Loader: " + Loader.class.getName() + Constants.NEW_LINE );
+			message.append( "  Class Name: " + classNameToRun + Constants.NEW_LINE );
+			if( programArguments.length > 0 )
+			{
+				message.append( "  Program Arguments: " + Constants.NEW_LINE );
+				for( String arg : programArguments )
+				{
+					message.append( "    " + arg + Constants.NEW_LINE );
+				}
+			}
+			else
+			{
+				message.append( "  Program Arguments: [none specified]" + Constants.NEW_LINE );
+			}
+			LOGGER.error( message.toString(), exception );
+			throw new IllegalArgumentException( message.toString(), exception );
 		}
 	}
 	
@@ -251,6 +272,12 @@ public class DiffusiveLauncher {
 //		final List< URI > endpoints = Arrays.asList( URI.create( "http://localhost:8182/diffuser" ) );
 //		final Diffuser restfulDiffuser = new RestfulDiffuser( serializer, endpoints );
 //		KeyedDiffuserRepository.getInstance().setDiffuser( new RestfulDiffuser( serializer, endpoints ) );
+
+		final URI serverUri = URI.create( "http://localhost:8182/" );
+		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
+		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
+		application.addSingletonResource( resource );
+		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
 		
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
@@ -258,5 +285,17 @@ public class DiffusiveLauncher {
 		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultMethodIntercepter( /*restfulDiffuser*/ ) );
 		run( translator, classNameToRun, programArgs );
 //		runClean( classNameToRun, programArgs );
+		
+		System.out.println( String.format( "Jersy app start with WADL available at %sapplication.wadl\nTry out %shelloworld\nHit enter to stop it...", serverUri, serverUri ) );
+		try
+		{
+			System.in.read();
+		}
+		catch( IOException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		server.stop();
 	}
 }

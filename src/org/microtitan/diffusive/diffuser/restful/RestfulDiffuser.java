@@ -20,8 +20,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * the wire.
 	 * @param clientEndpoints The URIs at which other diffusers are located, which this diffuser can call.
 	 */
-	public RestfulDiffuser( final Serializer serializer, 
-							final List< URI > clientEndpoints )
+	public RestfulDiffuser( final Serializer serializer, final List< URI > clientEndpoints )
 	{
 		this.serializer = serializer;
 		this.clientEndpoints = clientEndpoints;
