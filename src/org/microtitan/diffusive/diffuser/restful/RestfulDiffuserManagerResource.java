@@ -16,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
@@ -27,6 +28,7 @@ public class RestfulDiffuserManagerResource {
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserManagerResource.class );
 	
 	// resource paths
+	private static final String	DIFFUSER = "/diffuser";
 	private static final String DIFFUSER_CREATE = "/create";
 	private static final String DIFFUSER_FORM = "/form";
 	private static final String DIFFUSER_LIST = "/list";
@@ -65,19 +67,14 @@ public class RestfulDiffuserManagerResource {
 		this.baseUri = createBaseUri( baseUri );
 	}
 	
+	/**
+	 * Constructs the base URI from which all the resource URIs start
+	 * @param uri The base URI to which we add {@link #DIFFUSER} (={@value #DIFFUSER}) to the end
+	 * @return The base URI 
+	 */
 	private static URI createBaseUri( final URI uri )
 	{
-		// grab a string version of the URI
-		String uriString = uri.toString();
-		
-		// if it doesn't have a trailing "/", then add one
-		if( !uriString.endsWith( "/" ) )
-		{
-			uriString.concat( "/" );
-		}
-		
-		// add the "diffuser" to the end and return as a URI
-		return URI.create( uriString + "diffuser" );
+		return UriBuilder.fromUri( uri ).path( DIFFUSER ).build();
 	}
 	
 	/**
@@ -136,7 +133,8 @@ public class RestfulDiffuserManagerResource {
 		final String key = buffer.toString();
 		final RestfulDiffuser oldDiffuser = diffusers.put( key, diffuser );
 		
-		final URI diffuserUri = URI.create( baseUri.toString() + "/" + key );
+//		final URI diffuserUri = URI.create( baseUri.toString() + "/" + key );
+		final URI diffuserUri = UriBuilder.fromUri( baseUri ).path( key ).build();
 		final Response response = Response.created( diffuserUri )
 										  .status( Status.CREATED )
 										  .location( diffuserUri )
@@ -182,8 +180,9 @@ public class RestfulDiffuserManagerResource {
 		final StringBuffer buffer = new StringBuffer();
 		buffer.append( "<html><body>" );
 		buffer.append( "<h1>Create Calculator</h1>" );
-//		buffer.append( "<form name=\"input\" method=\"post\" action=\"http://localhost:8182/diffuser/form/create\" >" );
-		buffer.append( "<form name=\"input\" method=\"post\" action=\"" + baseUri + DIFFUSER_FORM + DIFFUSER_CREATE + "\" >" );
+		final String formUri = UriBuilder.fromUri( baseUri ).path( DIFFUSER_FORM ).path( DIFFUSER_CREATE ).build().toString();
+		buffer.append( "<form name=\"input\" method=\"post\" action=\"" + formUri + "\" >" );
+//		buffer.append( "<form name=\"input\" method=\"post\" action=\"" + baseUri + DIFFUSER_FORM + DIFFUSER_CREATE + "\" >" );
 		buffer.append( "Serializer name: <input type=\"text\" name=\"" + SERIALIZER_NAME + "\" value=\"persistence_xml\" /><br />" );
 		buffer.append( "Client Endpoint: <input type=\"text\" name=\"" + CLIENT_ENDPOINT + "\" value=\"http://localhost:8183/diffuser\" /><br />" );
 		buffer.append( "Class name: <input type=\"text\" name=\"" + CLASS_NAME + "\" value=\"class1\" /><br />" );
