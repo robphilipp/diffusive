@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.AbstractDiffuser;
+import org.microtitan.diffusive.diffuser.LocalDiffuser;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 
 public class RestfulDiffuser extends AbstractDiffuser {
@@ -30,12 +31,14 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	@Override
 	public Object runObject( final Object object, final String methodName, final Object... arguments )
 	{
-		System.out.println( "******RESTful Diffuser*******" );
-		System.out.println( "Serializer: " + serializer.getClass().getName() );
-		System.out.println( "Endpoints: " + clientEndpoints );
-		// TODO Auto-generated method stub
-		// add the jersey client stuff in here...create a calculator, send the object to the calculator
-		return null;
+//		final StringBuffer buffer = new StringBuffer();
+//		buffer.append( "******RESTful Diffuser*******" + Constants.NEW_LINE );
+//		buffer.append( "Serializer: " + serializer.getClass().getName() + Constants.NEW_LINE );
+//		buffer.append( "Endpoints: " + clientEndpoints + Constants.NEW_LINE );
+//		// TODO Auto-generated method stub
+//		// add the jersey client stuff in here...create a calculator, send the object to the calculator
+//		return buffer.toString();
+		return new LocalDiffuser().runObject( object, methodName, arguments );
 	}
 	
 	@Override

@@ -14,6 +14,12 @@ public class Bean {
 		this.b = b;
 	}
 	
+	public Bean()
+	{
+		a = "null a";
+		b = "null b";
+	}
+	
 	/**
 	 * @return the a
 	 */
@@ -47,5 +53,9 @@ public class Bean {
 		this.b = b;
 	}
 
-	
+
+	public String toString()
+	{
+		return "(" + a + ", " + b + ")";
+	}
 }

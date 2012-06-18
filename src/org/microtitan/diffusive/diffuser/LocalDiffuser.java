@@ -51,8 +51,15 @@ public class LocalDiffuser extends AbstractDiffuser {
 				message.append( "  Diffuser: " + LocalDiffuser.class.getName() + Constants.NEW_LINE );
 				message.append( "  Class of Object to Run: " + object.getClass().getName() + Constants.NEW_LINE );
 				message.append( "  Name of Method to Run: " + methodName + Constants.NEW_LINE );
-				message.append( "  Returned Result Object: " + returnResult.getClass().getName() + Constants.NEW_LINE );
-				message.append( "  Returned Result Value: " + returnResult.toString() );
+				if( returnResult == null )
+				{
+					message.append( "  Returned Result Object: [null]" + Constants.NEW_LINE );
+				}
+				else
+				{
+					message.append( "  Returned Result Object: " + returnResult.getClass().getName() + Constants.NEW_LINE );
+					message.append( "  Returned Result Value: " + returnResult.toString() );
+				}
 				LOGGER.debug( message.toString() );
 				System.out.println( message.toString() );
 			}

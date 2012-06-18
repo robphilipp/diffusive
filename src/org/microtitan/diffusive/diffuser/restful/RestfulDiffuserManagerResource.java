@@ -1,6 +1,7 @@
 package org.microtitan.diffusive.diffuser.restful;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -195,9 +196,9 @@ public class RestfulDiffuserManagerResource {
 		buffer.append( "<form name=\"input\" method=\"post\" action=\"" + formUri + "\" >" );
 		buffer.append( "Serializer name: <input type=\"text\" name=\"" + SERIALIZER_NAME + "\" value=\"persistence_xml\" /><br />" );
 		buffer.append( "Client Endpoint: <input type=\"text\" name=\"" + CLIENT_ENDPOINT + "\" value=\"http://localhost:8183/diffusers\" /><br />" );
-		buffer.append( "Class name: <input type=\"text\" name=\"" + CLASS_NAME + "\" value=\"class1\" /><br />" );
-		buffer.append( "Method name: <input type=\"text\" name=\"" + METHOD_NAME + "\" value=\"method1\" /><br />" );
-		buffer.append( "Argument type: <input type=\"text\" name=\"" + ARGUMENT_TYPE + "\" value=\"arg1\" />" );
+		buffer.append( "Class name: <input type=\"text\" name=\"" + CLASS_NAME + "\" value=\"org.microtitan.diffusive.tests.Bean\" /><br />" );
+		buffer.append( "Method name: <input type=\"text\" name=\"" + METHOD_NAME + "\" value=\"setA\" /><br />" );
+		buffer.append( "Argument type: <input type=\"text\" name=\"" + ARGUMENT_TYPE + "\" value=\"java.lang.String\" />" );
 		buffer.append( "<input type=\"submit\" value=\"Submit\" />" );
 		buffer.append( "</form>" );
 		buffer.append( "</body></html>" );
@@ -222,18 +223,24 @@ public class RestfulDiffuserManagerResource {
 		return buffer.toString();
 	}
 	
+	// TODO have to add the object representation...probably this will only work 
+	// from the non-form version
 	@POST @Path( "{" + SIGNATURE + "}" + DIFFUSER_EXECUTE + DIFFUSER_FORM )
 	@Consumes( MediaType.APPLICATION_FORM_URLENCODED )
 	@Produces( MediaType.TEXT_HTML )
 	public String executeDiffuserFromForm( @PathParam( SIGNATURE ) final String signature,
-										   @FormParam( ARGUMENT_VALUES ) final String value )
+										   @FormParam( ARGUMENT_VALUES ) final String values )
 	{
 		// parse the signature into its parts so that we can call the diffuser
 		final DiffuserId diffuserId = DiffuserId.parse( signature );
 		final List< String > argumentTypes = diffuserId.getArgumentTypes();
 		
 		// split the argument values
-		final List< String > argumentValues = Arrays.asList( value.split( Pattern.quote( "," ) ) );
+		final List< String > argumentValues = new ArrayList<>();
+		if( !values.isEmpty() )
+		{
+			argumentValues.addAll( Arrays.asList( values.split( Pattern.quote( "," ) ) ) );
+		}
 		
 		// ensure that for each argument type, there is an argument value
 		final StringBuffer buffer = new StringBuffer();
@@ -246,13 +253,27 @@ public class RestfulDiffuserManagerResource {
 				buffer.append( "<p>" + argumentTypes.get( i ) + " = " + argumentValues.get( i ) + "</p>" );
 			}
 
-			// grab the diffuser based on the signature
-			final RestfulDiffuser diffuser = diffusers.get( signature );
-//			diffuser.runObject( object, methodName, arguments );
+			// grab the class name and the method name and create instantiate the object
+			try
+			{
+				final String className = diffuserId.getClassName();
+				final Class< ? > clazz = Class.forName( className );		// can also specify the class loader, which we may have to do
+				final Object object = clazz.newInstance();
+				
+				// grab the diffuser based on the signature
+				final RestfulDiffuser diffuser = diffusers.get( signature );
+				final Object result = diffuser.runObject( object, diffuserId.getMethodName(), argumentValues.toArray( new Object[ 0 ] ) );
+				
+				buffer.append( "<p>Result: " + result );
+			}
+			catch( ClassNotFoundException | InstantiationException | IllegalAccessException e )
+			{
+				throw new IllegalArgumentException( "class not found or couldn't be instantiated", e );
+			}
 		}
 		else
 		{
-			buffer.append( "The number argument types and values do not match." );
+			buffer.append( "The number argument types (" + argumentTypes.size() + ") and values (" + argumentValues.size() + ") do not match." );
 		}
 		buffer.append( "</body></html>" );
 		return buffer.toString();
