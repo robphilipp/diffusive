@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-
 public class RestfulDiffuserApplication extends Application {
 
 	private Set< Object > singletonResources;

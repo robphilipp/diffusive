@@ -1,4 +1,4 @@
-package org.microtitan.diffusive.diffuser.restful;
+package org.microtitan.diffusive.diffuser.restful.xml;
 
 import java.net.URI;
 

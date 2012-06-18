@@ -9,6 +9,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.freezedry.persistence.utils.Constants;
+import org.microtitan.diffusive.diffuser.restful.xml.ClassNameAdapter;
+import org.microtitan.diffusive.diffuser.restful.xml.ClassNameListAdapter;
+import org.microtitan.diffusive.diffuser.restful.xml.SerializerNameAdapter;
+import org.microtitan.diffusive.diffuser.restful.xml.UriListAdapter;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 
 @XmlRootElement
