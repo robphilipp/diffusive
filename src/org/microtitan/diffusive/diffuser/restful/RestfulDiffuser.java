@@ -38,6 +38,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 //		// TODO Auto-generated method stub
 //		// add the jersey client stuff in here...create a calculator, send the object to the calculator
 //		return buffer.toString();
+		// TODO need to figure out how to know if this is supposed to go out to an endpoint, or if it
+		// is now at the endpoint and needs to run locally.
 		return new LocalDiffuser().runObject( object, methodName, arguments );
 	}
 	
