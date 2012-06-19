@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.nio.CharBuffer;
@@ -29,6 +30,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBElement;
 
 import org.apache.abdera.Abdera;
+import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.log4j.Level;
@@ -194,7 +196,7 @@ public class RestfulDiffuserManagerResource {
 //	}
 
 	@GET
-	@Produces( MediaType.APPLICATION_XML )
+	@Produces( MediaType.APPLICATION_ATOM_XML )
 	public Response getDiffuserList( @Context final UriInfo uriInfo )
 	{
 		// grab the base URI builder for absolute paths and build the base URI
@@ -234,7 +236,9 @@ public class RestfulDiffuserManagerResource {
 		
 		final Response response = Response.created( baseUriBuilder.build() )
 				  .status( Status.OK )
+				  .location( baseUri )
 				  .entity( feed.toString() )
+				  .type( MediaType.APPLICATION_ATOM_XML )
 				  .build();
 		
 		return response;
@@ -373,30 +377,58 @@ public class RestfulDiffuserManagerResource {
 	public static void main( String[] args )
 	{
 		DOMConfigurator.configure( "log4j.xml" );
-		Logger.getRootLogger().setLevel( Level.DEBUG );
+//		Logger.getRootLogger().setLevel( Level.DEBUG );
 
+		// atom parser/create
+		final Abdera abdera = AbderaFactory.getInstance();
+
+		//
+		// create a diffuser
+		//
 		final Client client = Client.create();
 		WebResource resource = client.resource( "http://localhost:8182/diffusers" );
 		
 		final DiffuserCreateRequest request = DiffuserCreateRequest.create( Bean.class.getName(), "getA" );
-//		String response = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( String.class, request );
-		try( InputStream response = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( InputStream.class, request ) )
+		final ClientResponse createDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( ClientResponse.class, request );
+		try( InputStream response = createDiffuserResponse.getEntity( InputStream.class ) )
 		{
-			final BufferedReader reader = new BufferedReader( new InputStreamReader( response ) );
-			final StringBuffer buffer = new StringBuffer();
-			String line;
-			while( ( line = reader.readLine() ) != null )
+			final Document< Feed > document = abdera.getParser().parse( response );
+			final Feed feed = document.getRoot();
+			System.out.println( feed.getTitle() );
+			System.out.println( feed.getLink( "self" ) );
+			for( Entry entry : feed.getEntries() )
 			{
-				buffer.append( line );
+				System.out.println( "\t" + entry.getTitle() );
+				System.out.println( "\t" + entry.getLink( "self" ) );
 			}
-			System.out.println( buffer.toString() );
+			System.out.println( feed.getAuthor() );
 		}
 		catch( IOException e )
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-//		Abdera abdera = AbderaFactory.getInstance();
+		
+		//
+		// list the diffusers
+		//
+		final ClientResponse listDiffusersResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
+		try( InputStream response = listDiffusersResponse.getEntity( InputStream.class ) )
+		{
+			final Document< Feed > document = abdera.getParser().parse( response );
+			final Feed feed = document.getRoot();
+			System.out.println( feed.getTitle() );
+			System.out.println( feed.getLink( "self" ) );
+			for( Entry entry : feed.getEntries() )
+			{
+				System.out.println( "\t" + entry.getTitle() );
+				System.out.println( "\t" + entry.getLink( "self" ) );
+			}
+			System.out.println( feed.getAuthor() );
+		}
+		catch( IOException e )
+		{
+			e.printStackTrace();
+		}
+		
 	}
 }
