@@ -1,9 +1,17 @@
 package org.microtitan.diffusive.diffuser.restful;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.net.URI;
+import java.nio.CharBuffer;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,25 +26,26 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBElement;
 
+import org.apache.abdera.Abdera;
+import org.apache.abdera.model.Entry;
+import org.apache.abdera.model.Feed;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.freezedry.persistence.readers.ReaderInputStream;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
+import org.microtitan.diffusive.tests.Bean;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 
 @Path( "/diffusers" )
 public class RestfulDiffuserManagerResource {
 
 	static final Logger LOGGER = Logger.getLogger( RestfulDiffuserManagerResource.class );
-	
-	// resource paths
-	private static final String	DIFFUSER = "/diffusers";
-//	private static final String DIFFUSER_CREATE = "/create";
-//	private static final String DIFFUSER_FORM = "/form";
-//	private static final String DIFFUSER_LIST = "/list";
-//	private static final String DIFFUSER_EXECUTE = "/execute";
-//	private static final String DIFFUSER_DELETE = "/delete";
-//	private static final String DIFFUSER_GET = "/get";
 	
 	// parameters for creating a diffuser
 	public static final String SERIALIZER_NAME = "serializer_name";
@@ -50,53 +59,14 @@ public class RestfulDiffuserManagerResource {
 	public static final String ARGUMENT_VALUES = "argument_values";
 	
 	private Map< String, RestfulDiffuser > diffusers;
-	private URI baseUri;
-	
-	private final UriBuilder listUriBuilder;
-	
-//	private Serializer serializer;
-//	private List< URI > clientEndpoints;
-//	
-//	public RestfulDiffuserManagerResource( final Serializer serializer, final List< URI > clientEndpoints )
-//	{
-//		if( clientEndpoints == null )
-//		{
-//			this.clientEndpoints = new ArrayList<>();
-//		}
-//		else
-//		{
-//			this.clientEndpoints = clientEndpoints;
-//		}
-//		
-//		Require.notNull( serializer );
-//		this.serializer = serializer;
-//	}
-	
-	public RestfulDiffuserManagerResource( final URI baseUri )
+
+	/**
+	 * 
+	 * @param baseUri
+	 */
+	public RestfulDiffuserManagerResource()
 	{
 		diffusers = new HashMap<>();
-		this.baseUri = createBaseUri( baseUri );
-		
-		this.listUriBuilder = createDiffuserListBuilder();
-	}
-	
-	private static UriBuilder createDiffuserListBuilder()
-	{
-		final UriBuilder builder = UriBuilder.fromResource( RestfulDiffuserManagerResource.class )
-				 .host( "{hostname}" )
-				 .path( RestfulDiffuserManagerResource.class, "getDiffuserList" );
-		
-		return builder;
-	}
-	
-	/**
-	 * Constructs the base URI from which all the resource URIs start
-	 * @param uri The base URI to which we add {@link #DIFFUSER} (={@value #DIFFUSER}) to the end
-	 * @return The base URI 
-	 */
-	private static URI createBaseUri( final URI uri )
-	{
-		return UriBuilder.fromUri( uri ).path( DIFFUSER ).build();
 	}
 	
 	/*
@@ -122,78 +92,15 @@ public class RestfulDiffuserManagerResource {
 		final String key = DiffuserId.create( containingClassName, methodName, argumentTypes );
 
 		// add the diffuser to the map of diffusers
-		final RestfulDiffuser oldDiffuser = diffusers.put( key, diffuser );
+		/*final RestfulDiffuser oldDiffuser = */diffusers.put( key, diffuser );
 
 		return key;
-		
-//		DiffuserCreateRequest request = requestElement.getValue();
-		
-//		// create the new diffuser and pass back the link to this new resource.
-//		final RestfulDiffuser diffuser = new RestfulDiffuser( request.getSerializer(), request.getClientEndpoints() );
-//		
-//		// create the name/id for the diffuser
-//		final StringBuffer buffer = new StringBuffer();
-//		buffer.append( request.getContainingClass().getName() + "." );
-//		buffer.append( request.getMethodName() + ":" );
-//		for( Class< ? > type : request.getArgumentTypes() )
-//		{
-//			buffer.append( type.getName() + ";" );
-//		}
-//
-//		final String key = buffer.toString();
-//		final RestfulDiffuser oldDiffuser = diffusers.put( key, diffuser );
-		
-//		DiffuserCreateResponse response = new DiffuserCreateResponse();
-//		response.status( Status.CREATED );
-//		response.
-		
-//		return new JAXBElement< DiffuserCreateResponse >( null, DiffuserCreateResponse.class, response );
-//		final Response response = Response.created( URI.create( "http://localhost:8182/diffuser/" + classDef ) )
-//										  .status( Status.CREATED )
-//										  .entity( classDef )
-//										  .build();
-//		return response;
-	}
-
-	/*
-	 * Constructs the URI for the diffuser with the specified base URI and specified key
-	 * @param baseUri The base URI from which the diffuser was created
-	 * @param key The key representing the diffuser
-	 * @return The URI for the diffuser
-	 */
-	private static URI createDiffuserUri( final URI baseUri, final String key )
-	{
-		return UriBuilder.fromUri( baseUri ).path( key ).build();
 	}
 	
-	/**
-	 * 
-	 * @param request
-	 * @return
-	 */
-//	@POST @Path( DIFFUSER_CREATE )
-//	@Produces( MediaType.TEXT_HTML )
-//	@Consumes( MediaType.APPLICATION_FORM_URLENCODED )
-//	public Response createDiffuserFromForm( @FormParam( SERIALIZER_NAME ) final String serializerName,
-//											@FormParam( CLIENT_ENDPOINT ) final String clientEndpoint,
-//											@FormParam( CLASS_NAME ) final String containingClassName,
-//											@FormParam( METHOD_NAME ) final String methodName,
-//											@FormParam( ARGUMENT_TYPE ) final String argType )
-//	{
-//		// create the diffuser
-//		final Serializer serializer = SerializerFactory.getInstance().createSerializer( serializerName );
-//		final List< URI > clientEndpoints = Arrays.asList( URI.create( clientEndpoint ) );
-//		final List< String > arguments = Arrays.asList( argType );
-//		final String key = createDiffuser( serializer, clientEndpoints, containingClassName, methodName, arguments );
-//
-//		// moves the user to the list of diffusers (navigation shouldn't be here)
-//		return getDiffuserListAsForm();
-//	}
-	
-	@PUT //@Path( DIFFUSER_CREATE )
+	@PUT
 	@Consumes( MediaType.APPLICATION_XML )
-	@Produces( MediaType.APPLICATION_XML )
-	public Response createDiffuser( final DiffuserCreateRequest request )
+	@Produces( MediaType.APPLICATION_ATOM_XML )
+	public Response createDiffuser( @Context final UriInfo uriInfo, final DiffuserCreateRequest request )
 	{
 		// create the diffuser
 		final String key = createDiffuser( request.getSerializer(), 
@@ -202,54 +109,33 @@ public class RestfulDiffuserManagerResource {
 										   request.getMethodName(), 
 										   request.getArgumentTypes() );
 
+		// create the URI to the newly created diffuser
+		final URI diffuserUri = uriInfo.getAbsolutePathBuilder().path( key ).build();
 		
-		final URI diffuserUri = createDiffuserUri( baseUri, key );
+		// grab the date for time stamp
+		final Date date = new Date();
+		
+		// create the atom feed
+		final Abdera abdera = AbderaFactory.getInstance();
+		final Feed feed = abdera.newFeed();
+		feed.setId( "tag:" + diffuserUri.getHost() + "," + UUID.randomUUID() + ":" + diffuserUri.getPath() );
+		feed.setTitle( "RESTful Diffuser" );
+		feed.setSubtitle( "Create" );
+		feed.setUpdated( date );
+		feed.addAuthor( "Diffusive by microTITAN" );
+		feed.addLink( diffuserUri.toString(), "self" );
+		feed.complete();
+		
+		// create the response
 		final Response response = Response.created( diffuserUri )
 										  .status( Status.OK )
-										  .entity( diffuserUri )
+										  .location( diffuserUri )
+										  .entity( feed.toString() )
+										  .type( MediaType.APPLICATION_ATOM_XML )
 										  .build();
 
 		return response;
 	}
-	
-//	@GET @Path( DIFFUSER_CREATE + DIFFUSER_FORM )
-//	@Consumes( MediaType.APPLICATION_XML )
-//	@Produces( MediaType.TEXT_HTML )
-//	public String createCreateDiffuserForm()
-//	{
-//		final StringBuffer buffer = new StringBuffer();
-//		buffer.append( "<html><body>" );
-//		buffer.append( "<h1>Create Diffuser</h1>" );
-//		final String formUri = UriBuilder.fromUri( baseUri ).path( DIFFUSER_CREATE ).build().toString();
-//		buffer.append( "<form name=\"input\" method=\"post\" action=\"" + formUri + "\" >" );
-//		buffer.append( "Serializer name: <input type=\"text\" name=\"" + SERIALIZER_NAME + "\" value=\"persistence_xml\" /><br />" );
-//		buffer.append( "Client Endpoint: <input type=\"text\" name=\"" + CLIENT_ENDPOINT + "\" value=\"http://localhost:8183/diffusers\" /><br />" );
-//		buffer.append( "Class name: <input type=\"text\" name=\"" + CLASS_NAME + "\" value=\"org.microtitan.diffusive.tests.Bean\" /><br />" );
-//		buffer.append( "Method name: <input type=\"text\" name=\"" + METHOD_NAME + "\" value=\"setA\" /><br />" );
-//		buffer.append( "Argument type: <input type=\"text\" name=\"" + ARGUMENT_TYPE + "\" value=\"java.lang.String\" />" );
-//		buffer.append( "<input type=\"submit\" value=\"Submit\" />" );
-//		buffer.append( "</form>" );
-//		buffer.append( "</body></html>" );
-//		return buffer.toString();
-//	}
-	
-//	@GET @Path( "{" + SIGNATURE + "}" + DIFFUSER_EXECUTE + DIFFUSER_FORM )
-//	@Consumes( MediaType.APPLICATION_XML )
-//	@Produces( MediaType.TEXT_HTML )
-//	public String createExecuteDiffuserForm( @PathParam( SIGNATURE ) final String signature )
-//	{
-//		final StringBuffer buffer = new StringBuffer();
-//		buffer.append( "<html><body>" );
-//		buffer.append( "<h1>Execute Diffuser: " + signature + "</h1>" );
-//		final String formUri = UriBuilder.fromUri( baseUri ).path( signature ).path( DIFFUSER_EXECUTE ).path( DIFFUSER_FORM ).build().toString();
-//		buffer.append( "Arguments:" );
-//		buffer.append( "<form name=\"input\" method=\"post\" action=\"" + formUri + "\" >" );
-//		buffer.append( "Argument Values: <input type=\"text\" name=\"" + ARGUMENT_VALUES + "\" value=\"test\" />" );
-//		buffer.append( "<input type=\"submit\" value=\"Submit\" />" );
-//		buffer.append( "</form>" );
-//		buffer.append( "</body></html>" );
-//		return buffer.toString();
-//	}
 	
 	// TODO have to add the object representation...probably this will only work 
 	// from the non-form version
@@ -309,22 +195,47 @@ public class RestfulDiffuserManagerResource {
 
 	@GET
 	@Produces( MediaType.APPLICATION_XML )
-	public Response getDiffuserList( @Context UriInfo uriInfo )
+	public Response getDiffuserList( @Context final UriInfo uriInfo )
 	{
-		final StringBuffer buffer = new StringBuffer();
-		buffer.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );
-		buffer.append( "<diffusers>" );
+		// grab the base URI builder for absolute paths and build the base URI
+		final UriBuilder baseUriBuilder = uriInfo.getAbsolutePathBuilder();
+		final URI baseUri = baseUriBuilder.build();
+
+		// grab the date for time stamp
+		final Date date = new Date();
+		
+		// create the atom feed
+		final Abdera abdera = AbderaFactory.getInstance();
+		final Feed feed = abdera.newFeed();
+		feed.setId( "tag:" + baseUri.getHost() + "," + UUID.randomUUID() + ":" + baseUri.getPath() );
+		feed.setTitle( "RESTful Diffusers" );
+		feed.setSubtitle( "List" );
+		feed.setUpdated( date );
+		feed.addAuthor( "Diffusive by microTITAN" );
+		feed.addLink( baseUri.toString(), "self" );
+
+		// add an entry for each diffuser
 		for( Map.Entry< String, RestfulDiffuser > entry : diffusers.entrySet() )
 		{
-//			final UriBuilder builder = listUriBuilder.clone().build( uriInfo. );
-			buffer.append( "<link>" + createDiffuserUri( baseUri, entry.getKey() ) + "</link>" );
+			// grab the key for the diffuser
+			final String key = entry.getKey();
+			
+			// create URI that links to the diffuser
+			final URI diffuserUri = baseUriBuilder.clone().path( entry.getKey() ).build();
+
+			final Entry feedEntry = feed.addEntry();
+			feedEntry.setId( "tag:" + diffuserUri.getHost() + "," + UUID.randomUUID() + ":" + diffuserUri.getPath() );
+			feedEntry.setTitle( key );
+			feedEntry.setSummaryAsHtml( "<p>RESTful Diffuser for: " + key + "</p>" );
+			feedEntry.setUpdated( date );
+			feedEntry.setPublished( date );
+			feedEntry.addLink( diffuserUri.toString(), "self" );
 		}
-		buffer.append( "</diffusers>" );
 		
-		final Response response = Response.created( baseUri )
-										  .status( Status.OK )
-										  .entity( buffer.toString() )
-										  .build();
+		final Response response = Response.created( baseUriBuilder.build() )
+				  .status( Status.OK )
+				  .entity( feed.toString() )
+				  .build();
 		
 		return response;
 	}
@@ -429,11 +340,14 @@ public class RestfulDiffuserManagerResource {
 //		return response;
 //	}
 
-	@DELETE @Path( "{" + SIGNATURE + "}" /*+ DIFFUSER_DELETE*/ )
+	@DELETE @Path( "{" + SIGNATURE + "}" )
 	@Consumes( MediaType.APPLICATION_XML )
 	@Produces( MediaType.APPLICATION_XML )
-	public Response deleteDiffuser( @PathParam( SIGNATURE ) final String signature )
+	public Response deleteDiffuser( @Context final UriInfo uriInfo, @PathParam( SIGNATURE ) final String signature )
 	{
+		// create the URI to the newly created diffuser
+		final URI baseUri = uriInfo.getAbsolutePathBuilder().build();
+		
 		final StringBuffer buffer = new StringBuffer();
 		buffer.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );
 		buffer.append( "<diffuser>" + signature + "</diffuser>" );
@@ -461,11 +375,28 @@ public class RestfulDiffuserManagerResource {
 		DOMConfigurator.configure( "log4j.xml" );
 		Logger.getRootLogger().setLevel( Level.DEBUG );
 
-		System.out.println( DiffuserId.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
-		System.out.println( DiffuserId.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
-		System.out.println( DiffuserId.parse( "java.lang.String:concat()" ).toString() );
-		System.out.println( DiffuserId.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
-		System.out.println( DiffuserId.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
-//		System.out.println( DiffuserId.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
+		final Client client = Client.create();
+		WebResource resource = client.resource( "http://localhost:8182/diffusers" );
+		
+		final DiffuserCreateRequest request = DiffuserCreateRequest.create( Bean.class.getName(), "getA" );
+//		String response = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( String.class, request );
+		try( InputStream response = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( InputStream.class, request ) )
+		{
+			final BufferedReader reader = new BufferedReader( new InputStreamReader( response ) );
+			final StringBuffer buffer = new StringBuffer();
+			String line;
+			while( ( line = reader.readLine() ) != null )
+			{
+				buffer.append( line );
+			}
+			System.out.println( buffer.toString() );
+		}
+		catch( IOException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+//		Abdera abdera = AbderaFactory.getInstance();
 	}
 }

@@ -177,4 +177,13 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		}
 		return buffer.toString();
 	}
+	
+	public static void main( String[] args )
+	{
+		System.out.println( DiffuserId.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
+		System.out.println( DiffuserId.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
+		System.out.println( DiffuserId.parse( "java.lang.String:concat()" ).toString() );
+		System.out.println( DiffuserId.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
+		System.out.println( DiffuserId.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
+	}
 }

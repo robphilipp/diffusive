@@ -10,26 +10,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.freezedry.persistence.utils.Constants;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
+import org.microtitan.diffusive.diffuser.serializer.SerializerFactory.SerializerType;
 
 @XmlRootElement
 public class DiffuserCreateRequest {
 	
-	@XmlElement
 	private String containingClassName;
 	
-	@XmlElement
 	private String methodName;
 	
-	@XmlElement
 	private List< String > argumentTypes;
 	
-	@XmlElement
 	private List< String > classPaths;
 	
-	@XmlElement
 	private String serializerType;
 	
-	@XmlElement
 	private List< String > clientEndpoints;
 
 	/**
@@ -49,8 +44,23 @@ public class DiffuserCreateRequest {
 	{
 		this.containingClassName = className;
 		this.methodName = methodName;
-		this.argumentTypes = argumentTypes;
-		this.classPaths = classPaths;
+		this.argumentTypes = (argumentTypes == null ? new ArrayList< String >() : argumentTypes );
+		this.classPaths = (classPaths == null ? new ArrayList< String >() : classPaths );
+		this.serializerType = ( serializerType == null || serializerType.isEmpty() ? SerializerType.PERSISTENCE_XML.getName() : serializerType );
+		this.clientEndpoints = (clientEndpoints == null ? new ArrayList< String >() : clientEndpoints );
+	}
+	
+	public DiffuserCreateRequest()
+	{
+		this( "", "", null, null, null, null );
+	}
+	
+	public static DiffuserCreateRequest create( final String className, final String methodName )
+	{
+		final DiffuserCreateRequest request = new DiffuserCreateRequest();
+		request.setContainingClass( className )
+			   .setMethodName( methodName );
+		return request;
 	}
 	
 	public String getContainingClass()

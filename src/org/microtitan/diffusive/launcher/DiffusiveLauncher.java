@@ -269,10 +269,11 @@ public class DiffusiveLauncher {
 		// TODO this needs to be set up through a configuration or programatically. Probably best through a RESTfulDiffusiveLauncher,
 		// a LocalDiffusiveLauncher, a NullDiffusiveLauncher, etc..
 		// run and set up the local RESTful Diffuser server
-		final URI serverUri = URI.create( "http://localhost:8182/" );
-		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( serverUri );
+		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
 		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
 		application.addSingletonResource( resource );
+
+		final URI serverUri = URI.create( "http://localhost:8182/" );
 		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
 		
 		// TODO have the configuration code (currently in BeanTest) inserted into the main of the class-to-run
