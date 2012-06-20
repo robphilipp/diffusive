@@ -29,7 +29,7 @@ public class ClassNameListAdapter extends XmlAdapter< List< String >, List< Clas
 	 * @see javax.xml.bind.annotation.adapters.XmlAdapter#marshal(java.lang.Object)
 	 */
 	@Override
-	public List< String > marshal( final List< Class< ? > > classes ) throws Exception
+	public List< String > marshal( final List< Class< ? > > classes )
 	{
 		final List< String > nameList = new ArrayList<>();
 		for( Class< ? > clazz : classes )

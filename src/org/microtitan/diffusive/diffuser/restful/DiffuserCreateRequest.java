@@ -2,6 +2,7 @@ package org.microtitan.diffusive.diffuser.restful;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -55,11 +56,12 @@ public class DiffuserCreateRequest {
 		this( "", "", null, null, null, null );
 	}
 	
-	public static DiffuserCreateRequest create( final String className, final String methodName )
+	public static DiffuserCreateRequest create( final String className, final String methodName, final String...argumentTypes )
 	{
 		final DiffuserCreateRequest request = new DiffuserCreateRequest();
 		request.setContainingClass( className )
-			   .setMethodName( methodName );
+			   .setMethodName( methodName )
+			   .setArgumentTypes( Arrays.asList( argumentTypes ) );
 		return request;
 	}
 	

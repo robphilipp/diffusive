@@ -63,6 +63,16 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		return create( className, methodName, argumentTypes );
 	}
 	
+	public static String create( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	{
+		final List< String > argumentTypeNames = new ArrayList<>();
+		for( Class< ? > argType : argumentTypes )
+		{
+			argumentTypeNames.add( argType.getName() );
+		}
+		return DiffuserId.create( clazz.getName(), methodName, argumentTypeNames );
+	}
+	
 	public static String create( final String containingClassName, final String methodName, final List< String > argumentTypes )
 	{
 		// create the name/id for the diffuser

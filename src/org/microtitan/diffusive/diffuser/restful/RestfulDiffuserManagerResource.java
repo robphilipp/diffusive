@@ -1,13 +1,6 @@
 package org.microtitan.diffusive.diffuser.restful;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
-import java.nio.CharBuffer;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,23 +20,22 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBElement;
 
 import org.apache.abdera.Abdera;
-import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.freezedry.persistence.readers.ReaderInputStream;
+import org.microtitan.diffusive.diffuser.restful.test.RestfulDiffuserManagerClient;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
-import org.microtitan.diffusive.tests.Bean;
+import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-
+/**
+ * Use the {@link RestfulDiffuserManagerClient} for testing this resource against the server, which is
+ * either started with the {@link DiffusiveLauncher} or the {@link RestfulDiffuserServer}.
+ * 
+ * @author rob
+ *
+ */
 @Path( "/diffusers" )
 public class RestfulDiffuserManagerResource {
 
@@ -244,6 +236,59 @@ public class RestfulDiffuserManagerResource {
 		return response;
 	}
 	
+	@DELETE @Path( "{" + SIGNATURE + "}" )
+	@Produces( MediaType.APPLICATION_ATOM_XML )
+	public Response deleteDiffuser( @Context final UriInfo uriInfo, @PathParam( SIGNATURE ) final String signature )
+	{
+		// create the URI to the newly created diffuser
+		final URI diffuserUri = uriInfo.getAbsolutePathBuilder().build();
+
+		// create the Atom parser/generator 
+		final Abdera abdera = AbderaFactory.getInstance();
+
+		// grab the date for time stamp
+		final Date date = new Date();
+
+		Response response = null;
+		if( diffusers.containsKey( signature ) )
+		{
+			diffusers.remove( signature );
+			
+			// create the atom feed
+			final Feed feed = abdera.newFeed();
+			feed.setId( "tag:" + diffuserUri.getHost() + "," + UUID.randomUUID() + ":" + diffuserUri.getPath() );
+			feed.setTitle( "RESTful Diffuser" );
+			feed.setSubtitle( "Deleted" );
+			feed.setUpdated( date );
+			feed.addAuthor( "Diffusive by microTITAN" );
+			feed.complete();
+			
+			// create the response
+			response = Response.created( diffuserUri )
+							   .status( Status.OK )
+							   .location( diffuserUri )
+							   .entity( feed.toString() )
+							   .type( MediaType.APPLICATION_ATOM_XML )
+							   .build();
+		}
+		else
+		{
+			final Feed feed = abdera.newFeed();
+			feed.setId( "tag:" + diffuserUri.getHost() + "," + UUID.randomUUID() + ":" + diffuserUri.getPath() );
+			feed.setTitle( "Failed to Delete RESTful Diffuser" );
+			feed.setSubtitle( signature );
+			feed.setUpdated( date );
+			feed.addAuthor( "Diffusive by microTITAN" );
+			feed.complete();
+
+			response = Response.created( diffuserUri )
+							   .status( Status.BAD_REQUEST )
+							   .entity( feed.toString() )
+							   .build();
+		}
+		return response;
+	}
+	
 //	@GET @Path( "{" + SIGNATURE + "}" )
 //	@Consumes( MediaType.APPLICATION_XML )
 //	@Produces( MediaType.APPLICATION_XML )
@@ -344,91 +389,4 @@ public class RestfulDiffuserManagerResource {
 //		return response;
 //	}
 
-	@DELETE @Path( "{" + SIGNATURE + "}" )
-	@Consumes( MediaType.APPLICATION_XML )
-	@Produces( MediaType.APPLICATION_XML )
-	public Response deleteDiffuser( @Context final UriInfo uriInfo, @PathParam( SIGNATURE ) final String signature )
-	{
-		// create the URI to the newly created diffuser
-		final URI baseUri = uriInfo.getAbsolutePathBuilder().build();
-		
-		final StringBuffer buffer = new StringBuffer();
-		buffer.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );
-		buffer.append( "<diffuser>" + signature + "</diffuser>" );
-
-		Response response = null;
-		if( diffusers.containsKey( signature ) )
-		{
-			diffusers.remove( signature );
-			response = Response.created( baseUri )
-							   .status( Status.OK )
-							   .contentLocation( baseUri )//UriBuilder.fromUri( baseUri ).path( DIFFUSER_LIST ).build() )
-							   .entity( buffer.toString() )
-							   .build();
-		}
-		else
-		{
-			buffer.append( "<message>failed</message>" );
-			response = Response.created( baseUri ).status( Status.BAD_REQUEST ).entity( buffer.toString() ).build();
-		}
-		return response;
-	}
-	
-	public static void main( String[] args )
-	{
-		DOMConfigurator.configure( "log4j.xml" );
-//		Logger.getRootLogger().setLevel( Level.DEBUG );
-
-		// atom parser/create
-		final Abdera abdera = AbderaFactory.getInstance();
-
-		//
-		// create a diffuser
-		//
-		final Client client = Client.create();
-		WebResource resource = client.resource( "http://localhost:8182/diffusers" );
-		
-		final DiffuserCreateRequest request = DiffuserCreateRequest.create( Bean.class.getName(), "getA" );
-		final ClientResponse createDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( ClientResponse.class, request );
-		try( InputStream response = createDiffuserResponse.getEntity( InputStream.class ) )
-		{
-			final Document< Feed > document = abdera.getParser().parse( response );
-			final Feed feed = document.getRoot();
-			System.out.println( feed.getTitle() );
-			System.out.println( feed.getLink( "self" ) );
-			for( Entry entry : feed.getEntries() )
-			{
-				System.out.println( "\t" + entry.getTitle() );
-				System.out.println( "\t" + entry.getLink( "self" ) );
-			}
-			System.out.println( feed.getAuthor() );
-		}
-		catch( IOException e )
-		{
-			e.printStackTrace();
-		}
-		
-		//
-		// list the diffusers
-		//
-		final ClientResponse listDiffusersResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
-		try( InputStream response = listDiffusersResponse.getEntity( InputStream.class ) )
-		{
-			final Document< Feed > document = abdera.getParser().parse( response );
-			final Feed feed = document.getRoot();
-			System.out.println( feed.getTitle() );
-			System.out.println( feed.getLink( "self" ) );
-			for( Entry entry : feed.getEntries() )
-			{
-				System.out.println( "\t" + entry.getTitle() );
-				System.out.println( "\t" + entry.getLink( "self" ) );
-			}
-			System.out.println( feed.getAuthor() );
-		}
-		catch( IOException e )
-		{
-			e.printStackTrace();
-		}
-		
-	}
 }

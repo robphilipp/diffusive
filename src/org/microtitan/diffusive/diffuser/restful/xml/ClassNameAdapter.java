@@ -23,7 +23,7 @@ public class ClassNameAdapter extends XmlAdapter< String, Class< ? > > {
 	 * @see javax.xml.bind.annotation.adapters.XmlAdapter#marshal(java.lang.Object)
 	 */
 	@Override
-	public String marshal( final Class< ? > clazz ) throws Exception
+	public String marshal( final Class< ? > clazz )
 	{
 		return clazz.getName();
 //		return URLEncoder.encode( clazz.getName(), "utf-8" );
