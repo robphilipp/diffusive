@@ -7,15 +7,23 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.containers.Pair;
+import org.microtitan.diffusive.diffuser.serializer.Serializer;
+import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 
 @XmlRootElement
 public class ExecuteDiffuserRequest {
 
 	private List< String > argumentTypes;
 	private List< byte[] > argumentValues;
+	private String serializedObjectType;
 	private byte[] serializedObject;
+	private String serializerType;
 	
-	public ExecuteDiffuserRequest( final List< String> argumentTypes, final List< byte[] > argumentValues, final byte[] serializedObject )
+	public ExecuteDiffuserRequest( final List< String> argumentTypes, 
+								   final List< byte[] > argumentValues, 
+								   final byte[] serializedObject,
+								   final String serializedObjectType,
+								   final String serializerType )
 	{
 		if( argumentTypes.size() != argumentValues.size() )
 		{
@@ -30,6 +38,8 @@ public class ExecuteDiffuserRequest {
 		this.argumentTypes = argumentTypes;
 		this.argumentValues = argumentValues;
 		this.serializedObject = serializedObject;
+		this.serializedObjectType = serializedObjectType;
+		this.serializerType = serializerType;
 	}
 	
 //	public void setArguments( final List< String> argumentTypes, final List< byte[] > argumentValues )
@@ -53,10 +63,11 @@ public class ExecuteDiffuserRequest {
 //		}
 //	}
 	
-	public void addArgument( final String key, final byte[] value )
+	public ExecuteDiffuserRequest addArgument( final String key, final byte[] value )
 	{
 		argumentTypes.add( key );
 		argumentValues.add( value );
+		return this;
 	}
 	
 	public List< Pair< String, byte[] > > getArguments()
@@ -79,13 +90,37 @@ public class ExecuteDiffuserRequest {
 		return argumentValues;
 	}
 	
-	public void setObject( final byte[] serializedObject )
+	public ExecuteDiffuserRequest setObject( final String objectType, final byte[] serializedObject )
 	{
-		this.serializedObject = serializedObject; 
+		this.serializedObjectType = objectType;
+		this.serializedObject = serializedObject;
+		return this;
 	}
 	
 	public byte[] getObject()
 	{
 		return serializedObject;
 	}
+	
+	public String getObjectType()
+	{
+		return serializedObjectType;
+	}
+	
+	public ExecuteDiffuserRequest setSerializerType( final String serializerType )
+	{
+		this.serializerType = serializerType;
+		return this;
+	}
+	
+	public String getSerializerType()
+	{
+		return serializerType;
+	}
+	
+	public Serializer getSerializer()
+	{
+		return SerializerFactory.getInstance().createSerializer( serializerType );
+	}
+	
 }

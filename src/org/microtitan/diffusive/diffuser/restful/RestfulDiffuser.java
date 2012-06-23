@@ -28,6 +28,10 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		this.clientEndpoints = clientEndpoints;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(java.lang.Object, java.lang.String, java.lang.Object[])
+	 */
 	@Override
 	public Object runObject( final Object object, final String methodName, final Object... arguments )
 	{

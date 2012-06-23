@@ -1,6 +1,11 @@
 package org.microtitan.diffusive.diffuser.restful;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -202,14 +207,109 @@ public class RestfulDiffuserManagerResource {
 			{
 				message.append( "  (" + argumentTypes.get( i ) + ", " + requestArgTypes.get( i ) + ")" + Constants.NEW_LINE );
 			}
+			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
 
+		// grab the serializer for used for the argument and the object 
+		final Serializer serializer = request.getSerializer();
+
 		// deserialize the arguments
+		final List< ? super Object > arguments = new ArrayList<>();
+		final List< byte[] > argumentValues = request.getArgumentValues();
+		for( int i = 0; i < argumentValues.size(); ++i )
+		{
+			try
+			{
+				// create an input stream from the byte array
+				final InputStream input = new ByteArrayInputStream( argumentValues.get( i ) );
+
+				// create the Class object for the argument type (specified as a string)
+				final Class< ? > clazz = Class.forName( argumentTypes.get( i ) );
+
+				// deserialize and add to the list of value objects
+				arguments.add( serializer.deserialize( input, clazz ) );
+			}
+			catch( ClassNotFoundException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Error occured while attempting to deserialize the method's arguments. The Class for the argument's type not found." + Constants.NEW_LINE );
+				message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+				message.append( "  Argument Number: " + i + Constants.NEW_LINE );
+				message.append( "  Argument Type: " + argumentTypes.get( i ) + Constants.NEW_LINE );
+				LOGGER.error( message.toString() );
+				throw new IllegalArgumentException( message.toString() );
+			}
+		}
+	
+		// deserialize the object, but first ensure that the class type for the object specified in
+		// the request and the path signature are the same.
+		final String objectType = request.getObjectType();
+		if( !objectType.equals( diffuserId.getClassName() ) )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error occured while attempting to deserialize the object. The object's type specified in the request" + Constants.NEW_LINE );
+			message.append( "does not match the object's type specified in the path signature." + Constants.NEW_LINE );
+			message.append( "  Path Signature's Object Type: " + diffuserId.getClassName() + Constants.NEW_LINE );
+			message.append( "  Request Object Type: " + request.getObjectType() + Constants.NEW_LINE );
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
 		
-		// deserialize the object
+		Object deserializedObject = null;
+		try
+		{
+			// create an input stream from the byte array
+			final InputStream input = new ByteArrayInputStream( request.getObject() );
+
+			// create the Class object for the argument type (specified as a string)
+			final Class< ? > clazz = Class.forName( request.getObjectType() );
+
+			// deserialize the object
+			deserializedObject = serializer.deserialize( input, clazz );
+		}
+		catch( ClassNotFoundException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error occured while attempting to deserialize the object. The Class for the Object's type not found." + Constants.NEW_LINE );
+			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+			message.append( "  Object Type: " + request.getObjectType() + Constants.NEW_LINE );
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
 		
-		// call the method
+		// call the diffused method using the diffuser with the matching signature
+		final RestfulDiffuser diffuser = diffusers.get( signature );
+		if( diffuser == null )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Could not find a RESTful diffuser with the specified key." + Constants.NEW_LINE );
+			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+			message.append( "  Available diffusers:" + Constants.NEW_LINE );
+			for( String key : diffusers.keySet() )
+			{
+				message.append( "  " + key + Constants.NEW_LINE );
+			}
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
+		final Object resultObject = diffuser.runObject( deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
+		
+		// serialize the result object to be used in the response.
+		try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
+		{
+			serializer.serialize( resultObject, output );
+		}
+		catch( IOException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error occured while attempting to close the byte array output stream for the serialized result object." );
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
+		
+		// TODO should we keep the result as a link that can be accessed, and provide a way to delete the results..yes
+		// create the Atom link to the response
 		
 		// TODO fix: this is just a place holder
 		final Response response = Response.created( URI.create( "http://localhost" ) )
