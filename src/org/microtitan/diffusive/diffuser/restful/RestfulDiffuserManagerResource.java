@@ -5,11 +5,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -21,10 +21,11 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.log4j.Logger;
+import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.diffuser.restful.test.RestfulDiffuserManagerClient;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
@@ -73,11 +74,11 @@ public class RestfulDiffuserManagerResource {
 	 * @param argumentTypes The parameter types that form part of the method's signature
 	 * @return A {@link Response} containing the link to the newly created diffuser.
 	 */
-	private String createDiffuser( final Serializer serializer,
-								   final List< URI > clientEndpoints,
-								   final String containingClassName,
-								   final String methodName,
-								   final List< String > argumentTypes )
+	private String create( final Serializer serializer,
+						   final List< URI > clientEndpoints,
+						   final String containingClassName,
+						   final String methodName,
+						   final List< String > argumentTypes )
 	{
 		// create the diffuser
 		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints );
@@ -91,17 +92,23 @@ public class RestfulDiffuserManagerResource {
 		return key;
 	}
 	
+	/**
+	 * 
+	 * @param uriInfo
+	 * @param request
+	 * @return
+	 */
 	@PUT
 	@Consumes( MediaType.APPLICATION_XML )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
-	public Response createDiffuser( @Context final UriInfo uriInfo, final DiffuserCreateRequest request )
+	public Response create( @Context final UriInfo uriInfo, final CreateDiffuserRequest request )
 	{
 		// create the diffuser
-		final String key = createDiffuser( request.getSerializer(), 
-										   request.getClientEndpointsUri(), 
-										   request.getContainingClass(), 
-										   request.getMethodName(), 
-										   request.getArgumentTypes() );
+		final String key = create( request.getSerializer(), 
+								   request.getClientEndpointsUri(), 
+								   request.getContainingClass(), 
+								   request.getMethodName(), 
+								   request.getArgumentTypes() );
 
 		// create the URI to the newly created diffuser
 		final URI diffuserUri = uriInfo.getAbsolutePathBuilder().path( key ).build();
@@ -110,15 +117,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 		
 		// create the atom feed
-		final Abdera abdera = AbderaFactory.getInstance();
-		final Feed feed = abdera.newFeed();
-		feed.setId( "tag:" + diffuserUri.getHost() + "," + UUID.randomUUID() + ":" + diffuserUri.getPath() );
-		feed.setTitle( "RESTful Diffuser" );
-		feed.setSubtitle( "Create" );
-		feed.setUpdated( date );
-		feed.addAuthor( "Diffusive by microTITAN" );
-		feed.addLink( diffuserUri.toString(), "self" );
-		feed.complete();
+		final Feed feed = Atom.createFeed( diffuserUri, "Create RESTful diffuser: " + key, date, uriInfo.getBaseUri() );
 		
 		// create the response
 		final Response response = Response.created( diffuserUri )
@@ -129,6 +128,133 @@ public class RestfulDiffuserManagerResource {
 										  .build();
 
 		return response;
+	}
+	
+	/**
+	 * 
+	 * @param uriInfo
+	 * @param signature
+	 * @return
+	 */
+	@GET @Path( "{" + SIGNATURE + "}" )
+	@Produces( MediaType.APPLICATION_ATOM_XML )
+	public Response get( @Context final UriInfo uriInfo, @PathParam( SIGNATURE ) final String signature )
+	{
+		// create the URI to the newly created diffuser
+		final URI diffuserUri = uriInfo.getAbsolutePathBuilder().build();
+
+		// grab the date for time stamp
+		final Date date = new Date();
+
+		Response response = null;
+		if( diffusers.containsKey( signature ) )
+		{
+			diffusers.remove( signature );
+			
+			// create the atom feed
+			final Feed feed = Atom.createFeed( diffuserUri, "RESTful diffuser: " + signature, date, uriInfo.getBaseUri() );
+			
+			// create the response
+			response = Response.created( diffuserUri )
+							   .status( Status.OK )
+							   .location( diffuserUri )
+							   .entity( feed.toString() )
+							   .type( MediaType.APPLICATION_ATOM_XML )
+							   .build();
+		}
+		else
+		{
+			final Feed feed = AbderaFactory.getInstance().newFeed();
+			feed.setId( "tag:" + diffuserUri.toString() );
+			feed.setTitle( "Failed to Delete RESTful Diffuser" );
+			feed.setSubtitle( signature );
+			feed.setUpdated( date );
+			feed.addAuthor( "Diffusive by microTITAN" );
+			feed.complete();
+
+			response = Response.created( diffuserUri )
+							   .status( Status.BAD_REQUEST )
+							   .entity( feed.toString() )
+							   .build();
+		}
+		return response;
+	}
+
+	@POST @Path( "{" + SIGNATURE + "}" )
+	@Consumes( MediaType.APPLICATION_XML )
+	@Produces( MediaType.APPLICATION_ATOM_XML )
+	public Response execute( @Context final UriInfo uriInfo, 
+							 @PathParam( SIGNATURE ) final String signature,
+							 final ExecuteDiffuserRequest request )
+	{
+		// parse the signature into its parts so that we can call the diffuser
+		final DiffuserId diffuserId = DiffuserId.parse( signature );
+		final List< String > argumentTypes = diffuserId.getArgumentTypes();
+		
+		// grab the argument types and validate that they are equal
+		final List< String > requestArgTypes = request.getArgumentTypes();
+		if( !requestArgTypes.equals( argumentTypes ) )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "The RESTful diffuser's argument types do not match those from the request" + Constants.NEW_LINE );
+			message.append( "  ( Diffuser Argument Type, Request Argument Type )" + Constants.NEW_LINE );
+			for( int i = 0; i < argumentTypes.size(); ++i )
+			{
+				message.append( "  (" + argumentTypes.get( i ) + ", " + requestArgTypes.get( i ) + ")" + Constants.NEW_LINE );
+			}
+			throw new IllegalArgumentException( message.toString() );
+		}
+
+		// deserialize the arguments
+		
+		// deserialize the object
+		
+		// call the method
+		
+		// TODO fix: this is just a place holder
+		final Response response = Response.created( URI.create( "http://localhost" ) )
+				  .status( Status.OK )
+				  .location( URI.create( "http://localhost" ) )
+				  .entity( "" )
+				  .type( MediaType.APPLICATION_ATOM_XML )
+				  .build();
+		
+		return response;
+//		// ensure that for each argument type, there is an argument value
+//		final StringBuffer buffer = new StringBuffer();
+//		buffer.append( "<html><body>" );
+//		buffer.append( "<h1>Execute Diffuser: " + signature + "</h1>" );
+//		if( argumentTypes.size() == argumentValues.size() )
+//		{
+//			for( int i = 0; i < argumentTypes.size(); ++i )
+//			{
+//				buffer.append( "<p>" + argumentTypes.get( i ) + " = " + argumentValues.get( i ) + "</p>" );
+//			}
+//
+//			// grab the class name and the method name and create instantiate the object
+//			try
+//			{
+//				final String className = diffuserId.getClassName();
+//				final Class< ? > clazz = Class.forName( className );		// can also specify the class loader, which we may have to do
+//				final Object object = clazz.newInstance();		// TODO need to reconstruct the class from the serialized version here
+//				
+//				// grab the diffuser based on the signature
+//				final RestfulDiffuser diffuser = diffusers.get( signature );
+//				final Object result = diffuser.runObject( object, diffuserId.getMethodName(), argumentValues.toArray( new Object[ 0 ] ) );
+//				
+//				buffer.append( "<p>Result: " + result );
+//			}
+//			catch( ClassNotFoundException | InstantiationException | IllegalAccessException e )
+//			{
+//				throw new IllegalArgumentException( "class not found or couldn't be instantiated", e );
+//			}
+//		}
+//		else
+//		{
+//			buffer.append( "The number argument types (" + argumentTypes.size() + ") and values (" + argumentValues.size() + ") do not match." );
+//		}
+//		buffer.append( "</body></html>" );
+//		return buffer.toString();
 	}
 	
 	// TODO have to add the object representation...probably this will only work 
@@ -189,7 +315,7 @@ public class RestfulDiffuserManagerResource {
 
 	@GET
 	@Produces( MediaType.APPLICATION_ATOM_XML )
-	public Response getDiffuserList( @Context final UriInfo uriInfo )
+	public Response getList( @Context final UriInfo uriInfo )
 	{
 		// grab the base URI builder for absolute paths and build the base URI
 		final UriBuilder baseUriBuilder = uriInfo.getAbsolutePathBuilder();
@@ -199,14 +325,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 		
 		// create the atom feed
-		final Abdera abdera = AbderaFactory.getInstance();
-		final Feed feed = abdera.newFeed();
-		feed.setId( "tag:" + baseUri.getHost() + "," + UUID.randomUUID() + ":" + baseUri.getPath() );
-		feed.setTitle( "RESTful Diffusers" );
-		feed.setSubtitle( "List" );
-		feed.setUpdated( date );
-		feed.addAuthor( "Diffusive by microTITAN" );
-		feed.addLink( baseUri.toString(), "self" );
+		final Feed feed = Atom.createFeed( baseUri, "List RESTful diffusers", date, baseUri );
 
 		// add an entry for each diffuser
 		for( Map.Entry< String, RestfulDiffuser > entry : diffusers.entrySet() )
@@ -215,15 +334,12 @@ public class RestfulDiffuserManagerResource {
 			final String key = entry.getKey();
 			
 			// create URI that links to the diffuser
-			final URI diffuserUri = baseUriBuilder.clone().path( entry.getKey() ).build();
+			final URI diffuserUri = baseUriBuilder.clone().path( key ).build();
 
-			final Entry feedEntry = feed.addEntry();
-			feedEntry.setId( "tag:" + diffuserUri.getHost() + "," + UUID.randomUUID() + ":" + diffuserUri.getPath() );
-			feedEntry.setTitle( key );
+			// create the entry and it to the feed 
+			final Entry feedEntry = Atom.createEntry( diffuserUri, key, date );
 			feedEntry.setSummaryAsHtml( "<p>RESTful Diffuser for: " + key + "</p>" );
-			feedEntry.setUpdated( date );
-			feedEntry.setPublished( date );
-			feedEntry.addLink( diffuserUri.toString(), "self" );
+			feed.addEntry( feedEntry );
 		}
 		
 		final Response response = Response.created( baseUriBuilder.build() )
@@ -238,13 +354,10 @@ public class RestfulDiffuserManagerResource {
 	
 	@DELETE @Path( "{" + SIGNATURE + "}" )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
-	public Response deleteDiffuser( @Context final UriInfo uriInfo, @PathParam( SIGNATURE ) final String signature )
+	public Response delete( @Context final UriInfo uriInfo, @PathParam( SIGNATURE ) final String signature )
 	{
 		// create the URI to the newly created diffuser
 		final URI diffuserUri = uriInfo.getAbsolutePathBuilder().build();
-
-		// create the Atom parser/generator 
-		final Abdera abdera = AbderaFactory.getInstance();
 
 		// grab the date for time stamp
 		final Date date = new Date();
@@ -255,13 +368,7 @@ public class RestfulDiffuserManagerResource {
 			diffusers.remove( signature );
 			
 			// create the atom feed
-			final Feed feed = abdera.newFeed();
-			feed.setId( "tag:" + diffuserUri.getHost() + "," + UUID.randomUUID() + ":" + diffuserUri.getPath() );
-			feed.setTitle( "RESTful Diffuser" );
-			feed.setSubtitle( "Deleted" );
-			feed.setUpdated( date );
-			feed.addAuthor( "Diffusive by microTITAN" );
-			feed.complete();
+			final Feed feed = Atom.createFeed( diffuserUri, "Delete RESTful Diffuser", date );
 			
 			// create the response
 			response = Response.created( diffuserUri )
@@ -273,14 +380,10 @@ public class RestfulDiffuserManagerResource {
 		}
 		else
 		{
-			final Feed feed = abdera.newFeed();
-			feed.setId( "tag:" + diffuserUri.getHost() + "," + UUID.randomUUID() + ":" + diffuserUri.getPath() );
-			feed.setTitle( "Failed to Delete RESTful Diffuser" );
-			feed.setSubtitle( signature );
-			feed.setUpdated( date );
-			feed.addAuthor( "Diffusive by microTITAN" );
-			feed.complete();
+			// create the atom feed
+			final Feed feed = Atom.createFeed( diffuserUri, "Failder to Delete RESTful Diffuser", date );
 
+			// create the error response
 			response = Response.created( diffuserUri )
 							   .status( Status.BAD_REQUEST )
 							   .entity( feed.toString() )

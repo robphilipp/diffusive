@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.AbderaFactory;
-import org.microtitan.diffusive.diffuser.restful.DiffuserCreateRequest;
+import org.microtitan.diffusive.diffuser.restful.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
 import org.microtitan.diffusive.tests.Bean;
 
@@ -68,7 +68,7 @@ public class RestfulDiffuserManagerClient {
 		}
 		
 		// construct the request to create the diffuser for the specific signature (class, method, arguments)
-		final DiffuserCreateRequest request = DiffuserCreateRequest.create( clazz.getName(), methodName, argumentTypeNames );
+		final CreateDiffuserRequest request = CreateDiffuserRequest.create( clazz.getName(), methodName, argumentTypeNames );
 		
 		// make the call to PUT the create-request to the server
 		final ClientResponse createDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( ClientResponse.class, request );
@@ -170,12 +170,7 @@ public class RestfulDiffuserManagerClient {
 		DOMConfigurator.configure( "log4j.xml" );
 //		Logger.getRootLogger().setLevel( Level.DEBUG );
 
-		// atom parser/create
-		final Abdera abdera = AbderaFactory.getInstance();
-
-		// create the Jersey RESTful client
-		final Client client = Client.create();
-
+		// create the Java API client to interact with the Restful Diffuser Manager Server
 		final RestfulDiffuserManagerClient managerClient = new RestfulDiffuserManagerClient( "http://localhost:8182/diffusers" );
 		
 		//

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.freezedry.persistence.utils.Constants;
@@ -14,18 +13,13 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory.SerializerType;
 
 @XmlRootElement
-public class DiffuserCreateRequest {
+public class CreateDiffuserRequest {
 	
 	private String containingClassName;
-	
 	private String methodName;
-	
 	private List< String > argumentTypes;
-	
 	private List< String > classPaths;
-	
 	private String serializerType;
-	
 	private List< String > clientEndpoints;
 
 	/**
@@ -36,7 +30,7 @@ public class DiffuserCreateRequest {
 	 * must be in the same order as in the method signature.
 	 * @param classPaths The list of class paths
 	 */
-	public DiffuserCreateRequest( final String className, 
+	public CreateDiffuserRequest( final String className, 
 								  final String methodName, 
 								  final List< String > argumentTypes, 
 								  final List< String > classPaths,
@@ -50,15 +44,27 @@ public class DiffuserCreateRequest {
 		this.serializerType = ( serializerType == null || serializerType.isEmpty() ? SerializerType.PERSISTENCE_XML.getName() : serializerType );
 		this.clientEndpoints = (clientEndpoints == null ? new ArrayList< String >() : clientEndpoints );
 	}
-	
-	public DiffuserCreateRequest()
+
+	/**
+	 * Creates a default request to create a diffuser. The name of the containing class, the method name are 
+	 * set to empty strings, the argument types, class paths, serializer type, and client endpoints are set to null.
+	 */
+	public CreateDiffuserRequest()
 	{
 		this( "", "", null, null, null, null );
 	}
 	
-	public static DiffuserCreateRequest create( final String className, final String methodName, final String...argumentTypes )
+	/**
+	 * Creates a request to create a diffuser that acts on the specified method of the class name, and has the
+	 * specified argument types.
+	 * @param className The name of 
+	 * @param methodName
+	 * @param argumentTypes
+	 * @return
+	 */
+	public static CreateDiffuserRequest create( final String className, final String methodName, final String...argumentTypes )
 	{
-		final DiffuserCreateRequest request = new DiffuserCreateRequest();
+		final CreateDiffuserRequest request = new CreateDiffuserRequest();
 		request.setContainingClass( className )
 			   .setMethodName( methodName )
 			   .setArgumentTypes( Arrays.asList( argumentTypes ) );
@@ -70,7 +76,7 @@ public class DiffuserCreateRequest {
 		return containingClassName;
 	}
 	
-	public DiffuserCreateRequest setContainingClass( final String className )
+	public CreateDiffuserRequest setContainingClass( final String className )
 	{
 		this.containingClassName = className;
 		return this;
@@ -81,7 +87,7 @@ public class DiffuserCreateRequest {
 		return methodName;
 	}
 	
-	public DiffuserCreateRequest setMethodName( final String methodName )
+	public CreateDiffuserRequest setMethodName( final String methodName )
 	{
 		this.methodName = methodName;
 		return this;
@@ -92,13 +98,13 @@ public class DiffuserCreateRequest {
 		return argumentTypes;
 	}
 	
-	public DiffuserCreateRequest setArgumentTypes( final List< String > argumentTypes )
+	public CreateDiffuserRequest setArgumentTypes( final List< String > argumentTypes )
 	{
 		this.argumentTypes = argumentTypes;
 		return this;
 	}
 	
-	public DiffuserCreateRequest appendArgumentType( final String argumentType )
+	public CreateDiffuserRequest appendArgumentType( final String argumentType )
 	{
 		if( argumentTypes == null )
 		{
@@ -113,13 +119,13 @@ public class DiffuserCreateRequest {
 		return classPaths;
 	}
 	
-	public DiffuserCreateRequest setClassPaths( final List< String > classPaths )
+	public CreateDiffuserRequest setClassPaths( final List< String > classPaths )
 	{
 		this.classPaths = classPaths;
 		return this;
 	}
 	
-	public DiffuserCreateRequest appendClassPath( final String classPath )
+	public CreateDiffuserRequest appendClassPath( final String classPath )
 	{
 		if( classPaths == null )
 		{
@@ -139,7 +145,7 @@ public class DiffuserCreateRequest {
 		return SerializerFactory.getInstance().createSerializer( serializerType );
 	}
 	
-	public DiffuserCreateRequest setSerializerType( final String serializer )
+	public CreateDiffuserRequest setSerializerType( final String serializer )
 	{
 		this.serializerType = serializer;
 		return this;
@@ -160,13 +166,13 @@ public class DiffuserCreateRequest {
 		return uri;
 	}
 	
-	public DiffuserCreateRequest setClientEndpoints( final List< String > clientEndpoints )
+	public CreateDiffuserRequest setClientEndpoints( final List< String > clientEndpoints )
 	{
 		this.clientEndpoints = clientEndpoints;
 		return this;
 	}
 	
-	public DiffuserCreateRequest appendClientEndpoints( final String clientEndpoint )
+	public CreateDiffuserRequest appendClientEndpoints( final String clientEndpoint )
 	{
 		if( clientEndpoints == null )
 		{
@@ -180,7 +186,7 @@ public class DiffuserCreateRequest {
 	public String toString()
 	{
 		final StringBuffer buffer = new StringBuffer();
-		buffer.append( DiffuserCreateRequest.class.getName() + Constants.NEW_LINE );
+		buffer.append( CreateDiffuserRequest.class.getName() + Constants.NEW_LINE );
 		buffer.append( "  Containing Class: " + containingClassName + Constants.NEW_LINE );
 		buffer.append( "  Method Name: " + methodName + Constants.NEW_LINE );
 		buffer.append( "  Argument Types: " + Constants.NEW_LINE );

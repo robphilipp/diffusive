@@ -1,8 +1,7 @@
 package org.microtitan.diffusive.diffuser.serializer;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -81,17 +80,57 @@ public class ObjectSerializer implements Serializer {
 		b.setMessage(  "test_class_bee" );
 		final TestClassA a = new TestClassA( b );
 		
-		final Serializer serializer = new ObjectSerializer();
+//		final Serializer serializer = new ObjectSerializer();
+		final Serializer serializer = new XmlPersistenceSerializer();
+		
+		// write the object to a byte array and the reconstitute the object
 		try
 		{
-			serializer.serialize( a, new FileOutputStream( "test_a" ) );
+			final ByteArrayOutputStream out = new ByteArrayOutputStream();
+			serializer.serialize( a, out );
+			out.flush();
+			final byte[] bytes = out.toByteArray();
+			final String object = new String( bytes );
+			System.out.println( "StringWriter: " + object );
+			System.out.println( "StringWriter: " + object.getBytes() );
 			
-			final TestClassA desA = serializer.deserialize( new FileInputStream( "test_a" ), TestClassA.class );
+			final TestClassA desA = serializer.deserialize( new ByteArrayInputStream( bytes ), TestClassA.class );
 			System.out.println( desA.toString() );
 		}
-		catch( FileNotFoundException e )
+		catch( IOException e )
 		{
 			e.printStackTrace();
 		}
+
+//		// write the object to a String and the reconstitute the object
+//		try
+//		{
+//			final StringWriter stringWriter = new StringWriter();
+//			final WriterOutputStream writer = new WriterOutputStream( stringWriter );
+//			serializer.serialize( a, writer );
+//			writer.flush();
+//			final String serializedClass = stringWriter.toString();
+//			System.out.println( "StringWriter: " + serializedClass );
+//			
+//			final TestClassA desA = serializer.deserialize( new ReaderInputStream( new StringReader( serializedClass ) ), TestClassA.class );
+//			System.out.println( desA.toString() );
+//		}
+//		catch( IOException e )
+//		{
+//			e.printStackTrace();
+//		}
+
+//		// write object to a file and then read it in again and reconstitute the object
+//		try
+//		{
+//			serializer.serialize( a, new FileOutputStream( "test_a" ) );
+//			
+//			final TestClassA desA = serializer.deserialize( new FileInputStream( "test_a" ), TestClassA.class );
+//			System.out.println( desA.toString() );
+//		}
+//		catch( FileNotFoundException e )
+//		{
+//			e.printStackTrace();
+//		}
 	}
 }
