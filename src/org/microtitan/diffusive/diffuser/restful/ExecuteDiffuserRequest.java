@@ -2,6 +2,7 @@ package org.microtitan.diffusive.diffuser.restful;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -19,11 +20,45 @@ public class ExecuteDiffuserRequest {
 	private byte[] serializedObject;
 	private String serializerType;
 	
-	public ExecuteDiffuserRequest( final List< String> argumentTypes, 
-								   final List< byte[] > argumentValues, 
-								   final byte[] serializedObject,
-								   final String serializedObjectType,
-								   final String serializerType )
+	private final String requestId;
+	
+//	public ExecuteDiffuserRequest( final List< String> argumentTypes, 
+//								   final List< byte[] > argumentValues, 
+//								   final byte[] serializedObject,
+//								   final String serializedObjectType,
+//								   final String serializerType )
+//	{
+//		if( argumentTypes.size() != argumentValues.size() )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "The number of method argument types must equal the number of method argument values" + Constants.NEW_LINE );
+//			final int argTypesSize = ( argumentTypes == null ? 0 : argumentTypes.size() );
+//			message.append( "  Number of Argument Types: " + argTypesSize + Constants.NEW_LINE );
+//			final int argValuesSize = ( argumentValues == null ? 0 : argumentValues.size() );
+//			message.append( "  Number of Argument Values: " + argValuesSize );
+//			throw new IllegalArgumentException( message.toString() );
+//		}
+//		this.argumentTypes = argumentTypes;
+//		this.argumentValues = argumentValues;
+//		this.serializedObject = serializedObject;
+//		this.serializedObjectType = serializedObjectType;
+//		this.serializerType = serializerType;
+//		
+//		this.requestId = UUID.randomUUID().toString();
+//	}
+	
+	public ExecuteDiffuserRequest()
+	{
+		this.argumentTypes = new ArrayList< String >();
+		this.argumentValues =  new ArrayList< byte[] >();
+		this.requestId = UUID.randomUUID().toString();
+	}
+
+	public static final ExecuteDiffuserRequest create( final List< String > argumentTypes,
+													   final List< byte[] > argumentValues, 
+													   final String serializedObjectType, 
+													   final byte[] serializedObject,
+													   final String serializerType )
 	{
 		if( argumentTypes.size() != argumentValues.size() )
 		{
@@ -35,11 +70,23 @@ public class ExecuteDiffuserRequest {
 			message.append( "  Number of Argument Values: " + argValuesSize );
 			throw new IllegalArgumentException( message.toString() );
 		}
-		this.argumentTypes = argumentTypes;
-		this.argumentValues = argumentValues;
-		this.serializedObject = serializedObject;
-		this.serializedObjectType = serializedObjectType;
-		this.serializerType = serializerType;
+		
+		final ExecuteDiffuserRequest request = create( serializedObjectType, serializedObject, serializerType );
+		for( int i = 0; i < argumentTypes.size(); ++i )
+		{
+			request.addArgument( argumentTypes.get( i ), argumentValues.get( i ) );
+		}
+		return request;
+	}
+	
+	public static final ExecuteDiffuserRequest create( final String serializedObjectType, 
+													   final byte[] serializedObject, 
+													   final String serializerType )
+	{
+		final ExecuteDiffuserRequest request = new ExecuteDiffuserRequest();
+		request.setObject( serializedObjectType, serializedObject )
+			   .setSerializerType( serializerType );
+		return request;
 	}
 	
 //	public void setArguments( final List< String> argumentTypes, final List< byte[] > argumentValues )
@@ -123,4 +170,8 @@ public class ExecuteDiffuserRequest {
 		return SerializerFactory.getInstance().createSerializer( serializerType );
 	}
 	
+	public String getRequestId()
+	{
+		return requestId;
+	}
 }

@@ -8,6 +8,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +48,9 @@ import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 public class RestfulDiffuserManagerResource {
 
 	static final Logger LOGGER = Logger.getLogger( RestfulDiffuserManagerResource.class );
+
+	// the maximum number of resultsCache cached
+	private static final int MAX_RESULTS_CACHED = 100;
 	
 	// parameters for creating a diffuser
 	public static final String SERIALIZER_NAME = "serializer_name";
@@ -58,7 +63,11 @@ public class RestfulDiffuserManagerResource {
 	public static final String SIGNATURE = "signature";
 	public static final String ARGUMENT_VALUES = "argument_values";
 	
-	private Map< String, RestfulDiffuser > diffusers;
+	private final Map< String, RestfulDiffuser > diffusers;
+	
+	// fields to manage the resultsCache cache
+	private final Map< String, Object > resultsCache;
+	private int maxResultsCached;
 
 	/**
 	 * 
@@ -67,6 +76,29 @@ public class RestfulDiffuserManagerResource {
 	public RestfulDiffuserManagerResource()
 	{
 		diffusers = new HashMap<>();
+		resultsCache = new LinkedHashMap<>();
+		maxResultsCached = MAX_RESULTS_CACHED;
+	}
+	
+	/*
+	 * Adds a result to the resultsCache cache. If the addition of this result causes the
+	 * number of cached items to increase beyond the maximum allowable items, then the
+	 * item that was first added is removed.
+	 * @param signature The signature of the diffuser (class_name.method_name(arg_type1, arg_type2))
+	 * @param requestId The ID associated with the request
+	 * @param result The result object to be added to the results cache
+	 */
+	private String addResults( final String signature, final String requestId, final Object result )
+	{
+		// put the new result to the cache
+		final String key = signature + "/" + requestId;
+		final Object previousResults = resultsCache.put( key, result );
+		if( previousResults == null && resultsCache.size() > maxResultsCached )
+		{
+			final Iterator< Map.Entry< String, Object > > iter = resultsCache.entrySet().iterator();
+			resultsCache.remove( iter.next().getKey() );
+		}
+		return key;
 	}
 	
 	/*
@@ -307,54 +339,33 @@ public class RestfulDiffuserManagerResource {
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
+
+		// grab the requstId
+		final String requestId = request.getRequestId();
+
+		// put the result into a map with the signature/id as the key
+		final String resultID = addResults( signature, requestId, resultObject );
 		
-		// TODO should we keep the result as a link that can be accessed, and provide a way to delete the results..yes
+		
 		// create the Atom link to the response
+		// create the URI to the newly created diffuser
+		final URI resultUri = uriInfo.getAbsolutePathBuilder().path( requestId ).build();
+
+		// grab the date for time stamp
+		final Date date = new Date();
 		
-		// TODO fix: this is just a place holder
-		final Response response = Response.created( URI.create( "http://localhost" ) )
+		// create the atom feed
+		final Feed feed = Atom.createFeed( resultUri, "Result ID: " + resultID, date, uriInfo.getBaseUri() );
+
+		// create the response
+		final Response response = Response.created( resultUri )
 				  .status( Status.OK )
-				  .location( URI.create( "http://localhost" ) )
-				  .entity( "" )
+				  .location( resultUri )
+				  .entity( feed.toString() )
 				  .type( MediaType.APPLICATION_ATOM_XML )
 				  .build();
 		
 		return response;
-//		// ensure that for each argument type, there is an argument value
-//		final StringBuffer buffer = new StringBuffer();
-//		buffer.append( "<html><body>" );
-//		buffer.append( "<h1>Execute Diffuser: " + signature + "</h1>" );
-//		if( argumentTypes.size() == argumentValues.size() )
-//		{
-//			for( int i = 0; i < argumentTypes.size(); ++i )
-//			{
-//				buffer.append( "<p>" + argumentTypes.get( i ) + " = " + argumentValues.get( i ) + "</p>" );
-//			}
-//
-//			// grab the class name and the method name and create instantiate the object
-//			try
-//			{
-//				final String className = diffuserId.getClassName();
-//				final Class< ? > clazz = Class.forName( className );		// can also specify the class loader, which we may have to do
-//				final Object object = clazz.newInstance();		// TODO need to reconstruct the class from the serialized version here
-//				
-//				// grab the diffuser based on the signature
-//				final RestfulDiffuser diffuser = diffusers.get( signature );
-//				final Object result = diffuser.runObject( object, diffuserId.getMethodName(), argumentValues.toArray( new Object[ 0 ] ) );
-//				
-//				buffer.append( "<p>Result: " + result );
-//			}
-//			catch( ClassNotFoundException | InstantiationException | IllegalAccessException e )
-//			{
-//				throw new IllegalArgumentException( "class not found or couldn't be instantiated", e );
-//			}
-//		}
-//		else
-//		{
-//			buffer.append( "The number argument types (" + argumentTypes.size() + ") and values (" + argumentValues.size() + ") do not match." );
-//		}
-//		buffer.append( "</body></html>" );
-//		return buffer.toString();
 	}
 	
 	// TODO have to add the object representation...probably this will only work 

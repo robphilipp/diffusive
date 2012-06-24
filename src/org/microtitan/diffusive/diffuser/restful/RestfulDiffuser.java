@@ -13,6 +13,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuser.class );
 	
+	// used to serialize objects for making requests across the network
 	private Serializer serializer;
 	private List< URI > clientEndpoints;
 	

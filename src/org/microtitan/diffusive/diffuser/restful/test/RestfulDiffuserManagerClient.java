@@ -3,6 +3,7 @@ package org.microtitan.diffusive.diffuser.restful.test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
@@ -16,6 +17,7 @@ import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
+import org.microtitan.diffusive.diffuser.restful.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.tests.Bean;
 
 import com.sun.jersey.api.client.Client;
@@ -57,9 +59,6 @@ public class RestfulDiffuserManagerClient {
 	 */
 	public Feed createDiffuser( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
-		// create the web resource for making the call
-		final WebResource resource = client.resource( baseUri.toString() );
-
 		// convert the argument types to argument type names
 		final String[] argumentTypeNames = new String[ argumentTypes.length ];
 		for( int i = 0; i < argumentTypes.length; ++i )
@@ -70,7 +69,8 @@ public class RestfulDiffuserManagerClient {
 		// construct the request to create the diffuser for the specific signature (class, method, arguments)
 		final CreateDiffuserRequest request = CreateDiffuserRequest.create( clazz.getName(), methodName, argumentTypeNames );
 		
-		// make the call to PUT the create-request to the server
+		// create the web resource for making the call, make the call to PUT the create-request to the server
+		final WebResource resource = client.resource( baseUri.toString() );
 		final ClientResponse createDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( ClientResponse.class, request );
 		
 		// parse the response into an Atom feed object and return it
@@ -161,6 +161,63 @@ public class RestfulDiffuserManagerClient {
 			message.append( "Failed to parse the delete-diffuser response into an Atom feed" + Constants.NEW_LINE );
 			LOGGER.error( message.toString(), e );
 			throw new IllegalStateException( message.toString(), e );
+		}
+		return feed;
+	}
+	
+	/**
+	 * 
+	 * @param signature
+	 * @param argumentTypes
+	 * @param argumentValues
+	 * @param serializedObject
+	 * @param serializedObjectType
+	 * @param serializerType
+	 * @return
+	 */
+	public Feed executeMethod( final String signature, 
+							   final List< String> argumentTypes, 
+							   final List< byte[] > argumentValues, 
+							   final byte[] serializedObject,
+							   final String serializedObjectType,
+							   final String serializerType )
+	{
+		// create the diffeser-execute request
+		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( argumentTypes, 
+																			  argumentValues, 
+																			  serializedObjectType, 
+																			  serializedObject, 
+																			  serializerType );
+		
+		// create the URI to the diffuser with the specified signature
+		final URI diffuserUri = UriBuilder.fromUri( baseUri.toString() ).path( signature ).build();
+		
+		// create the web resource for making the call, make the call to POST the create-request to the server
+		final WebResource resource = client.resource( diffuserUri.toString() );
+		final ClientResponse executeDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).post( ClientResponse.class, request );
+		
+		// parse the response into an Atom feed object and return it
+		Feed feed = null;
+		try( InputStream response = executeDiffuserResponse.getEntity( InputStream.class ) )
+		{
+			feed = abdera.getParser().< Feed >parse( response ).getRoot();
+		}
+		catch( IOException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Failed to parse the execute-diffuser response into an Atom feed" + Constants.NEW_LINE );
+			message.append( "  Signature: " + signature + Constants.NEW_LINE );
+			message.append( "  Request ID: " + request.getRequestId() + Constants.NEW_LINE );
+			final DiffuserId diffuserId = DiffuserId.parse( signature );
+			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
+			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
+			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
+			for( String name : diffuserId.getArgumentTypes() )
+			{
+				message.append( "    " + name + Constants.NEW_LINE );
+			}
+			LOGGER.error( message.toString(), e );
+			throw new IllegalArgumentException( message.toString(), e );
 		}
 		return feed;
 	}
