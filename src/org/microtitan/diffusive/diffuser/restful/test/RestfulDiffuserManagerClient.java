@@ -1,8 +1,11 @@
 package org.microtitan.diffusive.diffuser.restful.test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
@@ -18,7 +21,12 @@ import org.microtitan.diffusive.diffuser.restful.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
 import org.microtitan.diffusive.diffuser.restful.ExecuteDiffuserRequest;
+import org.microtitan.diffusive.diffuser.restful.atom.Atom;
+import org.microtitan.diffusive.diffuser.serializer.Serializer;
+import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
+import org.microtitan.diffusive.diffuser.serializer.XmlPersistenceSerializer;
 import org.microtitan.diffusive.tests.Bean;
+import org.microtitan.diffusive.tests.TestClassA;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -60,11 +68,7 @@ public class RestfulDiffuserManagerClient {
 	public Feed createDiffuser( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
 		// convert the argument types to argument type names
-		final String[] argumentTypeNames = new String[ argumentTypes.length ];
-		for( int i = 0; i < argumentTypes.length; ++i )
-		{
-			argumentTypeNames[ i ] = argumentTypes[ i ].getName();
-		}
+		final String[] argumentTypeNames = convertArgumentTypes( argumentTypes ); 
 		
 		// construct the request to create the diffuser for the specific signature (class, method, arguments)
 		final CreateDiffuserRequest request = CreateDiffuserRequest.create( clazz.getName(), methodName, argumentTypeNames );
@@ -164,6 +168,111 @@ public class RestfulDiffuserManagerClient {
 		}
 		return feed;
 	}
+
+	/**
+	 * 
+	 * @param clazz
+	 * @param methodName
+	 * @param serializedObject
+	 * @param serializer
+	 * @return
+	 */
+	public Feed executeMethod( final Class< ? > clazz, 
+							   final String methodName, 
+							   final byte[] serializedObject,
+							   final Serializer serializer )
+	{
+		// grab the serializer type
+		final String serializerType = SerializerFactory.SerializerType.getSerializerName( serializer.getClass() );
+		if( serializerType == null || serializerType.isEmpty() )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Failed to execute method because specified serializer is invalid." );
+			message.append( "  Class Name: " + clazz.getName() + Constants.NEW_LINE );
+			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+			message.append( "  Available Serializer Types: " + Constants.NEW_LINE );
+			for( SerializerFactory.SerializerType type : SerializerFactory.SerializerType.values() )
+			{
+				message.append( "    " + type.getName() + " (" + type.getSerialzierClass().getName() + ")" + Constants.NEW_LINE );
+			}
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
+
+		// construct the signature from the specified parameters
+		final String signature = DiffuserId.create( clazz, methodName );
+		
+		// call the execute method
+		return executeMethod( signature, serializedObject, clazz, serializerType );
+	}
+	
+	/**
+	 * 
+	 * @param clazz
+	 * @param methodName
+	 * @param serializedObject
+	 * @param serializedObjectType
+	 * @param serializerType
+	 * @return
+	 */
+	public Feed executeMethod( final Class< ? > clazz, 
+							   final String methodName, 
+							   final byte[] serializedObject,
+							   final String serializerType )
+	{
+		// construct the signature from the specified parameters
+		final String signature = DiffuserId.create( clazz, methodName );
+		
+		// call the execute method
+		return executeMethod( signature, serializedObject, clazz, serializerType );
+	}
+	
+	/**
+	 * 
+	 * @param signature
+	 * @param serializedObject
+	 * @param serializedObjectType
+	 * @param serializerType
+	 * @return
+	 */
+	public Feed executeMethod( final String signature, 
+							   final byte[] serializedObject,
+							   final Class< ? > serializedObjectType,
+							   final String serializerType )
+	{
+		// create the diffeser-execute request
+		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( serializedObjectType.getName(), 
+																			  serializedObject, 
+																			  serializerType );
+
+		return executeMethod( signature, request );
+	}
+	
+	/**
+	 * 
+	 * @param clazz
+	 * @param methodName
+	 * @param argumentTypes
+	 * @param argumentValues
+	 * @param serializedObject
+	 * @param serializedObjectType
+	 * @param serializerType
+	 * @return
+	 */
+	public Feed executeMethod( final Class< ? > clazz, 
+							   final String methodName, 
+							   final List< Class< ? > > argumentTypes, 
+							   final List< byte[] > argumentValues, 
+							   final byte[] serializedObject,
+							   final Class< ? > serializedObjectType,
+							   final String serializerType )
+	{
+		// construct the signature from the specified parameters
+		final String signature = DiffuserId.create( clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		
+		// call the execute method
+		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, serializedObjectType, serializerType );
+	}
 	
 	/**
 	 * 
@@ -176,19 +285,27 @@ public class RestfulDiffuserManagerClient {
 	 * @return
 	 */
 	public Feed executeMethod( final String signature, 
-							   final List< String> argumentTypes, 
+							   final List< Class< ? > > argumentTypes, 
 							   final List< byte[] > argumentValues, 
 							   final byte[] serializedObject,
-							   final String serializedObjectType,
+							   final Class< ? > serializedObjectType,
 							   final String serializerType )
 	{
+		// convert the argument types to argument type names
+		final List< String > argumentTypeNames = convertArgumentTypes( argumentTypes );
+		
 		// create the diffeser-execute request
-		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( argumentTypes, 
+		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( argumentTypeNames, 
 																			  argumentValues, 
-																			  serializedObjectType, 
+																			  serializedObjectType.getName(), 
 																			  serializedObject, 
 																			  serializerType );
-		
+
+		return executeMethod( signature, request );
+	}
+	
+	private Feed executeMethod( final String signature, final ExecuteDiffuserRequest request )
+	{
 		// create the URI to the diffuser with the specified signature
 		final URI diffuserUri = UriBuilder.fromUri( baseUri.toString() ).path( signature ).build();
 		
@@ -222,6 +339,40 @@ public class RestfulDiffuserManagerClient {
 		return feed;
 	}
 
+	/*
+	 * Converts a {@link List} of {@link Class} representing the argument types into a {@link List}
+	 * of {@link String} representing the names of the argument types. For example, if an argument is
+	 * of type {@link String}, then the argument type name will be {@link java.lang.String}.
+	 * @param argumentTypes The {@link List} of the argument types
+	 * @return a {@link List} of the argument type names
+	 */
+	private static List< String > convertArgumentTypes( final List< Class< ? > > argumentTypes )
+	{
+		// convert the argument types to argument type names
+		final List< String > argumentTypeNames = new ArrayList<>();
+		for( Class< ? > clazz : argumentTypes )
+		{
+			argumentTypeNames.add( clazz.getName() );
+		}
+		return argumentTypeNames;
+	}
+
+	/**
+	 * Converts an {@link Class}[] of argument types into an {@link String}[] of argument type names
+	 * @param argumentTypes The array of argument types
+	 * @return an array of argument type names
+	 */
+	private static String[] convertArgumentTypes( final Class< ? >[] argumentTypes )
+	{
+		// convert the argument types to argument type names
+		final String[] argumentTypeNames = new String[ argumentTypes.length ];
+		for( int i = 0; i < argumentTypes.length; ++i )
+		{
+			argumentTypeNames[ i ] = argumentTypes[ i ].getName();
+		}
+		return argumentTypeNames;
+	}
+
 	public static void main( String[] args )
 	{
 		DOMConfigurator.configure( "log4j.xml" );
@@ -230,14 +381,16 @@ public class RestfulDiffuserManagerClient {
 		// create the Java API client to interact with the Restful Diffuser Manager Server
 		final RestfulDiffuserManagerClient managerClient = new RestfulDiffuserManagerClient( "http://localhost:8182/diffusers" );
 		
+		final Bean bean = new Bean();
+		
 		//
 		// create a diffuser
 		//
-		Feed feed = managerClient.createDiffuser( Bean.class, "getA" );
+		Feed feed = managerClient.createDiffuser( bean.getClass(), "getA" );
 		System.out.println( "Create getA: " + feed.toString() );
 		
 		// and another
-		feed = managerClient.createDiffuser( Bean.class, "setA", new Class< ? >[] { String.class } );
+		feed = managerClient.createDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
 		System.out.println( "Create setA: " + feed.toString() );
 
 		//
@@ -253,7 +406,7 @@ public class RestfulDiffuserManagerClient {
 		//
 		// delete a diffuser
 		//
-		feed = managerClient.deleteDiffuser( Bean.class, "setA", new Class< ? >[] { String.class } );
+		feed = managerClient.deleteDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
 		System.out.println( "Delete setA: " + feed.toString() );
 
 		//
@@ -265,5 +418,30 @@ public class RestfulDiffuserManagerClient {
 		{
 			System.out.println( "  " + entry.getId() );
 		}
+		
+		//
+		// execute some of the methods
+		//
+		final Serializer serializer = new XmlPersistenceSerializer();
+		
+		// write the object to a byte array and the reconstitute the object
+		try( final ByteArrayOutputStream out = new ByteArrayOutputStream() )
+		{
+			serializer.serialize( bean, out );
+			out.flush();
+			feed = managerClient.executeMethod( bean.getClass(), "getA", out.toByteArray(), serializer );
+			System.out.println( "Execute getA: " + feed.toString() );
+//			final String object = new String( bytes );
+//			System.out.println( "StringWriter: " + object );
+//			System.out.println( "StringWriter: " + object.getBytes() );
+//			
+//			final TestClassA desA = serializer.deserialize( new ByteArrayInputStream( bytes ), TestClassA.class );
+//			System.out.println( desA.toString() );
+		}
+		catch( IOException e )
+		{
+			e.printStackTrace();
+		}
+
 	}
 }

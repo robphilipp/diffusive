@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.microtitan.diffusive.Constants;
@@ -16,7 +17,11 @@ public class ExecuteDiffuserRequest {
 
 	private List< String > argumentTypes;
 	private List< byte[] > argumentValues;
+
+	@XmlElement
 	private String serializedObjectType;
+	
+	@XmlElement
 	private byte[] serializedObject;
 	private String serializerType;
 	

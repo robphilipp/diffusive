@@ -152,6 +152,20 @@ public class SerializerFactory {
 		{
 			return clazz;
 		}
+		
+		public static String getSerializerName( final Class< ? > clazz )
+		{
+			String name = null;
+			for( SerializerType type : values() )
+			{
+				if( clazz.equals( type.clazz ) )
+				{
+					name = type.name;
+					break;
+				}
+			}
+			return name;
+		}
 	}
 	
 }

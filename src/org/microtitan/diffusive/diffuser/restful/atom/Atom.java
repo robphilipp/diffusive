@@ -41,7 +41,7 @@ public class Atom {
 
 	public static Feed createFeed( final URI resourceUri, final String title, final Date created, final URI generatorUri )
 	{
-		return createFeed( resourceUri, title, created, generatorUri );
+		return createFeed( resourceUri, title, Text.Type.TEXT, created, generatorUri );
 	}
 	
 	public static Feed createFeed( final URI resourceUri, final String title, final Text.Type titleType, final Date created )
