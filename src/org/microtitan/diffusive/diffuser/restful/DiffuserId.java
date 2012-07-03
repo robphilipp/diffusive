@@ -48,14 +48,45 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		return className;
 	}
 	
+	public Class< ? > getClazz()
+	{
+		return getClazz( className );
+	}
+	
+	public static Class< ? > getClazz( final String className )
+	{
+		Class< ? > clazz = null;
+		try
+		{
+			clazz = Class.forName( className );
+		}
+		catch( ClassNotFoundException e )
+		{
+			final String message = "Could not instantiate class from specified class name: " + className;
+			LOGGER.error( message, e );
+			throw new IllegalArgumentException( message, e );
+		}
+		return clazz;
+	}
+	
 	public String getMethodName()
 	{
 		return methodName;
 	}
 	
-	public List< String > getArgumentTypes()
+	public List< String > getArgumentTypeNames()
 	{
 		return argumentTypes;
+	}
+	
+	public List< Class< ? > > getArgumentTypes()
+	{
+		final List< Class< ? > > types = new ArrayList<>();
+		for( String type : argumentTypes )
+		{
+			types.add( getClazz( type ) );
+		}
+		return types;
 	}
 	
 	public String getId()
@@ -92,7 +123,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		return buffer.toString();
 	}
 	
-	public static DiffuserId parse( final String id )
+	public static DiffuserId parse( final String signature )
 	{
 		String className = null;
 		String methodName = null;
@@ -113,22 +144,22 @@ public class DiffuserId implements Copyable< DiffuserId > {
 							 "$";
 		
 		final Pattern pattern = Pattern.compile( regex );
-		Matcher matcher = pattern.matcher( id );
+		Matcher matcher = pattern.matcher( signature );
 		if( matcher.find() )
 		{
 			// grab the class name
-			matcher = Pattern.compile( "^" + validClassName ).matcher( id );
+			matcher = Pattern.compile( "^" + validClassName ).matcher( signature );
 			matcher.find();
 			className = matcher.group();
 			
 			// grab the method name (we know at this point that we have at least "class:method"
-			matcher = Pattern.compile( "^" + validMethodName ).matcher( id.split( Pattern.quote( CLASS_METHOD_SEPARATOR ) )[ 1 ] );
+			matcher = Pattern.compile( "^" + validMethodName ).matcher( signature.split( Pattern.quote( CLASS_METHOD_SEPARATOR ) )[ 1 ] );
 			matcher.find();
 			methodName = matcher.group();
 			
 			// now parse out the argument types
 			final String argString = "^" + argumentTypeList + Pattern.quote( ARGUMENT_CLOSE ) + "$";
-			matcher = Pattern.compile( argString ).matcher( id.split( Pattern.quote( ARGUMENT_OPEN ) )[ 1 ] );
+			matcher = Pattern.compile( argString ).matcher( signature.split( Pattern.quote( ARGUMENT_OPEN ) )[ 1 ] );
 			matcher.find();
 			final String endString = matcher.group();
 			if( endString.equals( ARGUMENT_CLOSE ) )
@@ -144,10 +175,10 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Failed to parse signature: Invalid DiffuserId" + Constants.NEW_LINE );
-			message.append( "  Specified DiffuserId: " + id );
+			message.append( "  Specified DiffuserId: " + signature );
 			try
 			{
-				final DiffuserId sig = DiffuserId.parse( id.replaceAll( "\\s", "" ) );
+				final DiffuserId sig = DiffuserId.parse( signature.replaceAll( "\\s", "" ) );
 				message.append( Constants.NEW_LINE + "  Hint: try removing spaces from signature" + Constants.NEW_LINE );
 				message.append( "  Recommended DiffuserId: " + sig.getId() );
 			}

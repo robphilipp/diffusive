@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
+import org.apache.abdera.model.Link;
 import org.apache.abdera.model.Text;
 import org.microtitan.diffusive.diffuser.restful.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
@@ -14,8 +15,6 @@ public class Atom {
 	// names for generating the Atom feeds
 	public static final String VERSION = "0.1";
 	public static final String GENERATOR_NAME = RestfulDiffuser.class.getName();
-	public static final String LINK_RELATION_SELF = "self";
-	public static final String LINK_RELATION_ALTERNATE = "alternate";
 
 	/**
 	 * @return a newly created feed
@@ -57,12 +56,12 @@ public class Atom {
 		feed.setId( uri );
 		feed.setTitle( title, titleType );
 		feed.setUpdated( created );
-		feed.addLink(uri, LINK_RELATION_SELF );
+		feed.addLink( uri, Link.REL_SELF );
+//		feed.addLink( generatorUri.toString(), Link.REL_SERVICE );
 		if( generatorUri != null )
 		{
 			feed.setGenerator( generatorUri.toString(), VERSION, GENERATOR_NAME );
 		}
-		
 		return feed;
 	}
 	
@@ -82,11 +81,10 @@ public class Atom {
 		
 		final Entry entry = createEntry();
 		entry.setId( uri );
-		entry.setId( uri );
 		entry.setTitle( title, titleType );
 		entry.setUpdated( created );
 		entry.setPublished( created );
-		entry.addLink(uri, LINK_RELATION_SELF );
+		entry.addLink( uri, Link.REL_SELF );
 		
 		return entry;
 	}

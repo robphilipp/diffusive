@@ -1,11 +1,12 @@
 package org.microtitan.diffusive.diffuser.restful.test;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
+import org.apache.abdera.model.Link;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
@@ -21,12 +23,10 @@ import org.microtitan.diffusive.diffuser.restful.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
 import org.microtitan.diffusive.diffuser.restful.ExecuteDiffuserRequest;
-import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.XmlPersistenceSerializer;
 import org.microtitan.diffusive.tests.Bean;
-import org.microtitan.diffusive.tests.TestClassA;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -304,6 +304,12 @@ public class RestfulDiffuserManagerClient {
 		return executeMethod( signature, request );
 	}
 	
+	/**
+	 * 
+	 * @param signature
+	 * @param request
+	 * @return
+	 */
 	private Feed executeMethod( final String signature, final ExecuteDiffuserRequest request )
 	{
 		// create the URI to the diffuser with the specified signature
@@ -329,7 +335,7 @@ public class RestfulDiffuserManagerClient {
 			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
 			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
 			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
-			for( String name : diffuserId.getArgumentTypes() )
+			for( String name : diffuserId.getArgumentTypeNames() )
 			{
 				message.append( "    " + name + Constants.NEW_LINE );
 			}
@@ -337,6 +343,74 @@ public class RestfulDiffuserManagerClient {
 			throw new IllegalArgumentException( message.toString(), e );
 		}
 		return feed;
+	}
+	
+	public Object getResult( final Class< ? > clazz, 
+							 final String methodName, 
+							 final String requestId,
+							 final Serializer serializer )
+	{
+		// construct the signature from the specified parameters
+		final String signature = DiffuserId.create( clazz, methodName );
+
+		return getResult( signature, requestId, serializer );
+	}
+	
+	public Object getResult( final Class< ? > clazz, 
+							 final String methodName, 
+							 final List< Class< ? > > argumentTypes, 
+							 final String requestId, 
+							 final Serializer serializer )
+	{
+		// construct the signature from the specified parameters
+		final String signature = DiffuserId.create( clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		
+		return getResult( signature, requestId, serializer );
+	}
+	
+	public Object getResult( final String signature, final String requestId, final Serializer serializer )
+	{
+		final DiffuserId id = DiffuserId.parse( signature );
+		
+		// create the URI to the diffuser with the specified signature
+		final URI diffuserUri = UriBuilder.fromUri( baseUri.toString() ).path( signature ).path( requestId ).build();
+		
+		// create the web resource for making the call, make the call to GET the result from the server
+		final WebResource resource = client.resource( diffuserUri.toString() );
+		final ClientResponse resultResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
+
+		Feed feed = null;
+		Object object = null;
+		try( InputStream response = resultResponse.getEntity( InputStream.class ) )
+		{
+			// the response is an Atom feed
+			feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			
+			// grab the content from the entry and deserialize it
+			feed.getEntries().get( 0 ).getContentStream();
+			
+			// TODO id contains the wrong class information....here we need the return type, not the class on
+			// which the method is called.
+			object = serializer.deserialize( feed.getEntries().get( 0 ).getContentStream(), id.getClazz() );
+		}
+		catch( IOException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Failed to parse the execute-diffuser response into an Atom feed" + Constants.NEW_LINE );
+			message.append( "  Signature: " + signature + Constants.NEW_LINE );
+			message.append( "  Request ID: " + requestId + Constants.NEW_LINE );
+			final DiffuserId diffuserId = DiffuserId.parse( signature );
+			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
+			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
+			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
+			for( String name : diffuserId.getArgumentTypeNames() )
+			{
+				message.append( "    " + name + Constants.NEW_LINE );
+			}
+			LOGGER.error( message.toString(), e );
+			throw new IllegalArgumentException( message.toString(), e );
+		}
+		return object;
 	}
 
 	/*
@@ -373,7 +447,7 @@ public class RestfulDiffuserManagerClient {
 		return argumentTypeNames;
 	}
 
-	public static void main( String[] args )
+	public static void main( String[] args ) throws URISyntaxException
 	{
 		DOMConfigurator.configure( "log4j.xml" );
 //		Logger.getRootLogger().setLevel( Level.DEBUG );
@@ -442,6 +516,13 @@ public class RestfulDiffuserManagerClient {
 		{
 			e.printStackTrace();
 		}
-
+		feed.getId().toURI().getPath();
+		System.out.println( feed.getLink( Link.REL_SELF ).getHref().toURI().toString() );
+		
+		final String requestId = feed.getEntries().get( 0 ).getContent();
+		System.out.println( "Request ID: " + requestId );
+		
+		final List< String > idParts = Arrays.asList( requestId.split( "/" ) );
+		/*final Object object = */managerClient.getResult( bean.getClass(), "getA", idParts.get( 1 ), serializer );
 	}
 }
