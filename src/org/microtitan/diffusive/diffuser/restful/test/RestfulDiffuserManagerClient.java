@@ -57,6 +57,11 @@ public class RestfulDiffuserManagerClient {
 	{
 		this( URI.create( baseUri ) );
 	}
+
+	public Feed createDiffuser( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	{
+		return createDiffuser( void.class, clazz, methodName, argumentTypes );
+	}
 	
 	/**
 	 * 
@@ -65,13 +70,13 @@ public class RestfulDiffuserManagerClient {
 	 * @param argumentTypes
 	 * @return
 	 */
-	public Feed createDiffuser( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	public Feed createDiffuser( final Class< ? > returnTypeClazz, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
 		// convert the argument types to argument type names
-		final String[] argumentTypeNames = convertArgumentTypes( argumentTypes ); 
+		final String[] argumentTypeNames = convertArgumentTypes( argumentTypes );
 		
 		// construct the request to create the diffuser for the specific signature (class, method, arguments)
-		final CreateDiffuserRequest request = CreateDiffuserRequest.create( clazz.getName(), methodName, argumentTypeNames );
+		final CreateDiffuserRequest request = CreateDiffuserRequest.create( clazz.getName(), methodName, returnTypeClazz.getName(), argumentTypeNames );
 		
 		// create the web resource for making the call, make the call to PUT the create-request to the server
 		final WebResource resource = client.resource( baseUri.toString() );
@@ -125,6 +130,18 @@ public class RestfulDiffuserManagerClient {
 		}
 		return feed;
 	}
+
+	/**
+	 * 
+	 * @param clazz
+	 * @param methodName
+	 * @param argumentTypes
+	 * @return
+	 */
+	public Feed deleteDiffuser( final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
+	{
+		return deleteDiffuser( void.class, clazz, methodName, argumentTypes );
+	}
 	
 	/**
 	 * 
@@ -133,9 +150,9 @@ public class RestfulDiffuserManagerClient {
 	 * @param argumentTypes
 	 * @return
 	 */
-	public Feed deleteDiffuser( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	public Feed deleteDiffuser( final Class< ? > returnType, final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
 	{
-		return deleteDiffuser( DiffuserId.create( clazz, methodName, argumentTypes ) );
+		return deleteDiffuser( DiffuserId.create( returnType, clazz, methodName, argumentTypes ) );
 	}
 	
 	/**
@@ -177,8 +194,9 @@ public class RestfulDiffuserManagerClient {
 	 * @param serializer
 	 * @return
 	 */
-	public Feed executeMethod( final Class< ? > clazz, 
-							   final String methodName, 
+	public Feed executeMethod( final Class< ? > returnTypeClazz, 
+							   final Class< ? > clazz, 
+							   final String methodName,
 							   final byte[] serializedObject,
 							   final Serializer serializer )
 	{
@@ -200,7 +218,7 @@ public class RestfulDiffuserManagerClient {
 		}
 
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( clazz, methodName );
+		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName );
 		
 		// call the execute method
 		return executeMethod( signature, serializedObject, clazz, serializerType );
@@ -211,17 +229,18 @@ public class RestfulDiffuserManagerClient {
 	 * @param clazz
 	 * @param methodName
 	 * @param serializedObject
-	 * @param serializedObjectType
 	 * @param serializerType
+	 * @param serializedObjectType
 	 * @return
 	 */
-	public Feed executeMethod( final Class< ? > clazz, 
-							   final String methodName, 
+	public Feed executeMethod( final Class< ? > returnTypeClazz, 
+							   final Class< ? > clazz, 
+							   final String methodName,
 							   final byte[] serializedObject,
 							   final String serializerType )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( clazz, methodName );
+		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName );
 		
 		// call the execute method
 		return executeMethod( signature, serializedObject, clazz, serializerType );
@@ -259,8 +278,9 @@ public class RestfulDiffuserManagerClient {
 	 * @param serializerType
 	 * @return
 	 */
-	public Feed executeMethod( final Class< ? > clazz, 
-							   final String methodName, 
+	public Feed executeMethod( final Class< ? > returnTypeClazz, 
+							   final Class< ? > clazz, 
+							   final String methodName,
 							   final List< Class< ? > > argumentTypes, 
 							   final List< byte[] > argumentValues, 
 							   final byte[] serializedObject,
@@ -268,7 +288,7 @@ public class RestfulDiffuserManagerClient {
 							   final String serializerType )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
 		// call the execute method
 		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, serializedObjectType, serializerType );
@@ -345,25 +365,27 @@ public class RestfulDiffuserManagerClient {
 		return feed;
 	}
 	
-	public Object getResult( final Class< ? > clazz, 
-							 final String methodName, 
+	public Object getResult( final Class< ? > returnTypeClazz, 
+							 final Class< ? > clazz, 
+							 final String methodName,
 							 final String requestId,
 							 final Serializer serializer )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( clazz, methodName );
+		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName );
 
 		return getResult( signature, requestId, serializer );
 	}
 	
-	public Object getResult( final Class< ? > clazz, 
-							 final String methodName, 
+	public Object getResult( final Class< ? > returnTypeClazz, 
+							 final Class< ? > clazz, 
+							 final String methodName,
 							 final List< Class< ? > > argumentTypes, 
 							 final String requestId, 
 							 final Serializer serializer )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
 		return getResult( signature, requestId, serializer );
 	}
@@ -387,11 +409,9 @@ public class RestfulDiffuserManagerClient {
 			feed = abdera.getParser().< Feed >parse( response ).getRoot();
 			
 			// grab the content from the entry and deserialize it
-			feed.getEntries().get( 0 ).getContentStream();
-			
-			// TODO id contains the wrong class information....here we need the return type, not the class on
-			// which the method is called.
-			object = serializer.deserialize( feed.getEntries().get( 0 ).getContentStream(), id.getClazz() );
+			final InputStream objectStream = feed.getEntries().get( 0 ).getContentStream();
+
+			object = serializer.deserialize( objectStream, id.getReturnTypeClazz() );
 		}
 		catch( IOException e )
 		{
@@ -460,7 +480,7 @@ public class RestfulDiffuserManagerClient {
 		//
 		// create a diffuser
 		//
-		Feed feed = managerClient.createDiffuser( bean.getClass(), "getA" );
+		Feed feed = managerClient.createDiffuser( String.class, bean.getClass(), "getA" );
 		System.out.println( "Create getA: " + feed.toString() );
 		
 		// and another
@@ -503,7 +523,7 @@ public class RestfulDiffuserManagerClient {
 		{
 			serializer.serialize( bean, out );
 			out.flush();
-			feed = managerClient.executeMethod( bean.getClass(), "getA", out.toByteArray(), serializer );
+			feed = managerClient.executeMethod( String.class, bean.getClass(), "getA", out.toByteArray(), serializer );
 			System.out.println( "Execute getA: " + feed.toString() );
 //			final String object = new String( bytes );
 //			System.out.println( "StringWriter: " + object );
@@ -523,6 +543,6 @@ public class RestfulDiffuserManagerClient {
 		System.out.println( "Request ID: " + requestId );
 		
 		final List< String > idParts = Arrays.asList( requestId.split( "/" ) );
-		/*final Object object = */managerClient.getResult( bean.getClass(), "getA", idParts.get( 1 ), serializer );
+		System.out.println( managerClient.getResult( String.class, bean.getClass(), "getA", idParts.get( 1 ), serializer ) );
 	}
 }

@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.copyable.Copyable;
 import org.microtitan.diffusive.Constants;
 
@@ -16,19 +18,27 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	
 	// signature
 	public static final String CLASS_METHOD_SEPARATOR = ":";
+	public static final String ARGUMENT_SEPARATOR = ",";
 	public static final String ARGUMENT_OPEN = "(";
 	public static final String ARGUMENT_CLOSE = ")";
-	public static final String ARGUMENT_SEPARATOR = ",";
-
+	public static final String RETURN_TYPE_SEPARATOR = "-";
+	
 	private final String className;
 	private final String methodName;
+	private final String returnTypeClassName;
 	private final List< String > argumentTypes;
 	
-	public DiffuserId( final String className, final String methodName, final List< String > argumentTypes )
+	public DiffuserId( final String returnTypeClassName, final String className, final String methodName, final List< String > argumentTypes )
 	{
 		this.className = className;
 		this.methodName = methodName;
+		this.returnTypeClassName = ( returnTypeClassName == null ? void.class.getName() : returnTypeClassName );
 		this.argumentTypes = argumentTypes;
+	}
+	
+	public DiffuserId( final String className, final String methodName, final List< String > argumentTypes )
+	{
+		this( void.class.getName(), className, methodName, argumentTypes );
 	}
 	
 	public DiffuserId( final String id )
@@ -40,7 +50,18 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	{
 		this.className = id.className;
 		this.methodName = id.methodName;
+		this.returnTypeClassName = id.returnTypeClassName;
 		this.argumentTypes = new ArrayList<>( id.argumentTypes );
+	}
+	
+	public String getReturnTypeClassName()
+	{
+		return returnTypeClassName;
+	}
+	
+	public Class< ? > getReturnTypeClazz()
+	{
+		return getClazz( returnTypeClassName );
 	}
 	
 	public String getClassName()
@@ -91,20 +112,31 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	
 	public String getId()
 	{
-		return create( className, methodName, argumentTypes );
+		return create( returnTypeClassName, className, methodName, argumentTypes );
+	}
+
+	public static String create( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	{
+		return create( void.class, clazz, methodName, argumentTypes );
 	}
 	
-	public static String create( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	public static String create( final Class< ? > returnType, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
 		final List< String > argumentTypeNames = new ArrayList<>();
 		for( Class< ? > argType : argumentTypes )
 		{
 			argumentTypeNames.add( argType.getName() );
 		}
-		return DiffuserId.create( clazz.getName(), methodName, argumentTypeNames );
+		final String returnTypeClassName = ( returnType == null ? void.class.getName() : returnType.getName() );
+		return DiffuserId.create( returnTypeClassName, clazz.getName(), methodName, argumentTypeNames );
+	}
+
+	public static String create( final String containingClassName, final String methodName, final List< String > argumentTypes )
+	{
+		return create( void.class.getName(), containingClassName, methodName, argumentTypes );
 	}
 	
-	public static String create( final String containingClassName, final String methodName, final List< String > argumentTypes )
+	public static String create( final String returnType, final String containingClassName, final String methodName, final List< String > argumentTypes )
 	{
 		// create the name/id for the diffuser
 		final StringBuffer buffer = new StringBuffer();
@@ -120,6 +152,12 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		}
 		buffer.append( ARGUMENT_CLOSE );
 		
+		// if there is a return type, then we add it, otherwise we don't
+//		if( !returnType.equals( void.class.getName() ) )
+//		{
+			buffer.append( RETURN_TYPE_SEPARATOR + returnType );
+//		}
+		
 		return buffer.toString();
 	}
 	
@@ -127,6 +165,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	{
 		String className = null;
 		String methodName = null;
+		String returnClassName = null;
 		List< String > argumentTypes = null;
 		
 		// parse
@@ -134,13 +173,15 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		final String validClassName = validName + "(\\." + validName + ")*";
 		final String validMethodName = validName;
 		final String argumentTypeList = "(" + validClassName + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + validClassName +")*)*";
+		final String returnTypeClassName = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + validClassName + ")?";
 		final String regex = "^" + 
 								validClassName + 
 								Pattern.quote( CLASS_METHOD_SEPARATOR )+ 
 								validMethodName + 
 								Pattern.quote( ARGUMENT_OPEN ) +
 									argumentTypeList +
-								Pattern.quote( ARGUMENT_CLOSE )+ 
+								Pattern.quote( ARGUMENT_CLOSE ) + 
+								returnTypeClassName +
 							 "$";
 		
 		final Pattern pattern = Pattern.compile( regex );
@@ -158,7 +199,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 			methodName = matcher.group();
 			
 			// now parse out the argument types
-			final String argString = "^" + argumentTypeList + Pattern.quote( ARGUMENT_CLOSE ) + "$";
+			final String argString = "^" + argumentTypeList + Pattern.quote( ARGUMENT_CLOSE );// + "$";
 			matcher = Pattern.compile( argString ).matcher( signature.split( Pattern.quote( ARGUMENT_OPEN ) )[ 1 ] );
 			matcher.find();
 			final String endString = matcher.group();
@@ -169,6 +210,16 @@ public class DiffuserId implements Copyable< DiffuserId > {
 			else
 			{
 				argumentTypes = Arrays.asList( endString.split( Pattern.quote( ARGUMENT_CLOSE ) )[ 0 ].split( Pattern.quote( ARGUMENT_SEPARATOR ) ) );
+			}
+			
+			// now parse out the return type
+			final String[] returnTypes = signature.split( Pattern.quote( RETURN_TYPE_SEPARATOR ) );
+			if( returnTypes != null && returnTypes.length > 1 )
+			{
+				final String returnTypeString = "^" + validClassName + "$";
+				matcher = Pattern.compile( returnTypeString ).matcher( returnTypes[ 1 ] );
+				matcher.find();
+				returnClassName = matcher.group();
 			}
 		}
 		else
@@ -189,7 +240,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		}
 		
 		// return
-		return new DiffuserId( className, methodName, argumentTypes );
+		return new DiffuserId( returnClassName, className, methodName, argumentTypes );
 	}
 	
 	@Override
@@ -202,18 +253,20 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	public String toString()
 	{
 		final StringBuffer buffer = new StringBuffer();
-		buffer.append( "Class Name: " + className + Constants.NEW_LINE );
-		buffer.append( "Method Name: " + methodName + Constants.NEW_LINE );
+		buffer.append( "ID: " + getId() + Constants.NEW_LINE );
+		buffer.append( "  Class Name: " + className + Constants.NEW_LINE );
+		buffer.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+		buffer.append( "  Return Class Name: " + returnTypeClassName + Constants.NEW_LINE );
 		if( argumentTypes == null || argumentTypes.isEmpty() )
 		{
-			buffer.append( "[No Method Arguements]" );
+			buffer.append( "  [No Method Arguements] " + Constants.NEW_LINE );
 		}
 		else
 		{
-			buffer.append( "Argument Type List" + Constants.NEW_LINE );
+			buffer.append( "  Argument Type List" + Constants.NEW_LINE );
 			for( String argumentType : argumentTypes )
 			{
-				buffer.append( "  " + argumentType + Constants.NEW_LINE );
+				buffer.append( "    " + argumentType + Constants.NEW_LINE );
 			}
 		}
 		return buffer.toString();
@@ -221,10 +274,14 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	
 	public static void main( String[] args )
 	{
-		System.out.println( DiffuserId.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
-		System.out.println( DiffuserId.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
-		System.out.println( DiffuserId.parse( "java.lang.String:concat()" ).toString() );
-		System.out.println( DiffuserId.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
-		System.out.println( DiffuserId.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
+		DOMConfigurator.configure( "log4j.xml" );
+		Logger.getRootLogger().setLevel( Level.DEBUG );
+
+		System.out.println( "1   " + DiffuserId.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
+		System.out.println( "2   " + DiffuserId.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
+		System.out.println( "3   " + DiffuserId.parse( "java.lang.String:concat()" ).toString() );
+		System.out.println( "3a  " + DiffuserId.parse( "java.lang.String:concat();java.lang.Double" ).toString() );
+		System.out.println( "4   " + DiffuserId.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
+		System.out.println( "5   " + DiffuserId.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
 	}
 }

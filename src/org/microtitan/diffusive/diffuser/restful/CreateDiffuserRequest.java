@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.freezedry.persistence.utils.Constants;
+import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory.SerializerType;
@@ -17,6 +17,7 @@ public class CreateDiffuserRequest {
 	
 	private String containingClassName;
 	private String methodName;
+	private String returnTypeClassName;
 	private List< String > argumentTypes;
 	private List< String > classPaths;
 	private String serializerType;
@@ -24,14 +25,15 @@ public class CreateDiffuserRequest {
 
 	/**
 	 * 
-	 * @param containingClassName The {@link Class} of the object containing the method to be called
 	 * @param methodName The name of the method, in the specified {@link Class}, to be called
 	 * @param argumentTypes The type of each argument accepted by the specified method. The types
 	 * must be in the same order as in the method signature.
 	 * @param classPaths The list of class paths
+	 * @param containingClassName The {@link Class} of the object containing the method to be called
 	 */
-	public CreateDiffuserRequest( final String className, 
-								  final String methodName, 
+	public CreateDiffuserRequest( final String returnTypeClassName, 
+								  final String className,
+								  final String methodName,
 								  final List< String > argumentTypes, 
 								  final List< String > classPaths,
 								  final String serializerType,
@@ -39,10 +41,21 @@ public class CreateDiffuserRequest {
 	{
 		this.containingClassName = className;
 		this.methodName = methodName;
+		this.returnTypeClassName = returnTypeClassName;
 		this.argumentTypes = (argumentTypes == null ? new ArrayList< String >() : argumentTypes );
 		this.classPaths = (classPaths == null ? new ArrayList< String >() : classPaths );
 		this.serializerType = ( serializerType == null || serializerType.isEmpty() ? SerializerType.PERSISTENCE_XML.getName() : serializerType );
 		this.clientEndpoints = (clientEndpoints == null ? new ArrayList< String >() : clientEndpoints );
+	}
+	
+	public CreateDiffuserRequest( final String className, 
+								  final String methodName,
+								  final List< String > argumentTypes, 
+								  final List< String > classPaths,
+								  final String serializerType,
+								  final List< String > clientEndpoints )
+	{
+		this( void.class.getName(), className, methodName, argumentTypes, classPaths, serializerType, clientEndpoints );
 	}
 
 	/**
@@ -62,11 +75,12 @@ public class CreateDiffuserRequest {
 	 * @param argumentTypes
 	 * @return
 	 */
-	public static CreateDiffuserRequest create( final String className, final String methodName, final String...argumentTypes )
+	public static CreateDiffuserRequest create( final String className, final String methodName, final String returnTypeClassName, final String...argumentTypes )
 	{
 		final CreateDiffuserRequest request = new CreateDiffuserRequest();
 		request.setContainingClass( className )
 			   .setMethodName( methodName )
+			   .setReturnTypeClass( returnTypeClassName )
 			   .setArgumentTypes( Arrays.asList( argumentTypes ) );
 		return request;
 	}
@@ -90,6 +104,17 @@ public class CreateDiffuserRequest {
 	public CreateDiffuserRequest setMethodName( final String methodName )
 	{
 		this.methodName = methodName;
+		return this;
+	}
+	
+	public String getReturnTypeClass()
+	{
+		return returnTypeClassName;
+	}
+	
+	public CreateDiffuserRequest setReturnTypeClass( final String returnClass )
+	{
+		this.returnTypeClassName = returnClass;
 		return this;
 	}
 	
@@ -189,6 +214,7 @@ public class CreateDiffuserRequest {
 		buffer.append( CreateDiffuserRequest.class.getName() + Constants.NEW_LINE );
 		buffer.append( "  Containing Class: " + containingClassName + Constants.NEW_LINE );
 		buffer.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+		buffer.append( "  Return Class: " + returnTypeClassName + Constants.NEW_LINE );
 		buffer.append( "  Argument Types: " + Constants.NEW_LINE );
 		for( String argType : argumentTypes )
 		{

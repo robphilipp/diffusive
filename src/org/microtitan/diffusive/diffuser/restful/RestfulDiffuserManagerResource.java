@@ -133,7 +133,8 @@ public class RestfulDiffuserManagerResource {
 	 * Creates the diffuser and crafts the response. Decouples the way the information is sent from
 	 * the creation of the diffuser and the response
 	 * @param serializer The {@link Serializer} used to serialize/deserialize objects
-	 * @param clientEndpoints The URI of the endpoints to which result requests can be sent 
+	 * @param clientEndpoints The URI of the endpoints to which result requests can be sent
+	 * @param containingClassName The class name of the returned type 
 	 * @param containingClassName The name of the class containing the method to execute
 	 * @param methodName The name of the method to execute
 	 * @param argumentTypes The parameter types that form part of the method's signature
@@ -141,6 +142,7 @@ public class RestfulDiffuserManagerResource {
 	 */
 	private String create( final Serializer serializer,
 						   final List< URI > clientEndpoints,
+						   final String returnTypeClassName,
 						   final String containingClassName,
 						   final String methodName,
 						   final List< String > argumentTypes )
@@ -149,7 +151,7 @@ public class RestfulDiffuserManagerResource {
 		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints );
 		
 		// create the name/id for the diffuser
-		final String key = DiffuserId.create( containingClassName, methodName, argumentTypes );
+		final String key = DiffuserId.create( returnTypeClassName, containingClassName, methodName, argumentTypes );
 
 		// add the diffuser to the map of diffusers
 		/*final RestfulDiffuser oldDiffuser = */diffusers.put( key, diffuser );
@@ -171,6 +173,7 @@ public class RestfulDiffuserManagerResource {
 		// create the diffuser
 		final String key = create( request.getSerializer(), 
 								   request.getClientEndpointsUri(), 
+								   request.getReturnTypeClass(),
 								   request.getContainingClass(), 
 								   request.getMethodName(), 
 								   request.getArgumentTypes() );
@@ -245,7 +248,7 @@ public class RestfulDiffuserManagerResource {
 	 * @param signature
 	 * @return
 	 */
-	@GET @Path( "{" + SIGNATURE + "}" + "/{" + RESULT_ID + ": [a-zA-Z0-9\\-]}" )
+	@GET @Path( "{" + SIGNATURE + "}" + "/{" + RESULT_ID + ": [a-zA-Z0-9\\-]*}" )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
 //	@Produces( MediaType.APPLICATION_OCTET_STREAM )
 	public Response getResult( @Context final UriInfo uriInfo, 
