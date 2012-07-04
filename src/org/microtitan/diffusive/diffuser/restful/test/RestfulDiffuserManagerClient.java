@@ -365,29 +365,48 @@ public class RestfulDiffuserManagerClient {
 		return feed;
 	}
 	
-	public Object getResult( final Class< ? > returnTypeClazz, 
-							 final Class< ? > clazz, 
-							 final String methodName,
-							 final String requestId,
-							 final Serializer serializer )
+	/**
+	 * 
+	 * @param returnTypeClazz
+	 * @param clazz
+	 * @param methodName
+	 * @param requestId
+	 * @param serializer
+	 * @return
+	 */
+	public < T > T getResult( final Class< T > returnTypeClazz, 
+							  final Class< ? > clazz, 
+							  final String methodName,
+							  final String requestId,
+							  final Serializer serializer )
 	{
 		// construct the signature from the specified parameters
 		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName );
 
-		return getResult( signature, requestId, serializer );
+		return returnTypeClazz.cast( getResult( signature, requestId, serializer ) );
 	}
 	
-	public Object getResult( final Class< ? > returnTypeClazz, 
-							 final Class< ? > clazz, 
-							 final String methodName,
-							 final List< Class< ? > > argumentTypes, 
-							 final String requestId, 
-							 final Serializer serializer )
+	/**
+	 * 
+	 * @param returnTypeClazz
+	 * @param clazz
+	 * @param methodName
+	 * @param argumentTypes
+	 * @param requestId
+	 * @param serializer
+	 * @return
+	 */
+	public < T > T getResult( final Class< T > returnTypeClazz, 
+							  final Class< ? > clazz, 
+							  final String methodName,
+							  final List< Class< ? > > argumentTypes, 
+							  final String requestId, 
+							  final Serializer serializer )
 	{
 		// construct the signature from the specified parameters
 		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
-		return getResult( signature, requestId, serializer );
+		return returnTypeClazz.cast( getResult( signature, requestId, serializer ) );
 	}
 	
 	public Object getResult( final String signature, final String requestId, final Serializer serializer )
@@ -543,6 +562,7 @@ public class RestfulDiffuserManagerClient {
 		System.out.println( "Request ID: " + requestId );
 		
 		final List< String > idParts = Arrays.asList( requestId.split( "/" ) );
-		System.out.println( managerClient.getResult( String.class, bean.getClass(), "getA", idParts.get( 1 ), serializer ) );
+		final String result = managerClient.getResult( String.class, bean.getClass(), "getA", idParts.get( 1 ), serializer );
+		System.out.println( result );
 	}
 }
