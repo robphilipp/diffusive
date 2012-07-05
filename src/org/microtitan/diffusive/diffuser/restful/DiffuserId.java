@@ -11,70 +11,145 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.copyable.Copyable;
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.diffuser.Diffuser;
 
+/**
+ * Encapsulates the key used to identify a {@link Diffuser} for a specific method. The {@link Diffuser} ID
+ * is based on:
+ * <ul>
+ * 	<li>the name of the {@link Class} that contains the diffused method</li>
+ * 	<li>the name of the method</li>
+ * 	<li>a list of the class names for each of the arguments passed to the method</li>
+ * 	<li>the {@link Class} name of the return type</li>
+ * </ul>
+ * The {@link Diffuser} ID is constructed as follows:<p>
+ * {@code class:method(argument1,argument2,argument3,...,argumentN)-returnType}<p> 
+ * where the "{@code class}" is the fully qualified class name; the method is the name of the method;
+ * the arguments are all the fully qualified class names of the argument; and the {@code returnType}
+ * is the fully qualified class name of the return type (which could be {@code void.class}.
+ * 
+ * The {@link DiffuserId} can be instantiated through the constructors, or preferably, through one of the
+ * four {@code create(...)} methods, or the {@link #parse(String)} method.
+ * 
+ * The {@link DiffuserId} objects are immutable.
+ * 
+ * @author Robert Philipp
+ */
 public class DiffuserId implements Copyable< DiffuserId > {
 	
 	private static final Logger LOGGER = Logger.getLogger( DiffuserId.class );
 	
-	// signature
+	// signature punctuation
 	public static final String CLASS_METHOD_SEPARATOR = ":";
 	public static final String ARGUMENT_SEPARATOR = ",";
 	public static final String ARGUMENT_OPEN = "(";
 	public static final String ARGUMENT_CLOSE = ")";
 	public static final String RETURN_TYPE_SEPARATOR = "-";
 	
+	// signature
 	private final String className;
 	private final String methodName;
 	private final String returnTypeClassName;
 	private final List< String > argumentTypes;
+	private final String signature;
 	
+	/**
+	 * Constructs a {@link DiffuserId} based on the specified return type name, the name of the class containing the
+	 * diffusive method, the method to diffuse, and the list of argument type names. 
+	 * @param returnTypeClassName The name of the return type
+	 * @param className The name of the class that contains the method to diffuse
+	 * @param methodName The name of the method to diffuse
+	 * @param argumentTypes The class names of the arguments passed to the method
+	 */
 	public DiffuserId( final String returnTypeClassName, final String className, final String methodName, final List< String > argumentTypes )
 	{
 		this.className = className;
 		this.methodName = methodName;
 		this.returnTypeClassName = ( returnTypeClassName == null ? void.class.getName() : returnTypeClassName );
 		this.argumentTypes = argumentTypes;
+		
+		// construct the signature
+		this.signature = createId( returnTypeClassName, className, methodName, argumentTypes );
 	}
 	
+	/**
+	 * Constructs a {@link DiffuserId} for a method that does not return a value, the name of the class containing the
+	 * diffusive method, the method to diffuse, and the list of argument type names. 
+	 * @param className The name of the class that contains the method to diffuse
+	 * @param methodName The name of the method to diffuse
+	 * @param argumentTypes The class names of the arguments passed to the method
+	 */
 	public DiffuserId( final String className, final String methodName, final List< String > argumentTypes )
 	{
 		this( void.class.getName(), className, methodName, argumentTypes );
 	}
 	
+	/**
+	 * Constructs a {@link DiffuserId} by parsing an existing diffuser ID string. The {@link Diffuser} ID 
+	 * is constructed as follows:<p>
+	 * {@code class:method(argument1,argument2,argument3,...,argumentN)-returnType}<p> 
+	 * where the "{@code class}" is the fully qualified class name; the method is the name of the method;
+	 * the arguments are all the fully qualified class names of the argument; and the {@code returnType}
+	 * is the fully qualified class name of the return type (which could be {@code void.class}.
+	 * @param id The diffuser ID string
+	 */
 	public DiffuserId( final String id )
 	{
 		this( parse( id ) );
 	}
 	
+	/**
+	 * Copy constructor that creates a copy of the specified diffuser ID. {@link DiffuserId} objects are
+	 * immutable, so this isn't terribly necessary. 
+	 * @param id The {@link DiffuserId} to copy
+	 */
 	public DiffuserId( final DiffuserId id )
 	{
-		this.className = id.className;
-		this.methodName = id.methodName;
-		this.returnTypeClassName = id.returnTypeClassName;
-		this.argumentTypes = new ArrayList<>( id.argumentTypes );
+		this( id.returnTypeClassName, id.className, id.methodName, new ArrayList<>( id.argumentTypes ) );
+//		this.className = id.className;
+//		this.methodName = id.methodName;
+//		this.returnTypeClassName = id.returnTypeClassName;
+//		this.argumentTypes = new ArrayList<>( id.argumentTypes );
 	}
 	
+	/**
+	 * @return the class name of the return value
+	 */
 	public String getReturnTypeClassName()
 	{
 		return returnTypeClassName;
 	}
 	
+	/**
+	 * @return The {@link Class} of the return value
+	 */
 	public Class< ? > getReturnTypeClazz()
 	{
 		return getClazz( returnTypeClassName );
 	}
 	
+	/**
+	 * @return The name of the class that contains the method to be diffused
+	 */
 	public String getClassName()
 	{
 		return className;
 	}
 	
+	/**
+	 * @return The {@link Class} that contains the method to be diffused
+	 */
 	public Class< ? > getClazz()
 	{
 		return getClazz( className );
 	}
 	
-	public static Class< ? > getClazz( final String className )
+	/*
+	 * Utility method that returns the {@link Class} object for the specified class name.
+	 * @param className The name of the {@link Class} for which to return the {@link Class} object.
+	 * @return the {@link Class} object for the specified class name.
+	 */
+	private static Class< ? > getClazz( final String className )
 	{
 		Class< ? > clazz = null;
 		try
@@ -90,16 +165,25 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		return clazz;
 	}
 	
+	/**
+	 * @return the name of the method that is diffused
+	 */
 	public String getMethodName()
 	{
 		return methodName;
 	}
 	
+	/**
+	 * @return A list of {@link Class} names corresponding the to arguments passed to the diffused method
+	 */
 	public List< String > getArgumentTypeNames()
 	{
 		return argumentTypes;
 	}
 	
+	/**
+	 * @return A list of {@link Class} objects corresponding the to arguments passed to the diffused method
+	 */
 	public List< Class< ? > > getArgumentTypes()
 	{
 		final List< Class< ? > > types = new ArrayList<>();
@@ -110,17 +194,27 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		return types;
 	}
 	
-	public String getId()
+	/**
+	 * Constructs a diffuser ID string for a method that doesn't have a return value
+	 * @param clazz The {@link Class} that contains the diffused method
+	 * @param methodName The name of the diffused method
+	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
+	 * @return a diffuser ID string for a method that doesn't have a return value
+	 */
+	public static final String createId( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
-		return create( returnTypeClassName, className, methodName, argumentTypes );
-	}
-
-	public static String create( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
-	{
-		return create( void.class, clazz, methodName, argumentTypes );
+		return createId( void.class, clazz, methodName, argumentTypes );
 	}
 	
-	public static String create( final Class< ? > returnType, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	/**
+	 * Constructs a diffuser ID string
+	 * @param returnType The {@link Class} object representing the method's return type
+	 * @param clazz The {@link Class} that contains the diffused method
+	 * @param methodName The name of the diffused method
+	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
+	 * @return a diffuser ID string
+	 */
+	public static final String createId( final Class< ? > returnType, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
 		final List< String > argumentTypeNames = new ArrayList<>();
 		for( Class< ? > argType : argumentTypes )
@@ -128,15 +222,36 @@ public class DiffuserId implements Copyable< DiffuserId > {
 			argumentTypeNames.add( argType.getName() );
 		}
 		final String returnTypeClassName = ( returnType == null ? void.class.getName() : returnType.getName() );
-		return DiffuserId.create( returnTypeClassName, clazz.getName(), methodName, argumentTypeNames );
+		return createId( returnTypeClassName, clazz.getName(), methodName, argumentTypeNames );
 	}
 
-	public static String create( final String containingClassName, final String methodName, final List< String > argumentTypes )
+	/**
+	 * Constructs the diffuser ID string, for a method that does not return a value, based on 
+	 * the specified values
+	 * @param containingClassName The name of the class that contains the method to diffuse
+	 * @param methodName The name of the method to diffuse
+	 * @param argumentTypes The class names of the arguments passed to the method
+	 * @return the diffuser ID string based on the specified values
+	 */
+	public static final String createId( final String containingClassName, 
+			 							 final String methodName, 
+			 							 final List< String > argumentTypes )
 	{
-		return create( void.class.getName(), containingClassName, methodName, argumentTypes );
+		return createId( void.class.getName(), containingClassName, methodName, argumentTypes );
 	}
 	
-	public static String create( final String returnType, final String containingClassName, final String methodName, final List< String > argumentTypes )
+	/**
+	 * Constructs the diffuser ID string based on the specified values
+	 * @param returnType The name of the return type
+	 * @param containingClassName The name of the class that contains the method to diffuse
+	 * @param methodName The name of the method to diffuse
+	 * @param argumentTypes The class names of the arguments passed to the method
+	 * @return the diffuser ID string based on the specified values
+	 */
+	public static final String createId( final String returnType, 
+										 final String containingClassName, 
+										 final String methodName, 
+										 final List< String > argumentTypes )
 	{
 		// create the name/id for the diffuser
 		final StringBuffer buffer = new StringBuffer();
@@ -151,17 +266,97 @@ public class DiffuserId implements Copyable< DiffuserId > {
 			}
 		}
 		buffer.append( ARGUMENT_CLOSE );
-		
-		// if there is a return type, then we add it, otherwise we don't
-//		if( !returnType.equals( void.class.getName() ) )
-//		{
-			buffer.append( RETURN_TYPE_SEPARATOR + returnType );
-//		}
+		buffer.append( RETURN_TYPE_SEPARATOR + returnType );
 		
 		return buffer.toString();
 	}
 	
-	public static DiffuserId parse( final String signature )
+	/**
+	 * @return The diffuser ID string
+	 */
+	public String getId()
+	{
+		return signature;
+	}
+
+	/**
+	 * Constructs a {@link DiffuserId} for a method that doesn't have a return value
+	 * @param clazz The {@link Class} that contains the diffused method
+	 * @param methodName The name of the diffused method
+	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
+	 * @return a {@link DiffuserId} for a method that doesn't have a return value
+	 */
+	public static final synchronized DiffuserId create( final Class< ? > clazz, 
+														final String methodName, 
+														final Class< ? >...argumentTypes )
+	{
+		return create( void.class, clazz, methodName, argumentTypes );
+	}
+	
+	/**
+	 * Constructs a {@link DiffuserId}
+	 * @param returnType The {@link Class} object representing the method's return type
+	 * @param clazz The {@link Class} that contains the diffused method
+	 * @param methodName The name of the diffused method
+	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
+	 * @return a {@link DiffuserId}
+	 */
+	public static final synchronized DiffuserId create( final Class< ? > returnType, 
+														final Class< ? > clazz, 
+														final String methodName, 
+														final Class< ? >...argumentTypes )
+	{
+		final List< String > argumentTypeNames = new ArrayList<>();
+		for( Class< ? > argType : argumentTypes )
+		{
+			argumentTypeNames.add( argType.getName() );
+		}
+		final String returnTypeClassName = ( returnType == null ? void.class.getName() : returnType.getName() );
+		return create( returnTypeClassName, clazz.getName(), methodName, argumentTypeNames );
+	}
+
+	/**
+	 * Constructs the {@link DiffuserId}, for a method that does not return a value, based on 
+	 * the specified values
+	 * @param containingClassName The name of the class that contains the method to diffuse
+	 * @param methodName The name of the method to diffuse
+	 * @param argumentTypes The class names of the arguments passed to the method
+	 * @return the {@link DiffuserId} based on the specified values
+	 */
+	public static final synchronized DiffuserId create( final String containingClassName, 
+														final String methodName, 
+														final List< String > argumentTypes )
+	{
+		return create( void.class.getName(), containingClassName, methodName, argumentTypes );
+	}
+	
+	/**
+	 * Constructs the {@link DiffuserId} based on the specified values
+	 * @param returnType The name of the return type
+	 * @param containingClassName The name of the class that contains the method to diffuse
+	 * @param methodName The name of the method to diffuse
+	 * @param argumentTypes The class names of the arguments passed to the method
+	 * @return the {@link DiffuserId} based on the specified values
+	 */
+	public static final synchronized DiffuserId create( final String returnType, 
+														final String containingClassName, 
+														final String methodName, 
+														final List< String > argumentTypes )
+	{
+		return new DiffuserId( returnType, containingClassName, methodName, argumentTypes );
+	}
+	
+	/**
+	 * Parses the specified diffuser ID string into a {@link DiffuserId} object. The {@link Diffuser} ID 
+	 * is constructed as follows:<p>
+	 * {@code class:method(argument1,argument2,argument3,...,argumentN)-returnType}<p> 
+	 * where the "{@code class}" is the fully qualified class name; the method is the name of the method;
+	 * the arguments are all the fully qualified class names of the argument; and the {@code returnType}
+	 * is the fully qualified class name of the return type (which could be {@code void.class}.
+	 * @param signature The diffuser ID string representing the signature
+	 * @return a {@link DiffuserId} object based on the specified diffuser ID string
+	 */
+	public static final synchronized DiffuserId parse( final String signature )
 	{
 		String className = null;
 		String methodName = null;
@@ -243,12 +438,20 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		return new DiffuserId( returnClassName, className, methodName, argumentTypes );
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.freezedry.persistence.copyable.Copyable#getCopy()
+	 */
 	@Override
 	public DiffuserId getCopy()
 	{
 		return new DiffuserId( this );
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString()
 	{

@@ -207,6 +207,10 @@ public class CreateDiffuserRequest {
 		return this;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString()
 	{

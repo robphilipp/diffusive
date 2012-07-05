@@ -151,7 +151,7 @@ public class RestfulDiffuserManagerResource {
 		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints );
 		
 		// create the name/id for the diffuser
-		final String key = DiffuserId.create( returnTypeClassName, containingClassName, methodName, argumentTypes );
+		final String key = DiffuserId.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );
 
 		// add the diffuser to the map of diffusers
 		/*final RestfulDiffuser oldDiffuser = */diffusers.put( key, diffuser );

@@ -152,7 +152,7 @@ public class RestfulDiffuserManagerClient {
 	 */
 	public Feed deleteDiffuser( final Class< ? > returnType, final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
 	{
-		return deleteDiffuser( DiffuserId.create( returnType, clazz, methodName, argumentTypes ) );
+		return deleteDiffuser( DiffuserId.createId( returnType, clazz, methodName, argumentTypes ) );
 	}
 	
 	/**
@@ -218,7 +218,7 @@ public class RestfulDiffuserManagerClient {
 		}
 
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName );
+		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName );
 		
 		// call the execute method
 		return executeMethod( signature, serializedObject, clazz, serializerType );
@@ -240,7 +240,7 @@ public class RestfulDiffuserManagerClient {
 							   final String serializerType )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName );
+		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName );
 		
 		// call the execute method
 		return executeMethod( signature, serializedObject, clazz, serializerType );
@@ -288,7 +288,7 @@ public class RestfulDiffuserManagerClient {
 							   final String serializerType )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
 		// call the execute method
 		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, serializedObjectType, serializerType );
@@ -381,7 +381,7 @@ public class RestfulDiffuserManagerClient {
 							  final Serializer serializer )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName );
+		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName );
 
 		return returnTypeClazz.cast( getResult( signature, requestId, serializer ) );
 	}
@@ -404,7 +404,7 @@ public class RestfulDiffuserManagerClient {
 							  final Serializer serializer )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.create( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
 		return returnTypeClazz.cast( getResult( signature, requestId, serializer ) );
 	}
