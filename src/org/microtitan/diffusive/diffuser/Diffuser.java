@@ -27,7 +27,7 @@ public interface Diffuser {
 	 * @see #runObject(Object, String, Object)
 	 * @see #runObject(Object, String, Object...)
 	 */
-	Object runObject( final Object object, final String methodName );
+	Object runObject( final boolean isRemoteCall, final Object object, final String methodName );
 	
 	/**
 	 * Runs the specified single-argument method on the specified object.
@@ -40,7 +40,7 @@ public interface Diffuser {
 	 * @see #runObject(Object, String)
 	 * @see #runObject(Object, String, Object...)
 	 */
-	Object runObject( final Object object, final String methodName, final Object argument );
+	Object runObject( final boolean isRemoteCall, final Object object, final String methodName, final Object argument );
 	
 	/**
 	 * Runs the specified method on the specified object.
@@ -53,5 +53,5 @@ public interface Diffuser {
 	 * @see #runObject(Object, String)
 	 * @see #runObject(Object, String, Object)
 	 */
-	Object runObject( final Object object, final String methodName, final Object...arguments );
+	Object runObject( final boolean isRemoteCall, final Object object, final String methodName, final Object...arguments );
 }

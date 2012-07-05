@@ -12,6 +12,12 @@ import org.glassfish.grizzly.http.server.HttpServer;
 
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 
+/**
+ * The RESTful diffuser server that listens to the specified URI and uses the resources and information
+ * contained in the specified JAX-RS application. 
+ * 
+ * @author Robert Philipp
+ */
 public class RestfulDiffuserServer {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserServer.class );
@@ -19,7 +25,8 @@ public class RestfulDiffuserServer {
 	private HttpServer server;
 	
 	/**
-	 * 
+	 * Creates a starts the RESTful diffuser server listening at the specified server URI and using the 
+	 * specified JAX-RS application.
 	 * @param serverUri The URI for this RESTful diffuser (i.e. the URI at which others would call this diffuser)
 	 * @param application The JAX-RS application that contains information about the resources that contain the JAX-RS bindings
 	 */
@@ -81,11 +88,17 @@ public class RestfulDiffuserServer {
 		return server;
 	}
 	
+	/**
+	 * Stops the {@link RestfulDiffuserServer}
+	 */
 	public void stop()
 	{
 		server.stop();
 	}
 	
+	/**
+	 * Starts the {@link RestfulDiffuserServer}
+	 */
 	public void start()
 	{
 		try

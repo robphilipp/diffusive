@@ -423,7 +423,7 @@ public class RestfulDiffuserManagerResource {
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
-		final Object resultObject = diffuser.runObject( deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
+		final Object resultObject = diffuser.runObject( true, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
 		
 //		// serialize the result result to be used in the response.
 //		try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )

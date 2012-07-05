@@ -286,7 +286,7 @@ public class DiffusiveLauncher {
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
 		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
-		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultMethodIntercepter( /*restfulDiffuser*/ ) );
+		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultMethodIntercepter() );
 		run( translator, classNameToRun, programArgs );
 //		runClean( classNameToRun, programArgs );
 		

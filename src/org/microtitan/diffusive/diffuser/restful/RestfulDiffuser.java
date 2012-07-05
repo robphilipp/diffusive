@@ -34,7 +34,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-	public Object runObject( final Object object, final String methodName, final Object... arguments )
+	public Object runObject( final boolean isRemoteCall, final Object object, final String methodName, final Object... arguments )
 	{
 //		final StringBuffer buffer = new StringBuffer();
 //		buffer.append( "******RESTful Diffuser*******" + Constants.NEW_LINE );
@@ -45,7 +45,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 //		return buffer.toString();
 		// TODO need to figure out how to know if this is supposed to go out to an endpoint, or if it
 		// is now at the endpoint and needs to run locally.
-		return new LocalDiffuser().runObject( object, methodName, arguments );
+		return new LocalDiffuser().runObject( false, object, methodName, arguments );
 	}
 	
 	@Override
