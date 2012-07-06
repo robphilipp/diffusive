@@ -2,6 +2,7 @@ package org.microtitan.diffusive.diffuser;
 
 import java.lang.reflect.Method;
 
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 
 /**
@@ -15,12 +16,26 @@ import org.microtitan.diffusive.diffuser.serializer.Serializer;
  * a serialized/persisted form so that they (their entire object tree) can be transported across the network
  * to a {@link Diffuser} that can reconstruct the object and execute the method.
  * 
+ * The {@code runObject(...)} methods defined in this interface are expected to handle local calls and remote
+ * calls. In the case of local calls, the implementation of these methods are intended to diffuse the code
+ * to a {@link Diffuser} running remotely. In the case of remote calls, the implementation of these methods
+ * should either run the method locally and return the results, or diffuse the code to another remote
+ * {@link Diffuser}, which in turn would do the same.
+ * 
+ * @see LocalDiffuser
+ * @see RestfulDiffuser
+ * 
  * @author Robert Philipp
  */
 public interface Diffuser {
 
 	/**
 	 * Runs the specified no-arg method on the specified object.
+	 * @param isRemoteCall specifies whether the call comes from a remote or non-remote location. The 
+	 * location is considered remote if it comes from a different process than the one in which this is
+	 * executing. For example, if this method is called from a web resource, then it would be a remote
+	 * call. Similarly, if the method is called from within process, then likely the intent of this method
+	 * is to call a diffuser that is running outside of this process.
 	 * @param object The object on which to make the method call given by the specified method name
 	 * @param methodName The name of the method to call on the object
 	 * @return The result of the method on the specified object
@@ -31,6 +46,11 @@ public interface Diffuser {
 	
 	/**
 	 * Runs the specified single-argument method on the specified object.
+	 * @param isRemoteCall specifies whether the call comes from a remote or non-remote location. The 
+	 * location is considered remote if it comes from a different process than the one in which this is
+	 * executing. For example, if this method is called from a web resource, then it would be a remote
+	 * call. Similarly, if the method is called from within process, then likely the intent of this method
+	 * is to call a diffuser that is running outside of this process.
 	 * @param object The object on which to make the method call given by the specified method name
 	 * @param methodName The name of the method to call on the object
 	 * @param argument The argument to be passed to the method. Typically the implementing class will
@@ -44,6 +64,11 @@ public interface Diffuser {
 	
 	/**
 	 * Runs the specified method on the specified object.
+	 * @param isRemoteCall specifies whether the call comes from a remote or non-remote location. The 
+	 * location is considered remote if it comes from a different process than the one in which this is
+	 * executing. For example, if this method is called from a web resource, then it would be a remote
+	 * call. Similarly, if the method is called from within process, then likely the intent of this method
+	 * is to call a diffuser that is running outside of this process.
 	 * @param object The object on which to make the method call given by the specified method name
 	 * @param methodName The name of the method to call on the object
 	 * @param arguments The arguments to be passed to the method. Typically the implementing class will
