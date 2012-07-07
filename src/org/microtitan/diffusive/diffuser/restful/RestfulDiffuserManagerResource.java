@@ -410,8 +410,8 @@ public class RestfulDiffuserManagerResource {
 			}
 		}
 	
-		// deserialize the result, but first ensure that the class type for the result specified in
-		// the request and the path signature are the same.
+		// deserialize the object that contains the method to be called, but first ensure that the class type for 
+		// object the specified in the request and the path signature are the same.
 		final String objectType = request.getObjectType();
 		if( !objectType.equals( diffuserId.getClassName() ) )
 		{
@@ -446,7 +446,9 @@ public class RestfulDiffuserManagerResource {
 			throw new IllegalArgumentException( message.toString() );
 		}
 		
+		//
 		// call the diffused method using the diffuser with the matching signature
+		//
 		final RestfulDiffuser diffuser = diffusers.get( signature );
 		if( diffuser == null )
 		{
@@ -463,19 +465,9 @@ public class RestfulDiffuserManagerResource {
 		}
 		final Object resultObject = diffuser.runObject( true, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
 		
-//		// serialize the result result to be used in the response.
-//		try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
-//		{
-//			serializer.serialize( resultObject, output );
-//		}
-//		catch( IOException e )
-//		{
-//			final StringBuffer message = new StringBuffer();
-//			message.append( "Error occured while attempting to close the byte array output stream for the serialized result result." );
-//			LOGGER.error( message.toString() );
-//			throw new IllegalArgumentException( message.toString() );
-//		}
-//
+		//
+		// create the response
+		//
 		// grab the requstId
 		final String requestId = request.getRequestId();
 
@@ -504,63 +496,12 @@ public class RestfulDiffuserManagerResource {
 		
 		return response;
 	}
-	
-	// TODO have to add the result representation...probably this will only work 
-	// from the non-form version
-//	@POST @Path( "{" + SIGNATURE + "}" + DIFFUSER_EXECUTE + DIFFUSER_FORM )
-//	@Consumes( MediaType.APPLICATION_FORM_URLENCODED )
-//	@Produces( MediaType.TEXT_HTML )
-//	public String executeDiffuserFromForm( @PathParam( SIGNATURE ) final String signature,
-//										   @FormParam( ARGUMENT_VALUES ) final String values )
-//	{
-//		// parse the signature into its parts so that we can call the diffuser
-//		final DiffuserId diffuserId = DiffuserId.parse( signature );
-//		final List< String > argumentTypes = diffuserId.getArgumentTypes();
-//		
-//		// split the argument values
-//		final List< String > argumentValues = new ArrayList<>();
-//		if( !values.isEmpty() )
-//		{
-//			argumentValues.addAll( Arrays.asList( values.split( Pattern.quote( "," ) ) ) );
-//		}
-//		
-//		// ensure that for each argument type, there is an argument value
-//		final StringBuffer buffer = new StringBuffer();
-//		buffer.append( "<html><body>" );
-//		buffer.append( "<h1>Execute Diffuser: " + signature + "</h1>" );
-//		if( argumentTypes.size() == argumentValues.size() )
-//		{
-//			for( int i = 0; i < argumentTypes.size(); ++i )
-//			{
-//				buffer.append( "<p>" + argumentTypes.get( i ) + " = " + argumentValues.get( i ) + "</p>" );
-//			}
-//
-//			// grab the class name and the method name and create instantiate the result
-//			try
-//			{
-//				final String className = diffuserId.getClassName();
-//				final Class< ? > clazz = Class.forName( className );		// can also specify the class loader, which we may have to do
-//				final Object result = clazz.newInstance();		// TODO need to reconstruct the class from the serialized version here
-//				
-//				// grab the diffuser based on the signature
-//				final RestfulDiffuser diffuser = diffusers.get( signature );
-//				final Object result = diffuser.runObject( result, diffuserId.getMethodName(), argumentValues.toArray( new Object[ 0 ] ) );
-//				
-//				buffer.append( "<p>Result: " + result );
-//			}
-//			catch( ClassNotFoundException | InstantiationException | IllegalAccessException e )
-//			{
-//				throw new IllegalArgumentException( "class not found or couldn't be instantiated", e );
-//			}
-//		}
-//		else
-//		{
-//			buffer.append( "The number argument types (" + argumentTypes.size() + ") and values (" + argumentValues.size() + ") do not match." );
-//		}
-//		buffer.append( "</body></html>" );
-//		return buffer.toString();
-//	}
 
+	/**
+	 * Returns an Atom feed as a string, whose entries each represent a registered diffuser
+	 * @param uriInfo Information about the request URI and the JAX-RS application.
+	 * @return an Atom feed as a string, whose entries each represent a registered diffuser
+	 */
 	@GET
 	@Produces( MediaType.APPLICATION_ATOM_XML )
 	public Response getList( @Context final UriInfo uriInfo )
@@ -600,6 +541,13 @@ public class RestfulDiffuserManagerResource {
 		return response;
 	}
 	
+	/**
+	 * Deletes the diffuser at the specified URI
+	 * @param uriInfo Information about the request URI and the JAX-RS application.
+	 * @param signature The signature of the {@link RestfulDiffuser} corresponding to a specific method.
+	 * The signatures are created using the {@link DiffuserId} class.
+	 * @return A responses that holds the URI of the diffuser that was deleted.
+	 */
 	@DELETE @Path( "{" + SIGNATURE + "}" )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
 	public Response delete( @Context final UriInfo uriInfo, @PathParam( SIGNATURE ) final String signature )
@@ -640,106 +588,12 @@ public class RestfulDiffuserManagerResource {
 		return response;
 	}
 	
-//	@GET @Path( "{" + SIGNATURE + "}" )
-//	@Consumes( MediaType.APPLICATION_XML )
-//	@Produces( MediaType.APPLICATION_XML )
-//	public Response getDiffuserAsForm( @PathParam( SIGNATURE ) final String signature )
-//	{
-//		Response response = null;
-//		if( diffusers.containsKey( signature ) )
-//		{
-//			final URI diffuserUri = createDiffuserUri( baseUri, signature );
-//			
-//			final RestfulDiffuser diffuser = diffusers.get( signature );
-//
-//			final StringBuffer buffer = new StringBuffer();
-//			buffer.append( "<html><body>" );
-//			buffer.append( "<h1>Diffuser Key: " + signature + "</h1>" );
-//			buffer.append( "Diffuser Class: " + diffuser.getClass().getName() );
-//			buffer.append( "<form name=\"input\" method=\"get\" action=\"" + diffuserUri.toString() + DIFFUSER_EXECUTE + DIFFUSER_FORM + "\" >" );
-//			buffer.append( "<input type=\"submit\" value=\"Execute Method\" />" );
-//			buffer.append( "</form>" );
-//			buffer.append( "<form name=\"input\" method=\"get\" action=\"" + diffuserUri.toString() + DIFFUSER_DELETE + "\" >" );
-//			buffer.append( "<input type=\"submit\" value=\"Delete\" />" );
-//			buffer.append( "</form>" );
-//			buffer.append( "</body></html>" );
-//
-//			response = Response.created( diffuserUri )
-//					  .status( Status.CREATED )
-//					  .location( diffuserUri )
-//					  .entity( buffer.toString() )
-//					  .build();
-//		}
-//		else
-//		{
-//			response = Response.created( baseUri ).status( Status.BAD_REQUEST ).build();
-//		}
-//		
-//		return response;
-//	}
-
-//	@GET @Path( /*DIFFUSER_LIST +*/ DIFFUSER_FORM )
-//	@Produces( MediaType.APPLICATION_XML )
-//	public Response getDiffuserListAsForm()
-//	{
-//		final StringBuffer buffer = new StringBuffer();
-//		buffer.append( "<html><body>" );
-//		buffer.append( "<h1>Diffusers</h1>" );
-//		for( Map.Entry< String, RestfulDiffuser > entry : diffusers.entrySet() )
-//		{
-//			final URI diffuserUri = createDiffuserUri( baseUri, entry.getKey() );
-//			buffer.append( "<form name=\"input\" method=\"get\" action=\"" + diffuserUri.toString() /*+ DIFFUSER_GET*/ + DIFFUSER_FORM + "\" >" );
-//			buffer.append( entry.getKey() + "<input type=\"submit\" value=\"Get\" />" );
-//			buffer.append( "</form>" );
-//		}
-//		buffer.append( "</body></html>" );
-//		
-//		return Response.created( baseUri )
-//					   .status( Status.CREATED )
-//					   .location( baseUri )
-//					   .entity( buffer.toString() )
-//					   .build();
-//		
-//	}
-	
-//	@GET @Path( "{" + SIGNATURE + "}" + DIFFUSER_GET + DIFFUSER_FORM )
-//	@Consumes( MediaType.APPLICATION_XML )
-//	@Produces( MediaType.TEXT_HTML )
-//	public Response getDiffuserAsForm( @PathParam( SIGNATURE ) final String signature )
-//	{
-//		Response response = null;
-//		if( diffusers.containsKey( signature ) )
-//		{
-//			final URI diffuserUri = createDiffuserUri( baseUri, signature );
-//			
-//			final RestfulDiffuser diffuser = diffusers.get( signature );
-//
-//			final StringBuffer buffer = new StringBuffer();
-//			buffer.append( "<html><body>" );
-//			buffer.append( "<h1>Diffuser Key: " + signature + "</h1>" );
-//			buffer.append( "Diffuser Class: " + diffuser.getClass().getName() );
-//			buffer.append( "<form name=\"input\" method=\"get\" action=\"" + diffuserUri.toString() + DIFFUSER_EXECUTE + DIFFUSER_FORM + "\" >" );
-//			buffer.append( "<input type=\"submit\" value=\"Execute Method\" />" );
-//			buffer.append( "</form>" );
-//			buffer.append( "<form name=\"input\" method=\"get\" action=\"" + diffuserUri.toString() + DIFFUSER_DELETE + "\" >" );
-//			buffer.append( "<input type=\"submit\" value=\"Delete\" />" );
-//			buffer.append( "</form>" );
-//			buffer.append( "</body></html>" );
-//
-//			response = Response.created( diffuserUri )
-//					  .status( Status.CREATED )
-//					  .location( diffuserUri )
-//					  .entity( buffer.toString() )
-//					  .build();
-//		}
-//		else
-//		{
-//			response = Response.created( baseUri ).status( Status.BAD_REQUEST ).build();
-//		}
-//		
-//		return response;
-//	}
-
+	/**
+	 * The entry into the results cache. Each entry holds the results object and the serializer
+	 * name used for serializing and deserializing the result object.
+	 *  
+	 * @author Robert Philipp
+	 */
 	private static class ResultCacheEntry {
 		
 		private final Object result;

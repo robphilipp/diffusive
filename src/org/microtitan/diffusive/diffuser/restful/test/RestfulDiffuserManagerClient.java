@@ -23,6 +23,7 @@ import org.microtitan.diffusive.diffuser.restful.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
 import org.microtitan.diffusive.diffuser.restful.ExecuteDiffuserRequest;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.XmlPersistenceSerializer;
@@ -32,6 +33,11 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
+/**
+ * Client that wraps the RESTful API for interacting with RESTful diffusers in a convenient Java wrapper.
+ *   
+ * @author Robert Philipp
+ */
 public class RestfulDiffuserManagerClient {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserManagerClient.class );
@@ -40,6 +46,12 @@ public class RestfulDiffuserManagerClient {
 	private final Abdera abdera;
 	private final Client client;
 	
+	/**
+	 * Constructs a {@link RestfulDiffuserManagerClient} that connects to a {@link RestfulDiffuserServer} with
+	 * an end-point at the specified base URI. The base URI is the starting point to which diffuser-specific path
+	 * information is added.
+	 * @param baseUri The {@link RestfulDiffuserServer} end-point to which this client connects
+	 */
 	public RestfulDiffuserManagerClient( final URI baseUri )
 	{
 		this.baseUri = baseUri;
@@ -53,22 +65,38 @@ public class RestfulDiffuserManagerClient {
 
 	}
 	
+	/**
+	 * Constructs a {@link RestfulDiffuserManagerClient} that connects to a {@link RestfulDiffuserServer} with
+	 * an end-point at the specified base URI. The base URI is the starting point to which diffuser-specific path
+	 * information is added.
+	 * @param baseUri The {@link RestfulDiffuserServer} end-point to which this client connects
+	 */
 	public RestfulDiffuserManagerClient( final String baseUri )
 	{
 		this( URI.create( baseUri ) );
 	}
 
+	/**
+	 * Requests that the server create a RESTful diffuser for a method that doesn't return any value. 
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+	 * @return An Atom feed containing the result of the create request, and specifically, the URI of the newly
+	 * created diffuser.
+	 */
 	public Feed createDiffuser( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
 		return createDiffuser( void.class, clazz, methodName, argumentTypes );
 	}
-	
+
 	/**
-	 * 
-	 * @param clazz
-	 * @param methodName
-	 * @param argumentTypes
-	 * @return
+	 * Requests that the server create a RESTful diffuser for a method that returns a value. 
+	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+	 * @return An Atom feed containing the result of the create request, and specifically, the URI of the newly
+	 * created diffuser.
 	 */
 	public Feed createDiffuser( final Class< ? > returnTypeClazz, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
@@ -106,8 +134,7 @@ public class RestfulDiffuserManagerClient {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * @return an Atom feed containing a list of entries that hold information about the diffuser resources.
 	 */
 	public Feed getDiffuserList()
 	{
@@ -132,11 +159,11 @@ public class RestfulDiffuserManagerClient {
 	}
 
 	/**
-	 * 
-	 * @param clazz
-	 * @param methodName
-	 * @param argumentTypes
-	 * @return
+	 * Deletes the diffuser with a signature that matches the specified information 
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+	 * @return An Atom feed containing the information about the deleted diffuser
 	 */
 	public Feed deleteDiffuser( final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
 	{
@@ -144,11 +171,12 @@ public class RestfulDiffuserManagerClient {
 	}
 	
 	/**
-	 * 
-	 * @param clazz
-	 * @param methodName
-	 * @param argumentTypes
-	 * @return
+	 * Deletes the diffuser with a signature and return type that matches the specified information
+	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+	 * @return An Atom feed containing the information about the deleted diffuser
 	 */
 	public Feed deleteDiffuser( final Class< ? > returnType, final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
 	{
@@ -156,9 +184,10 @@ public class RestfulDiffuserManagerClient {
 	}
 	
 	/**
-	 * 
-	 * @param signature
-	 * @return
+	 * Deletes the diffuser with a signature and return type that matches the specified information
+	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * the return type) of the diffuser to delete
+	 * @return An Atom feed containing the information about the deleted diffuser
 	 */
 	public Feed deleteDiffuser( final String signature )
 	{
@@ -187,12 +216,14 @@ public class RestfulDiffuserManagerClient {
 	}
 
 	/**
-	 * 
-	 * @param clazz
-	 * @param methodName
-	 * @param serializedObject
-	 * @param serializer
-	 * @return
+	 * Executes the specified method 
+	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
+	 * the diffusive method being called
+	 * @param serializer The {@link Serializer} used to serialize and deserialize the object
+	 * @return An Atom feed that contains a URI from which to obtain the result. 
 	 */
 	public Feed executeMethod( final Class< ? > returnTypeClazz, 
 							   final Class< ? > clazz, 
@@ -223,15 +254,17 @@ public class RestfulDiffuserManagerClient {
 		// call the execute method
 		return executeMethod( signature, serializedObject, clazz, serializerType );
 	}
-	
+
 	/**
 	 * 
-	 * @param clazz
-	 * @param methodName
-	 * @param serializedObject
-	 * @param serializerType
-	 * @param serializedObjectType
-	 * @return
+	 * Executes the specified method 
+	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
+	 * the diffusive method being called
+	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
+	 * @return An Atom feed that contains a URI from which to obtain the result. 
 	 */
 	public Feed executeMethod( final Class< ? > returnTypeClazz, 
 							   final Class< ? > clazz, 
@@ -247,12 +280,14 @@ public class RestfulDiffuserManagerClient {
 	}
 	
 	/**
-	 * 
-	 * @param signature
-	 * @param serializedObject
-	 * @param serializedObjectType
-	 * @param serializerType
-	 * @return
+	 * Executes the specified method 
+	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * the return type) of the diffuser to use to execute the method
+	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
+	 * the diffusive method being called
+	 * @param serializedObjectType The {@link Class} of the serialized object that contains the diffusive method
+	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
+	 * @return An Atom feed that contains a URI from which to obtain the result. 
 	 */
 	public Feed executeMethod( final String signature, 
 							   final byte[] serializedObject,
@@ -266,17 +301,19 @@ public class RestfulDiffuserManagerClient {
 
 		return executeMethod( signature, request );
 	}
-	
+
 	/**
-	 * 
-	 * @param clazz
-	 * @param methodName
-	 * @param argumentTypes
-	 * @param argumentValues
-	 * @param serializedObject
-	 * @param serializedObjectType
-	 * @param serializerType
-	 * @return
+	 * Executes the specified method 
+	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+	 * @param argumentValues The serialized value of each of the arguments passed to the diffusive method
+	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
+	 * the diffusive method being called
+	 * @param serializedObjectType The {@link Class} of the serialized object that contains the diffusive method
+	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
+	 * @return An Atom feed that contains a URI from which to obtain the result. 
 	 */
 	public Feed executeMethod( final Class< ? > returnTypeClazz, 
 							   final Class< ? > clazz, 
@@ -293,16 +330,18 @@ public class RestfulDiffuserManagerClient {
 		// call the execute method
 		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, serializedObjectType, serializerType );
 	}
-	
+
 	/**
-	 * 
-	 * @param signature
-	 * @param argumentTypes
-	 * @param argumentValues
-	 * @param serializedObject
-	 * @param serializedObjectType
-	 * @param serializerType
-	 * @return
+	 * Executes the specified method 
+	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * the return type) of the diffuser to use to execute the method
+	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+	 * @param argumentValues The serialized value of each of the arguments passed to the diffusive method
+	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
+	 * the diffusive method being called
+	 * @param serializedObjectType The {@link Class} of the serialized object that contains the diffusive method
+	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
+	 * @return An Atom feed that contains a URI from which to obtain the result. 
 	 */
 	public Feed executeMethod( final String signature, 
 							   final List< Class< ? > > argumentTypes, 
@@ -325,10 +364,11 @@ public class RestfulDiffuserManagerClient {
 	}
 	
 	/**
-	 * 
-	 * @param signature
-	 * @param request
-	 * @return
+	 * Executes the specified method 
+	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * the return type) of the diffuser to use to execute the method
+	 * @param request The {@link ExecuteDiffuserRequest} object containing the information needed to execute a diffusive method
+	 * @return An Atom feed that contains a URI from which to obtain the result. 
 	 */
 	private Feed executeMethod( final String signature, final ExecuteDiffuserRequest request )
 	{
@@ -364,15 +404,15 @@ public class RestfulDiffuserManagerClient {
 		}
 		return feed;
 	}
-	
+
 	/**
-	 * 
-	 * @param returnTypeClazz
-	 * @param clazz
-	 * @param methodName
-	 * @param requestId
-	 * @param serializer
-	 * @return
+	 * Requests the result of the {@code executeMethod(...)} request
+	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param requestId The request ID generated and returned after the method was executed
+	 * @param serializer The {@link Serializer} used to serialize and deserialize the object
+	 * @return The result object associated with the specified request ID
 	 */
 	public < T > T getResult( final Class< T > returnTypeClazz, 
 							  final Class< ? > clazz, 
@@ -385,16 +425,16 @@ public class RestfulDiffuserManagerClient {
 
 		return returnTypeClazz.cast( getResult( signature, requestId, serializer ) );
 	}
-	
+
 	/**
-	 * 
-	 * @param returnTypeClazz
-	 * @param clazz
-	 * @param methodName
-	 * @param argumentTypes
-	 * @param requestId
-	 * @param serializer
-	 * @return
+	 * Requests the result of the {@code executeMethod(...)} request
+	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+	 * @param requestId The request ID generated and returned after the method was executed
+	 * @param serializer The {@link Serializer} used to serialize and deserialize the object
+	 * @return The result object associated with the specified request ID
 	 */
 	public < T > T getResult( final Class< T > returnTypeClazz, 
 							  final Class< ? > clazz, 
@@ -408,7 +448,15 @@ public class RestfulDiffuserManagerClient {
 		
 		return returnTypeClazz.cast( getResult( signature, requestId, serializer ) );
 	}
-	
+
+	/**
+	 * Requests the result of the {@code executeMethod(...)} request
+	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * the return type) of the diffuser to use to execute the method
+	 * @param requestId The request ID generated and returned after the method was executed
+	 * @param serializer The {@link Serializer} used to serialize and deserialize the object
+	 * @return The result object associated with the specified request ID
+	 */
 	public Object getResult( final String signature, final String requestId, final Serializer serializer )
 	{
 		final DiffuserId id = DiffuserId.parse( signature );
@@ -470,7 +518,7 @@ public class RestfulDiffuserManagerClient {
 		return argumentTypeNames;
 	}
 
-	/**
+	/*
 	 * Converts an {@link Class}[] of argument types into an {@link String}[] of argument type names
 	 * @param argumentTypes The array of argument types
 	 * @return an array of argument type names

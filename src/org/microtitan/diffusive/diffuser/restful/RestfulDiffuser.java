@@ -36,22 +36,26 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	@Override
 	public Object runObject( final boolean isRemoteCall, final Object object, final String methodName, final Object... arguments )
 	{
-//		final StringBuffer buffer = new StringBuffer();
-//		buffer.append( "******RESTful Diffuser*******" + Constants.NEW_LINE );
-//		buffer.append( "Serializer: " + serializer.getClass().getName() + Constants.NEW_LINE );
-//		buffer.append( "Endpoints: " + clientEndpoints + Constants.NEW_LINE );
-//		// TODO Auto-generated method stub
-//		// add the jersey client stuff in here...create a calculator, send the object to the calculator
-//		return buffer.toString();
-		// TODO need to figure out how to know if this is supposed to go out to an endpoint, or if it
-		// is now at the endpoint and needs to run locally.
-//		return new LocalDiffuser().runObject( false, object, methodName, arguments );
-
-		// TODO need to determine whether to run locally, or continue to diffuse to other endpoints.
-		// must develop the logic to do this.
+		// TODO develop execution-performance based approach to determining whether to run locally or remotely, as well as the current approach.
 		Object result = null;
-		if( isRemoteCall ) // and it meets other conditions for local execution
+		if( isRemoteCall || clientEndpoints == null || clientEndpoints.isEmpty() ) // and it meets other conditions for local execution
 		{
+			if( LOGGER.isInfoEnabled() )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Called " + RestfulDiffuser.class.getName() + "runObject(...) method." + Constants.NEW_LINE );
+				message.append( "Using " + LocalDiffuser.class.getName() + " because: " );
+				if( isRemoteCall )
+				{
+					message.append( "call to runObject(...) came from a remote call." + Constants.NEW_LINE );
+				}
+				else if( clientEndpoints == null || clientEndpoints.isEmpty() )
+				{
+					message.append( "RESTful diffuser was not assigned any client end-points." + Constants.NEW_LINE );
+				}
+			}
+			
+			// execute the method on the local diffuser
 			result = new LocalDiffuser().runObject( false, object, methodName, arguments );
 		}
 		else
@@ -60,7 +64,11 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		}
 		return result;
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString()
 	{
