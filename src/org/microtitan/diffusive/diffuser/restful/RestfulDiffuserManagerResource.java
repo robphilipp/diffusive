@@ -74,8 +74,8 @@ public class RestfulDiffuserManagerResource {
 	private int maxResultsCached;
 
 	/**
-	 * 
-	 * @param baseUri
+	 * Constructs the basic diffuser manager resource that allows clients to interact with the
+	 * diffuser created through this resource. 
 	 */
 	public RestfulDiffuserManagerResource()
 	{
@@ -160,10 +160,23 @@ public class RestfulDiffuserManagerResource {
 	}
 	
 	/**
-	 * 
-	 * @param uriInfo
-	 * @param request
-	 * @return
+	 * Creates a {@link RestfulDiffuser} using the information specified in the {@link CreateDiffuserRequest}
+	 * object. The basic information needed by the diffusers is:
+	 * <ul>
+	 * 	<li>The {@link Serializer} used to serialize (marshal) and deserialize (unmarshal) the objects that
+	 * 		get flung across the network.</li>
+	 * 	<li>The end-points containing {@link RestfulDiffuser}s to which the new {@link RestfulDiffuser} can 
+	 * 		diffuse method calls.</li>
+	 * 	<li>The return type</li>
+	 * 	<li>The {@link Class} containing the diffused method.</li>
+	 * 	<li>The name of the diffused method</li>
+	 * 	<li>A list of argument types that represent the method's formal parameters.</li>
+	 * </ul>
+	 * @param uriInfo Information about the request URI and the JAX-RS application.
+	 * @param request The request object containing the information needed to create a {@link RestfulDiffuser}.
+	 * @return A response containing and Atom feed with information about the newly created diffuser. Specifically,
+	 * it contains the URI of the newly created diffuser, the key, date created, and the URI representing the
+	 * URI that resolved to this create method.
 	 */
 	@PUT
 	@Consumes( MediaType.APPLICATION_XML )
@@ -199,10 +212,12 @@ public class RestfulDiffuserManagerResource {
 	}
 	
 	/**
-	 * 
-	 * @param uriInfo
-	 * @param signature
-	 * @return
+	 * Returns information about the diffuser represented by the specified signature.
+	 * @param uriInfo Information about the request URI and the JAX-RS application.
+	 * @param signature The signature of the {@link RestfulDiffuser} corresponding to a specific method.
+	 * The signatures are created using the {@link DiffuserId} class.
+	 * @return A response containing the signature, and the URI of the diffuser with the specified signature.
+	 * @see DiffuserId
 	 */
 	@GET @Path( "{" + SIGNATURE + "}" )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
@@ -217,8 +232,6 @@ public class RestfulDiffuserManagerResource {
 		Response response = null;
 		if( diffusers.containsKey( signature ) )
 		{
-//			diffusers.remove( signature );
-			
 			// create the atom feed
 			final Feed feed = Atom.createFeed( diffuserUri, "RESTful diffuser: " + signature, date, uriInfo.getBaseUri() );
 			
@@ -243,14 +256,20 @@ public class RestfulDiffuserManagerResource {
 	}
 
 	/**
-	 * 
-	 * @param uriInfo
-	 * @param signature
-	 * @return
+	 * Returns the result of {@link #execute(UriInfo, String, ExecuteDiffuserRequest)} method call against a 
+	 * specific diffuser. The result is referenced through the result ID which was generated and passed back 
+	 * to the client when the {@link #execute(UriInfo, String, ExecuteDiffuserRequest)} method was called. The
+	 * result ID is created in the {@link #createResultsCacheId(String, String)} based on the signature and
+	 * the request ID.
+	 * @param uriInfo Information about the request URI and the JAX-RS application.
+	 * @param signature The signature of the {@link RestfulDiffuser} corresponding to a specific method.
+	 * The signatures are created using the {@link DiffuserId} class.
+	 * @param resultId The result ID corresponding to the result.
+	 * @return An {@link Response} object that contains a string version of the Atom feed holding the result.
+	 * The {@code content} of the Atom feed contains the {@code byte[]} version of the serialized result object. 
 	 */
 	@GET @Path( "{" + SIGNATURE + "}" + "/{" + RESULT_ID + ": [a-zA-Z0-9\\-]*}" )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
-//	@Produces( MediaType.APPLICATION_OCTET_STREAM )
 	public Response getResult( @Context final UriInfo uriInfo, 
 							   @PathParam( SIGNATURE ) final String signature,
 							   @PathParam( RESULT_ID ) final String resultId )
@@ -315,6 +334,25 @@ public class RestfulDiffuserManagerResource {
 		return response;
 	}
 
+	/**
+	 * Executes the diffuser associated with the specified signature ({@link DiffuserId}) using the
+	 * information specified in the {@link ExecuteDiffuserRequest}, which holds the following information:
+	 * <ul>
+	 * 	<li>A list of class names representing the types of the formal parameters passed to the method.</li>
+	 * 	<li>A list of {@code byte[]} representing the serialized parameter objects.</li>
+	 * 	<li>The class name of the object containing the method to execute.</li>
+	 * 	<li>A {@code byte[]} representing the serialized object containing the method to call.</li>
+	 * 	<li>The name of the serializer used to serialize and deserialize (see the enum 
+	 * 		{@link SerializerFactory.SerializerType}</li>
+	 * </ul>
+	 * @param uriInfo Information about the request URI and the JAX-RS application.
+	 * @param signature The signature of the {@link RestfulDiffuser} corresponding to a specific method.
+	 * The signatures are created using the {@link DiffuserId} class.
+	 * @param request The {@link ExecuteDiffuserRequest} holding the serialized object and method parameters,
+	 * the type information, and the {@link Serializer} name. 
+	 * @return A {@link Response} containing a string version of an Atom feed that holds the result ID and
+	 * a link to the URI representing the result.
+	 */
 	@POST @Path( "{" + SIGNATURE + "}" )
 	@Consumes( MediaType.APPLICATION_XML )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
