@@ -1,4 +1,4 @@
-package org.microtitan.diffusive.diffuser.restful.test;
+package org.microtitan.diffusive.diffuser.restful;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,11 +19,9 @@ import org.apache.abdera.model.Link;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.diffuser.restful.AbderaFactory;
-import org.microtitan.diffusive.diffuser.restful.CreateDiffuserRequest;
-import org.microtitan.diffusive.diffuser.restful.DiffuserId;
-import org.microtitan.diffusive.diffuser.restful.ExecuteDiffuserRequest;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
+import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
+import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
+import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.XmlPersistenceSerializer;
@@ -223,7 +221,7 @@ public class RestfulDiffuserManagerClient {
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
 	 * @param serializer The {@link Serializer} used to serialize and deserialize the object
-	 * @return An Atom feed that contains a URI from which to obtain the result. 
+	 * @return An Atom feed that contains a URI from which to obtain the result.
 	 */
 	public Feed executeMethod( final Class< ? > returnTypeClazz, 
 							   final Class< ? > clazz, 

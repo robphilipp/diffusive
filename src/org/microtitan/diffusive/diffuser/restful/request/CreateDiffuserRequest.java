@@ -1,4 +1,4 @@
-package org.microtitan.diffusive.diffuser.restful;
+package org.microtitan.diffusive.diffuser.restful.request;
 
 import java.net.URI;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.microtitan.diffusive.diffuser.restful;
+package org.microtitan.diffusive.diffuser.restful.atom;
 
 import java.io.IOException;
 import java.util.Date;
