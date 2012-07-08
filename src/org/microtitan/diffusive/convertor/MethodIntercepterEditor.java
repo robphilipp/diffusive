@@ -70,7 +70,6 @@ public class MethodIntercepterEditor extends ExprEditor {
 				code.append( "    System.out.println( \"  Class Loader Name: \" + $0.getClass().getClassLoader().getClass().getName() );\n" );
 				code.append( "    System.out.println( \"  Class Loader Instance: \" + $0.getClass().getClassLoader().toString() );\n" );
 				code.append( "    System.out.println( \"  Object: \" + $0.getClass().getName() );\n" );
-//				code.append( "    System.out.println( \"  A: \" + $0.getA() );\n" );
 				int i = 1;
 				for( CtClass arg : methodCall.getMethod().getParameterTypes() )
 				{
