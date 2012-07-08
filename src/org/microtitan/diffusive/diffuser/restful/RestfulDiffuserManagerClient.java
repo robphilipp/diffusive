@@ -22,6 +22,7 @@ import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
+import org.microtitan.diffusive.diffuser.restful.response.CreateDiffuserResponse;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.XmlPersistenceSerializer;
@@ -82,7 +83,7 @@ public class RestfulDiffuserManagerClient {
 	 * @return An Atom feed containing the result of the create request, and specifically, the URI of the newly
 	 * created diffuser.
 	 */
-	public Feed createDiffuser( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	public CreateDiffuserResponse createDiffuser( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
 		return createDiffuser( void.class, clazz, methodName, argumentTypes );
 	}
@@ -96,7 +97,7 @@ public class RestfulDiffuserManagerClient {
 	 * @return An Atom feed containing the result of the create request, and specifically, the URI of the newly
 	 * created diffuser.
 	 */
-	public Feed createDiffuser( final Class< ? > returnTypeClazz, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	public CreateDiffuserResponse createDiffuser( final Class< ? > returnTypeClazz, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
 		// convert the argument types to argument type names
 		final String[] argumentTypeNames = convertArgumentTypes( argumentTypes );
@@ -128,7 +129,7 @@ public class RestfulDiffuserManagerClient {
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}
-		return feed;
+		return new CreateDiffuserResponse( feed );
 	}
 	
 	/**
@@ -142,16 +143,25 @@ public class RestfulDiffuserManagerClient {
 		final ClientResponse clientResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
 		
 		Feed feed = null;
-		try( InputStream response = clientResponse.getEntity( InputStream.class ) )
+		if( clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode() )
 		{
-			feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			try( InputStream response = clientResponse.getEntity( InputStream.class ) )
+			{
+				feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			}
+			catch( IOException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Failed to parse the get-diffuser-list response into an Atom feed" + Constants.NEW_LINE );
+				LOGGER.error( message.toString(), e );
+				throw new IllegalStateException( message.toString(), e );
+			}
 		}
-		catch( IOException e )
+		else
 		{
 			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to parse the get-diffuser-list response into an Atom feed" + Constants.NEW_LINE );
-			LOGGER.error( message.toString(), e );
-			throw new IllegalStateException( message.toString(), e );
+			message.append( clientResponse.toString() );
+			LOGGER.warn( message.toString() );
 		}
 		return feed;
 	}
@@ -545,17 +555,17 @@ public class RestfulDiffuserManagerClient {
 		//
 		// create a diffuser
 		//
-		Feed feed = managerClient.createDiffuser( String.class, bean.getClass(), "getA" );
-		System.out.println( "Create getA: " + feed.toString() );
+		CreateDiffuserResponse createResponse = managerClient.createDiffuser( String.class, bean.getClass(), "getA" );
+		System.out.println( "Create getA: " + createResponse.toString() );
 		
 		// and another
-		feed = managerClient.createDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
-		System.out.println( "Create setA: " + feed.toString() );
+		createResponse = managerClient.createDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
+		System.out.println( "Create setA: " + createResponse.toString() );
 
 		//
 		// list the diffusers
 		//
-		feed = managerClient.getDiffuserList();
+		Feed feed = managerClient.getDiffuserList();
 		System.out.println( "Get Diffuser List: " + feed.toString() );
 		for( Entry entry : feed.getEntries() )
 		{

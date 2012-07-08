@@ -203,7 +203,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 		
 		// create the atom feed
-		final Feed feed = Atom.createFeed( diffuserUri, "Create RESTful diffuser: " + key, date, uriInfo.getBaseUri() );
+		final Feed feed = Atom.createFeed( diffuserUri, key, date, uriInfo.getBaseUri() );
 		
 		// create the response
 		final Response response = Response.created( diffuserUri )
@@ -238,7 +238,7 @@ public class RestfulDiffuserManagerResource {
 		if( diffusers.containsKey( signature ) )
 		{
 			// create the atom feed
-			final Feed feed = Atom.createFeed( diffuserUri, "RESTful diffuser: " + signature, date, uriInfo.getBaseUri() );
+			final Feed feed = Atom.createFeed( diffuserUri, signature, date, uriInfo.getBaseUri() );
 			
 			// create the response
 			response = Response.created( diffuserUri )
@@ -250,7 +250,7 @@ public class RestfulDiffuserManagerResource {
 		}
 		else
 		{
-			final Feed feed = Atom.createFeed( diffuserUri, "Failed to retrieve RESTful diffuser: " + signature, date, uriInfo.getBaseUri() );
+			final Feed feed = Atom.createFeed( diffuserUri, signature, date, uriInfo.getBaseUri() );
 
 			response = Response.created( diffuserUri )
 							   .status( Status.BAD_REQUEST )
@@ -297,12 +297,15 @@ public class RestfulDiffuserManagerResource {
 				serializer.serialize( result.getResult(), output );
 				
 				// create the atom feed
-				feed = Atom.createFeed( resultUri, "RESTful diffuser: " + signature, date, uriInfo.getBaseUri() );
+				final String resultKey = createResultsCacheId( signature, resultId );
+				feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
+//				feed = Atom.createFeed( resultUri, signature, date, uriInfo.getBaseUri() );
 				
 				// create an entry for the feed and set the results as the content
 				final Entry entry = Atom.createEntry();
 				
 				final ByteArrayInputStream input = new ByteArrayInputStream( output.toByteArray() );
+				entry.setId( resultId );
 				entry.setContent( input, MediaType.APPLICATION_OCTET_STREAM );
 				feed.addEntry( entry );
 				
@@ -311,7 +314,6 @@ public class RestfulDiffuserManagerResource {
 								   .status( Status.OK )
 								   .location( resultUri )
 								   .entity( feed.toString() )
-//								   .entity( output.toByteArray() )
 								   .type( MediaType.APPLICATION_OCTET_STREAM )
 								   .build();
 			}
@@ -325,12 +327,14 @@ public class RestfulDiffuserManagerResource {
 		}
 		else
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to retrieve result" + Constants.NEW_LINE );
-			message.append( "  Signature: " + signature + Constants.NEW_LINE );
-			message.append( "  Result ID: " + resultId );
-			final Feed feed = Atom.createFeed( resultUri, message.toString(), date, uriInfo.getBaseUri() );
+			final String resultKey = createResultsCacheId( signature, resultId );
+			final Feed feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
 
+			final Entry entry = Atom.createEntry();
+			entry.setId( resultId );
+			entry.setContent( "Failded to retrieve result.", MediaType.TEXT_PLAIN );
+			feed.addEntry( entry );
+			
 			response = Response.created( resultUri )
 							   .status( Status.BAD_REQUEST )
 							   .entity( feed.toString() )
@@ -519,7 +523,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 		
 		// create the atom feed
-		final Feed feed = Atom.createFeed( baseUri, "List RESTful diffusers", date, baseUri );
+		final Feed feed = Atom.createFeed( baseUri, "list", date, baseUri );
 
 		// add an entry for each diffuser
 		for( Map.Entry< String, RestfulDiffuser > entry : diffusers.entrySet() )

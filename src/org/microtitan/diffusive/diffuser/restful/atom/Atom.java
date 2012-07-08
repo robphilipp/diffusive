@@ -28,35 +28,35 @@ public class Atom {
 	 * specified by the title, and the specified published date, and has a link to the
 	 * resource with a relationship of {@link #LINK_RELATION_SELF} = {@value #LINK_RELATION_SELF}
 	 * @param resourceUri The URI of the resource used as the ID and is provided in the link
-	 * @param title The title of the feed
+	 * @param id The title of the feed
 	 * @param created The date the feed was published (created)
 	 * @return the newly created feed
 	 */
-	public static Feed createFeed( final URI resourceUri, final String title, final Date created )
+	public static Feed createFeed( final URI resourceUri, final String id, final Date created )
 	{
-		return createFeed( resourceUri, title, Text.Type.TEXT, created, null );
+		return createFeed( resourceUri, id, Text.Type.TEXT, created, null );
 	}
 
-	public static Feed createFeed( final URI resourceUri, final String title, final Date created, final URI generatorUri )
+	public static Feed createFeed( final URI resourceUri, final String id, final Date created, final URI generatorUri )
 	{
-		return createFeed( resourceUri, title, Text.Type.TEXT, created, generatorUri );
+		return createFeed( resourceUri, id, Text.Type.TEXT, created, generatorUri );
 	}
 	
-	public static Feed createFeed( final URI resourceUri, final String title, final Text.Type titleType, final Date created )
+	public static Feed createFeed( final URI resourceUri, final String id, final Text.Type titleType, final Date created )
 	{
-		return createFeed( resourceUri, title, titleType, created, null );
+		return createFeed( resourceUri, id, titleType, created, null );
 	}
 
-	public static Feed createFeed( final URI resourceUri, final String title, final Text.Type titleType, final Date created, final URI generatorUri )
+	public static Feed createFeed( final URI resourceUri, final String id, final Text.Type titleType, final Date created, final URI generatorUri )
 	{
 		final String uri = resourceUri.toString();
 		
 		final Feed feed = createFeed();
-		feed.setId( uri );
-		feed.setTitle( title, titleType );
+//		feed.setId( uri );
+		feed.setId( id );
+		feed.setTitle( id, titleType );
 		feed.setUpdated( created );
 		feed.addLink( uri, Link.REL_SELF );
-//		feed.addLink( generatorUri.toString(), Link.REL_SERVICE );
 		if( generatorUri != null )
 		{
 			feed.setGenerator( generatorUri.toString(), VERSION, GENERATOR_NAME );
@@ -69,18 +69,19 @@ public class Atom {
 		return AbderaFactory.getInstance().newEntry();
 	}
 	
-	public static Entry createEntry( final URI resourceUri, final String title, final Date created )
+	public static Entry createEntry( final URI resourceUri, final String id, final Date created )
 	{
-		return createEntry( resourceUri, title, Text.Type.TEXT, created );
+		return createEntry( resourceUri, id, Text.Type.TEXT, created );
 	}
 	
-	public static Entry createEntry( final URI resourceUri, final String title, final Text.Type titleType, final Date created )
+	public static Entry createEntry( final URI resourceUri, final String id, final Text.Type titleType, final Date created )
 	{
 		final String uri = resourceUri.toString();
 		
 		final Entry entry = createEntry();
-		entry.setId( uri );
-		entry.setTitle( title, titleType );
+//		entry.setId( uri );
+		entry.setId( id );
+		entry.setTitle( id, titleType );
 		entry.setUpdated( created );
 		entry.setPublished( created );
 		entry.addLink( uri, Link.REL_SELF );
