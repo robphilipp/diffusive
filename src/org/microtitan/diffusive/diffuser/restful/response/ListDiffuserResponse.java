@@ -2,6 +2,7 @@ package org.microtitan.diffusive.diffuser.restful.response;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
@@ -12,7 +13,7 @@ import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.model.Link;
 import org.apache.log4j.Logger;
-import org.freezedry.persistence.utils.Constants;
+import org.microtitan.diffusive.Constants;
 
 /**
  * Class that wraps and parses the Atom feed return as the response to the request to
@@ -88,6 +89,27 @@ public class ListDiffuserResponse extends AbstractDiffuserResponse {
 	public List< DiffuserInfo > getDiffuserInfoList()
 	{
 		return new ArrayList<>( diffusers );
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.diffuser.restful.response.AbstractDiffuserResponse#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		final StringBuffer buffer = new StringBuffer();
+		
+		// get the parent's represenation
+		buffer.append( super.toString() + Constants.NEW_LINE );
+		
+		// add the diffuser info
+		for( DiffuserInfo info : diffusers )
+		{
+			buffer.append( "Diffuser:" + Constants.NEW_LINE );
+			buffer.append( info.toString() + Constants.NEW_LINE );
+		}
+		return buffer.toString();
 	}
 	
 	/**
@@ -179,6 +201,20 @@ public class ListDiffuserResponse extends AbstractDiffuserResponse {
 				hashCode = result;
 			}
 			return hashCode;
+		}
+		
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString()
+		{
+			final StringBuffer buffer = new StringBuffer();
+			buffer.append( "  URI: " + diffuserUri.toString() + Constants.NEW_LINE );
+			buffer.append( "  ID: " + signature + Constants.NEW_LINE );
+			buffer.append( "  Published Date: " + new SimpleDateFormat( "yyyy-MM-dd hh:mm:ss.SSS" ).format( publishedDate.getTime() ) );
+			return buffer.toString();
 		}
 	}
 }

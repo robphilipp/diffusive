@@ -13,7 +13,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.abdera.Abdera;
-import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.model.Link;
 import org.apache.log4j.Logger;
@@ -23,6 +22,7 @@ import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.response.CreateDiffuserResponse;
+import org.microtitan.diffusive.diffuser.restful.response.ListDiffuserResponse;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.XmlPersistenceSerializer;
@@ -135,7 +135,7 @@ public class RestfulDiffuserManagerClient {
 	/**
 	 * @return an Atom feed containing a list of entries that hold information about the diffuser resources.
 	 */
-	public Feed getDiffuserList()
+	public ListDiffuserResponse getDiffuserList()
 	{
 		// create the web resource for making the call
 		final WebResource resource = client.resource( baseUri.toString() );
@@ -163,7 +163,8 @@ public class RestfulDiffuserManagerClient {
 			message.append( clientResponse.toString() );
 			LOGGER.warn( message.toString() );
 		}
-		return feed;
+		
+		return new ListDiffuserResponse( feed );
 	}
 
 	/**
@@ -209,16 +210,25 @@ public class RestfulDiffuserManagerClient {
 		final ClientResponse clientResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).delete( ClientResponse.class );
 		
 		Feed feed = null;
-		try( InputStream response = clientResponse.getEntity( InputStream.class ) )
+		if( clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode() )
 		{
-			feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			try( InputStream response = clientResponse.getEntity( InputStream.class ) )
+			{
+				feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			}
+			catch( IOException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Failed to parse the delete-diffuser response into an Atom feed" + Constants.NEW_LINE );
+				LOGGER.error( message.toString(), e );
+				throw new IllegalStateException( message.toString(), e );
+			}
 		}
-		catch( IOException e )
+		else
 		{
 			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to parse the delete-diffuser response into an Atom feed" + Constants.NEW_LINE );
-			LOGGER.error( message.toString(), e );
-			throw new IllegalStateException( message.toString(), e );
+			message.append( clientResponse.toString() );
+			LOGGER.warn( message.toString() );
 		}
 		return feed;
 	}
@@ -556,37 +566,29 @@ public class RestfulDiffuserManagerClient {
 		// create a diffuser
 		//
 		CreateDiffuserResponse createResponse = managerClient.createDiffuser( String.class, bean.getClass(), "getA" );
-		System.out.println( "Create getA: " + createResponse.toString() );
+		System.out.println( "Create getA: " + createResponse.toString() + Constants.NEW_LINE );
 		
 		// and another
 		createResponse = managerClient.createDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
-		System.out.println( "Create setA: " + createResponse.toString() );
+		System.out.println( "Create setA: " + createResponse.toString() + Constants.NEW_LINE );
 
 		//
 		// list the diffusers
 		//
-		Feed feed = managerClient.getDiffuserList();
-		System.out.println( "Get Diffuser List: " + feed.toString() );
-		for( Entry entry : feed.getEntries() )
-		{
-			System.out.println( "  " + entry.getId() );
-		}
+		ListDiffuserResponse listResponse = managerClient.getDiffuserList();
+		System.out.println( listResponse.toString() + Constants.NEW_LINE );
 		
 		//
 		// delete a diffuser
 		//
-		feed = managerClient.deleteDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
-		System.out.println( "Delete setA: " + feed.toString() );
+		Feed feed = managerClient.deleteDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
+		System.out.println( "Delete setA: " + feed.toString() + Constants.NEW_LINE );
 
 		//
 		// list the diffusers
 		//
-		feed = managerClient.getDiffuserList();
-		System.out.println( "Get Diffuser List: " + feed.toString() );
-		for( Entry entry : feed.getEntries() )
-		{
-			System.out.println( "  " + entry.getId() );
-		}
+		listResponse = managerClient.getDiffuserList();
+		System.out.println( listResponse.toString() + Constants.NEW_LINE );
 		
 		//
 		// execute some of the methods
@@ -599,7 +601,7 @@ public class RestfulDiffuserManagerClient {
 			serializer.serialize( bean, out );
 			out.flush();
 			feed = managerClient.executeMethod( String.class, bean.getClass(), "getA", out.toByteArray(), serializer );
-			System.out.println( "Execute getA: " + feed.toString() );
+			System.out.println( "Execute getA: " + feed.toString() + Constants.NEW_LINE );
 //			final String object = new String( bytes );
 //			System.out.println( "StringWriter: " + object );
 //			System.out.println( "StringWriter: " + object.getBytes() );

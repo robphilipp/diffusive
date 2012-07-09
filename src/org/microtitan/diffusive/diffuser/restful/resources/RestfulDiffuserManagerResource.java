@@ -523,7 +523,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 		
 		// create the atom feed
-		final Feed feed = Atom.createFeed( baseUri, "list", date, baseUri );
+		final Feed feed = Atom.createFeed( baseUri, "get-diffuser-list", date, baseUri );
 
 		// add an entry for each diffuser
 		for( Map.Entry< String, RestfulDiffuser > entry : diffusers.entrySet() )
@@ -573,7 +573,7 @@ public class RestfulDiffuserManagerResource {
 			diffusers.remove( signature );
 			
 			// create the atom feed
-			final Feed feed = Atom.createFeed( diffuserUri, "Delete RESTful Diffuser", date );
+			final Feed feed = Atom.createFeed( diffuserUri, "delete-diffuser", date );
 			
 			// create the response
 			response = Response.created( diffuserUri )
@@ -586,7 +586,7 @@ public class RestfulDiffuserManagerResource {
 		else
 		{
 			// create the atom feed
-			final Feed feed = Atom.createFeed( diffuserUri, "Failder to Delete RESTful Diffuser", date );
+			final Feed feed = Atom.createFeed( diffuserUri, "error-delete-diffuser", date );
 
 			// create the error response
 			response = Response.created( diffuserUri )
