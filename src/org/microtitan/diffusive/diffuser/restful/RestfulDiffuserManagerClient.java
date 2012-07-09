@@ -22,6 +22,7 @@ import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.response.CreateDiffuserResponse;
+import org.microtitan.diffusive.diffuser.restful.response.DeleteDiffuserResponse;
 import org.microtitan.diffusive.diffuser.restful.response.ListDiffuserResponse;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
@@ -174,7 +175,7 @@ public class RestfulDiffuserManagerClient {
 	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
 	 * @return An Atom feed containing the information about the deleted diffuser
 	 */
-	public Feed deleteDiffuser( final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
+	public DeleteDiffuserResponse deleteDiffuser( final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
 	{
 		return deleteDiffuser( void.class, clazz, methodName, argumentTypes );
 	}
@@ -187,7 +188,7 @@ public class RestfulDiffuserManagerClient {
 	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
 	 * @return An Atom feed containing the information about the deleted diffuser
 	 */
-	public Feed deleteDiffuser( final Class< ? > returnType, final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
+	public DeleteDiffuserResponse deleteDiffuser( final Class< ? > returnType, final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
 	{
 		return deleteDiffuser( DiffuserId.createId( returnType, clazz, methodName, argumentTypes ) );
 	}
@@ -198,7 +199,7 @@ public class RestfulDiffuserManagerClient {
 	 * the return type) of the diffuser to delete
 	 * @return An Atom feed containing the information about the deleted diffuser
 	 */
-	public Feed deleteDiffuser( final String signature )
+	public DeleteDiffuserResponse deleteDiffuser( final String signature )
 	{
 		// create the URI to the diffuser with the specified signature
 		final URI diffuserUri = UriBuilder.fromUri( baseUri.toString() ).path( signature ).build();
@@ -230,7 +231,7 @@ public class RestfulDiffuserManagerClient {
 			message.append( clientResponse.toString() );
 			LOGGER.warn( message.toString() );
 		}
-		return feed;
+		return new DeleteDiffuserResponse( feed );
 	}
 
 	/**
@@ -581,8 +582,8 @@ public class RestfulDiffuserManagerClient {
 		//
 		// delete a diffuser
 		//
-		Feed feed = managerClient.deleteDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
-		System.out.println( "Delete setA: " + feed.toString() + Constants.NEW_LINE );
+		DeleteDiffuserResponse deleteResponse = managerClient.deleteDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
+		System.out.println( "Delete setA: " + deleteResponse.toString() + Constants.NEW_LINE );
 
 		//
 		// list the diffusers
@@ -596,6 +597,7 @@ public class RestfulDiffuserManagerClient {
 		final Serializer serializer = new XmlPersistenceSerializer();
 		
 		// write the object to a byte array and the reconstitute the object
+		Feed feed = null;
 		try( final ByteArrayOutputStream out = new ByteArrayOutputStream() )
 		{
 			serializer.serialize( bean, out );
