@@ -50,13 +50,15 @@ import org.microtitan.diffusive.launcher.DiffusiveLauncher;
  * @author rob
  *
  */
-@Path( "/diffusers" )
+@Path( RestfulDiffuserManagerResource.DIFFUSER_PATH )
 public class RestfulDiffuserManagerResource {
 
 	static final Logger LOGGER = Logger.getLogger( RestfulDiffuserManagerResource.class );
 
 	// the maximum number of resultsCache cached
 	private static final int MAX_RESULTS_CACHED = 100;
+	
+	public static final String DIFFUSER_PATH = "/diffusers";
 	
 	// parameters for creating a diffuser
 	public static final String SERIALIZER_NAME = "serializer_name";
@@ -468,7 +470,6 @@ public class RestfulDiffuserManagerResource {
 					// create the atom feed
 					final String resultKey = createResultsCacheId( signature, resultId );
 					feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
-	//				feed = Atom.createFeed( resultUri, signature, date, uriInfo.getBaseUri() );
 					
 					// create an entry for the feed and set the results as the content
 					final Entry entry = Atom.createEntry();

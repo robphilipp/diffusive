@@ -32,8 +32,8 @@ package org.microtitan.diffusive.tests.regex;
  */
 
 import java.io.Console;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RegexTestHarness {
 

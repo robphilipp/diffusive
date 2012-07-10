@@ -12,7 +12,6 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.copyable.Copyable;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.Diffuser;
-import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
 
 /**
  * Encapsulates the key used to identify a {@link Diffuser} for a specific method. The {@link Diffuser} ID

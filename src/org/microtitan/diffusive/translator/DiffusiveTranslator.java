@@ -1,10 +1,10 @@
 package org.microtitan.diffusive.translator;
 
-import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
-
 import javassist.ClassPool;
 import javassist.Loader;
 import javassist.Translator;
+
+import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
 
 /**
  * Observer of the {@link Loader}, which calls the {@link #start(ClassPool)} and {@link #onLoad(ClassPool, String)}
