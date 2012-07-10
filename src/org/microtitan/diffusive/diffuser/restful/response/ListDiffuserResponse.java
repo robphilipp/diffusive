@@ -28,8 +28,9 @@ public class ListDiffuserResponse extends AbstractDiffuserResponse {
 	private Set< DiffuserInfo > diffusers;
 	
 	/**
-	 * 
-	 * @param feed
+	 * Constructs a {@link ListDiffuserResponse} object by parsing the feed for the relevant entry information.
+	 * The parent class parse the containing feed information.
+	 * @param feed The Atom feed to parse for the relevant entry information 
 	 */
 	public ListDiffuserResponse( final Feed feed )
 	{
@@ -125,7 +126,7 @@ public class ListDiffuserResponse extends AbstractDiffuserResponse {
 
 		private final URI diffuserUri;
 		private final String signature;
-		private Calendar publishedDate;
+		private final Calendar publishedDate;
 		
 		public DiffuserInfo( final URI diffuserUri, final String signature, final Calendar publishedDate )
 		{

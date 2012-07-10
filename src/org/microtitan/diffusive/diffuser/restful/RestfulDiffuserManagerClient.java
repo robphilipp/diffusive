@@ -14,7 +14,6 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Feed;
-import org.apache.abdera.model.Link;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
@@ -23,6 +22,7 @@ import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.response.CreateDiffuserResponse;
 import org.microtitan.diffusive.diffuser.restful.response.DeleteDiffuserResponse;
+import org.microtitan.diffusive.diffuser.restful.response.ExecuteDiffuserResponse;
 import org.microtitan.diffusive.diffuser.restful.response.ListDiffuserResponse;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
@@ -242,13 +242,14 @@ public class RestfulDiffuserManagerClient {
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
 	 * @param serializer The {@link Serializer} used to serialize and deserialize the object
-	 * @return An Atom feed that contains a URI from which to obtain the result.
+	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
+	 * underlying Atom feed.
 	 */
-	public Feed executeMethod( final Class< ? > returnTypeClazz, 
-							   final Class< ? > clazz, 
-							   final String methodName,
-							   final byte[] serializedObject,
-							   final Serializer serializer )
+	public ExecuteDiffuserResponse executeMethod( final Class< ? > returnTypeClazz, 
+							   					  final Class< ? > clazz, 
+							   					  final String methodName,
+							   					  final byte[] serializedObject,
+							   					  final Serializer serializer )
 	{
 		// grab the serializer type
 		final String serializerType = SerializerFactory.SerializerType.getSerializerName( serializer.getClass() );
@@ -283,13 +284,14 @@ public class RestfulDiffuserManagerClient {
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
 	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
-	 * @return An Atom feed that contains a URI from which to obtain the result. 
+	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
+	 * underlying Atom feed.
 	 */
-	public Feed executeMethod( final Class< ? > returnTypeClazz, 
-							   final Class< ? > clazz, 
-							   final String methodName,
-							   final byte[] serializedObject,
-							   final String serializerType )
+	public ExecuteDiffuserResponse executeMethod( final Class< ? > returnTypeClazz, 
+												  final Class< ? > clazz, 
+												  final String methodName,
+												  final byte[] serializedObject,
+												  final String serializerType )
 	{
 		// construct the signature from the specified parameters
 		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName );
@@ -306,12 +308,13 @@ public class RestfulDiffuserManagerClient {
 	 * the diffusive method being called
 	 * @param serializedObjectType The {@link Class} of the serialized object that contains the diffusive method
 	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
-	 * @return An Atom feed that contains a URI from which to obtain the result. 
+	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
+	 * underlying Atom feed.
 	 */
-	public Feed executeMethod( final String signature, 
-							   final byte[] serializedObject,
-							   final Class< ? > serializedObjectType,
-							   final String serializerType )
+	public ExecuteDiffuserResponse executeMethod( final String signature, 
+							   					  final byte[] serializedObject,
+							   					  final Class< ? > serializedObjectType,
+							   					  final String serializerType )
 	{
 		// create the diffeser-execute request
 		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( serializedObjectType.getName(), 
@@ -332,16 +335,17 @@ public class RestfulDiffuserManagerClient {
 	 * the diffusive method being called
 	 * @param serializedObjectType The {@link Class} of the serialized object that contains the diffusive method
 	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
-	 * @return An Atom feed that contains a URI from which to obtain the result. 
+	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
+	 * underlying Atom feed.
 	 */
-	public Feed executeMethod( final Class< ? > returnTypeClazz, 
-							   final Class< ? > clazz, 
-							   final String methodName,
-							   final List< Class< ? > > argumentTypes, 
-							   final List< byte[] > argumentValues, 
-							   final byte[] serializedObject,
-							   final Class< ? > serializedObjectType,
-							   final String serializerType )
+	public ExecuteDiffuserResponse executeMethod( final Class< ? > returnTypeClazz, 
+							   					  final Class< ? > clazz, 
+							   					  final String methodName,
+							   					  final List< Class< ? > > argumentTypes, 
+							   					  final List< byte[] > argumentValues, 
+							   					  final byte[] serializedObject,
+							   					  final Class< ? > serializedObjectType,
+							   					  final String serializerType )
 	{
 		// construct the signature from the specified parameters
 		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
@@ -360,14 +364,15 @@ public class RestfulDiffuserManagerClient {
 	 * the diffusive method being called
 	 * @param serializedObjectType The {@link Class} of the serialized object that contains the diffusive method
 	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
-	 * @return An Atom feed that contains a URI from which to obtain the result. 
+	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
+	 * underlying Atom feed.
 	 */
-	public Feed executeMethod( final String signature, 
-							   final List< Class< ? > > argumentTypes, 
-							   final List< byte[] > argumentValues, 
-							   final byte[] serializedObject,
-							   final Class< ? > serializedObjectType,
-							   final String serializerType )
+	public ExecuteDiffuserResponse executeMethod( final String signature, 
+							   					  final List< Class< ? > > argumentTypes, 
+							   					  final List< byte[] > argumentValues, 
+							   					  final byte[] serializedObject,
+							   					  final Class< ? > serializedObjectType,
+							   					  final String serializerType )
 	{
 		// convert the argument types to argument type names
 		final List< String > argumentTypeNames = convertArgumentTypes( argumentTypes );
@@ -389,7 +394,7 @@ public class RestfulDiffuserManagerClient {
 	 * @param request The {@link ExecuteDiffuserRequest} object containing the information needed to execute a diffusive method
 	 * @return An Atom feed that contains a URI from which to obtain the result. 
 	 */
-	private Feed executeMethod( final String signature, final ExecuteDiffuserRequest request )
+	private ExecuteDiffuserResponse executeMethod( final String signature, final ExecuteDiffuserRequest request )
 	{
 		// create the URI to the diffuser with the specified signature
 		final URI diffuserUri = UriBuilder.fromUri( baseUri.toString() ).path( signature ).build();
@@ -421,7 +426,7 @@ public class RestfulDiffuserManagerClient {
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}
-		return feed;
+		return new ExecuteDiffuserResponse( feed );
 	}
 
 	/**
@@ -597,13 +602,14 @@ public class RestfulDiffuserManagerClient {
 		final Serializer serializer = new XmlPersistenceSerializer();
 		
 		// write the object to a byte array and the reconstitute the object
-		Feed feed = null;
+//		Feed feed = null;
+		ExecuteDiffuserResponse executeResponse = null;
 		try( final ByteArrayOutputStream out = new ByteArrayOutputStream() )
 		{
 			serializer.serialize( bean, out );
 			out.flush();
-			feed = managerClient.executeMethod( String.class, bean.getClass(), "getA", out.toByteArray(), serializer );
-			System.out.println( "Execute getA: " + feed.toString() + Constants.NEW_LINE );
+			executeResponse = managerClient.executeMethod( String.class, bean.getClass(), "getA", out.toByteArray(), serializer );
+//			System.out.println( "Execute getA: " + feed.toString() + Constants.NEW_LINE );
 //			final String object = new String( bytes );
 //			System.out.println( "StringWriter: " + object );
 //			System.out.println( "StringWriter: " + object.getBytes() );
@@ -615,13 +621,18 @@ public class RestfulDiffuserManagerClient {
 		{
 			e.printStackTrace();
 		}
-		feed.getId().toURI().getPath();
-		System.out.println( feed.getLink( Link.REL_SELF ).getHref().toURI().toString() );
+//		feed.getId().toURI().getPath();
+//		System.out.println( feed.getLink( Link.REL_SELF ).getHref().toURI().toString() );
+//		
+//		final String requestId = feed.getEntries().get( 0 ).getContent();
+//		System.out.println( "Request ID: " + requestId );
+//		
+//		final List< String > idParts = Arrays.asList( requestId.split( "/" ) );
+//		final String result = managerClient.getResult( String.class, bean.getClass(), "getA", idParts.get( 1 ), serializer );
+//		System.out.println( result );
+		System.out.println( executeResponse.toString() );
 		
-		final String requestId = feed.getEntries().get( 0 ).getContent();
-		System.out.println( "Request ID: " + requestId );
-		
-		final List< String > idParts = Arrays.asList( requestId.split( "/" ) );
+		final List< String > idParts = Arrays.asList( executeResponse.getResultId().split( "/" ) );
 		final String result = managerClient.getResult( String.class, bean.getClass(), "getA", idParts.get( 1 ), serializer );
 		System.out.println( result );
 	}
