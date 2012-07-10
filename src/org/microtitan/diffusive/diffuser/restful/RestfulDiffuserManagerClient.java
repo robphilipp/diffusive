@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
@@ -597,43 +596,29 @@ public class RestfulDiffuserManagerClient {
 		System.out.println( listResponse.toString() + Constants.NEW_LINE );
 		
 		//
-		// execute some of the methods
+		// execute some of the methods and grab their results
 		//
 		final Serializer serializer = new XmlPersistenceSerializer();
 		
 		// write the object to a byte array and the reconstitute the object
-//		Feed feed = null;
 		ExecuteDiffuserResponse executeResponse = null;
 		try( final ByteArrayOutputStream out = new ByteArrayOutputStream() )
 		{
 			serializer.serialize( bean, out );
 			out.flush();
 			executeResponse = managerClient.executeMethod( String.class, bean.getClass(), "getA", out.toByteArray(), serializer );
-//			System.out.println( "Execute getA: " + feed.toString() + Constants.NEW_LINE );
-//			final String object = new String( bytes );
-//			System.out.println( "StringWriter: " + object );
-//			System.out.println( "StringWriter: " + object.getBytes() );
-//			
-//			final TestClassA desA = serializer.deserialize( new ByteArrayInputStream( bytes ), TestClassA.class );
-//			System.out.println( desA.toString() );
+			System.out.println( executeResponse.toString() );
 		}
 		catch( IOException e )
 		{
 			e.printStackTrace();
 		}
-//		feed.getId().toURI().getPath();
-//		System.out.println( feed.getLink( Link.REL_SELF ).getHref().toURI().toString() );
-//		
-//		final String requestId = feed.getEntries().get( 0 ).getContent();
-//		System.out.println( "Request ID: " + requestId );
-//		
-//		final List< String > idParts = Arrays.asList( requestId.split( "/" ) );
-//		final String result = managerClient.getResult( String.class, bean.getClass(), "getA", idParts.get( 1 ), serializer );
-//		System.out.println( result );
-		System.out.println( executeResponse.toString() );
-		
-		final List< String > idParts = Arrays.asList( executeResponse.getResultId().split( "/" ) );
-		final String result = managerClient.getResult( String.class, bean.getClass(), "getA", idParts.get( 1 ), serializer );
+
+		// grab the result of the call
+		final DiffuserId diffuserId = DiffuserId.parse( executeResponse.getSignature() );
+		final String methodName = diffuserId.getMethodName();
+		final Class< ? > clazz = diffuserId.getClazz();
+		final String result = managerClient.getResult( String.class, clazz, methodName, executeResponse.getRequestId(), serializer );
 		System.out.println( result );
 	}
 }

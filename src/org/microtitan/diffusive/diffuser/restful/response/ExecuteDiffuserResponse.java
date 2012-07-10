@@ -4,13 +4,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.model.Link;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 
 public class ExecuteDiffuserResponse extends AbstractDiffuserResponse {
 
@@ -19,7 +20,8 @@ public class ExecuteDiffuserResponse extends AbstractDiffuserResponse {
 	private URI resultUri;
 	private String signature;
 	private Calendar publishedDate;
-	private String resultId; 
+	private String resultId;
+	private String requestId;
 	
 	/**
 	 * Constructs a {@link ExecuteDiffuserResponse} object by parsing the feed for the relevant entry information.
@@ -37,29 +39,64 @@ public class ExecuteDiffuserResponse extends AbstractDiffuserResponse {
 	@Override
 	protected void parse( final Feed feed )
 	{
-		// grab the one and only one entry
-		final List< Entry > entries = feed.getEntries();
-		if( entries == null || entries.size() != 1 )
+		// grab the entry holding the result ID and ensure its actually there
+		final Entry resultIdEntry = feed.getEntry( RestfulDiffuserManagerResource.RESULT_ID );
+		if( resultIdEntry == null )
 		{
 			final StringBuffer message = new StringBuffer();
-			message.append( "Error parsing feed into response object. Feed must have exactly one entry." + Constants.NEW_LINE );
-			message.append( "  Number of Entries: " + ( entries == null ? "[null" : entries.size() ) );
+			message.append( "Error parsing feed into response object. Feed must have one entry containing the result ID." + Constants.NEW_LINE );
+			message.append( "  Required ID: " + RestfulDiffuserManagerResource.RESULT_ID + Constants.NEW_LINE );
+			message.append( "  Specified IDs: " + Constants.NEW_LINE );
+			for( Entry entry : feed.getEntries() )
+			{
+				try
+				{
+					message.append( "    " + entry.getId().toURI().toString() + Constants.NEW_LINE );
+				}
+				catch( URISyntaxException e ) 
+				{ 
+					// do nothing at this point
+				}
+			}
 			LOGGER.warn( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
-		final Entry entry = entries.get( 0 );
+
+		// grab the entry holding the original request ID and ensure its actually there
+		final Entry requestIdEntry = feed.getEntry( RestfulDiffuserManagerResource.REQUEST_ID );
+		if( requestIdEntry == null )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error parsing feed into response object. Feed must have one entry containing the request ID." + Constants.NEW_LINE );
+			message.append( "  Required ID: " + RestfulDiffuserManagerResource.REQUEST_ID + Constants.NEW_LINE );
+			message.append( "  Specified IDs: " + Constants.NEW_LINE );
+			for( Entry entry : feed.getEntries() )
+			{
+				try
+				{
+					message.append( "    " + entry.getId().toURI().toString() + Constants.NEW_LINE );
+				}
+				catch( URISyntaxException e ) 
+				{ 
+					// do nothing at this point
+				}
+			}
+			LOGGER.warn( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
 		
 		// parse the entry information
 		try
 		{
-			signature = entry.getId().toString();
-			final Link resultLink = entry.getLink( Link.REL_SELF );
+			final Link resultLink = resultIdEntry.getLink( Link.REL_SELF );
 			if( resultLink != null )
 			{
 				resultUri = resultLink.getHref().toURI();
 				publishedDate = Calendar.getInstance();
-				publishedDate.setTime( entry.getPublished() );
-				resultId = entry.getContent();
+				publishedDate.setTime( resultIdEntry.getPublished() );
+				resultId = resultIdEntry.getContent();
+				requestId = requestIdEntry.getContent();
+				signature = resultId.split( Pattern.quote( "/" ) )[ 0 ];
 			}
 			else
 			{
@@ -72,7 +109,7 @@ public class ExecuteDiffuserResponse extends AbstractDiffuserResponse {
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Error parsing URI for the following diffuser: " + Constants.NEW_LINE );
-			message.append( "  Diffuser ID: " + entry.getId().toString() );
+			message.append( "  Diffuser ID: " + resultIdEntry.getId().toString() );
 			LOGGER.warn( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
@@ -103,11 +140,20 @@ public class ExecuteDiffuserResponse extends AbstractDiffuserResponse {
 	}
 
 	/**
-	 * @return the ID of the result.
+	 * @return the ID of the result which is a concatenation of the signature and the
+	 * request ID. Specifically, the result ID = {signature}/{requestID}.
 	 */
 	public String getResultId()
 	{
 		return resultId;
+	}
+	
+	/**
+	 * @return the ID of the original request
+	 */
+	public String getRequestId()
+	{
+		return requestId;
 	}
 	
 	/*
@@ -121,6 +167,7 @@ public class ExecuteDiffuserResponse extends AbstractDiffuserResponse {
 		message.append( super.toString() );
 		message.append( "  Result URI: " + resultUri + Constants.NEW_LINE );
 		message.append( "  Result ID: " + resultId + Constants.NEW_LINE );
+		message.append( "  Request ID: " + requestId + Constants.NEW_LINE );
 		message.append( "  Signature: " + signature + Constants.NEW_LINE );
 		message.append( "  Published Date: " + new SimpleDateFormat( "yyyy-MM-dd hh:mm:ss.SSS" ).format( publishedDate.getTime() ) );
 		return message.toString();
