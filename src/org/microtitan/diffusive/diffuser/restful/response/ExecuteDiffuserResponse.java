@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.regex.Pattern;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
@@ -12,6 +11,7 @@ import org.apache.abdera.model.Link;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
+import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
 
 public class ExecuteDiffuserResponse extends AbstractDiffuserResponse {
 
@@ -96,7 +96,7 @@ public class ExecuteDiffuserResponse extends AbstractDiffuserResponse {
 				publishedDate.setTime( resultIdEntry.getPublished() );
 				resultId = resultIdEntry.getContent();
 				requestId = requestIdEntry.getContent();
-				signature = resultId.split( Pattern.quote( "/" ) )[ 0 ];
+				signature = ResultId.parse( resultId ).getSignature();
 			}
 			else
 			{

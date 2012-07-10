@@ -132,7 +132,7 @@ public class RestfulDiffuserManagerResource {
 	 */
 	private static String createResultsCacheId( final String signature, final String requestId )
 	{
-		return signature + "/" + requestId;
+		return ResultId.create( signature, requestId );
 	}
 	
 	/*
