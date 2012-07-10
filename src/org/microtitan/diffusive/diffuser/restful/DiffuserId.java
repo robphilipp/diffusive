@@ -12,6 +12,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.copyable.Copyable;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
 
 /**
  * Encapsulates the key used to identify a {@link Diffuser} for a specific method. The {@link Diffuser} ID
@@ -46,6 +47,9 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	public static final String ARGUMENT_CLOSE = ")";
 	public static final String RETURN_TYPE_SEPARATOR = "-";
 	
+	// for the hashCode method
+	private volatile int hashCode;
+
 	// signature
 	private final String className;
 	private final String methodName;
@@ -70,6 +74,8 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		
 		// construct the signature
 		this.signature = createId( returnTypeClassName, className, methodName, argumentTypes );
+		
+		hashCode = 0;
 	}
 	
 	/**
@@ -106,10 +112,6 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	public DiffuserId( final DiffuserId id )
 	{
 		this( id.returnTypeClassName, id.className, id.methodName, new ArrayList<>( id.argumentTypes ) );
-//		this.className = id.className;
-//		this.methodName = id.methodName;
-//		this.returnTypeClassName = id.returnTypeClassName;
-//		this.argumentTypes = new ArrayList<>( id.argumentTypes );
 	}
 	
 	/**
@@ -446,6 +448,45 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	public DiffuserId getCopy()
 	{
 		return new DiffuserId( this );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals( final Object object )
+	{
+		if( !(object instanceof DiffuserId) )
+		{
+			return false;
+		}
+		
+		final DiffuserId id = (DiffuserId)object;
+		if( signature.equals( id.signature ) )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sun.java.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		int result = hashCode;
+		if( result == 0 )
+		{
+			result = 17;
+			result = 31 * result + ( signature == null ? 0 : signature.hashCode() );
+			hashCode = result;
+		}
+		return hashCode;
 	}
 
 	/*

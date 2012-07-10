@@ -13,6 +13,13 @@ import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
 
+/**
+ * Holds the response from the issued execute method request. Parses the Atom feed returned by the
+ * {@link RestfulDiffuserManagerResource#execute(javax.ws.rs.core.UriInfo, String, org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest)}
+ * method into a useful Java class. Effectively wraps the underlying Atom feed.
+ * 
+ * @author Robert Philipp
+ */
 public class ExecuteDiffuserResponse extends AbstractDiffuserResponse {
 
 	private static final Logger LOGGER = Logger.getLogger( ExecuteDiffuserResponse.class );
