@@ -30,6 +30,7 @@ import org.microtitan.diffusive.tests.Bean;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 
 /**
@@ -491,6 +492,11 @@ public class RestfulDiffuserManagerClient {
 		final WebResource resource = client.resource( diffuserUri.toString() );
 		final ClientResponse resultResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
 
+		if( resultResponse.getStatus() == Status.NO_CONTENT.getStatusCode() )
+		{
+			return null;
+		}
+		
 		Feed feed = null;
 		Object object = null;
 		try( InputStream response = resultResponse.getEntity( InputStream.class ) )
@@ -557,7 +563,7 @@ public class RestfulDiffuserManagerClient {
 		return argumentTypeNames;
 	}
 
-	public static void main( String[] args ) throws URISyntaxException
+	public static void main( String[] args ) throws URISyntaxException, InterruptedException
 	{
 		DOMConfigurator.configure( "log4j.xml" );
 //		Logger.getRootLogger().setLevel( Level.DEBUG );
@@ -618,7 +624,13 @@ public class RestfulDiffuserManagerClient {
 		final DiffuserId diffuserId = DiffuserId.parse( executeResponse.getSignature() );
 		final String methodName = diffuserId.getMethodName();
 		final Class< ? > clazz = diffuserId.getClazz();
-		final String result = managerClient.getResult( String.class, clazz, methodName, executeResponse.getRequestId(), serializer );
-		System.out.println( result );
+		String result = null;
+		do
+		{
+			result = managerClient.getResult( String.class, clazz, methodName, executeResponse.getRequestId(), serializer );
+			System.out.println( result );
+			Thread.sleep( 500 );
+		}
+		while( result == null );
 	}
 }

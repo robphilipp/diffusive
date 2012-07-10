@@ -136,6 +136,6 @@ public class ResultId {
 	@Override
 	public String toString()
 	{
-		return getRequestId();
+		return getResultId();
 	}
 }

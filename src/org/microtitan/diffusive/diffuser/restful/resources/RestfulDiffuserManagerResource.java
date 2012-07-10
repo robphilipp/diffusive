@@ -16,6 +16,7 @@ import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -80,6 +81,8 @@ public class RestfulDiffuserManagerResource {
 	// fields to manage the resultsCache cache
 	private final Map< String, ResultCacheEntry > resultsCache;
 	private int maxResultsCached;
+	
+	private final Map< ResultId, Thread > runningTasks;
 
 	/**
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
@@ -90,27 +93,24 @@ public class RestfulDiffuserManagerResource {
 		diffusers = new HashMap<>();
 		resultsCache = new LinkedHashMap<>();
 		maxResultsCached = MAX_RESULTS_CACHED;
+		runningTasks = new LinkedHashMap<>();
 	}
 	
-	/*
+	/**
 	 * Adds a result to the resultsCache cache. If the addition of this result causes the
 	 * number of cached items to increase beyond the maximum allowable items, then the
 	 * item that was first added is removed.
-	 * @param signature The signature of the diffuser (class_name.method_name(arg_type1, arg_type2))
-	 * @param requestId The ID associated with the request
-	 * @param result The result result to be added to the results cache
+	 * @param key The key for the cache
 	 */
-	private String addResults( final String signature, final String requestId, final Object result, final Serializer serializer )
+	private void addResults( final ResultId key, final Object result, final Serializer serializer )
 	{
 		// put the new result to the cache
-		final String key = createResultsCacheId( signature, requestId );
-		final Object previousResults = resultsCache.put( key, new ResultCacheEntry( result, serializer ) );
+		final Object previousResults = resultsCache.put( key.getResultId(), new ResultCacheEntry( result, serializer ) );
 		if( previousResults == null && resultsCache.size() > maxResultsCached )
 		{
 			final Iterator< Map.Entry< String, ResultCacheEntry > > iter = resultsCache.entrySet().iterator();
 			resultsCache.remove( iter.next().getKey() );
 		}
-		return key;
 	}
 
 	/*
@@ -353,27 +353,28 @@ public class RestfulDiffuserManagerResource {
 			throw new IllegalArgumentException( message.toString() );
 		}
 		
-		Object deserializedObject = null;
-		try
-		{
-			// create an input stream from the byte array
-			final InputStream input = new ByteArrayInputStream( request.getObject() );
-
-			// create the Class result for the argument type (specified as a string)
-			final Class< ? > clazz = Class.forName( request.getObjectType() );
-
-			// deserialize the result
-			deserializedObject = serializer.deserialize( input, clazz );
-		}
-		catch( ClassNotFoundException e )
-		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Error occured while attempting to deserialize the result. The Class for the Object's type not found." + Constants.NEW_LINE );
-			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
-			message.append( "  Object Type: " + request.getObjectType() + Constants.NEW_LINE );
-			LOGGER.error( message.toString() );
-			throw new IllegalArgumentException( message.toString() );
-		}
+//		Object deserializedObject = null;
+//		try
+//		{
+//			// create an input stream from the byte array
+//			final InputStream input = new ByteArrayInputStream( request.getObject() );
+//
+//			// create the Class result for the argument type (specified as a string)
+//			final Class< ? > clazz = Class.forName( request.getObjectType() );
+//
+//			// deserialize the result
+//			deserializedObject = serializer.deserialize( input, clazz );
+//		}
+//		catch( ClassNotFoundException e )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Error occured while attempting to deserialize the result. The Class for the Object's type not found." + Constants.NEW_LINE );
+//			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+//			message.append( "  Object Type: " + request.getObjectType() + Constants.NEW_LINE );
+//			LOGGER.error( message.toString() );
+//			throw new IllegalArgumentException( message.toString() );
+//		}
+		final Object deserializedObject = deserialize( request, signature );
 		
 		//
 		// call the diffused method using the diffuser with the matching signature
@@ -392,17 +393,40 @@ public class RestfulDiffuserManagerResource {
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
-		final Object resultObject = diffuser.runObject( true, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
+
+		// grab the requstId and use it to create the result ID
+		final String requestId = request.getRequestId();
+		final ResultId resultId = new ResultId( signature, requestId );
+
+		// throw the running of the object onto another thread, which will add result object to the
+		// cache when it completes.
+		final Thread task = new Thread( new Runnable() {
+			
+			/*
+			 * (non-Javadoc)
+			 * @see java.lang.Runnable#run()
+			 */
+			@Override
+			public void run()
+			{
+				final Object resultObject = diffuser.runObject( true, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
+				
+				// put the result into a map with the signature/id as the key
+				addResults( resultId, resultObject, serializer );
+				runningTasks.remove( resultId );
+			}
+		} );
+
+		// add the task to the map of running tasks and set it to run
+		synchronized( this )
+		{
+			runningTasks.put( resultId, task );
+			task.start();
+		}
 		
 		//
 		// create the response
 		//
-		// grab the requstId
-		final String requestId = request.getRequestId();
-
-		// put the result into a map with the signature/id as the key
-		final String resultId = addResults( signature, requestId, resultObject, serializer );
-		
 		// create the Atom link to the response
 		final URI resultUri = uriInfo.getAbsolutePathBuilder().path( requestId ).build();
 
@@ -410,10 +434,10 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 		
 		// create the atom feed and add an entry that holds the result ID and the request ID
-		final Feed feed = Atom.createFeed( resultUri, resultId, date, uriInfo.getBaseUri() );
+		final Feed feed = Atom.createFeed( resultUri, resultId.getResultId(), date, uriInfo.getBaseUri() );
 		
 		final Entry resultIdEntry = Atom.createEntry( resultUri, RESULT_ID, date );
-		resultIdEntry.setContent( resultId );
+		resultIdEntry.setContent( resultId.getResultId() );
 		feed.addEntry( resultIdEntry );
 		
 		final Entry requestIdEntry = Atom.createEntry( resultUri, REQUEST_ID, date );
@@ -430,88 +454,153 @@ public class RestfulDiffuserManagerResource {
 		
 		return response;
 	}
+	
+	private synchronized boolean isRunning( final String signature, final String requestId )
+	{
+		return runningTasks.containsKey( new ResultId( signature, requestId ) );
+	}
+	
+	/**
+	 * 
+	 * @param request
+	 * @param signature
+	 * @return
+	 */
+	private Object deserialize( final ExecuteDiffuserRequest request, final String signature )
+	{
+		Object deserializedObject = null;
+		try
+		{
+			// create an input stream from the byte array
+			final InputStream input = new ByteArrayInputStream( request.getObject() );
+
+			// create the Class result for the argument type (specified as a string)
+			final Class< ? > clazz = Class.forName( request.getObjectType() );
+
+			// deserialize the result
+			deserializedObject = request.getSerializer().deserialize( input, clazz );
+		}
+		catch( ClassNotFoundException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error occured while attempting to deserialize the result. The Class for the Object's type not found." + Constants.NEW_LINE );
+			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+			message.append( "  Object Type: " + request.getObjectType() + Constants.NEW_LINE );
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
+		
+		return deserializedObject;
+	}
+	
+	@HEAD @Path( "{" + SIGNATURE + "}" + "/{" + RESULT_ID + ": [a-zA-Z0-9\\-]*}" )
+	@Produces( MediaType.APPLICATION_ATOM_XML )
+	public Response getResultStatus( @Context final UriInfo uriInfo, 
+							   		 @PathParam( SIGNATURE ) final String signature,
+							   		 @PathParam( RESULT_ID ) final String resultId )
+	{
+		// if the result is in the results cache, then we have completed and we 
+		// return an OK status, otherwise, we haven't completed the runObject(...)
+		// method and we return a NO_CONTENT status.
+		Response response = null;
+		if( resultsCache.containsKey( createResultsCacheId( signature, resultId ) ) )
+		{
+			// create the response
+			response = Response.ok().build();
+		}
+		else
+		{
+			response = Response.noContent().build();
+		}
+		return response;
+	}
+
 
 	/**
-		 * Returns the result of {@link #execute(UriInfo, String, ExecuteDiffuserRequest)} method call against a 
-		 * specific diffuser. The result is referenced through the result ID which was generated and passed back 
-		 * to the client when the {@link #execute(UriInfo, String, ExecuteDiffuserRequest)} method was called. The
-		 * result ID is created in the {@link #createResultsCacheId(String, String)} based on the signature and
-		 * the request ID.
-		 * @param uriInfo Information about the request URI and the JAX-RS application.
-		 * @param signature The signature of the {@link RestfulDiffuser} corresponding to a specific method.
-		 * The signatures are created using the {@link DiffuserId} class.
-		 * @param resultId The result ID corresponding to the result.
-		 * @return An {@link Response} object that contains a string version of the Atom feed holding the result.
-		 * The {@code content} of the Atom feed contains the {@code byte[]} version of the serialized result object. 
-		 */
-		@GET @Path( "{" + SIGNATURE + "}" + "/{" + RESULT_ID + ": [a-zA-Z0-9\\-]*}" )
-		@Produces( MediaType.APPLICATION_ATOM_XML )
-		public Response getResult( @Context final UriInfo uriInfo, 
-								   @PathParam( SIGNATURE ) final String signature,
-								   @PathParam( RESULT_ID ) final String resultId )
+	 * Returns the result of {@link #execute(UriInfo, String, ExecuteDiffuserRequest)} method call against a 
+	 * specific diffuser. The result is referenced through the result ID which was generated and passed back 
+	 * to the client when the {@link #execute(UriInfo, String, ExecuteDiffuserRequest)} method was called. The
+	 * result ID is created in the {@link #createResultsCacheId(String, String)} based on the signature and
+	 * the request ID.
+	 * @param uriInfo Information about the request URI and the JAX-RS application.
+	 * @param signature The signature of the {@link RestfulDiffuser} corresponding to a specific method.
+	 * The signatures are created using the {@link DiffuserId} class.
+	 * @param requestId The result ID corresponding to the result.
+	 * @return An {@link Response} object that contains a string version of the Atom feed holding the result.
+	 * The {@code content} of the Atom feed contains the {@code byte[]} version of the serialized result object. 
+	 */
+	@GET @Path( "{" + SIGNATURE + "}" + "/{" + RESULT_ID + ": [a-zA-Z0-9\\-]*}" )
+	@Produces( MediaType.APPLICATION_ATOM_XML )
+	public Response getResult( @Context final UriInfo uriInfo, 
+							   @PathParam( SIGNATURE ) final String signature,
+							   @PathParam( RESULT_ID ) final String requestId )
+	{
+		// create the URI to the newly created diffuser
+		final URI resultUri = uriInfo.getAbsolutePathBuilder().build();
+
+		// grab the date for time stamp
+		final Date date = new Date();
+
+		Response response = null;
+		ResultCacheEntry result = null;
+		if( ( result = getResultFromCache( signature, requestId ) ) != null )
 		{
-			// create the URI to the newly created diffuser
-			final URI resultUri = uriInfo.getAbsolutePathBuilder().build();
-	
-			// grab the date for time stamp
-			final Date date = new Date();
-	
-			Response response = null;
-			ResultCacheEntry result = null;
-			if( ( result = getResultFromCache( signature, resultId ) ) != null )
+			Feed feed = null;
+			try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
 			{
-				Feed feed = null;
-				try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
-				{
-					// serialize the result result to be used in the response.
-					final Serializer serializer = SerializerFactory.getInstance().createSerializer( result.getSerializerType() );
-					serializer.serialize( result.getResult(), output );
-					
-					// create the atom feed
-					final String resultKey = createResultsCacheId( signature, resultId );
-					feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
-					
-					// create an entry for the feed and set the results as the content
-					final Entry entry = Atom.createEntry();
-					
-					final ByteArrayInputStream input = new ByteArrayInputStream( output.toByteArray() );
-					entry.setId( resultId );
-					entry.setContent( input, MediaType.APPLICATION_OCTET_STREAM );
-					feed.addEntry( entry );
-					
-					// create the response
-					response = Response.ok( output.toByteArray() )
-									   .status( Status.OK )
-									   .location( resultUri )
-									   .entity( feed.toString() )
-									   .type( MediaType.APPLICATION_OCTET_STREAM )
-									   .build();
-				}
-				catch( IOException e )
-				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "Error occured while attempting to close the byte array output stream for the serialized result result." );
-					LOGGER.error( message.toString() );
-					throw new IllegalArgumentException( message.toString() );
-				}
-			}
-			else
-			{
-				final String resultKey = createResultsCacheId( signature, resultId );
-				final Feed feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
-	
+				// serialize the result result to be used in the response.
+				final Serializer serializer = SerializerFactory.getInstance().createSerializer( result.getSerializerType() );
+				serializer.serialize( result.getResult(), output );
+				
+				// create the atom feed
+				final String resultKey = createResultsCacheId( signature, requestId );
+				feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
+				
+				// create an entry for the feed and set the results as the content
 				final Entry entry = Atom.createEntry();
-				entry.setId( resultId );
-				entry.setContent( "Failded to retrieve result.", MediaType.TEXT_PLAIN );
+				
+				final ByteArrayInputStream input = new ByteArrayInputStream( output.toByteArray() );
+				entry.setId( requestId );
+				entry.setContent( input, MediaType.APPLICATION_OCTET_STREAM );
 				feed.addEntry( entry );
 				
-				response = Response.created( resultUri )
-								   .status( Status.BAD_REQUEST )
+				// create the response
+				response = Response.ok( output.toByteArray() )
+								   .status( Status.OK )
+								   .location( resultUri )
 								   .entity( feed.toString() )
+								   .type( MediaType.APPLICATION_OCTET_STREAM )
 								   .build();
 			}
-			return response;
+			catch( IOException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Error occured while attempting to close the byte array output stream for the serialized result result." );
+				LOGGER.error( message.toString() );
+				throw new IllegalArgumentException( message.toString() );
+			}
 		}
+		else if( isRunning( signature, requestId ) )
+		{
+			response = Response.noContent().build();
+		}
+		else
+		{
+			final String resultKey = createResultsCacheId( signature, requestId );
+			final Feed feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
+
+			final Entry entry = Atom.createEntry();
+			entry.setId( requestId );
+			entry.setContent( "Failded to retrieve result.", MediaType.TEXT_PLAIN );
+			feed.addEntry( entry );
+			
+			response = Response.created( resultUri )
+							   .status( Status.BAD_REQUEST )
+							   .entity( feed.toString() )
+							   .build();
+		}
+		return response;
+	}
 
 	/**
 	 * Returns an Atom feed as a string, whose entries each represent a registered diffuser

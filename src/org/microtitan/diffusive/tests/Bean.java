@@ -26,7 +26,16 @@ public class Bean {
 	@Diffusive
 	public String getA()
 	{
-		return a;
+		long j = 0;
+		for( long i = 0; i < 10; ++i )
+		{
+			for( long k = 0; k < 999999999; ++k )
+			{
+				j += i;
+			}
+			System.out.println( i );
+		}
+		return new Double( j ).toString();
 	}
 	
 	/**
