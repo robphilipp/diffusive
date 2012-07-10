@@ -1,18 +1,10 @@
 package org.microtitan.diffusive.tests;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.microtitan.diffusive.diffuser.Diffuser;
-import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
-import org.microtitan.diffusive.diffuser.serializer.Serializer;
-import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 
 
 
@@ -70,10 +62,10 @@ public class BeanTest {
 		// TODO this should be in a config file that is inserted here from the launcher...
 		// this code sets up the diffuser repository with the local instance of the restful diffuser 
 		// set the code to use of RESTful diffuser
-		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.OBJECT.getName() );
-		final List< URI > clientEndpoints = Arrays.asList( URI.create( "http://localhost:8183" ) );
-		final Diffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints );
-		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
+//		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.OBJECT.getName() );
+//		final List< URI > clientEndpoints = Arrays.asList( URI.create( "http://localhost:8183" ) );
+//		final Diffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints );
+//		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
 
 		
 		final BeanTest test = new BeanTest();

@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javassist.ClassPool;
 import javassist.Loader;
@@ -18,6 +20,7 @@ import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
+import org.microtitan.diffusive.launcher.config.RestfulDiffuserRepositoryConfig;
 import org.microtitan.diffusive.tests.BeanTest;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
@@ -162,7 +165,11 @@ public class DiffusiveLauncher {
 			final ClassPool pool = ClassPool.getDefault();
 
 			// create a loader for that pool, setting the class loader for this class as the parent
-			final Loader loader = new Loader( DiffusiveLauncher.class.getClassLoader(), pool );
+			final Map< String, String > configurations = new LinkedHashMap<>();
+			configurations.put( RestfulDiffuserRepositoryConfig.class.getName(), "configure" );
+//			configurations.put( LocalDiffuserRepositoryConfig.class.getName(), "configure" );
+//			configurations.put( LoggingConfig.class.getName(), "configure" );
+			final Loader loader = new DiffusiveLoader( configurations, DiffusiveLauncher.class.getClassLoader(), pool );
 			
 			// add up the class loader with the translator
 			loader.addTranslator( pool, translator );
@@ -276,13 +283,6 @@ public class DiffusiveLauncher {
 		final URI serverUri = URI.create( "http://localhost:8182/" );
 		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
 		
-		// TODO have the configuration code (currently in BeanTest) inserted into the main of the class-to-run
-		// set the use of the RESTful diffuser
-//		final Serializer serializer = new ObjectSerializer();
-//		final List< URI > endpoints = Arrays.asList( URI.create( "http://localhost:8182/diffuser" ) );
-//		final Diffuser restfulDiffuser = new RestfulDiffuser( serializer, endpoints );
-//		KeyedDiffuserRepository.getInstance().setDiffuser( new RestfulDiffuser( serializer, endpoints ) );
-
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
 		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
