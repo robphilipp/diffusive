@@ -1,9 +1,11 @@
 package org.microtitan.diffusive.tests;
 
+import java.io.Serializable;
+
 import org.microtitan.diffusive.annotations.Diffusive;
 
 
-public class Bean {
+public class Bean implements Serializable {
 	
 	private String a;
 	private String b;
@@ -27,7 +29,7 @@ public class Bean {
 	public String getA()
 	{
 		long j = 0;
-		for( long i = 0; i < 10; ++i )
+		for( long i = 0; i < 1; ++i )
 		{
 			for( long k = 0; k < 999999999; ++k )
 			{

@@ -333,7 +333,7 @@ public class RestfulDiffuserManagerClient {
 	 * @param argumentValues The serialized value of each of the arguments passed to the diffusive method
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
-	 * @param serializedObjectType The {@link Class} of the serialized object that contains the diffusive method
+//	 * @param serializedObjectType The {@link Class} of the serialized object that contains the diffusive method
 	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
 	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
 	 * underlying Atom feed.
@@ -344,14 +344,15 @@ public class RestfulDiffuserManagerClient {
 							   					  final List< Class< ? > > argumentTypes, 
 							   					  final List< byte[] > argumentValues, 
 							   					  final byte[] serializedObject,
-							   					  final Class< ? > serializedObjectType,
+//							   					  final Class< ? > serializedObjectType,
 							   					  final String serializerType )
 	{
 		// construct the signature from the specified parameters
 		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
 		// call the execute method
-		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, serializedObjectType, serializerType );
+//		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, serializedObjectType, serializerType );
+		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, clazz, serializerType );
 	}
 
 	/**
@@ -377,8 +378,11 @@ public class RestfulDiffuserManagerClient {
 		// convert the argument types to argument type names
 		final List< String > argumentTypeNames = convertArgumentTypes( argumentTypes );
 		
+		final String returnTypeClassName = DiffuserId.parse( signature ).getReturnTypeClassName();
+		
 		// create the diffeser-execute request
-		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( argumentTypeNames, 
+		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( returnTypeClassName,
+																			  argumentTypeNames, 
 																			  argumentValues, 
 																			  serializedObjectType.getName(), 
 																			  serializedObject, 

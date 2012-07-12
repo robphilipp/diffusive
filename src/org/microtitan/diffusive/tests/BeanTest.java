@@ -1,6 +1,7 @@
 package org.microtitan.diffusive.tests;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -10,7 +11,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 
 
-public class BeanTest {
+public class BeanTest implements Serializable {
 
 //	private static final Logger LOGGER = Logger.getLogger( BeanTest.class );
 	

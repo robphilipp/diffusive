@@ -104,6 +104,9 @@ public class DiffusiveLoader extends Loader {
 	{
 		final List< String > prefixes = new ArrayList<>();
 		prefixes.add( "org.apache.log4j." );
+		prefixes.add( "org.apache.commons.logging." );
+		prefixes.add( "org.apache.abdera." );
+		
 		return prefixes;
 	}
 	

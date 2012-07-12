@@ -15,6 +15,8 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 @XmlRootElement
 public class ExecuteDiffuserRequest {
 
+	private String returnType;
+	
 	private List< String > argumentTypes;
 	private List< byte[] > argumentValues;
 
@@ -54,12 +56,14 @@ public class ExecuteDiffuserRequest {
 	
 	public ExecuteDiffuserRequest()
 	{
+		this.returnType = void.class.getName();
 		this.argumentTypes = new ArrayList< String >();
 		this.argumentValues =  new ArrayList< byte[] >();
 		this.requestId = UUID.randomUUID().toString();
 	}
 
-	public static final ExecuteDiffuserRequest create( final List< String > argumentTypes,
+	public static final ExecuteDiffuserRequest create( final String returnType,
+													   final List< String > argumentTypes,
 													   final List< byte[] > argumentValues, 
 													   final String serializedObjectType, 
 													   final byte[] serializedObject,
@@ -77,13 +81,23 @@ public class ExecuteDiffuserRequest {
 		}
 		
 		final ExecuteDiffuserRequest request = create( serializedObjectType, serializedObject, serializerType );
+		request.setReturnType( returnType );
 		for( int i = 0; i < argumentTypes.size(); ++i )
 		{
 			request.addArgument( argumentTypes.get( i ), argumentValues.get( i ) );
 		}
 		return request;
 	}
-	
+
+//	public static final ExecuteDiffuserRequest create( final List< String > argumentTypes,
+//			   										   final List< byte[] > argumentValues, 
+//			   										   final String serializedObjectType, 
+//			   										   final byte[] serializedObject,
+//			   										   final String serializerType )
+//	{
+//		return create( void.class.getName(), argumentTypes, argumentValues, serializedObjectType, serializedObject, serializerType );
+//	}
+
 	public static final ExecuteDiffuserRequest create( final String serializedObjectType, 
 													   final byte[] serializedObject, 
 													   final String serializerType )
@@ -114,6 +128,45 @@ public class ExecuteDiffuserRequest {
 //			}
 //		}
 //	}
+	
+	public ExecuteDiffuserRequest setReturnType( final String returnType )
+	{
+		this.returnType = returnType;
+		return this;
+	}
+	
+	public String getReturnType()
+	{
+		return returnType;
+	}
+	
+	/**
+	 * TODO deal with all the primitives, not just void
+	 * @return
+	 */
+	public Class< ? > getReturnTypeClass()
+	{
+		Class< ? > clazz;
+		if( returnType.equals( void.class.getName() ) )
+		{
+			clazz = void.class;
+		}
+		else
+		{
+	        try
+	        {
+		        clazz = Class.forName( returnType );
+	        }
+	        catch( ClassNotFoundException e )
+	        {
+	        	final StringBuffer message = new StringBuffer();
+	        	message.append( "Error creating the return type class for the specified class name" + Constants.NEW_LINE );
+	        	message.append( "  Specified class name: " + returnType );
+	        	throw new IllegalArgumentException( message.toString(), e );
+	        }
+		}
+		return clazz;
+	}
 	
 	public ExecuteDiffuserRequest addArgument( final String key, final byte[] value )
 	{

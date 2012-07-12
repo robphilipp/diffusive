@@ -1,9 +1,7 @@
 package org.microtitan.diffusive.launcher;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,9 +15,6 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
-import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserRepositoryConfig;
 import org.microtitan.diffusive.tests.BeanTest;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
@@ -159,18 +154,18 @@ public class DiffusiveLauncher {
 	 */
 	public static void run( final DiffusiveTranslator translator, final String classNameToRun, final String...programArguments )
 	{
+		// get the default class pool
+		final ClassPool pool = ClassPool.getDefault();
+
+		// create a loader for that pool, setting the class loader for this class as the parent
+		final Map< String, String > configurations = new LinkedHashMap<>();
+		configurations.put( RestfulDiffuserRepositoryConfig.class.getName(), "configure" );
+//		configurations.put( LocalDiffuserRepositoryConfig.class.getName(), "configure" );
+//		configurations.put( LoggingConfig.class.getName(), "configure" );
+		final Loader loader = new DiffusiveLoader( configurations, DiffusiveLauncher.class.getClassLoader(), pool );
+		
 		try
 		{
-			// get the default class pool
-			final ClassPool pool = ClassPool.getDefault();
-
-			// create a loader for that pool, setting the class loader for this class as the parent
-			final Map< String, String > configurations = new LinkedHashMap<>();
-			configurations.put( RestfulDiffuserRepositoryConfig.class.getName(), "configure" );
-//			configurations.put( LocalDiffuserRepositoryConfig.class.getName(), "configure" );
-//			configurations.put( LoggingConfig.class.getName(), "configure" );
-			final Loader loader = new DiffusiveLoader( configurations, DiffusiveLauncher.class.getClassLoader(), pool );
-			
 			// add up the class loader with the translator
 			loader.addTranslator( pool, translator );
 			
@@ -180,8 +175,8 @@ public class DiffusiveLauncher {
 		catch( Throwable exception )
 		{
 			final StringBuffer message = new StringBuffer();
-			message.append( Loader.class.getName() + " failed to load and run the specified class" + Constants.NEW_LINE );
-			message.append( "  Loader: " + Loader.class.getName() + Constants.NEW_LINE );
+			message.append( "Error loading and running the specified class" + Constants.NEW_LINE );
+			message.append( "  Loader: " + loader.getClass().getName() + Constants.NEW_LINE );
 			message.append( "  Class Name: " + classNameToRun + Constants.NEW_LINE );
 			if( programArguments.length > 0 )
 			{
@@ -273,15 +268,15 @@ public class DiffusiveLauncher {
 			args = new String[] { BeanTest.class.getName() };
 		}
 		
-		// TODO this needs to be set up through a configuration or programatically. Probably best through a RESTfulDiffusiveLauncher,
-		// a LocalDiffusiveLauncher, a NullDiffusiveLauncher, etc..
-		// run and set up the local RESTful Diffuser server
-		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
-		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
-		application.addSingletonResource( resource );
-
-		final URI serverUri = URI.create( "http://localhost:8182/" );
-		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
+//		// TODO this needs to be set up through a configuration or programatically. Probably best through a RESTfulDiffusiveLauncher,
+//		// a LocalDiffusiveLauncher, a NullDiffusiveLauncher, etc..
+//		// run and set up the local RESTful Diffuser server
+//		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
+//		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
+//		application.addSingletonResource( resource );
+//
+//		final URI serverUri = URI.create( "http://localhost:8182/" );
+//		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
 		
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
@@ -290,16 +285,16 @@ public class DiffusiveLauncher {
 		run( translator, classNameToRun, programArgs );
 //		runClean( classNameToRun, programArgs );
 		
-		System.out.println( String.format( "Jersy app start with WADL available at %sapplication.wadl\nTry out %shelloworld\nHit enter to stop it...", serverUri, serverUri ) );
-		try
-		{
-			System.in.read();
-		}
-		catch( IOException e )
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		server.stop();
+//		System.out.println( String.format( "Jersy app start with WADL available at %sapplication.wadl\nTry out %shelloworld\nHit enter to stop it...", serverUri, serverUri ) );
+//		try
+//		{
+//			System.in.read();
+//		}
+//		catch( IOException e )
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		server.stop();
 	}
 }

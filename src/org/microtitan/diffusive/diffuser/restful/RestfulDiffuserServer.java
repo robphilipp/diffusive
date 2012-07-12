@@ -5,10 +5,13 @@ import java.net.URI;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.utils.Constants;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 
@@ -21,6 +24,8 @@ import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 public class RestfulDiffuserServer {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserServer.class );
+	
+	public static final String DEFAULT_SERVER_URI = "http://localhost:8182";
 	
 	private HttpServer server;
 	
@@ -120,4 +125,52 @@ public class RestfulDiffuserServer {
 			LOGGER.debug( message.toString() );
 		}
 	}
+	
+	/**
+	 * 
+	 * @param args
+	 */
+	public static void main( String[] args )
+	{
+		DOMConfigurator.configure( "log4j.xml" );
+		Logger.getRootLogger().setLevel( Level.DEBUG );
+
+		// ensure that a class has been specified (the class must have a main)
+		if( args.length < 1 )
+		{
+			System.out.println();
+			System.out.println( "+-------------------------------------+" );
+			System.out.println( "|  Usage: name_of_class_to_run [arg]* |" );
+			System.out.println( "|                                     |" );
+			System.out.println( "|  **** Running simple test code **** |" );
+			System.out.println( "+-------------------------------------+" );
+			System.out.println();
+			args = new String[] { DEFAULT_SERVER_URI };
+		}
+		
+		// TODO this needs to be set up through a configuration or programatically. Probably best through a RESTfulDiffusiveLauncher,
+		// a LocalDiffusiveLauncher, a NullDiffusiveLauncher, etc..
+		// run and set up the local RESTful Diffuser server
+		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
+		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
+		application.addSingletonResource( resource );
+
+		final URI serverUri = URI.create( args[ 0 ] );
+		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
+				
+		System.out.println( String.format( "Jersy app start with WADL available at %sapplication.wadl", serverUri ) );
+		System.out.println( String.format( "Try out %s.", serverUri ) );
+		System.out.println( "Hit enter to stop it..." );
+		try
+		{
+			System.in.read();
+		}
+		catch( IOException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		server.stop();
+	}
+
 }

@@ -409,7 +409,8 @@ public class RestfulDiffuserManagerResource {
 			@Override
 			public void run()
 			{
-				final Object resultObject = diffuser.runObject( true, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
+				final Class< ? > returnType = request.getReturnTypeClass();
+				final Object resultObject = diffuser.runObject( true, returnType, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
 				
 				// put the result into a map with the signature/id as the key
 				addResults( resultId, resultObject, serializer );
