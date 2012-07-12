@@ -12,6 +12,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.copyable.Copyable;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.utils.ReflectionUtils;
 
 /**
  * Encapsulates the key used to identify a {@link Diffuser} for a specific method. The {@link Diffuser} ID
@@ -126,7 +127,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	 */
 	public Class< ? > getReturnTypeClazz()
 	{
-		return getClazz( returnTypeClassName );
+		return ReflectionUtils.getClazz( returnTypeClassName );
 	}
 	
 	/**
@@ -142,29 +143,29 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	 */
 	public Class< ? > getClazz()
 	{
-		return getClazz( className );
+		return ReflectionUtils.getClazz( className );
 	}
 	
-	/*
-	 * Utility method that returns the {@link Class} object for the specified class name.
-	 * @param className The name of the {@link Class} for which to return the {@link Class} object.
-	 * @return the {@link Class} object for the specified class name.
-	 */
-	private static Class< ? > getClazz( final String className )
-	{
-		Class< ? > clazz = null;
-		try
-		{
-			clazz = Class.forName( className );
-		}
-		catch( ClassNotFoundException e )
-		{
-			final String message = "Could not instantiate class from specified class name: " + className;
-			LOGGER.error( message, e );
-			throw new IllegalArgumentException( message, e );
-		}
-		return clazz;
-	}
+//	/*
+//	 * Utility method that returns the {@link Class} object for the specified class name.
+//	 * @param className The name of the {@link Class} for which to return the {@link Class} object.
+//	 * @return the {@link Class} object for the specified class name.
+//	 */
+//	private static Class< ? > getClazz( final String className )
+//	{
+//		Class< ? > clazz = null;
+//		try
+//		{
+//			clazz = Class.forName( className );
+//		}
+//		catch( ClassNotFoundException e )
+//		{
+//			final String message = "Could not instantiate class from specified class name: " + className;
+//			LOGGER.error( message, e );
+//			throw new IllegalArgumentException( message, e );
+//		}
+//		return clazz;
+//	}
 	
 	/**
 	 * @return the name of the method that is diffused
@@ -190,7 +191,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		final List< Class< ? > > types = new ArrayList<>();
 		for( String type : argumentTypes )
 		{
-			types.add( getClazz( type ) );
+			types.add( ReflectionUtils.getClazz( type ) );
 		}
 		return types;
 	}

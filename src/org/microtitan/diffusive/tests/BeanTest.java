@@ -43,7 +43,7 @@ public class BeanTest implements Serializable {
 	public static void main( String[] args ) throws IOException
 	{
 		DOMConfigurator.configure( "log4j.xml" );
-		Logger.getRootLogger().setLevel( Level.DEBUG );
+		Logger.getRootLogger().setLevel( Level.WARN );
 		
 		// TODO this should be in a config file that is inserted here from the launcher...
 		// set the use of the RESTful diffuser server

@@ -15,6 +15,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserRepositoryConfig;
 import org.microtitan.diffusive.tests.BeanTest;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
@@ -247,6 +248,10 @@ public class DiffusiveLauncher {
 	}
 	
 	/**
+	 * Make sure to run a {@link RestfulDiffuserServer} instance before calling this. And
+	 * make sure that the endpoint listed in the {@link RestfulDiffuserServer#DEFAULT_SERVER_URI}
+	 * method matches up to that in the {@link RestfulDiffuserRepositoryConfig} so that it
+	 * knows how to call the endpoint.
 	 * 
 	 * @param args
 	 */
@@ -268,16 +273,6 @@ public class DiffusiveLauncher {
 			args = new String[] { BeanTest.class.getName() };
 		}
 		
-//		// TODO this needs to be set up through a configuration or programatically. Probably best through a RESTfulDiffusiveLauncher,
-//		// a LocalDiffusiveLauncher, a NullDiffusiveLauncher, etc..
-//		// run and set up the local RESTful Diffuser server
-//		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
-//		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
-//		application.addSingletonResource( resource );
-//
-//		final URI serverUri = URI.create( "http://localhost:8182/" );
-//		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
-		
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
 		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
@@ -285,16 +280,6 @@ public class DiffusiveLauncher {
 		run( translator, classNameToRun, programArgs );
 //		runClean( classNameToRun, programArgs );
 		
-//		System.out.println( String.format( "Jersy app start with WADL available at %sapplication.wadl\nTry out %shelloworld\nHit enter to stop it...", serverUri, serverUri ) );
-//		try
-//		{
-//			System.in.read();
-//		}
-//		catch( IOException e )
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		server.stop();
+		System.out.println( "done" );
 	}
 }

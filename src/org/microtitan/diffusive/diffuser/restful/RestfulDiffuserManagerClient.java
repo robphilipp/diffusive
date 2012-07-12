@@ -511,7 +511,15 @@ public class RestfulDiffuserManagerClient {
 			// grab the content from the entry and deserialize it
 			final InputStream objectStream = feed.getEntries().get( 0 ).getContentStream();
 
-			object = serializer.deserialize( objectStream, id.getReturnTypeClazz() );
+			final Class< ? > returnType = id.getReturnTypeClazz();
+			if( returnType.equals( void.class ) )
+			{
+				object = (Void)null;
+			}
+			else
+			{
+				object = serializer.deserialize( objectStream, returnType );
+			}
 		}
 		catch( IOException e )
 		{
@@ -531,6 +539,31 @@ public class RestfulDiffuserManagerClient {
 			throw new IllegalArgumentException( message.toString(), e );
 		}
 		return object;
+	}
+	
+	public boolean isComplete( final String resultId )
+	{
+		// create the URI to the diffuser with the specified signature
+		final URI resultUri = UriBuilder.fromUri( baseUri.toString() ).path( resultId ).build();
+		
+		// create the web resource for making the call, make the call to GET the result from the server
+		final WebResource resource = client.resource( resultUri.toString() );
+		final ClientResponse resultResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
+
+		boolean isComplete = false;
+		if( resultResponse.getStatus() == Status.NO_CONTENT.getStatusCode() )
+		{
+			isComplete = false;
+		}
+		else if( resultResponse.getStatus() == Status.OK.getStatusCode() )
+		{
+			isComplete = true;
+		}
+		else
+		{
+			// throw exception
+		}
+		return isComplete;
 	}
 
 	/*

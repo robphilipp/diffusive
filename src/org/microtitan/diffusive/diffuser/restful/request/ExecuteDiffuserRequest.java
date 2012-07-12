@@ -11,13 +11,16 @@ import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.containers.Pair;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
+import org.microtitan.diffusive.utils.ReflectionUtils;
 
 @XmlRootElement
 public class ExecuteDiffuserRequest {
 
 	private String returnType;
 	
+	@XmlElement
 	private List< String > argumentTypes;
+	@XmlElement
 	private List< byte[] > argumentValues;
 
 	@XmlElement
@@ -141,31 +144,11 @@ public class ExecuteDiffuserRequest {
 	}
 	
 	/**
-	 * TODO deal with all the primitives, not just void
 	 * @return
 	 */
 	public Class< ? > getReturnTypeClass()
 	{
-		Class< ? > clazz;
-		if( returnType.equals( void.class.getName() ) )
-		{
-			clazz = void.class;
-		}
-		else
-		{
-	        try
-	        {
-		        clazz = Class.forName( returnType );
-	        }
-	        catch( ClassNotFoundException e )
-	        {
-	        	final StringBuffer message = new StringBuffer();
-	        	message.append( "Error creating the return type class for the specified class name" + Constants.NEW_LINE );
-	        	message.append( "  Specified class name: " + returnType );
-	        	throw new IllegalArgumentException( message.toString(), e );
-	        }
-		}
-		return clazz;
+		return ReflectionUtils.getClazz( returnType );
 	}
 	
 	public ExecuteDiffuserRequest addArgument( final String key, final byte[] value )

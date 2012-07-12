@@ -299,10 +299,16 @@ public class RestfulDiffuserManagerResource {
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "The RESTful diffuser's argument types do not match those from the request" + Constants.NEW_LINE );
-			message.append( "  ( Diffuser Argument Type, Request Argument Type )" + Constants.NEW_LINE );
+			message.append( "  Signature: " + signature + Constants.NEW_LINE );
+			message.append( "  Argument types based on DiffuserId (signature)" + Constants.NEW_LINE );
 			for( int i = 0; i < argumentTypes.size(); ++i )
 			{
-				message.append( "  (" + argumentTypes.get( i ) + ", " + requestArgTypes.get( i ) + ")" + Constants.NEW_LINE );
+				message.append( "    " + argumentTypes.get( i ) + Constants.NEW_LINE );
+			}
+			message.append( "  Argument types based on the execute diffuser request" + Constants.NEW_LINE );
+			for( int i = 0; i < requestArgTypes.size(); ++i )
+			{
+				message.append( "    " + requestArgTypes.get( i ) + Constants.NEW_LINE );
 			}
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );

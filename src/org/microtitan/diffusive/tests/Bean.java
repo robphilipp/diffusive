@@ -29,14 +29,15 @@ public class Bean implements Serializable {
 	public String getA()
 	{
 		long j = 0;
-		for( long i = 0; i < 1; ++i )
+		for( long i = 0; i < 50; ++i )
 		{
-			for( long k = 0; k < 999999999; ++k )
+			for( long k = 0; k < 99_999_999; ++k )
 			{
 				j += i;
 			}
 			System.out.println( i );
 		}
+		System.out.println( "Done loooping" );
 		return new Double( j ).toString();
 	}
 	
