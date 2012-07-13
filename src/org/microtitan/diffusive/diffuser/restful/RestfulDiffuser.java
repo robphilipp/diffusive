@@ -79,7 +79,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			{
 				argumentTypes[ i ] = arguments[ i ].getClass();
 			}
-			final CreateDiffuserResponse response = client.createDiffuser( returnType, object.getClass(), methodName, argumentTypes );
+			/*final CreateDiffuserResponse response = */
+			client.createDiffuser( returnType, object.getClass(), methodName, argumentTypes );
 			
 			// execute the method on the diffuser
 			ExecuteDiffuserResponse executeResponse = null;
