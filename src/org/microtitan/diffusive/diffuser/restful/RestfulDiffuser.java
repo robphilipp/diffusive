@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.AbstractDiffuser;
 import org.microtitan.diffusive.diffuser.LocalDiffuser;
-import org.microtitan.diffusive.diffuser.restful.response.CreateDiffuserResponse;
 import org.microtitan.diffusive.diffuser.restful.response.ExecuteDiffuserResponse;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
