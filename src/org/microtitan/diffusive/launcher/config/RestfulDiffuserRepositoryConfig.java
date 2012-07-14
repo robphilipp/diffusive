@@ -1,10 +1,12 @@
 package org.microtitan.diffusive.launcher.config;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
@@ -19,6 +21,7 @@ public class RestfulDiffuserRepositoryConfig {
 	// in the RestfulDiffuserServer as the default server URI.
 	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
 	
+	@DiffusiveConfiguration
 	public static final void configure()
 	{
 		// load the diffuser repository
@@ -36,5 +39,20 @@ public class RestfulDiffuserRepositoryConfig {
 			endpoints.add( URI.create( client + RestfulDiffuserManagerResource.DIFFUSER_PATH ) );
 		}
 		return endpoints;
+	}
+	
+	public static void main( String[] args ) throws Exception
+	{
+		for( Method m : RestfulDiffuserRepositoryConfig.class.getMethods() )
+		{
+			if( m.isAnnotationPresent( DiffusiveConfiguration.class ) )
+			{
+				System.out.println( "Found annotation on method: " + m.getName() );
+			}
+			else
+			{
+				System.out.println( "Method not annotaed with @" + DiffusiveConfiguration.class.getName() + ": " + m.getName() );
+			}
+		}
 	}
 }

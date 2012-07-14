@@ -2,9 +2,9 @@ package org.microtitan.diffusive.launcher;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 import javassist.ClassPool;
 import javassist.Loader;
@@ -153,16 +153,18 @@ public class DiffusiveLauncher {
 	 * @param classNameToRun The name of the class for which to run the "main" method
 	 * @param programArguments The command-line arguments passed to the "main" method
 	 */
-	public static void run( final DiffusiveTranslator translator, final String classNameToRun, final String...programArguments )
+	public static void run( final DiffusiveTranslator translator, 
+							final String classNameToRun, 
+							final String...programArguments )
 	{
 		// get the default class pool
 		final ClassPool pool = ClassPool.getDefault();
 
 		// create a loader for that pool, setting the class loader for this class as the parent
-		final Map< String, String > configurations = new LinkedHashMap<>();
-		configurations.put( RestfulDiffuserRepositoryConfig.class.getName(), "configure" );
-//		configurations.put( LocalDiffuserRepositoryConfig.class.getName(), "configure" );
-//		configurations.put( LoggingConfig.class.getName(), "configure" );
+		final List< String > configurations = new ArrayList<>();
+		configurations.add( RestfulDiffuserRepositoryConfig.class.getName() );
+//		configurations.add( LocalDiffuserRepositoryConfig.class.getName() );
+//		configurations.add( LoggingConfig.class.getName() );
 		final Loader loader = new DiffusiveLoader( configurations, DiffusiveLauncher.class.getClassLoader(), pool );
 		
 		try
