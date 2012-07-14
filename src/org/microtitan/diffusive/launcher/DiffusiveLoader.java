@@ -1,10 +1,8 @@
 package org.microtitan.diffusive.launcher;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javassist.ClassPool;
@@ -118,6 +116,10 @@ public class DiffusiveLoader extends Loader {
 		prefixes.add( "org.apache.commons.logging." );
 		prefixes.add( "org.apache.abdera." );
 		
+		// we want to make sure that the DiffusiveConfiguration annotation is loaded
+		// by the default app class loader, and NOT the this one.
+		prefixes.add( DiffusiveConfiguration.class.getName() );
+		
 		return prefixes;
 	}
 	
@@ -151,48 +153,35 @@ public class DiffusiveLoader extends Loader {
 
 	/*
 	 * Invokes the methods of the classes specified in the {@link #configurationClasses} list
-	 * that are annotated with @{@link DiffusiveConfiguration}. Because the class loaders for the
-	 * annotation and the code to process the annotation may be different, we use a round-about method
-	 * that compares the annotations and the class name of the annotation. Needs to be fixed.
-	 * TODO fix me (see above)
+	 * that are annotated with @{@link DiffusiveConfiguration}.
+	 * 
+	 * For this method to work, the @{@link DiffusiveConfiguration} class name must be in the list
+	 * of prefixes ({@link #delegationPrefixes}) that are delegated to the parent class loader. If
+	 * the annotation does not appear in the list, it may be loaded by this class loader instead
+	 * of the default app class loader, and this method will not see the configuration method's
+	 * annotation, and will therefore, NOT call it.
+	 *  
 	 * @throws Throwable
 	 */
 	private void invokeConfigurationClasses() throws Throwable
 	{
-		// old method where the user passed in the class name AND the method name
-		// instead of the new approach where the methods are annotated as configuration methods
-//		for( Map.Entry< String, String > entry : configClassMethodMap.entrySet() )
-//		{
-//			final Class< ? > setupClazz = loadClass( entry.getKey() );
-//			try
-//			{
-//				setupClazz.getDeclaredMethod( entry.getValue() ).invoke( null/*setupClazz.newInstance()*/ );
-//			}
-//			catch( InvocationTargetException e )
-//			{
-//				throw e.getTargetException();
-//			}
-//		}
-		
+		// run through the class names, load the classes, and then invoke the configuration methods
+		// (that have been annotated with @DiffusiveConfiguration)
 		for( String className : configurationClasses )
 		{
 			final Class< ? > setupClazz = loadClass( className );
 			Method configurationMethod = null;
 			try
 			{
-				// grab the methods that have an annotation @DiffusiveConfiguration
+				// grab the methods that have an annotation @DiffusiveConfiguration and invoke them
 				for( final Method method : setupClazz.getMethods() )
 				{
-					final List< Annotation > annotations = Arrays.asList( method.getDeclaredAnnotations() );
-					for( Annotation annot : annotations )
+					if( method.isAnnotationPresent( DiffusiveConfiguration.class ) )
 					{
-						if( annot.annotationType().getName().equals( DiffusiveConfiguration.class.getName() ) )
-						{
-							// hold on the the method in case there is an invocation exception
-							// and to warn the user if no configuration method was found
-							configurationMethod = method;
-							method.invoke( null/*setupClazz.newInstance()*/ );
-						}
+						// hold on the the method in case there is an invocation exception
+						// and to warn the user if no configuration method was found
+						configurationMethod = method;
+						method.invoke( null/*setupClazz.newInstance()*/ );
 					}
 				}
 				if( configurationMethod == null )
