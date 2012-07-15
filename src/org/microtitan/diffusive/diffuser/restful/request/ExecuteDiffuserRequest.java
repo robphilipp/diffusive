@@ -134,18 +134,22 @@ public class ExecuteDiffuserRequest {
 	}
 	
 	/**
-	 * 
-	 * @param key
-	 * @param value
-	 * @return
+	 * Adds a formal parameter and its value to the method to be executed
+	 * @param name The argument type's class name
+	 * @param value The serialized value of the object
+	 * @return this object for chaining
 	 */
-	public ExecuteDiffuserRequest addArgument( final String key, final byte[] value )
+	public ExecuteDiffuserRequest addArgument( final String name, final byte[] value )
 	{
-		argumentTypes.add( key );
+		argumentTypes.add( name );
 		argumentValues.add( value );
 		return this;
 	}
 	
+	/**
+	 * @return a {@link List} of {@link Pair}s holding the formal parameter name and their value in the
+	 * order that they appear in the methods signature
+	 */
 	public List< Pair< String, byte[] > > getArguments()
 	{
 		final List< Pair< String, byte[] > > arguments = new ArrayList<>();
@@ -156,16 +160,28 @@ public class ExecuteDiffuserRequest {
 		return arguments;
 	}
 	
+	/**
+	 * @return a {@link List} of the class names of the formal parameters in the order they appear in the signature
+	 */
 	public List< String > getArgumentTypes()
 	{
 		return argumentTypes;
 	}
 	
+	/**
+	 * @return a {@link List} of the actual parameter values in the order they appear in the signature
+	 */
 	public List< byte[] > getArgumentValues()
 	{
 		return argumentValues;
 	}
 	
+	/**
+	 * Sets the serialized value of the containing object and its class name
+	 * @param objectType The object's fully qualified class name
+	 * @param serializedObject The serialized object
+	 * @return this object for chaining
+	 */
 	public ExecuteDiffuserRequest setObject( final String objectType, final byte[] serializedObject )
 	{
 		this.serializedObjectType = objectType;
@@ -173,32 +189,53 @@ public class ExecuteDiffuserRequest {
 		return this;
 	}
 	
+	/**
+	 * @return the serialized containing object
+	 */
 	public byte[] getObject()
 	{
 		return serializedObject;
 	}
 	
+	/**
+	 * @return the object's fully qualified class name
+	 */
 	public String getObjectType()
 	{
 		return serializedObjectType;
 	}
 	
+	/**
+	 * Sets the {@link Serializer} name as it would appear in the {@link SerializerFactory}.
+	 * @param serializerType The name of the {@link Serializer}
+	 * @return this object for chaining
+	 */
 	public ExecuteDiffuserRequest setSerializerType( final String serializerType )
 	{
 		this.serializerType = serializerType;
 		return this;
 	}
 	
+	/**
+	 * @return the {@link Serializer} name as it would appear in the {@link SerializerFactory}.
+	 */
 	public String getSerializerType()
 	{
 		return serializerType;
 	}
 	
+	/**
+	 * @return the {@link Serializer} to be used to serializing/deserializing objects. This is
+	 * a simple wrapper to the {@link SerializerFactory}
+	 */
 	public Serializer getSerializer()
 	{
 		return SerializerFactory.getInstance().createSerializer( serializerType );
 	}
 	
+	/**
+	 * @return the unique ID of this request
+	 */
 	public String getRequestId()
 	{
 		return requestId;
