@@ -7,14 +7,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import javassist.ClassPool;
-import javassist.Loader;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserRepositoryConfig;
 import org.microtitan.diffusive.tests.BeanTest;
@@ -39,71 +40,32 @@ public class DiffusiveLauncher {
 	
 	private static final Logger LOGGER = Logger.getLogger( DiffusiveLauncher.class );
 	
-	private final String classNameToRun;
-	private final String[] programArguments;
-	
-	private final List< String > configurations;
-	
-	private DiffusiveTranslator translator;
+	private final DiffusiveLoader loader;
 
 	/**
-	 * @param configurations
-	 * @param translator
-	 * @param classNameToRun
-	 * @param programArguments
+	 * Constructs a {@link DiffusiveLauncher} using the specified class loader.
+	 * @param loader The {@link DiffusiveLoader} used to load classes, rewrite diffusive methods, and delegate
+	 * loading to the parent class loader.
 	 */
-	public DiffusiveLauncher( final List< String > configurations,
-							  final DiffusiveTranslator translator, 
-							  final String classNameToRun, 
-							  final String...programArguments )
+	public DiffusiveLauncher( final DiffusiveLoader loader )
 	{
-		this.configurations = configurations;
-		this.classNameToRun = classNameToRun;
-		this.programArguments = programArguments;
-		this.translator = translator;
-	}
-
-	/**
-	 * 
-	 * @param configurations
-	 * @param classNameToRun
-	 * @param programArguments
-	 */
-	public DiffusiveLauncher( final List< String > configurations,
-							  final String classNameToRun, 
-							  final String...programArguments )
-	{
-		this( configurations, createDefaultTranslator( createDefaultMethodIntercepter() ), classNameToRun, programArguments );
-		
-	}
-
-	/**
-	 * 
-	 * @param translator
-	 * @param classNameToRun
-	 * @param programArguments
-	 */
-	public DiffusiveLauncher( final DiffusiveTranslator translator, final String classNameToRun, final String...programArguments )
-	{
-		this( createDefaultConfiguration(), translator, classNameToRun, programArguments );
+		this.loader = loader;
 	}
 	
 	/**
-	 * 
-	 * @param classNameToRun
-	 * @param programArguments
-	 * 
-	 * @see DiffusiveTranslator
-	 * @see MethodIntercepterEditor
+	 * Constructs a {@link DiffusiveLauncher} that uses a default {@link DiffusiveLoader} to load classes, 
+	 * rewrite diffusive methods, and delegate loading to the parent class loader. Uses a {@link RestfulDiffuser},
+	 * uses the default values from the {@link DiffusiveLoader} to determine which classes to load using the
+	 * parent class loader (logging, abdera, diffusive configuration annotation, etc).
 	 */
-	public DiffusiveLauncher( final String classNameToRun, final String...programArguments )
+	public DiffusiveLauncher()
 	{
-		this( createDefaultTranslator( createDefaultMethodIntercepter() ), classNameToRun, programArguments );
+		this( createLoader( createDefaultConfiguration(), createDefaultTranslator( createDefaultMethodIntercepter() ) ) );
 	}
 	
-	/**
-	 * 
-	 * @return
+	/*
+	 * @return creates a default list of class names that have configuration items (methods used to configure
+	 * diffusive)
 	 */
 	private static List< String > createDefaultConfiguration()
 	{
@@ -113,7 +75,7 @@ public class DiffusiveLauncher {
 		return configurations;
 	}
 	
-	/**
+	/*
 	 * 
 	 * @param expressionEditor
 	 * @return
@@ -122,7 +84,7 @@ public class DiffusiveLauncher {
 	{
 		return new BasicDiffusiveTranslator( expressionEditor );
 	}
-
+	
 	/*
 	 * Creates a default method intercepter using the specified {@link Diffuser}
 	 * @param diffuser The diffuser used with the default method intercepter
@@ -133,126 +95,142 @@ public class DiffusiveLauncher {
 		return new MethodIntercepterEditor( /*diffuser*/ );
 	}
 	
-//	/*
-//	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
-//	 */
-//	private static MethodIntercepterEditor createDefaultMethodIntercepter()
-//	{
-//		return createDefaultMethodIntercepter( new LocalDiffuser() );
-//	}
-	
 	/**
-	 * 
-	 * @param translator
-	 * @return
+	 * @return a {@link DiffusiveLoader} that uses the default set of configuration class, the
+	 * default set of delegation prefixes (defined in the {@link DiffusiveLoader} class), and
+	 * the default {@link DiffusiveTranslator}.
 	 */
-	public DiffusiveTranslator setTranslator( final DiffusiveTranslator translator )
+	public static final DiffusiveLoader createLoader()
 	{
-		final DiffusiveTranslator oldTranslator = this.translator;
-		if( LOGGER.isInfoEnabled() )
-		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Set diffusive translator:" + Constants.NEW_LINE );
-			message.append( "  Old Translator: " + oldTranslator.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  New Translator: " + translator.getClass().getName() );
-			LOGGER.info( message.toString() );
-		}
-		this.translator = translator;
-		return oldTranslator;
+		return createLoader( createDefaultConfiguration(), createDefaultTranslator( createDefaultMethodIntercepter() ) );
+	}
+    
+	/**
+	 * Creates a {@link DiffusiveLoader} the uses the specified list of configuration classes, the
+	 * default set of delegation prefixes (defined in the {@link DiffusiveLoader} class), and
+	 * the default {@link DiffusiveTranslator}. 
+	 * @param configurations A {@link List} containing the names of configuration classes that are 
+	 * used for configuration. Because these need to be loaded by this class loader, they must all 
+	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
+	 * with the @{@link DiffusiveConfiguration} annotation
+	 * @return a {@link DiffusiveLoader}
+	 */
+	public static final DiffusiveLoader createLoader( final List< String > configurations )
+	{
+		return createLoader( configurations, createDefaultTranslator( createDefaultMethodIntercepter() ) );
 	}
 	
 	/**
-	 * 
-	 * @param expressionEditor
-	 * @return
+	 * Creates a {@link DiffusiveLoader} the uses the specified list of configuration classes, the
+	 * default set of delegation prefixes (defined in the {@link DiffusiveLoader} class), and
+	 * the specified {@link DiffusiveTranslator}. 
+	 * @param configurations A {@link List} containing the names of configuration classes that are 
+	 * used for configuration. Because these need to be loaded by this class loader, they must all 
+	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
+	 * with the @{@link DiffusiveConfiguration} annotation
+	 * @param translator The translator used to modify the diffusive methods.
+	 * @return a {@link DiffusiveLoader}
 	 */
-	public MethodIntercepterEditor setExpressionEditor( final MethodIntercepterEditor expressionEditor )
-	{
-		final MethodIntercepterEditor oldEditor = translator.setExpressionEditor( expressionEditor );
-		if( LOGGER.isInfoEnabled() )
-		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Set diffusive translator:" + Constants.NEW_LINE );
-			message.append( "  Old Expression Editor: " + oldEditor.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  New Expression Editor: " + expressionEditor.getClass().getName() );
-			LOGGER.info( message.toString() );
-		}
-		return oldEditor;
-	}
-	
-	/**
-	 * Adds a configuration class name to the list of configuration items if the class name
-	 * doesn't already exists in the list
-	 * @param className The name of the class holding the annotated configuration method
-	 * @return true if the class name was added; false otherwise
-	 */
-	public boolean addConfigurationClass( final String className )
-	{
-		boolean isAdded = false;
-		if( !configurations.contains( className ) )
-		{
-			isAdded = configurations.add( className );
-		}
-		return isAdded;
-	}
-	
-	/**
-	 * Removes a specified class name from the list of configuration class names
-	 * @param className The name of the class holding the annotated configuration method
-	 * @return true if the class name was removed; false otherwise
-	 */
-	public boolean removeConfigurationClass( final String className )
-	{
-		return configurations.remove( className );
-	}
-	
-	/**
-	 * Removes all configuration class names from the list of configuration class names
-	 */
-	public void clearConfigurationClasses()
-	{
-		configurations.clear();
-	}
-	
-	/**
-	 * Runs the "main" method for the class name, passing in the command-line arguments handed to this
-	 * objects constructor.
-	 * @see DiffusiveLauncher#classNameToRun
-	 * @see DiffusiveLauncher#programArguments
-	 */
-	public void run()
-	{
-		run( configurations, translator, classNameToRun, programArguments );
-	}
-
-	/**
-	 * Runs the "main" method for the specified class name, passing in the specified command-line arguments
-	 * @param classNameToRun The name of the class for which to run the "main" method
-	 * @param programArguments The command-line arguments passed to the "main" method
-	 */
-	public static void run( final List< String > configurations,
-							final DiffusiveTranslator translator, 
-							final String classNameToRun, 
-							final String...programArguments )
+	public static final DiffusiveLoader createLoader( final List< String > configurations,
+													  final DiffusiveTranslator translator )
 	{
 		// get the default class pool
 		final ClassPool pool = ClassPool.getDefault();
 
 		// create a loader for that pool, setting the class loader for this class as the parent
-		final Loader loader = new DiffusiveLoader( configurations, DiffusiveLauncher.class.getClassLoader(), pool );
+		final DiffusiveLoader loader = new DiffusiveLoader( configurations, DiffusiveLauncher.class.getClassLoader(), pool );
 		
 		try
 		{
-			// add up the class loader with the translator
+			// set up the class loader with the translator
 			loader.addTranslator( pool, translator );
-			
+		}
+		catch( Throwable exception )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error loading the specified class" + Constants.NEW_LINE );
+			message.append( "  Loader: " + loader.getClass().getName() + Constants.NEW_LINE );
+
+			LOGGER.error( message.toString(), exception );
+			throw new IllegalArgumentException( message.toString(), exception );
+		}
+
+		return loader;
+	}
+	
+	/**
+	 * Creates a {@link DiffusiveLoader} the uses the specified list of configuration classes, the
+	 * specified set of delegation prefixes (defined in the {@link DiffusiveLoader} class), and
+	 * the specified {@link DiffusiveTranslator}. 
+	 * @param configurations A {@link List} containing the names of configuration classes that are 
+	 * used for configuration. Because these need to be loaded by this class loader, they must all 
+	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
+	 * with the @{@link DiffusiveConfiguration} annotation
+	 * @param delegationPrefixes The list of prefixes to the fully qualified class name. Classes whose fully qualified class
+	 * names start with one of these prefixes are loaded by the parent class loader instead of this one.
+	 * @param translator The translator used to modify the diffusive methods.
+	 * @return a {@link DiffusiveLoader}
+	 */
+	public static final DiffusiveLoader createLoader( final List< String > configurations,
+													  final List< String > delegationPrefixes,
+													  final DiffusiveTranslator translator )
+	{
+		// get the default class pool
+		final ClassPool pool = ClassPool.getDefault();
+
+		// create a loader for that pool, setting the class loader for this class as the parent
+		final DiffusiveLoader loader = new DiffusiveLoader( configurations, delegationPrefixes, DiffusiveLauncher.class.getClassLoader(), pool );
+		
+		try
+		{
+			// set up the class loader with the translator
+			loader.addTranslator( pool, translator );
+		}
+		catch( Throwable exception )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error loading the specified class" + Constants.NEW_LINE );
+			message.append( "  Loader: " + loader.getClass().getName() + Constants.NEW_LINE );
+
+			LOGGER.error( message.toString(), exception );
+			throw new IllegalArgumentException( message.toString(), exception );
+		}
+
+		return loader;
+	}
+	
+	/**
+	 * Runs the "main" method for the class name, passing in the command-line arguments handed to this
+	 * objects constructor.
+	 * @param classNameToRun The name of the class for which to run the "main" method
+	 * @param programArguments The command-line arguments passed to the "main" method
+	 * @see DiffusiveLauncher#classNameToRun
+	 * @see DiffusiveLauncher#programArguments
+	 */
+	public void run( final String classNameToRun, final String...programArguments )
+	{
+		run( loader, classNameToRun, programArguments );
+	}
+
+	/**
+	 * Runs the "main" method for the specified class name, passing in the specified command-line arguments
+	 * @param loader The {@link DiffusiveLoader} used to load the classes and run the "main" method
+	 * @param classNameToRun The name of the class for which to run the "main" method
+	 * @param programArguments The command-line arguments passed to the "main" method
+	 */
+	public static void run( final DiffusiveLoader loader,
+							final String classNameToRun, 
+							final String...programArguments )
+	{
+		try
+		{
 			// invoke the "main" method of the class named in the "className" variable
 			loader.run( classNameToRun, programArguments );
 		}
 		catch( Throwable exception )
 		{
 			final StringBuffer message = new StringBuffer();
-			message.append( "Error loading and running the specified class" + Constants.NEW_LINE );
+			message.append( "Error running the specified class" + Constants.NEW_LINE );
 			message.append( "  Loader: " + loader.getClass().getName() + Constants.NEW_LINE );
 			message.append( "  Class Name: " + classNameToRun + Constants.NEW_LINE );
 			if( programArguments.length > 0 )
@@ -352,9 +330,12 @@ public class DiffusiveLauncher {
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
 		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
-		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultMethodIntercepter() );
-		run( createDefaultConfiguration(), translator, classNameToRun, programArgs );
+//		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultMethodIntercepter() );
+//		run( createDefaultConfiguration(), translator, classNameToRun, programArgs );
 //		runClean( classNameToRun, programArgs );
+		
+		final DiffusiveLauncher launcher = new DiffusiveLauncher();
+		launcher.run( classNameToRun, programArgs );
 		
 		System.out.println( "done" );
 	}
