@@ -40,10 +40,10 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(boolean, java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-	public synchronized Object runObject( final boolean isRemoteCall, final Class< ? > returnType, final Object object, final String methodName, final Object... arguments )
+	public synchronized < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object... arguments )
 	{
 		// TODO develop execution-performance based approach to determining whether to run locally or remotely, as well as the current approach.
-		Object result = null;
+		T result = null;
 		if( isRemoteCall || clientEndpoints == null || clientEndpoints.isEmpty() ) // and it meets other conditions for local execution
 		{
 			if( LOGGER.isInfoEnabled() )
@@ -175,7 +175,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		}
 		return result;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()

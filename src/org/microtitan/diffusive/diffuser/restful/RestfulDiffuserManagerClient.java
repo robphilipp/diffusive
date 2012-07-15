@@ -316,8 +316,12 @@ public class RestfulDiffuserManagerClient {
 							   					  final Class< ? > serializedObjectType,
 							   					  final String serializerType )
 	{
+		// grab the return type from the signature
+		final String returnType = DiffuserId.parse( signature ).getReturnTypeClassName();
+		
 		// create the diffeser-execute request
-		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( serializedObjectType.getName(), 
+		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( returnType,
+																			  serializedObjectType.getName(), 
 																			  serializedObject, 
 																			  serializerType );
 

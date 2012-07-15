@@ -21,7 +21,7 @@ public class LocalDiffuser extends AbstractDiffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-	public Object runObject( final boolean isRemoteCall, final Class< ? > returnType, final Object object, final String methodName, final Object...arguments )
+	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object...arguments )
 	{
 		final Class< ? > clazz = object.getClass();
 		
@@ -38,11 +38,11 @@ public class LocalDiffuser extends AbstractDiffuser {
 		}
 		
 		// attempt to call the method
-		Object returnResult = null;
+		T returnResult = null;
 		try
 		{
 			// grab the method and invoke it, if the method doesn't exist, then an exception is thrown
-			returnResult = clazz.getMethod( methodName, params ).invoke( object, arguments );
+			returnResult = returnType.cast( clazz.getMethod( methodName, params ).invoke( object, arguments ) );
 
 			if( LOGGER.isDebugEnabled() )
 			{

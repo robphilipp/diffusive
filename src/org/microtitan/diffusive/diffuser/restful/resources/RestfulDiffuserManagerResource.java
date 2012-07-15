@@ -313,6 +313,17 @@ public class RestfulDiffuserManagerResource {
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
+		
+		// ensure that the diffused method's return type are the same in the request and the signature
+		if( !request.getReturnType().equals( diffuserId.getReturnTypeClassName() ) )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error: diffused method's return type from the signature doesn't match the return type from the request" + Constants.NEW_LINE );
+			message.append( "  " + ExecuteDiffuserRequest.class.getSimpleName() + "\'s return type: " + request.getReturnType() + Constants.NEW_LINE );
+			message.append( "  Signature's return type: " + diffuserId.getReturnTypeClassName() );
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
 
 		// grab the serializer for used for the argument and the result 
 		final Serializer serializer = request.getSerializer();

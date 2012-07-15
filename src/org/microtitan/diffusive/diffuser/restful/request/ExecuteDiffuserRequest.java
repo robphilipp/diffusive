@@ -13,6 +13,13 @@ import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.utils.ReflectionUtils;
 
+/**
+ * Represents the request issued to the RESTful service to execute a method within an object.
+ * This class wraps the information needed to execute that method.
+ *  
+ * @author Robert Philipp
+ * Jul 15, 2012
+ */
 @XmlRootElement
 public class ExecuteDiffuserRequest {
 
@@ -32,31 +39,9 @@ public class ExecuteDiffuserRequest {
 	
 	private final String requestId;
 	
-//	public ExecuteDiffuserRequest( final List< String> argumentTypes, 
-//								   final List< byte[] > argumentValues, 
-//								   final byte[] serializedObject,
-//								   final String serializedObjectType,
-//								   final String serializerType )
-//	{
-//		if( argumentTypes.size() != argumentValues.size() )
-//		{
-//			final StringBuffer message = new StringBuffer();
-//			message.append( "The number of method argument types must equal the number of method argument values" + Constants.NEW_LINE );
-//			final int argTypesSize = ( argumentTypes == null ? 0 : argumentTypes.size() );
-//			message.append( "  Number of Argument Types: " + argTypesSize + Constants.NEW_LINE );
-//			final int argValuesSize = ( argumentValues == null ? 0 : argumentValues.size() );
-//			message.append( "  Number of Argument Values: " + argValuesSize );
-//			throw new IllegalArgumentException( message.toString() );
-//		}
-//		this.argumentTypes = argumentTypes;
-//		this.argumentValues = argumentValues;
-//		this.serializedObject = serializedObject;
-//		this.serializedObjectType = serializedObjectType;
-//		this.serializerType = serializerType;
-//		
-//		this.requestId = UUID.randomUUID().toString();
-//	}
-	
+	/**
+	 * Default constructor that sets the base defaults for the request
+	 */
 	public ExecuteDiffuserRequest()
 	{
 		this.returnType = void.class.getName();
@@ -65,6 +50,16 @@ public class ExecuteDiffuserRequest {
 		this.requestId = UUID.randomUUID().toString();
 	}
 
+	/**
+	 * Factory method for creating a request to execute a method.
+	 * @param returnType The return type class name of the method.
+	 * @param argumentTypes The class names of the methods formal parameters
+	 * @param argumentValues The serialized values of the actual parameters passed to the method
+	 * @param serializedObjectType The class name of the object whose class holds the method to be executed
+	 * @param serializedObject The serialized object that contains the method
+	 * @param serializerType The serializer type name (see {@link SerializerFactory})
+	 * @return The request to execute the method
+	 */
 	public static final ExecuteDiffuserRequest create( final String returnType,
 													   final List< String > argumentTypes,
 													   final List< byte[] > argumentValues, 
@@ -83,8 +78,7 @@ public class ExecuteDiffuserRequest {
 			throw new IllegalArgumentException( message.toString() );
 		}
 		
-		final ExecuteDiffuserRequest request = create( serializedObjectType, serializedObject, serializerType );
-		request.setReturnType( returnType );
+		final ExecuteDiffuserRequest request = create( returnType, serializedObjectType, serializedObject, serializerType );
 		for( int i = 0; i < argumentTypes.size(); ++i )
 		{
 			request.addArgument( argumentTypes.get( i ), argumentValues.get( i ) );
@@ -92,65 +86,59 @@ public class ExecuteDiffuserRequest {
 		return request;
 	}
 
-//	public static final ExecuteDiffuserRequest create( final List< String > argumentTypes,
-//			   										   final List< byte[] > argumentValues, 
-//			   										   final String serializedObjectType, 
-//			   										   final byte[] serializedObject,
-//			   										   final String serializerType )
-//	{
-//		return create( void.class.getName(), argumentTypes, argumentValues, serializedObjectType, serializedObject, serializerType );
-//	}
-
-	public static final ExecuteDiffuserRequest create( final String serializedObjectType, 
+	/**
+	 * Factory method for creating a request to execute a method.
+	 * @param returnType The return type class name of the method.
+	 * @param serializedObjectType The class name of the object whose class holds the method to be executed
+	 * @param serializedObject The serialized object that contains the method
+	 * @param serializerType The serializer type name (see {@link SerializerFactory})
+	 * @return The request to execute the method
+	 */
+	public static final ExecuteDiffuserRequest create( final String returnType,
+													   final String serializedObjectType, 
 													   final byte[] serializedObject, 
 													   final String serializerType )
 	{
 		final ExecuteDiffuserRequest request = new ExecuteDiffuserRequest();
 		request.setObject( serializedObjectType, serializedObject )
-			   .setSerializerType( serializerType );
+			   .setSerializerType( serializerType )
+			   .setReturnType( returnType );
 		return request;
 	}
 	
-//	public void setArguments( final List< String> argumentTypes, final List< byte[] > argumentValues )
-//	{
-//		if( argumentTypes.size() == argumentValues.size() )
-//		{
-//			this.argumentTypes = argumentTypes;
-//			this.argumentValues = argumentValues;
-//		}
-//	}
-//	
-//	public void addArguments( final List< String> argumentTypes, final List< byte[] > argumentValues )
-//	{
-//		if( argumentTypes.size() == argumentValues.size() )
-//		{
-//			for( int i = 0; i < argumentTypes.size(); ++i )
-//			{
-//				this.argumentTypes.add( argumentTypes.get( i ) );
-//				this.argumentValues.add( argumentValues.get( i ) );
-//			}
-//		}
-//	}
-	
+	/**
+	 * Sets the method's return type class name
+	 * @param returnType The return type for the method to execute
+	 * @return this object for chaining
+	 */
 	public ExecuteDiffuserRequest setReturnType( final String returnType )
 	{
 		this.returnType = returnType;
 		return this;
 	}
 	
+	/**
+	 * @return the class name of the return type from the method to execute
+	 */
 	public String getReturnType()
 	{
 		return returnType;
 	}
 	
 	/**
-	 * @return
+	 * @return the {@link Class} of the methods return type
 	 */
 	public Class< ? > getReturnTypeClass()
 	{
 		return ReflectionUtils.getClazz( returnType );
 	}
 	
+	/**
+	 * 
+	 * @param key
+	 * @param value
+	 * @return
+	 */
 	public ExecuteDiffuserRequest addArgument( final String key, final byte[] value )
 	{
 		argumentTypes.add( key );
