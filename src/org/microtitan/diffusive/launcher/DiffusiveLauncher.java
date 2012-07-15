@@ -42,7 +42,40 @@ public class DiffusiveLauncher {
 	private final String classNameToRun;
 	private final String[] programArguments;
 	
+	private final List< String > configurations;
+	
 	private DiffusiveTranslator translator;
+
+	/**
+	 * @param configurations
+	 * @param translator
+	 * @param classNameToRun
+	 * @param programArguments
+	 */
+	public DiffusiveLauncher( final List< String > configurations,
+							  final DiffusiveTranslator translator, 
+							  final String classNameToRun, 
+							  final String...programArguments )
+	{
+		this.configurations = configurations;
+		this.classNameToRun = classNameToRun;
+		this.programArguments = programArguments;
+		this.translator = translator;
+	}
+
+	/**
+	 * 
+	 * @param configurations
+	 * @param classNameToRun
+	 * @param programArguments
+	 */
+	public DiffusiveLauncher( final List< String > configurations,
+							  final String classNameToRun, 
+							  final String...programArguments )
+	{
+		this( configurations, createDefaultTranslator( createDefaultMethodIntercepter() ), classNameToRun, programArguments );
+		
+	}
 
 	/**
 	 * 
@@ -52,9 +85,7 @@ public class DiffusiveLauncher {
 	 */
 	public DiffusiveLauncher( final DiffusiveTranslator translator, final String classNameToRun, final String...programArguments )
 	{
-		this.classNameToRun = classNameToRun;
-		this.programArguments = programArguments;
-		this.translator = translator;
+		this( createDefaultConfiguration(), translator, classNameToRun, programArguments );
 	}
 	
 	/**
@@ -68,6 +99,18 @@ public class DiffusiveLauncher {
 	public DiffusiveLauncher( final String classNameToRun, final String...programArguments )
 	{
 		this( createDefaultTranslator( createDefaultMethodIntercepter() ), classNameToRun, programArguments );
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private static List< String > createDefaultConfiguration()
+	{
+		final List< String > configurations = new ArrayList<>();
+		configurations.add( RestfulDiffuserRepositoryConfig.class.getName() );
+//		configurations.add( LocalDiffuserRepositoryConfig.class.getName() );
+		return configurations;
 	}
 	
 	/**
@@ -138,6 +181,40 @@ public class DiffusiveLauncher {
 	}
 	
 	/**
+	 * Adds a configuration class name to the list of configuration items if the class name
+	 * doesn't already exists in the list
+	 * @param className The name of the class holding the annotated configuration method
+	 * @return true if the class name was added; false otherwise
+	 */
+	public boolean addConfigurationClass( final String className )
+	{
+		boolean isAdded = false;
+		if( !configurations.contains( className ) )
+		{
+			isAdded = configurations.add( className );
+		}
+		return isAdded;
+	}
+	
+	/**
+	 * Removes a specified class name from the list of configuration class names
+	 * @param className The name of the class holding the annotated configuration method
+	 * @return true if the class name was removed; false otherwise
+	 */
+	public boolean removeConfigurationClass( final String className )
+	{
+		return configurations.remove( className );
+	}
+	
+	/**
+	 * Removes all configuration class names from the list of configuration class names
+	 */
+	public void clearConfigurationClasses()
+	{
+		configurations.clear();
+	}
+	
+	/**
 	 * Runs the "main" method for the class name, passing in the command-line arguments handed to this
 	 * objects constructor.
 	 * @see DiffusiveLauncher#classNameToRun
@@ -145,7 +222,7 @@ public class DiffusiveLauncher {
 	 */
 	public void run()
 	{
-		run( translator, classNameToRun, programArguments );
+		run( configurations, translator, classNameToRun, programArguments );
 	}
 
 	/**
@@ -153,7 +230,8 @@ public class DiffusiveLauncher {
 	 * @param classNameToRun The name of the class for which to run the "main" method
 	 * @param programArguments The command-line arguments passed to the "main" method
 	 */
-	public static void run( final DiffusiveTranslator translator, 
+	public static void run( final List< String > configurations,
+							final DiffusiveTranslator translator, 
 							final String classNameToRun, 
 							final String...programArguments )
 	{
@@ -161,10 +239,6 @@ public class DiffusiveLauncher {
 		final ClassPool pool = ClassPool.getDefault();
 
 		// create a loader for that pool, setting the class loader for this class as the parent
-		final List< String > configurations = new ArrayList<>();
-		configurations.add( RestfulDiffuserRepositoryConfig.class.getName() );
-//		configurations.add( LocalDiffuserRepositoryConfig.class.getName() );
-//		configurations.add( LoggingConfig.class.getName() );
 		final Loader loader = new DiffusiveLoader( configurations, DiffusiveLauncher.class.getClassLoader(), pool );
 		
 		try
@@ -279,7 +353,7 @@ public class DiffusiveLauncher {
 		final String classNameToRun = args[ 0 ];
 		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
 		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultMethodIntercepter() );
-		run( translator, classNameToRun, programArgs );
+		run( createDefaultConfiguration(), translator, classNameToRun, programArgs );
 //		runClean( classNameToRun, programArgs );
 		
 		System.out.println( "done" );
