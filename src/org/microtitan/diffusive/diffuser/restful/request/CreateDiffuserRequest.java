@@ -70,18 +70,20 @@ public class CreateDiffuserRequest {
 	/**
 	 * Creates a request to create a diffuser that acts on the specified method of the class name, and has the
 	 * specified argument types.
+	 * @param classPaths A list of URI (represented as strings) used to load classes remotely.
 	 * @param className The name of 
 	 * @param methodName
 	 * @param argumentTypes
 	 * @return
 	 */
-	public static CreateDiffuserRequest create( final String className, final String methodName, final String returnTypeClassName, final String...argumentTypes )
+	public static CreateDiffuserRequest create( final List< String > classPaths, final String className, final String methodName, final String returnTypeClassName, final String...argumentTypes )
 	{
 		final CreateDiffuserRequest request = new CreateDiffuserRequest();
 		request.setContainingClass( className )
 			   .setMethodName( methodName )
 			   .setReturnTypeClass( returnTypeClassName )
-			   .setArgumentTypes( Arrays.asList( argumentTypes ) );
+			   .setArgumentTypes( Arrays.asList( argumentTypes ) )
+			   .setClassPaths( classPaths );
 		return request;
 	}
 	
@@ -148,6 +150,16 @@ public class CreateDiffuserRequest {
 	{
 		this.classPaths = classPaths;
 		return this;
+	}
+	
+	public List< URI > getClassPathsUri()
+	{
+		final List< URI > uri = new ArrayList<>();
+		for( String classPath : classPaths )
+		{
+			uri.add( URI.create( classPath ) );
+		}
+		return uri;
 	}
 	
 	public CreateDiffuserRequest appendClassPath( final String classPath )

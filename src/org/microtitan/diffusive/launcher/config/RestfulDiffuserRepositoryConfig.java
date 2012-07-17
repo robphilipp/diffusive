@@ -20,6 +20,7 @@ public class RestfulDiffuserRepositoryConfig {
 	// holds the list of client endpoints...for testing we use the same address as specified
 	// in the RestfulDiffuserServer as the default server URI.
 	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
+//	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.8:8182" );
 	
 	@DiffusiveConfiguration
 	public static final void configure()

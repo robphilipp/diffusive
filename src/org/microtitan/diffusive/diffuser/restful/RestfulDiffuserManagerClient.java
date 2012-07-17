@@ -86,7 +86,21 @@ public class RestfulDiffuserManagerClient {
 	 */
 	public CreateDiffuserResponse createDiffuser( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
-		return createDiffuser( void.class, clazz, methodName, argumentTypes );
+		return createDiffuser( new ArrayList< URI >(), void.class, clazz, methodName, argumentTypes );
+	}
+
+	/**
+	 * Requests that the server create a RESTful diffuser for a method that doesn't return any value. 
+	 * @param classPathUri The list of URI which to search for remote classes
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+	 * @return An Atom feed containing the result of the create request, and specifically, the URI of the newly
+	 * created diffuser.
+	 */
+	public CreateDiffuserResponse createDiffuser( final List< URI > classPathUri, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	{
+		return createDiffuser( classPathUri, void.class, clazz, methodName, argumentTypes );
 	}
 
 	/**
@@ -100,11 +114,29 @@ public class RestfulDiffuserManagerClient {
 	 */
 	public CreateDiffuserResponse createDiffuser( final Class< ? > returnTypeClazz, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
+		return createDiffuser( new ArrayList< URI >(), returnTypeClazz, clazz, methodName, argumentTypes );
+	}
+	
+	/**
+	 * Requests that the server create a RESTful diffuser for a method that returns a value. 
+	 * @param classPathUri The list of URI which to search for remote classes
+	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
+	 * @param clazz The {@link Class} containing the diffusive method 
+	 * @param methodName The name of the diffusive method
+	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+	 * @return An Atom feed containing the result of the create request, and specifically, the URI of the newly
+	 * created diffuser.
+	 */
+	public CreateDiffuserResponse createDiffuser( final List< URI > classPathUri, final Class< ? > returnTypeClazz, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	{
 		// convert the argument types to argument type names
 		final String[] argumentTypeNames = convertArgumentTypes( argumentTypes );
 		
+		// convert the class path URI list into a list of string
+		final List< String > classPaths = convertClassPaths( classPathUri );
+		
 		// construct the request to create the diffuser for the specific signature (class, method, arguments)
-		final CreateDiffuserRequest request = CreateDiffuserRequest.create( clazz.getName(), methodName, returnTypeClazz.getName(), argumentTypeNames );
+		final CreateDiffuserRequest request = CreateDiffuserRequest.create( classPaths, clazz.getName(), methodName, returnTypeClazz.getName(), argumentTypeNames );
 		
 		// create the web resource for making the call, make the call to PUT the create-request to the server
 		final WebResource resource = client.resource( baseUri.toString() );
@@ -131,6 +163,16 @@ public class RestfulDiffuserManagerClient {
 			throw new IllegalArgumentException( message.toString(), e );
 		}
 		return new CreateDiffuserResponse( feed );
+	}
+	
+	private static List< String > convertClassPaths( final List< URI > classPathUri )
+	{
+		final List< String > classPaths = new ArrayList<>();
+		for( final URI uri : classPathUri )
+		{
+			classPaths.add( uri.toString() );
+		}
+		return classPaths;
 	}
 	
 	/**
