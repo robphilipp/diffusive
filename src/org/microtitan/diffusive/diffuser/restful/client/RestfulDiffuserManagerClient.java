@@ -103,19 +103,19 @@ public class RestfulDiffuserManagerClient {
 		return createDiffuser( classPathUri, void.class, clazz, methodName, argumentTypes );
 	}
 
-	/**
-	 * Requests that the server create a RESTful diffuser for a method that returns a value. 
-	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
-	 * @param clazz The {@link Class} containing the diffusive method 
-	 * @param methodName The name of the diffusive method
-	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
-	 * @return An Atom feed containing the result of the create request, and specifically, the URI of the newly
-	 * created diffuser.
-	 */
-	public CreateDiffuserResponse createDiffuser( final Class< ? > returnTypeClazz, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
-	{
-		return createDiffuser( new ArrayList< URI >(), returnTypeClazz, clazz, methodName, argumentTypes );
-	}
+//	/**
+//	 * Requests that the server create a RESTful diffuser for a method that returns a value. 
+//	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
+//	 * @param clazz The {@link Class} containing the diffusive method 
+//	 * @param methodName The name of the diffusive method
+//	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
+//	 * @return An Atom feed containing the result of the create request, and specifically, the URI of the newly
+//	 * created diffuser.
+//	 */
+//	public CreateDiffuserResponse createDiffuser( final Class< ? > returnTypeClazz, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+//	{
+//		return createDiffuser( new ArrayList< URI >(), returnTypeClazz, clazz, methodName, argumentTypes );
+//	}
 	
 	/**
 	 * Requests that the server create a RESTful diffuser for a method that returns a value. 
@@ -659,11 +659,11 @@ public class RestfulDiffuserManagerClient {
 		//
 		// create a diffuser
 		//
-		CreateDiffuserResponse createResponse = managerClient.createDiffuser( String.class, bean.getClass(), "getA" );
+		CreateDiffuserResponse createResponse = managerClient.createDiffuser( new ArrayList< URI >(), String.class, bean.getClass(), "getA" );
 		System.out.println( "Create getA: " + createResponse.toString() + Constants.NEW_LINE );
 		
 		// and another
-		createResponse = managerClient.createDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
+		createResponse = managerClient.createDiffuser( new ArrayList< URI >(), bean.getClass(), "setA", new Class< ? >[] { String.class } );
 		System.out.println( "Create setA: " + createResponse.toString() + Constants.NEW_LINE );
 
 		//

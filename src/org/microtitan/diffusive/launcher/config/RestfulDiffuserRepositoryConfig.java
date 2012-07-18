@@ -11,6 +11,7 @@ import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
+import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
@@ -22,13 +23,18 @@ public class RestfulDiffuserRepositoryConfig {
 	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
 //	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.8:8182" );
 	
+	// holds the base URI of the class path that gets passed to the remote diffuser manager when
+	// creating a diffuser. this allows the remote code to load classes from a remote server.
+	public static final List< String > CLASSPATH_URI = Arrays.asList( "http://192.168.1.4:8182" );
+	
 	@DiffusiveConfiguration
 	public static final void configure()
 	{
 		// load the diffuser repository
 		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.OBJECT.getName() );
 		final List< URI > clientEndpoints = createEndpointList();
-		final Diffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints );
+		final List< URI > classPaths = createClassPathList();
+		final Diffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints, classPaths );
 		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
 	}
 	
@@ -38,6 +44,16 @@ public class RestfulDiffuserRepositoryConfig {
 		for( String client : CLIENT_ENDPOINTS )
 		{
 			endpoints.add( URI.create( client + RestfulDiffuserManagerResource.DIFFUSER_PATH ) );
+		}
+		return endpoints;
+	}
+	
+	public static final List< URI > createClassPathList()
+	{
+		final List< URI > endpoints = new ArrayList<>();
+		for( String client : CLASSPATH_URI )
+		{
+			endpoints.add( URI.create( client + RestfulClassPathResource.CLASSPATH_PATH ) );
 		}
 		return endpoints;
 	}

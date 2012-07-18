@@ -158,7 +158,7 @@ public class RestfulDiffuserManagerResource {
 						   final List< String > argumentTypes )
 	{
 		// create the diffuser
-		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints );
+		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints, classPaths );
 		
 		// create the name/id for the diffuser
 		final String key = DiffuserId.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );

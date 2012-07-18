@@ -23,6 +23,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	// used to serialize objects for making requests across the network
 	private Serializer serializer;
 	private List< URI > clientEndpoints;
+	private List< URI > classPaths;
 	
 	/**
 	 * 
@@ -30,10 +31,11 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * the wire.
 	 * @param clientEndpoints The URIs at which other diffusers are located, which this diffuser can call.
 	 */
-	public RestfulDiffuser( final Serializer serializer, final List< URI > clientEndpoints )
+	public RestfulDiffuser( final Serializer serializer, final List< URI > clientEndpoints, final List< URI > classPaths )
 	{
 		this.serializer = serializer;
 		this.clientEndpoints = clientEndpoints;
+		this.classPaths = classPaths;
 	}
 	
 	/*
@@ -80,7 +82,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				argumentTypes[ i ] = arguments[ i ].getClass();
 			}
 			/*final CreateDiffuserResponse response = */
-			client.createDiffuser( returnType, object.getClass(), methodName, argumentTypes );
+			client.createDiffuser( classPaths, returnType, object.getClass(), methodName, argumentTypes );
 			
 			// execute the method on the diffuser
 			ExecuteDiffuserResponse executeResponse = null;
