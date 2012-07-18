@@ -1,4 +1,4 @@
-package org.microtitan.diffusive.diffuser.restful;
+package org.microtitan.diffusive.diffuser.restful.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,8 +16,9 @@ import org.apache.abdera.model.Feed;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.diffuser.restful.DiffuserId;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
-import org.microtitan.diffusive.diffuser.restful.client.RestfulClientFactory;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.response.CreateDiffuserResponse;
