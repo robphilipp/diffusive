@@ -4,10 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,6 +33,7 @@ import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.classloaders.RestfulClassLoader;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserManagerClient;
@@ -489,7 +487,7 @@ public class RestfulDiffuserManagerResource {
 				if( classPaths != null && !classPaths.isEmpty() )
 				{
 					final ClassLoader parent = this.getClass().getClassLoader();
-					final URLClassLoader loader = new URLClassLoader( convertUriList( classPaths ), parent );
+					final RestfulClassLoader loader = new RestfulClassLoader( classPaths, parent );
 					try
                     {
 						// load the class with the new URL class loader
@@ -530,31 +528,31 @@ public class RestfulDiffuserManagerResource {
 		return clazz;
 	}
 	
-	/*
-	 * Converts a list of {@link URI} into an array of {@link URL}
-	 * @param uriList The list of {@link URI}
-	 * @return an array of {@link URL}
-	 */
-	private static URL[] convertUriList( final List< URI > uriList )
-	{
-		final URL[] urls = new URL[ uriList.size() ];
-		for( int i = 0; i < uriList.size(); ++i )
-		{
-			try
-			{
-				urls[ i ] = uriList.get( i ).toURL();
-			}
-			catch( MalformedURLException e )
-			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Error converting the specified URI to a URL." + Constants.NEW_LINE );
-				message.append( "  URI: " + uriList.get( i ).toString() + Constants.NEW_LINE );
-				LOGGER.error( message.toString(), e );
-				throw new IllegalArgumentException( message.toString(), e );
-			}
-		}
-		return urls;
-	}
+//	/*
+//	 * Converts a list of {@link URI} into an array of {@link URL}
+//	 * @param uriList The list of {@link URI}
+//	 * @return an array of {@link URL}
+//	 */
+//	private static URL[] convertUriList( final List< URI > uriList )
+//	{
+//		final URL[] urls = new URL[ uriList.size() ];
+//		for( int i = 0; i < uriList.size(); ++i )
+//		{
+//			try
+//			{
+//				urls[ i ] = uriList.get( i ).toURL();
+//			}
+//			catch( MalformedURLException e )
+//			{
+//				final StringBuffer message = new StringBuffer();
+//				message.append( "Error converting the specified URI to a URL." + Constants.NEW_LINE );
+//				message.append( "  URI: " + uriList.get( i ).toString() + Constants.NEW_LINE );
+//				LOGGER.error( message.toString(), e );
+//				throw new IllegalArgumentException( message.toString(), e );
+//			}
+//		}
+//		return urls;
+//	}
 	
 	/*
 	 * 
@@ -838,10 +836,10 @@ public class RestfulDiffuserManagerResource {
 			this.classPaths = classPaths;
 		}
 		
-		public DiffuserEntry( final RestfulDiffuser diffuser )
-		{
-			this( diffuser, new ArrayList< URI >() );
-		}
+//		public DiffuserEntry( final RestfulDiffuser diffuser )
+//		{
+//			this( diffuser, new ArrayList< URI >() );
+//		}
 		
 		public RestfulDiffuser getDiffuser()
 		{
@@ -853,14 +851,14 @@ public class RestfulDiffuserManagerResource {
         	return classPaths;
         }
 
-		public boolean addClassPath( final URI classPath )
-		{
-			return classPaths.add( classPath );
-		}
-		
-		public boolean removeClassPath( final URI classPath )
-		{
-			return classPaths.remove( classPath );
-		}
+//		public boolean addClassPath( final URI classPath )
+//		{
+//			return classPaths.add( classPath );
+//		}
+//		
+//		public boolean removeClassPath( final URI classPath )
+//		{
+//			return classPaths.remove( classPath );
+//		}
 	}
 }

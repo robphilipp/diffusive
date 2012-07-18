@@ -11,6 +11,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.utils.Constants;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
@@ -154,6 +155,7 @@ public class RestfulDiffuserServer {
 		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
 		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
 		application.addSingletonResource( resource );
+		application.addPerRequestResource( RestfulClassPathResource.class );
 
 		final URI serverUri = URI.create( args[ 0 ] );
 		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );

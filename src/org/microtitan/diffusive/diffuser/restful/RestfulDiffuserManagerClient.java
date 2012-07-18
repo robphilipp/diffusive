@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
+import org.microtitan.diffusive.diffuser.restful.client.RestfulClientFactory;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.response.CreateDiffuserResponse;
@@ -60,9 +61,7 @@ public class RestfulDiffuserManagerClient {
 		this.abdera = AbderaFactory.getInstance();
 
 		// create the Jersey RESTful client
-		this.client = Client.create();
-
-
+		this.client = RestfulClientFactory.getInstance();
 	}
 	
 	/**
