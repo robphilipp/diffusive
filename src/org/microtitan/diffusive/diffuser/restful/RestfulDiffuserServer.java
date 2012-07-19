@@ -1,7 +1,9 @@
 package org.microtitan.diffusive.diffuser.restful;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 
@@ -26,7 +28,9 @@ public class RestfulDiffuserServer {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserServer.class );
 	
-	public static final String DEFAULT_SERVER_URI = "http://localhost:8182";
+	// default address for server
+	public static final String SERVER_PORT = "8182";
+	public static final String DEFAULT_SERVER_URI = getLocalIpAddress() + ":" + SERVER_PORT;
 	
 	private HttpServer server;
 	
@@ -39,6 +43,20 @@ public class RestfulDiffuserServer {
 	public RestfulDiffuserServer( final URI serverUri, final RestfulDiffuserApplication application )
 	{
 		this.server = createHttpServer( serverUri, application );
+	}
+	
+	private static String getLocalIpAddress()
+	{
+		String ip = "http://localhost";
+		try
+        {
+	        ip = InetAddress.getLocalHost().toString();
+        }
+        catch( UnknownHostException e )
+        {
+	        e.printStackTrace();
+        }
+		return ip;
 	}
 	
 	/*

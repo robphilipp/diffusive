@@ -37,7 +37,7 @@ public class RestfulDiffuserConfig {
 	// URI typically points to the host running that is launching the code to be diffused (since it
 	// is that code that has the classes), or some other host that holds all the required classes (that
 	// have been deployed there) and is running a restful diffuser server
-	public static final List< String > CLASSPATH_URI = Arrays.asList( "http://192.168.1.4:8182" );
+	public static final List< String > CLASSPATH_URI = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
 	
 	/**
 	 * Method that is called to configure the Diffusive framework. In particular, creates a 
