@@ -667,11 +667,11 @@ public class RestfulDiffuserManagerResource {
 				feed.addEntry( entry );
 				
 				// create the response
-				response = Response.ok( output.toByteArray() )
-								   .status( Status.OK )
+				response = Response.ok( /*output.toByteArray()*/ )
+//								   .status( Status.OK )
 								   .location( resultUri )
 								   .entity( feed.toString() )
-								   .type( MediaType.APPLICATION_OCTET_STREAM )
+								   .type( MediaType.APPLICATION_ATOM_XML )
 								   .build();
 			}
 			catch( IOException e )

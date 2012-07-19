@@ -53,7 +53,16 @@ public class RestfulClassLoader extends ClassLoader {
 	public Class< ? > findClass( final String className )
 	{
 		final byte[] bytes = loadClassData( className );
-		return defineClass( className, bytes, 0, bytes.length );
+		final Class< ? > clazz = defineClass( className, bytes, 0, bytes.length );
+		resolveClass( clazz );
+		return clazz;
+	}
+	
+	public Class< ? > getClazz( final String className, final byte[] bytes )
+	{
+		final Class< ? > clazz = defineClass( className, bytes, 0, bytes.length );
+		resolveClass( clazz );
+		return clazz;
 	}
 
 	/**

@@ -11,7 +11,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.abdera.model.Entry;
@@ -48,33 +47,34 @@ public class RestfulClassPathResource {
 	public Response getClass( @Context final UriInfo uriInfo,
 							  @PathParam( FULLY_QUALIFIED_CLASS_NAME ) final String className )
 	{
-		Class< ? > clazz = null;
-		try
-        {
-			clazz = Class.forName( className );
-        }
-        catch( ClassNotFoundException e )
-        {
-        	// in this case, the class isn't found, which is a problem, because it should
-        	// be on the class path...we could add in the file system class loader...?
-	        e.printStackTrace();
-        }
-		final byte[] classBytes = ClassLoaderUtils.convertClassToByteArray( clazz );
+//		Class< ? > clazz = null;
+//		try
+//        {
+//			clazz = Class.forName( className );
+//        }
+//        catch( ClassNotFoundException e )
+//        {
+//        	// in this case, the class isn't found, which is a problem, because it should
+//        	// be on the class path...we could add in the file system class loader...?
+//	        e.printStackTrace();
+//        }
+		final byte[] classBytes = ClassLoaderUtils.convertClassToByteArray( className );
 		
 		// grab the date for time stamp
 		final Date date = new Date();
 
 		Response response = null;
-		if( classBytes != null && classBytes.length > 0 )
-		{
+//		if( classBytes != null && classBytes.length > 0 )
+//		{
 			Feed feed = null;
 			
 			// create the atom feed 
 			final URI requestUri = uriInfo.getRequestUri();
-			final String resultKey = UUID.nameUUIDFromBytes( classBytes ).toString();
+//			final String resultKey = UUID.nameUUIDFromBytes( classBytes ).toString();
+			final String resultKey = UUID.randomUUID().toString();
 			feed = Atom.createFeed( requestUri, resultKey, date, uriInfo.getBaseUri() );
 			
-			// create an entry for the feed and set the results as the content
+			// create an entry for the feed and set the byte[] representing the class as the content
 			final Entry entry = Atom.createEntry();
 			final ByteArrayInputStream input = new ByteArrayInputStream( classBytes );
 			entry.setId( resultKey );
@@ -82,17 +82,16 @@ public class RestfulClassPathResource {
 			feed.addEntry( entry );
 			
 			// create the response
-			response = Response.ok( classBytes )
-							   .status( Status.OK )
+			response = Response.ok()
 							   .location( requestUri )
 							   .entity( feed.toString() )
-							   .type( MediaType.APPLICATION_OCTET_STREAM )
+							   .type( MediaType.APPLICATION_ATOM_XML )
 							   .build();
-		}
-		else
-		{
-			response = Response.noContent().build();
-		}
+//		}
+//		else
+//		{
+//			response = Response.noContent().build();
+//		}
 		return response;
 	}
 }

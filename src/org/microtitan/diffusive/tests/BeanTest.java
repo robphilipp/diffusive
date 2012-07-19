@@ -17,12 +17,12 @@ public class BeanTest implements Serializable {
 	
 	private Bean bean;
 	
-	private BeanTest()
+	public BeanTest()
 	{
 		bean = new Bean( "--original--A", "--original--B" );
 	}
 	
-	private void print()
+	public void print()
 	{
 //		LOGGER.debug( " Bean value are " + bean.getA() + " and " + bean.getB() );
 		System.out.println( " Bean value are " + bean.getA() + " and " + bean.getB() );
