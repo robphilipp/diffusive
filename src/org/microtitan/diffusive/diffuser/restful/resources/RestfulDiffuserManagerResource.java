@@ -486,33 +486,23 @@ public class RestfulDiffuserManagerResource {
 				final List< URI > classPaths = entry.getClassPaths();
 				if( classPaths != null && !classPaths.isEmpty() )
 				{
-					final ClassLoader parent = this.getClass().getClassLoader();
+					// set up the RESTful class loader to go out and get the class, bring it back, 
+					// load it, and resolve it for use
+					final ClassLoader parent = RestfulDiffuserManagerResource.class.getClassLoader();
 					final RestfulClassLoader loader = new RestfulClassLoader( classPaths, parent );
-					try
-                    {
-						// load the class with the new URL class loader
-						clazz = Class.forName( classname, true, loader );
-						
-						if( LOGGER.isDebugEnabled() )
-						{
-	            			final StringBuffer message = new StringBuffer();
-	            			message.append( "Loaded class with new URL class loader." + Constants.NEW_LINE );
-	            			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
-	            			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
-	            			message.append( "  Class Loader: " + loader.getClass().getName() );
-	            			LOGGER.debug( message.toString() );
-						}
-                    }
-                    catch( ClassNotFoundException e1 )
-                    {
+					
+					// load...
+					clazz = loader.findClass( classname );
+					
+					if( LOGGER.isDebugEnabled() )
+					{
             			final StringBuffer message = new StringBuffer();
-            			message.append( "Error occured while attempting to deserialize the method's arguments. The Class for the argument's type not found." + Constants.NEW_LINE );
+            			message.append( "Loaded class with new URL class loader." + Constants.NEW_LINE );
             			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
             			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
             			message.append( "  Class Loader: " + loader.getClass().getName() );
-            			LOGGER.error( message.toString(), e1 );
-            			throw new IllegalArgumentException( message.toString(), e1 );
-                    }
+            			LOGGER.debug( message.toString() );
+					}
 				}
 			}
 			else
