@@ -84,7 +84,7 @@ public class RestfulClassLoader extends ClassLoader {
 		final ClassRequest request = ClassRequest.create( baseUri.toString(), className );
 		
 		// create the web resource for making the call, make the call to PUT the create-request to the server
-		final WebResource resource = client.resource( baseUri.toString() );
+		final WebResource resource = client.resource( request.getUri().toString() );
 		final ClientResponse classResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( ClientResponse.class, request );
 		
 		// parse the response into an Atom feed object and return it

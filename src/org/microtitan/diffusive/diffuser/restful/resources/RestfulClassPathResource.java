@@ -25,7 +25,7 @@ public class RestfulClassPathResource {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulClassPathResource.class );
 
-	public static final String CLASSPATH_PATH = "classpath/"; 
+	public static final String CLASSPATH_PATH = "/classpath"; 
 
 	// parameters for retrieving a Class for a specific diffuser
 	public static final String FULLY_QUALIFIED_CLASS_NAME = "classname";

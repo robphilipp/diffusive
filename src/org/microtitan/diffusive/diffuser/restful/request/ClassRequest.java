@@ -2,6 +2,7 @@ package org.microtitan.diffusive.diffuser.restful.request;
 
 import java.net.URI;
 
+import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -31,7 +32,7 @@ public class ClassRequest {
 	 * @param className the fully qualified class name of the {@link Class} to retrieve
 	 * @return a new {@link ClassRequest}
 	 */
-	public static final ClassRequest create( final String baseUri, final String className )
+	public static ClassRequest create( final String baseUri, final String className )
 	{
 		return new ClassRequest( baseUri, className );
 	}
@@ -52,5 +53,11 @@ public class ClassRequest {
     	return className;
     }
 
-	
+    /**
+     * @return constructs and returns the full URI to the class that is to be loaded
+     */
+	public URI getUri()
+	{
+		return UriBuilder.fromUri( baseUri ).path( className ).build();
+	}
 }
