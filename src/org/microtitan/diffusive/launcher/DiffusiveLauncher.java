@@ -17,7 +17,7 @@ import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
-import org.microtitan.diffusive.launcher.config.RestfulDiffuserRepositoryConfig;
+import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 import org.microtitan.diffusive.tests.BeanTest;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
@@ -70,7 +70,7 @@ public class DiffusiveLauncher {
 	private static List< String > createDefaultConfiguration()
 	{
 		final List< String > configurations = new ArrayList<>();
-		configurations.add( RestfulDiffuserRepositoryConfig.class.getName() );
+		configurations.add( RestfulDiffuserConfig.class.getName() );
 //		configurations.add( LocalDiffuserRepositoryConfig.class.getName() );
 		return configurations;
 	}
@@ -304,7 +304,7 @@ public class DiffusiveLauncher {
 	/**
 	 * Make sure to run a {@link RestfulDiffuserServer} instance before calling this. And
 	 * make sure that the endpoint listed in the {@link RestfulDiffuserServer#DEFAULT_SERVER_URI}
-	 * method matches up to that in the {@link RestfulDiffuserRepositoryConfig} so that it
+	 * method matches up to that in the {@link RestfulDiffuserConfig} so that it
 	 * knows how to call the endpoint.
 	 * 
 	 * @param args

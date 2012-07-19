@@ -16,7 +16,7 @@ import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManage
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 
-public class RestfulDiffuserRepositoryConfig {
+public class RestfulDiffuserConfig {
 	
 	// holds the list of client endpoints...for testing we use the same address as specified
 	// in the RestfulDiffuserServer as the default server URI.
@@ -60,7 +60,7 @@ public class RestfulDiffuserRepositoryConfig {
 	
 	public static void main( String[] args ) throws Exception
 	{
-		for( Method m : RestfulDiffuserRepositoryConfig.class.getMethods() )
+		for( Method m : RestfulDiffuserConfig.class.getMethods() )
 		{
 			if( m.isAnnotationPresent( DiffusiveConfiguration.class ) )
 			{
