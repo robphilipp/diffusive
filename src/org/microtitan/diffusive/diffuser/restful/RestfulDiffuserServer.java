@@ -29,8 +29,9 @@ public class RestfulDiffuserServer {
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserServer.class );
 	
 	// default address for server
-	public static final String SERVER_PORT = "8182";
-	public static final String DEFAULT_SERVER_URI = getLocalIpAddress() + ":" + SERVER_PORT;
+	private static final int SERVER_PORT = 8182;
+	private static final String SERVER_SCHEME = "http";
+	public static final String DEFAULT_SERVER_URI = createDefaultServerUri( SERVER_SCHEME, SERVER_PORT );
 	
 	private HttpServer server;
 	
@@ -45,18 +46,32 @@ public class RestfulDiffuserServer {
 		this.server = createHttpServer( serverUri, application );
 	}
 	
+	/*
+	 * @return grabs the ip address for the local host
+	 */
 	private static String getLocalIpAddress()
 	{
-		String ip = "http://localhost";
+		String ip = "localhost";
 		try
         {
-	        ip = InetAddress.getLocalHost().toString();
+	        ip = InetAddress.getLocalHost().getHostAddress();
         }
         catch( UnknownHostException e )
         {
 	        e.printStackTrace();
         }
 		return ip;
+	}
+	
+	/*
+	 * Constructs a string representation of the URI from the local host's IP address, the specified scheme and port
+	 * @param scheme The scheme (i.e. http, https, etc)
+	 * @param port The port at which the server listens
+	 * @return a string representation of the URI
+	 */
+	private static String createDefaultServerUri( final String scheme, final int port )
+	{
+		return scheme + "://" + getLocalIpAddress() + String.format( ":%d", port );
 	}
 	
 	/*
@@ -76,23 +91,12 @@ public class RestfulDiffuserServer {
 			
 			// attempt to start the server
 			server = GrizzlyServerFactory.createHttpServer( serverUri, handler );
-
-//			// set the resource packages that will be searched for RESTful bindings 
-//			final ResourceConfig resourceConfig = new PackagesResourceConfig( resourcePackages.toArray( new String[ resourcePackages.size() ] ) );
-//			
-//			// attempt to start the server
-//			server = GrizzlyServerFactory.createHttpServer( serverUri, resourceConfig );
 		}
 		catch( IOException e )
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Failed to start Grizzly web server." + Constants.NEW_LINE );
 			message.append( "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
-//			message.append( "  Resource Packages: " + Constants.NEW_LINE );
-//			for( String resourcePackage : resourcePackages )
-//			{
-//				message.append( "    " + resourcePackage + Constants.NEW_LINE );
-//			}
 			LOGGER.error( message.toString(), e );
 			throw new IllegalStateException( message.toString(), e );
 		}
@@ -102,11 +106,6 @@ public class RestfulDiffuserServer {
 			final StringBuffer message = new StringBuffer();
 			message.append( "Started Grizzly web server." + Constants.NEW_LINE );
 			message.append( "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
-//			message.append( "  Resource Packages: " + Constants.NEW_LINE );
-//			for( String resourcePackage : resourcePackages )
-//			{
-//				message.append( "    " + resourcePackage + Constants.NEW_LINE );
-//			}
 			LOGGER.debug( message.toString() );
 		}
 		return server;
