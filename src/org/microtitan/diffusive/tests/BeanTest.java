@@ -11,13 +11,13 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 
 
-public class BeanTest2 implements Serializable {
+public class BeanTest implements Serializable {
 
 //	private static final Logger LOGGER = Logger.getLogger( BeanTest.class );
 	
 	private Bean bean;
 	
-	private BeanTest2()
+	private BeanTest()
 	{
 		bean = new Bean( "--original--A", "--original--B" );
 	}
@@ -69,7 +69,7 @@ public class BeanTest2 implements Serializable {
 //		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
 
 		
-		final BeanTest2 test = new BeanTest2();
+		final BeanTest test = new BeanTest();
 		test.print();
 		test.changeValues( "--new--" );
 		test.print();
