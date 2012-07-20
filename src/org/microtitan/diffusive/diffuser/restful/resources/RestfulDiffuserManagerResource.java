@@ -486,22 +486,33 @@ public class RestfulDiffuserManagerResource {
 				final List< URI > classPaths = entry.getClassPaths();
 				if( classPaths != null && !classPaths.isEmpty() )
 				{
-					// set up the RESTful class loader to go out and get the class, bring it back, 
-					// load it, and resolve it for use
-					final ClassLoader parent = RestfulDiffuserManagerResource.class.getClassLoader();
-					final RestfulClassLoader loader = new RestfulClassLoader( classPaths, parent );
+					// set up the RESTful class loader
+					final RestfulClassLoader loader = new RestfulClassLoader( classPaths );
 					
-					// load...
-					clazz = loader.findClass( classname );
+					// load the class from the remote server endpoint
+					try
+					{
+						clazz = loader.loadClass( classname );
+					}
+					catch( ClassNotFoundException e1 )
+					{
+						final StringBuffer message = new StringBuffer();
+						message.append( "Error loading class:" + Constants.NEW_LINE );
+						message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+						message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+						message.append( "  Class Loader: " + loader.getClass().getName() );
+						LOGGER.error( message.toString(), e1 );
+						throw new IllegalArgumentException( message.toString(), e1 );
+					}
 					
 					if( LOGGER.isDebugEnabled() )
 					{
-            			final StringBuffer message = new StringBuffer();
-            			message.append( "Loaded class with new URL class loader." + Constants.NEW_LINE );
-            			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
-            			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
-            			message.append( "  Class Loader: " + loader.getClass().getName() );
-            			LOGGER.debug( message.toString() );
+						final StringBuffer message = new StringBuffer();
+						message.append( "Loaded class:" + Constants.NEW_LINE );
+						message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+						message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+						message.append( "  Class Loader: " + loader.getClass().getName() );
+						LOGGER.debug( message.toString() );
 					}
 				}
 			}

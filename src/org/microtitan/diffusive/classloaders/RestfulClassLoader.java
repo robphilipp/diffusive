@@ -26,10 +26,11 @@ public class RestfulClassLoader extends ClassLoader {
 	private List< URI > baseUri;
 	private final Abdera abdera;
 	private final Client client;
-	
+
 	/**
 	 * 
-	 * @param baseUri
+	 * @param baseUri The {@link List} of class path URI
+	 * @param parent The class loader that is set to be this parents class loader
 	 */
 	public RestfulClassLoader( final List< URI > baseUri, final ClassLoader parent )
 	{
@@ -45,16 +46,36 @@ public class RestfulClassLoader extends ClassLoader {
 		this.client = RestfulClientFactory.getInstance();
 	}
 
+	/**
+	 * RESTful class loader that uses its class loader as the parent class loader
+	 * @param baseUri The {@link List} of class path URI
+	 */
+	public RestfulClassLoader( final List< URI > baseUri )
+	{
+		this( baseUri, RestfulClassLoader.class.getClassLoader() );
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.ClassLoader#findClass(java.lang.String)
 	 */
 	@Override
-	public Class< ? > findClass( final String className )
+	public Class< ? > findClass( final String className ) throws ClassNotFoundException
 	{
-		final byte[] bytes = loadClassData( className );
+		// read the bytes from the network
+		final byte[] bytes = readClassData( className );
+		if( bytes == null || bytes.length == 0 )
+		{
+			throw new ClassNotFoundException( className );
+		}
+		
+		// define the class 
 		final Class< ? > clazz = defineClass( className, bytes, 0, bytes.length );
-		resolveClass( clazz );
+		if( clazz == null )
+		{
+			throw new ClassFormatError( className );
+		}
+
 		return clazz;
 	}
 	
@@ -70,14 +91,14 @@ public class RestfulClassLoader extends ClassLoader {
 	 * @param className
 	 * @return
 	 */
-	private byte[] loadClassData( final String className )
+	private byte[] readClassData( final String className )
 	{
 		byte[] classBytes = null;
 		
 		for( URI uri : baseUri )
 		{
 			// load the class data from the URI in the list, if found, then we're done
-			classBytes = loadClassData( className, uri );
+			classBytes = readClassData( className, uri );
 			if( classBytes != null )
 			{
 				break;
@@ -87,7 +108,7 @@ public class RestfulClassLoader extends ClassLoader {
 		return classBytes;
 	}
 
-	private byte[] loadClassData( final String className, final URI baseUri )
+	private byte[] readClassData( final String className, final URI baseUri )
 	{
 		// construct the request to create the diffuser for the specific signature (class, method, arguments)
 		final ClassRequest request = ClassRequest.create( baseUri.toString(), className );

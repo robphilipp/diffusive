@@ -16,6 +16,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.log4j.Logger;
+import org.freezedry.persistence.utils.Constants;
 import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.utils.ClassLoaderUtils;
 
@@ -47,51 +48,37 @@ public class RestfulClassPathResource {
 	public Response getClass( @Context final UriInfo uriInfo,
 							  @PathParam( FULLY_QUALIFIED_CLASS_NAME ) final String className )
 	{
-//		Class< ? > clazz = null;
-//		try
-//        {
-//			clazz = Class.forName( className );
-//        }
-//        catch( ClassNotFoundException e )
-//        {
-//        	// in this case, the class isn't found, which is a problem, because it should
-//        	// be on the class path...we could add in the file system class loader...?
-//	        e.printStackTrace();
-//        }
+		// find the class and convert it to a byte[] for transport across the network
 		final byte[] classBytes = ClassLoaderUtils.convertClassToByteArray( className );
+		if( classBytes == null || classBytes.length == 0 )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Could not find class: " + className + Constants.NEW_LINE );
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
 		
 		// grab the date for time stamp
 		final Date date = new Date();
 
-		Response response = null;
-//		if( classBytes != null && classBytes.length > 0 )
-//		{
-			Feed feed = null;
-			
-			// create the atom feed 
-			final URI requestUri = uriInfo.getRequestUri();
-//			final String resultKey = UUID.nameUUIDFromBytes( classBytes ).toString();
-			final String resultKey = UUID.randomUUID().toString();
-			feed = Atom.createFeed( requestUri, resultKey, date, uriInfo.getBaseUri() );
-			
-			// create an entry for the feed and set the byte[] representing the class as the content
-			final Entry entry = Atom.createEntry();
-			final ByteArrayInputStream input = new ByteArrayInputStream( classBytes );
-			entry.setId( resultKey );
-			entry.setContent( input, MediaType.APPLICATION_OCTET_STREAM );
-			feed.addEntry( entry );
-			
-			// create the response
-			response = Response.ok()
-							   .location( requestUri )
-							   .entity( feed.toString() )
-							   .type( MediaType.APPLICATION_ATOM_XML )
-							   .build();
-//		}
-//		else
-//		{
-//			response = Response.noContent().build();
-//		}
+		// create the atom feed 
+		final URI requestUri = uriInfo.getRequestUri();
+		final String resultKey = UUID.randomUUID().toString();
+		final Feed feed = Atom.createFeed( requestUri, resultKey, date, uriInfo.getBaseUri() );
+		
+		// create an entry for the feed and set the byte[] representing the class as the content
+		final Entry entry = Atom.createEntry();
+		final ByteArrayInputStream input = new ByteArrayInputStream( classBytes );
+		entry.setId( resultKey );
+		entry.setContent( input, MediaType.APPLICATION_OCTET_STREAM );
+		feed.addEntry( entry );
+		
+		// create the response
+		final Response response = Response.ok()
+										  .location( requestUri )
+										  .entity( feed.toString() )
+										  .type( MediaType.APPLICATION_ATOM_XML )
+										  .build();
 		return response;
 	}
 }
