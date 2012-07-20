@@ -486,13 +486,12 @@ public class RestfulDiffuserManagerResource {
 				final List< URI > classPaths = entry.getClassPaths();
 				if( classPaths != null && !classPaths.isEmpty() )
 				{
-					// set up the RESTful class loader
+					// set up the RESTful class loader and attempt to load the class from the remote server 
+					// listed in the class paths URI list
 					final RestfulClassLoader loader = new RestfulClassLoader( classPaths );
-					
-					// load the class from the remote server endpoint
 					try
 					{
-						clazz = loader.loadClass( classname );
+						clazz = Class.forName( classname, true, loader );//loader.loadClass( classname );
 					}
 					catch( ClassNotFoundException e1 )
 					{

@@ -13,7 +13,6 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.utils.Constants;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.microtitan.diffusive.classloaders.RestfulClassLoader;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 

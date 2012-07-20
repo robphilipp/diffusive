@@ -54,7 +54,8 @@ public class RestfulDiffuserConfig {
 	{
 		// create a default diffuser, load the diffuser repository, and set the defualt diffuser
 		// into the repository (needed by the Javassist diffuser method replacement)
-		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.OBJECT.getName() );
+//		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.OBJECT.getName() );
+		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.PERSISTENCE_XML.getName() );
 		final List< URI > clientEndpoints = createEndpointList();
 		final List< URI > classPaths = createClassPathList();
 		final Diffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints, classPaths );

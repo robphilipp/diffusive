@@ -49,8 +49,11 @@ public class PersistenceSerializer implements Serializer {
 		// convert the OutputStream to a Writer
 		try( final OutputStreamWriter out = new OutputStreamWriter( output ) )
 		{
-			// have the Persistence write the object to the output stream 
-			persistence.write( object, out );
+			// have the Persistence write the object to the output stream
+			if( object != null )
+			{
+				persistence.write( object, out );
+			}
 		
 			out.close();
 		}
