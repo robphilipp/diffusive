@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.OutputStream;
 
+import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -55,9 +56,11 @@ public class ObjectSerializer implements Serializer {
 	@Override
 	public < T > T deserialize( final InputStream input, final Class< T > clazz ) 
 	{
+		// read the input stream into an object. we use the the (apache commons-io) ClassLoaderObjectInputStream
+		// to read the object because we need to be able to use the same class loader that loaded the class in
+		// the first place (for example, the RestfulClassLoader).
 		T object = null;
-//		try( final ObjectInputStream in = new ObjectInputStream( input ) )
-		try( final DiffusiveObjectInputStream in = new DiffusiveObjectInputStream( input, clazz ) )
+		try( final ClassLoaderObjectInputStream in = new ClassLoaderObjectInputStream( clazz.getClassLoader(), input ) )
 		{
 			object = clazz.cast( in.readObject() );
 		}
@@ -72,46 +75,11 @@ public class ObjectSerializer implements Serializer {
 		}
 		return object;
 	}
-
-	/**
-	 * Allows the ObjectInputStream to use the {@link Class} specified in the constructor to resolve the class.
-	 * This overrides the default behavior of loading it from its class loader, which may not be the same as the
-	 * class loader of the {@link Class} to be deserialized.
-	 * 
-	 * @author Robert Philipp
-	 */
-	private static class DiffusiveObjectInputStream extends ObjectInputStream {
-
-		private Class< ? > clazz = null;
-		
-		/**
-		 * Constructor that takes the {@link Class} for the object to be deserialized.
-		 * @param input The input stream
-		 * @param clazz The {@link Class} for the object to be deserialized
-		 * @throws IOException 
-		 */
-		public DiffusiveObjectInputStream( final InputStream input, final Class< ? > clazz ) throws IOException
-		{
-			super( input );
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.io.ObjectInputStream#resolveClass(java.io.ObjectStreamClass)
-		 */
-		@Override
-		protected Class< ? > resolveClass( final ObjectStreamClass desc ) throws IOException, ClassNotFoundException
-		{
-			if( clazz == null )
-			{
-				return super.resolveClass( desc );
-			}
-			else
-			{
-				return clazz;
-			}
-		}
-	}
 	
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void main( String[] args )
 	{
 		DOMConfigurator.configure( "log4j.xml" );
