@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.io.OutputStream;
 
 import org.apache.log4j.Level;
@@ -55,7 +56,8 @@ public class ObjectSerializer implements Serializer {
 	public < T > T deserialize( final InputStream input, final Class< T > clazz ) 
 	{
 		T object = null;
-		try( final ObjectInputStream in = new ObjectInputStream( input ) )
+//		try( final ObjectInputStream in = new ObjectInputStream( input ) )
+		try( final DiffusiveObjectInputStream in = new DiffusiveObjectInputStream( input, clazz ) )
 		{
 			object = clazz.cast( in.readObject() );
 		}
@@ -71,6 +73,45 @@ public class ObjectSerializer implements Serializer {
 		return object;
 	}
 
+	/**
+	 * Allows the ObjectInputStream to use the {@link Class} specified in the constructor to resolve the class.
+	 * This overrides the default behavior of loading it from its class loader, which may not be the same as the
+	 * class loader of the {@link Class} to be deserialized.
+	 * 
+	 * @author Robert Philipp
+	 */
+	private static class DiffusiveObjectInputStream extends ObjectInputStream {
+
+		private Class< ? > clazz = null;
+		
+		/**
+		 * Constructor that takes the {@link Class} for the object to be deserialized.
+		 * @param input The input stream
+		 * @param clazz The {@link Class} for the object to be deserialized
+		 * @throws IOException 
+		 */
+		public DiffusiveObjectInputStream( final InputStream input, final Class< ? > clazz ) throws IOException
+		{
+			super( input );
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.io.ObjectInputStream#resolveClass(java.io.ObjectStreamClass)
+		 */
+		@Override
+		protected Class< ? > resolveClass( final ObjectStreamClass desc ) throws IOException, ClassNotFoundException
+		{
+			if( clazz == null )
+			{
+				return super.resolveClass( desc );
+			}
+			else
+			{
+				return clazz;
+			}
+		}
+	}
+	
 	public static void main( String[] args )
 	{
 		DOMConfigurator.configure( "log4j.xml" );
