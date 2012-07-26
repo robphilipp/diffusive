@@ -167,13 +167,13 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			final DiffuserId diffuserId = DiffuserId.parse( executeResponse.getSignature() );
 			final Class< ? > clazz = diffuserId.getClazz();
 			final String resultId = executeResponse.getResultId();
-			while( !client.isComplete( resultId ) )
-			{
-				// wait
-				try{ Thread.sleep( 500 ); } catch( InterruptedException e ) {}
-			}
+//			while( !client.isComplete( resultId ) )
+//			{
+//				// wait
+//				try{ Thread.sleep( 500 ); } catch( InterruptedException e ) {}
+//			}
 
-			// result is complete, go and get the result
+			// ask for the result, which blocks until the result returns
 			result = client.getResult( returnType, clazz, methodName, executeResponse.getRequestId(), serializer );
 		}
 		return result;

@@ -688,7 +688,7 @@ public class RestfulDiffuserManagerResource {
 			Feed feed = null;
 			try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
 			{
-				// serialize the result result to be used in the response.
+				// serialize the result result to be used in the response, blocking until the result is done.
 				final Serializer serializer = SerializerFactory.getInstance().createSerializer( result.getSerializerType() );
 				serializer.serialize( result.getResult(), output );
 				
@@ -858,7 +858,7 @@ public class RestfulDiffuserManagerResource {
 		
 		/**
 		 * Blocks until the result is completed and then returns it
-		 * @return
+		 * @return the result object
 		 */
 		public Object getResult()
 		{
@@ -869,26 +869,27 @@ public class RestfulDiffuserManagerResource {
 			}
 			catch( InterruptedException e )
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Thread.currentThread().interrupt();
 			}
 			catch( ExecutionException e )
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new IllegalStateException( e );
 			}
 			return resultObject;
 		}
 		
+		/**
+		 * @return true if the result is complete; false otherwise
+		 */
 		public boolean isDone()
 		{
 			return result.isDone();
 		}
 		
-		public boolean isCancelled()
-		{
-			return result.isCancelled();
-		}
+//		public boolean isCancelled()
+//		{
+//			return result.isCancelled();
+//		}
 	}
 	
 	private static class DiffuserEntry {
