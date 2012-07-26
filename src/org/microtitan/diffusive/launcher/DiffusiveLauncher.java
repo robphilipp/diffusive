@@ -34,7 +34,7 @@ import org.microtitan.diffusive.translator.DiffusiveTranslator;
  * accepts. In this way, there is no change to the code that is run, with the exception of the {@code @Diffusive}
  * annotations that are added to the methods that are to be diffused.  
  *   
- * @author rob
+ * @author Robert Philipp
  */
 public class DiffusiveLauncher {
 	

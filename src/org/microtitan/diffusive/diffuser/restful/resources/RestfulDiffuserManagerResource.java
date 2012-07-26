@@ -12,6 +12,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -83,35 +88,63 @@ public class RestfulDiffuserManagerResource {
 	private final Map< String, ResultCacheEntry > resultsCache;
 	private int maxResultsCached;
 	
-	private final Map< ResultId, Thread > runningTasks;
+	private final ExecutorService executor;
+	private static final int THREAD_POOL_THREADS = 4;
+//	private final Map< ResultId, Thread > runningTasks;
 
+	/**
+	 * Constructs the basic diffuser manager resource that allows clients to interact with the
+	 * diffuser created through this resource. 
+	 * @param The executor
+	 */
+	public RestfulDiffuserManagerResource( final ExecutorService executor )
+	{
+		this.executor = executor;
+		
+		diffusers = new HashMap<>();
+		resultsCache = new LinkedHashMap<>();
+		maxResultsCached = MAX_RESULTS_CACHED;
+//		runningTasks = new LinkedHashMap<>();
+	}
+
+	/**
+	 * Constructs the basic diffuser manager resource that allows clients to interact with the
+	 * diffuser created through this resource. 
+	 * @param numThreads The number of threads for the default fixed thread pool
+	 */
+	public RestfulDiffuserManagerResource( final int numThreads )
+	{
+		this( Executors.newFixedThreadPool( numThreads ) );
+	}
+	
 	/**
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
 	 * diffuser created through this resource. 
 	 */
 	public RestfulDiffuserManagerResource()
 	{
-		diffusers = new HashMap<>();
-		resultsCache = new LinkedHashMap<>();
-		maxResultsCached = MAX_RESULTS_CACHED;
-		runningTasks = new LinkedHashMap<>();
+		this( THREAD_POOL_THREADS );
 	}
 	
-	/**
+	/*
 	 * Adds a result to the resultsCache cache. If the addition of this result causes the
 	 * number of cached items to increase beyond the maximum allowable items, then the
 	 * item that was first added is removed.
 	 * @param key The key for the cache
+	 * @param cacheEntry The result entry holding the result object and the serializer used to
+	 * serialize and deserialize it
+	 * @return the entry that was previously stored in the cache with this key
 	 */
-	private void addResults( final ResultId key, final Object result, final Serializer serializer )
+	private ResultCacheEntry cacheResults( final ResultId key, final ResultCacheEntry cacheEntry )
 	{
 		// put the new result to the cache
-		final Object previousResults = resultsCache.put( key.getResultId(), new ResultCacheEntry( result, serializer ) );
+		final ResultCacheEntry previousResults = resultsCache.put( key.getResultId(), cacheEntry );
 		if( previousResults == null && resultsCache.size() > maxResultsCached )
 		{
 			final Iterator< Map.Entry< String, ResultCacheEntry > > iter = resultsCache.entrySet().iterator();
 			resultsCache.remove( iter.next().getKey() );
 		}
+		return previousResults;
 	}
 
 	/*
@@ -374,8 +407,6 @@ public class RestfulDiffuserManagerResource {
 		//
 		// call the diffused method using the diffuser with the matching signature
 		//
-//		final RestfulDiffuser diffuser = diffusers.get( signature );
-//		if( diffuser == null )
 		final DiffuserEntry diffuserEntry = diffusers.get( signature );
 		if( diffuserEntry == null )
 		{
@@ -395,33 +426,52 @@ public class RestfulDiffuserManagerResource {
 		// grab the requstId and use it to create the result ID
 		final String requestId = request.getRequestId();
 		final ResultId resultId = new ResultId( signature, requestId );
+		
+		// create the task that will be submitted to the executor service to run
+		final Callable< Object > task = new Callable< Object >() {
 
-		// throw the running of the object onto another thread, which will add result object to the
-		// cache when it completes.
-		final Thread task = new Thread( new Runnable() {
-			
-			/*
-			 * (non-Javadoc)
-			 * @see java.lang.Runnable#run()
-			 */
 			@Override
-			public void run()
+			public Object call()
 			{
 				final Class< ? > returnType = request.getReturnTypeClass();
 				final Object resultObject = diffuser.runObject( true, returnType, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
 				
-				// put the result into a map with the signature/id as the key
-				addResults( resultId, resultObject, serializer );
-				runningTasks.remove( resultId );
+				return resultObject;
 			}
-		} );
+		};
+		
+		// submit the task to the executor service to run on a different thread
+		final Future< Object > future = executor.submit( task );
+		
+		// put the future result into a map with the signature/id as the key
+		cacheResults( resultId, new ResultCacheEntry( future, serializer ) );
 
-		// add the task to the map of running tasks and set it to run
-		synchronized( this )
-		{
-			runningTasks.put( resultId, task );
-			task.start();
-		}
+//		// throw the running of the object onto another thread, which will add result object to the
+//		// cache when it completes.
+//		final Thread task = new Thread( new Runnable() {
+//			
+//			/*
+//			 * (non-Javadoc)
+//			 * @see java.lang.Runnable#run()
+//			 */
+//			@Override
+//			public void run()
+//			{
+//				final Class< ? > returnType = request.getReturnTypeClass();
+//				final Object resultObject = diffuser.runObject( true, returnType, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
+//				
+//				// put the result into a map with the signature/id as the key
+//				addResults( resultId, resultObject, serializer );
+//				runningTasks.remove( resultId );
+//			}
+//		} );
+//
+//		// add the task to the map of running tasks and set it to run
+//		synchronized( this )
+//		{
+//			runningTasks.put( resultId, task );
+//			task.start();
+//		}
 		
 		//
 		// create the response
@@ -528,48 +578,30 @@ public class RestfulDiffuserManagerResource {
 		return clazz;
 	}
 	
-//	/*
-//	 * Converts a list of {@link URI} into an array of {@link URL}
-//	 * @param uriList The list of {@link URI}
-//	 * @return an array of {@link URL}
-//	 */
-//	private static URL[] convertUriList( final List< URI > uriList )
-//	{
-//		final URL[] urls = new URL[ uriList.size() ];
-//		for( int i = 0; i < uriList.size(); ++i )
-//		{
-//			try
-//			{
-//				urls[ i ] = uriList.get( i ).toURL();
-//			}
-//			catch( MalformedURLException e )
-//			{
-//				final StringBuffer message = new StringBuffer();
-//				message.append( "Error converting the specified URI to a URL." + Constants.NEW_LINE );
-//				message.append( "  URI: " + uriList.get( i ).toString() + Constants.NEW_LINE );
-//				LOGGER.error( message.toString(), e );
-//				throw new IllegalArgumentException( message.toString(), e );
-//			}
-//		}
-//		return urls;
-//	}
-	
 	/*
-	 * 
-	 * @param signature
-	 * @param requestId
-	 * @return
+	 * Returns true if the task is still running; false otherwise
+	 * @param signature The signature of the task
+	 * @param requestId The ID associated with the request
+	 * @return true if the task is still running; false otherwise
 	 */
 	private synchronized boolean isRunning( final String signature, final String requestId )
 	{
-		return runningTasks.containsKey( new ResultId( signature, requestId ) );
+//		return runningTasks.containsKey( new ResultId( signature, requestId ) );
+		boolean isRunning = false;
+		final ResultCacheEntry entry = resultsCache.get( createResultsCacheId( signature, requestId ) );
+		if( entry != null )
+		{
+			isRunning = !entry.isDone();
+		}
+		return isRunning;
 	}
 	
-	/**
-	 * 
-	 * @param request
-	 * @param signature
-	 * @return
+	/*
+	 * Deserializes the object in the specified execute diffuser request and returns it. Uses the 
+	 * serializer and the class type specified in the request.
+	 * @param request The execute diffuser request that holds the object
+	 * @param signature The signature of the diffused method
+	 * @return The object deserialized from the specified request
 	 */
 	private Object deserialize( final ExecuteDiffuserRequest request, final String signature )
 	{
@@ -595,9 +627,15 @@ public class RestfulDiffuserManagerResource {
 		return deserializedObject;
 	}
 	
+	/**
+	 * Returns the status for the task for the specified result ID and signature
+	 * @param signature The signature of the diffused method
+	 * @param resultId The ID associated with the result
+	 * @return The status of the result. Returns "ok" if the result is done; "no content" otherwise
+	 */
 	@HEAD @Path( "{" + SIGNATURE + "}" + "/{" + RESULT_ID + ": [a-zA-Z0-9\\-]*}" )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
-	public Response getResultStatus( @Context final UriInfo uriInfo, 
+	public Response getResultStatus( //@Context final UriInfo uriInfo, 
 							   		 @PathParam( SIGNATURE ) final String signature,
 							   		 @PathParam( RESULT_ID ) final String resultId )
 	{
@@ -667,8 +705,7 @@ public class RestfulDiffuserManagerResource {
 				feed.addEntry( entry );
 				
 				// create the response
-				response = Response.ok( /*output.toByteArray()*/ )
-//								   .status( Status.OK )
+				response = Response.ok()
 								   .location( resultUri )
 								   .entity( feed.toString() )
 								   .type( MediaType.APPLICATION_ATOM_XML )
@@ -800,16 +837,16 @@ public class RestfulDiffuserManagerResource {
 	 */
 	private static class ResultCacheEntry {
 		
-		private final Object result;
+		private final Future< Object > result;
 		private final String serializerType;
 		
-		public ResultCacheEntry( final Object result, final String serializerType )
+		public ResultCacheEntry( final Future< Object > result, final String serializerType )
 		{
 			this.result = result;
 			this.serializerType = serializerType;
 		}
 		
-		public ResultCacheEntry( final Object result, final Serializer serializer )
+		public ResultCacheEntry( final Future< Object > result, final Serializer serializer )
 		{
 			this( result, SerializerFactory.getSerializerName( serializer.getClass() ) );
 		}
@@ -819,9 +856,38 @@ public class RestfulDiffuserManagerResource {
 			return serializerType;
 		}
 		
+		/**
+		 * Blocks until the result is completed and then returns it
+		 * @return
+		 */
 		public Object getResult()
 		{
-			return result;
+			Object resultObject = null;
+			try
+			{
+				resultObject = result.get();
+			}
+			catch( InterruptedException e )
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch( ExecutionException e )
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return resultObject;
+		}
+		
+		public boolean isDone()
+		{
+			return result.isDone();
+		}
+		
+		public boolean isCancelled()
+		{
+			return result.isCancelled();
 		}
 	}
 	
