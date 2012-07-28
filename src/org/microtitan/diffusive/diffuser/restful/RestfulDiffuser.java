@@ -166,7 +166,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			// grab the result of the call by polling until the result is returned
 			final DiffuserId diffuserId = DiffuserId.parse( executeResponse.getSignature() );
 			final Class< ? > clazz = diffuserId.getClazz();
-			final String resultId = executeResponse.getResultId();
+//			final String resultId = executeResponse.getResultId();
 //			while( !client.isComplete( resultId ) )
 //			{
 //				// wait

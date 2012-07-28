@@ -310,6 +310,10 @@ public class RestfulDiffuserManagerResource {
 	 * 	<li>The name of the serializer used to serialize and deserialize (see the enum 
 	 * 		{@link SerializerFactory.SerializerType}</li>
 	 * </ul>
+	 * This is a non-blocking method. A reference to the result is placed in the results cache, and the status
+	 * of the execution can be monitored with the {@link #isRunning(String, String)} method. The results can be
+	 * obtained from the blocking {@link #getResult(UriInfo, String, String)} method.
+	 * 
 	 * @param uriInfo Information about the request URI and the JAX-RS application.
 	 * @param signature The signature of the {@link RestfulDiffuser} corresponding to a specific method.
 	 * The signatures are created using the {@link DiffuserId} class.
@@ -317,6 +321,8 @@ public class RestfulDiffuserManagerResource {
 	 * the type information, and the {@link Serializer} name. 
 	 * @return A {@link Response} containing a string version of an Atom feed that holds the result ID and
 	 * a link to the URI representing the result.
+	 * @see #isRunning(String, String)
+	 * @see #getResult(UriInfo, String, String)
 	 */
 	@POST @Path( "{" + SIGNATURE + "}" )
 	@Consumes( MediaType.APPLICATION_XML )
@@ -440,38 +446,10 @@ public class RestfulDiffuserManagerResource {
 			}
 		};
 		
-		// submit the task to the executor service to run on a different thread
+		// submit the task to the executor service to run on a different thread,
+		// and put the future result into the results cache with the signature/id as the key
 		final Future< Object > future = executor.submit( task );
-		
-		// put the future result into a map with the signature/id as the key
 		cacheResults( resultId, new ResultCacheEntry( future, serializer ) );
-
-//		// throw the running of the object onto another thread, which will add result object to the
-//		// cache when it completes.
-//		final Thread task = new Thread( new Runnable() {
-//			
-//			/*
-//			 * (non-Javadoc)
-//			 * @see java.lang.Runnable#run()
-//			 */
-//			@Override
-//			public void run()
-//			{
-//				final Class< ? > returnType = request.getReturnTypeClass();
-//				final Object resultObject = diffuser.runObject( true, returnType, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
-//				
-//				// put the result into a map with the signature/id as the key
-//				addResults( resultId, resultObject, serializer );
-//				runningTasks.remove( resultId );
-//			}
-//		} );
-//
-//		// add the task to the map of running tasks and set it to run
-//		synchronized( this )
-//		{
-//			runningTasks.put( resultId, task );
-//			task.start();
-//		}
 		
 		//
 		// create the response
@@ -688,9 +666,10 @@ public class RestfulDiffuserManagerResource {
 			Feed feed = null;
 			try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
 			{
-				// serialize the result result to be used in the response, blocking until the result is done.
+				// serialize the result result to be used in the response (blocks until the result is done)
 				final Serializer serializer = SerializerFactory.getInstance().createSerializer( result.getSerializerType() );
-				serializer.serialize( result.getResult(), output );
+				final Object object = result.getResult();	// blocking call
+				serializer.serialize( object, output );
 				
 				// create the atom feed
 				final String resultKey = createResultsCacheId( signature, requestId );

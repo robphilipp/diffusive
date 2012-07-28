@@ -19,6 +19,7 @@ import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 import org.microtitan.diffusive.tests.BeanTest;
+import org.microtitan.diffusive.tests.threaded.SingleThreadedCalc;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
 
@@ -324,7 +325,8 @@ public class DiffusiveLauncher {
 			System.out.println( "|  **** Running simple test code **** |" );
 			System.out.println( "+-------------------------------------+" );
 			System.out.println();
-			args = new String[] { BeanTest.class.getName() };
+//			args = new String[] { BeanTest.class.getName() };
+			args = new String[] { SingleThreadedCalc.class.getName() };
 		}
 		
 		// run the application for the specified class

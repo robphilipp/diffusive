@@ -44,39 +44,11 @@ public class BeanTest implements Serializable {
 	{
 		DOMConfigurator.configure( "log4j.xml" );
 		Logger.getRootLogger().setLevel( Level.WARN );
-		
-		// TODO this should be in a config file that is inserted here from the launcher...
-		// set the use of the RESTful diffuser server
-//		final URI serverUri = URI.create( "http://localhost:8182/" );
-////		final List< String > resourcePackages = Arrays.asList( RestfulDiffuser.class.getPackage().getName() );
-////		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, resourcePackages );
-//		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
-//		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
-//		application.addSingletonResource( resource );
-//		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
-		
-//		final Serializer serializer = new ObjectSerializer();
-//		final List< URI > clientEndpoints = Arrays.asList( URI.create( serverUri.toString() ) );
-//		final Diffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints );
-//		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
-
-		// TODO this should be in a config file that is inserted here from the launcher...
-		// this code sets up the diffuser repository with the local instance of the restful diffuser 
-		// set the code to use of RESTful diffuser
-//		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.OBJECT.getName() );
-//		final List< URI > clientEndpoints = Arrays.asList( URI.create( "http://localhost:8183" ) );
-//		final Diffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints );
-//		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
-
-		
+				
 		final BeanTest test = new BeanTest();
 		test.print();
 		test.changeValues( "--new--" );
 		test.print();
 		test.concat();
-
-//		System.out.println( String.format( "Jersy app start with WADL available at %sapplication.wadl\nTry out %shelloworld\nHit enter to stop it...", serverUri, serverUri ) );
-//		System.in.read();
-//		server.stop();
 	}
 }
