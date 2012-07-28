@@ -89,13 +89,12 @@ public class RestfulDiffuserManagerResource {
 	private int maxResultsCached;
 	
 	private final ExecutorService executor;
-	private static final int THREAD_POOL_THREADS = 8;
-//	private final Map< ResultId, Thread > runningTasks;
+	private static final int THREAD_POOL_THREADS = 100;
 
 	/**
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
 	 * diffuser created through this resource. 
-	 * @param The executor
+	 * @param The executor service to which tasks are submitted
 	 */
 	public RestfulDiffuserManagerResource( final ExecutorService executor )
 	{
@@ -104,7 +103,6 @@ public class RestfulDiffuserManagerResource {
 		diffusers = new HashMap<>();
 		resultsCache = new LinkedHashMap<>();
 		maxResultsCached = MAX_RESULTS_CACHED;
-//		runningTasks = new LinkedHashMap<>();
 	}
 
 	/**
@@ -135,7 +133,7 @@ public class RestfulDiffuserManagerResource {
 	 * serialize and deserialize it
 	 * @return the entry that was previously stored in the cache with this key
 	 */
-	private ResultCacheEntry cacheResults( final ResultId key, final ResultCacheEntry cacheEntry )
+	private synchronized ResultCacheEntry cacheResults( final ResultId key, final ResultCacheEntry cacheEntry )
 	{
 		// put the new result to the cache
 		final ResultCacheEntry previousResults = resultsCache.put( key.getResultId(), cacheEntry );
@@ -155,9 +153,19 @@ public class RestfulDiffuserManagerResource {
 	 * @return the result from the {@link #resultsCache} associated with the specified signature 
 	 * and request ID 
 	 */
-	private ResultCacheEntry getResultFromCache( final String signature, final String requestId )
+	private synchronized ResultCacheEntry getResultFromCache( final String signature, final String requestId )
 	{
 		return resultsCache.get( createResultsCacheId( signature, requestId ) );
+	}
+	
+	/*
+	 * Returns true if the specified key is contained in the results cache; false otherwise
+	 * @param key The key to the results object
+	 * @return true if the specified key is contained in the results cache; false otherwise
+	 */
+	private synchronized boolean isResultCached( final String key )
+	{
+		return resultsCache.containsKey( key );
 	}
 
 	/*
@@ -564,7 +572,6 @@ public class RestfulDiffuserManagerResource {
 	 */
 	private synchronized boolean isRunning( final String signature, final String requestId )
 	{
-//		return runningTasks.containsKey( new ResultId( signature, requestId ) );
 		boolean isRunning = false;
 		final ResultCacheEntry entry = resultsCache.get( createResultsCacheId( signature, requestId ) );
 		if( entry != null )
@@ -613,15 +620,14 @@ public class RestfulDiffuserManagerResource {
 	 */
 	@HEAD @Path( "{" + SIGNATURE + "}" + "/{" + RESULT_ID + ": [a-zA-Z0-9\\-]*}" )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
-	public Response getResultStatus( //@Context final UriInfo uriInfo, 
-							   		 @PathParam( SIGNATURE ) final String signature,
+	public Response getResultStatus( @PathParam( SIGNATURE ) final String signature,
 							   		 @PathParam( RESULT_ID ) final String resultId )
 	{
 		// if the result is in the results cache, then we have completed and we 
 		// return an OK status, otherwise, we haven't completed the runObject(...)
 		// method and we return a NO_CONTENT status.
 		Response response = null;
-		if( resultsCache.containsKey( createResultsCacheId( signature, resultId ) ) )
+		if( isResultCached( createResultsCacheId( signature, resultId ) ) )
 		{
 			// create the response
 			response = Response.ok().build();
