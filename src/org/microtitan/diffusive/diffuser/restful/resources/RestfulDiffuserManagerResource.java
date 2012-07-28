@@ -89,7 +89,7 @@ public class RestfulDiffuserManagerResource {
 	private int maxResultsCached;
 	
 	private final ExecutorService executor;
-	private static final int THREAD_POOL_THREADS = 4;
+	private static final int THREAD_POOL_THREADS = 8;
 //	private final Map< ResultId, Thread > runningTasks;
 
 	/**
