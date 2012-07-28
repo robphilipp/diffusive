@@ -2,6 +2,7 @@ package org.microtitan.diffusive.tests.threaded;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -13,13 +14,15 @@ public class MultiThreadedCalc {
 
 	public static void main( String[] args )
 	{
-		final ExecutorService executor = Executors.newFixedThreadPool( 7 );
+		final ExecutorService executor = Executors.newFixedThreadPool( 4 );
+		
+		final Random random = new Random( 1 );
 		
 		// create the list of tasks
 		final List< Task > tasks = new ArrayList<>();
 		for( int i = 0; i < 20; ++i )
 		{
-			tasks.add( new Task( i, (int)(Math.random() * 25_000 ) ) );
+			tasks.add( new Task( i, (int)(random.nextFloat() * 25_000 ) ) );
 		}
 		
 		// create the completion service that allows us to poll for the results

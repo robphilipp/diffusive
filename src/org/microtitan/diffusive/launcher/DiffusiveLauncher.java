@@ -18,8 +18,7 @@ import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
-import org.microtitan.diffusive.tests.BeanTest;
-import org.microtitan.diffusive.tests.threaded.SingleThreadedCalc;
+import org.microtitan.diffusive.tests.threaded.MultiThreadedCalc;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
 
@@ -313,7 +312,7 @@ public class DiffusiveLauncher {
 	public static void main( String[] args )
 	{
 		DOMConfigurator.configure( "log4j.xml" );
-		Logger.getRootLogger().setLevel( Level.DEBUG );
+		Logger.getRootLogger().setLevel( Level.WARN );
 
 		// ensure that a class has been specified (the class must have a main)
 		if( args.length < 1 )
@@ -326,8 +325,11 @@ public class DiffusiveLauncher {
 			System.out.println( "+-------------------------------------+" );
 			System.out.println();
 //			args = new String[] { BeanTest.class.getName() };
-			args = new String[] { SingleThreadedCalc.class.getName() };
+//			args = new String[] { SingleThreadedCalc.class.getName() };
+			args = new String[] { MultiThreadedCalc.class.getName() };
 		}
+		
+		final long start = System.currentTimeMillis();
 		
 		// run the application for the specified class
 		final String classNameToRun = args[ 0 ];
@@ -339,6 +341,6 @@ public class DiffusiveLauncher {
 		final DiffusiveLauncher launcher = new DiffusiveLauncher();
 		launcher.run( classNameToRun, programArgs );
 		
-		System.out.println( "done" );
+		System.out.println( "done: " + (double)(System.currentTimeMillis() - start)/1000 + " s" );
 	}
 }
