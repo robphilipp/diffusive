@@ -8,8 +8,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -85,8 +83,7 @@ public class RestfulDiffuserManagerResource {
 	private final Map< String, DiffuserEntry > diffusers;
 	
 	// fields to manage the resultsCache cache
-	private final Map< String, ResultCacheEntry > resultsCache;
-	private int maxResultsCached;
+	private final BasicResultsCache< ResultCacheEntry > resultsCache;
 	
 	private final ExecutorService executor;
 	private static final int THREAD_POOL_THREADS = 100;
@@ -101,8 +98,7 @@ public class RestfulDiffuserManagerResource {
 		this.executor = executor;
 		
 		diffusers = new HashMap<>();
-		resultsCache = new LinkedHashMap<>();
-		maxResultsCached = MAX_RESULTS_CACHED;
+		resultsCache = new BasicResultsCache<>( MAX_RESULTS_CACHED );
 	}
 
 	/**
@@ -122,61 +118,6 @@ public class RestfulDiffuserManagerResource {
 	public RestfulDiffuserManagerResource()
 	{
 		this( THREAD_POOL_THREADS );
-	}
-	
-	/*
-	 * Adds a result to the resultsCache cache. If the addition of this result causes the
-	 * number of cached items to increase beyond the maximum allowable items, then the
-	 * item that was first added is removed.
-	 * @param key The key for the cache
-	 * @param cacheEntry The result entry holding the result object and the serializer used to
-	 * serialize and deserialize it
-	 * @return the entry that was previously stored in the cache with this key
-	 */
-	private synchronized ResultCacheEntry cacheResults( final ResultId key, final ResultCacheEntry cacheEntry )
-	{
-		// put the new result to the cache
-		final ResultCacheEntry previousResults = resultsCache.put( key.getResultId(), cacheEntry );
-		if( previousResults == null && resultsCache.size() > maxResultsCached )
-		{
-			final Iterator< Map.Entry< String, ResultCacheEntry > > iter = resultsCache.entrySet().iterator();
-			resultsCache.remove( iter.next().getKey() );
-		}
-		return previousResults;
-	}
-
-	/*
-	 * Returns the result from the {@link #resultsCache} by generating the cache key from the
-	 * specified signature and request ID
-	 * @param signature The signature of the method that was executed
-	 * @param requestId The request ID that was specified as part of the {@link ExecuteDiffuserRequest}
-	 * @return the result from the {@link #resultsCache} associated with the specified signature 
-	 * and request ID 
-	 */
-	private synchronized ResultCacheEntry getResultFromCache( final String signature, final String requestId )
-	{
-		return resultsCache.get( createResultsCacheId( signature, requestId ) );
-	}
-	
-	/*
-	 * Returns true if the specified key is contained in the results cache; false otherwise
-	 * @param key The key to the results object
-	 * @return true if the specified key is contained in the results cache; false otherwise
-	 */
-	private synchronized boolean isResultCached( final String key )
-	{
-		return resultsCache.containsKey( key );
-	}
-
-	/*
-	 * Creates the results cache ID used as the key into the {@link #resultsCache} {@link Map}.
-	 * @param signature The signature of the method that was executed
-	 * @param requestId The request ID that was specified as part of the {@link ExecuteDiffuserRequest}
-	 * @return The key for the {@link #resultsCache} {@link Map}.
-	 */
-	private static String createResultsCacheId( final String signature, final String requestId )
-	{
-		return ResultId.create( signature, requestId );
 	}
 	
 	/*
@@ -457,7 +398,7 @@ public class RestfulDiffuserManagerResource {
 		// submit the task to the executor service to run on a different thread,
 		// and put the future result into the results cache with the signature/id as the key
 		final Future< Object > future = executor.submit( task );
-		cacheResults( resultId, new ResultCacheEntry( future, serializer ) );
+		resultsCache.cacheResults( resultId, new ResultCacheEntry( future, serializer ) );
 		
 		//
 		// create the response
@@ -573,7 +514,7 @@ public class RestfulDiffuserManagerResource {
 	private synchronized boolean isRunning( final String signature, final String requestId )
 	{
 		boolean isRunning = false;
-		final ResultCacheEntry entry = resultsCache.get( createResultsCacheId( signature, requestId ) );
+		final ResultCacheEntry entry = resultsCache.getResultFromCache( signature, requestId );
 		if( entry != null )
 		{
 			isRunning = !entry.isDone();
@@ -627,7 +568,7 @@ public class RestfulDiffuserManagerResource {
 		// return an OK status, otherwise, we haven't completed the runObject(...)
 		// method and we return a NO_CONTENT status.
 		Response response = null;
-		if( isResultCached( createResultsCacheId( signature, resultId ) ) )
+		if( resultsCache.isResultCached( signature, resultId ) )
 		{
 			// create the response
 			response = Response.ok().build();
@@ -667,7 +608,7 @@ public class RestfulDiffuserManagerResource {
 
 		Response response = null;
 		ResultCacheEntry result = null;
-		if( ( result = getResultFromCache( signature, requestId ) ) != null )
+		if( ( result = resultsCache.getResultFromCache( signature, requestId ) ) != null )
 		{
 			Feed feed = null;
 			try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
@@ -678,7 +619,7 @@ public class RestfulDiffuserManagerResource {
 				serializer.serialize( object, output );
 				
 				// create the atom feed
-				final String resultKey = createResultsCacheId( signature, requestId );
+				final String resultKey = BasicResultsCache.createResultsCacheId( signature, requestId );
 				feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
 				
 				// create an entry for the feed and set the results as the content
@@ -710,7 +651,7 @@ public class RestfulDiffuserManagerResource {
 		}
 		else
 		{
-			final String resultKey = createResultsCacheId( signature, requestId );
+			final String resultKey = BasicResultsCache.createResultsCacheId( signature, requestId );
 			final Feed feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
 
 			final Entry entry = Atom.createEntry();
@@ -813,7 +754,7 @@ public class RestfulDiffuserManagerResource {
 		}
 		return response;
 	}
-	
+		
 	/**
 	 * The entry into the results cache. Each entry holds the results object and the serializer
 	 * name used for serializing and deserializing the result object.
@@ -839,6 +780,11 @@ public class RestfulDiffuserManagerResource {
 		public String getSerializerType()
 		{
 			return serializerType;
+		}
+		
+		public Future< Object > getFuture()
+		{
+			return result;
 		}
 		
 		/**
