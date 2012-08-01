@@ -398,7 +398,7 @@ public class RestfulDiffuserManagerResource {
 		// submit the task to the executor service to run on a different thread,
 		// and put the future result into the results cache with the signature/id as the key
 		final Future< Object > future = executor.submit( task );
-		resultsCache.cacheResults( resultId, new ResultCacheEntry( future, serializer ) );
+		resultsCache.cache( createResultsCacheId( resultId ), new ResultCacheEntry( future, serializer ) );
 		
 		//
 		// create the response
@@ -514,7 +514,7 @@ public class RestfulDiffuserManagerResource {
 	private synchronized boolean isRunning( final String signature, final String requestId )
 	{
 		boolean isRunning = false;
-		final ResultCacheEntry entry = resultsCache.getResultFromCache( signature, requestId );
+		final ResultCacheEntry entry = resultsCache.get( createResultsCacheId( signature, requestId ) );
 		if( entry != null )
 		{
 			isRunning = !entry.isDone();
@@ -568,7 +568,7 @@ public class RestfulDiffuserManagerResource {
 		// return an OK status, otherwise, we haven't completed the runObject(...)
 		// method and we return a NO_CONTENT status.
 		Response response = null;
-		if( resultsCache.isResultCached( signature, resultId ) )
+		if( resultsCache.isCached( createResultsCacheId( signature, resultId ) ) )
 		{
 			// create the response
 			response = Response.ok().build();
@@ -608,7 +608,7 @@ public class RestfulDiffuserManagerResource {
 
 		Response response = null;
 		ResultCacheEntry result = null;
-		if( ( result = resultsCache.getResultFromCache( signature, requestId ) ) != null )
+		if( ( result = resultsCache.get( createResultsCacheId( signature, requestId ) ) ) != null )
 		{
 			Feed feed = null;
 			try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
@@ -619,7 +619,7 @@ public class RestfulDiffuserManagerResource {
 				serializer.serialize( object, output );
 				
 				// create the atom feed
-				final String resultKey = BasicResultsCache.createResultsCacheId( signature, requestId );
+				final String resultKey = createResultsCacheId( signature, requestId );
 				feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
 				
 				// create an entry for the feed and set the results as the content
@@ -651,7 +651,7 @@ public class RestfulDiffuserManagerResource {
 		}
 		else
 		{
-			final String resultKey = BasicResultsCache.createResultsCacheId( signature, requestId );
+			final String resultKey = createResultsCacheId( signature, requestId );
 			final Feed feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
 
 			final Entry entry = Atom.createEntry();
@@ -755,6 +755,30 @@ public class RestfulDiffuserManagerResource {
 		return response;
 	}
 		
+
+	/**
+	 * Creates the results cache ID used as the key into the {@link #resultsCache}.
+	 * @param signature The signature of the method that was executed
+	 * @param requestId The request ID that was specified as part of the {@link ExecuteDiffuserRequest}
+	 * @return The key for the {@link #resultsCache} {@link Map}.
+	 */
+	private static final String createResultsCacheId( final String signature, final String requestId )
+	{
+		return ResultId.create( signature, requestId );
+	}
+	
+	/**
+	 * Constructs the results cache ID used as the key into the {@link #resultsCache}. Returns the same
+	 * value as a call to:<p>
+	 * {@code ResultId.create( resultId.getSignature(), resultId.getRequestId() )}
+	 * @param resultId The {@link ResultId} object
+	 * @return The key into the results cache.
+	 */
+	private static final String createResultsCacheId( final ResultId resultId )
+	{
+		return resultId.getResultId();
+	}
+
 	/**
 	 * The entry into the results cache. Each entry holds the results object and the serializer
 	 * name used for serializing and deserializing the result object.
@@ -782,10 +806,10 @@ public class RestfulDiffuserManagerResource {
 			return serializerType;
 		}
 		
-		public Future< Object > getFuture()
-		{
-			return result;
-		}
+//		public Future< Object > getFuture()
+//		{
+//			return result;
+//		}
 		
 		/**
 		 * Blocks until the result is completed and then returns it

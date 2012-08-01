@@ -6,9 +6,16 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.freezedry.persistence.utils.Constants;
-import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 
-public class BasicResultsCache< T > {
+/**
+ * Basic cache for holding execution results. Manages the items cached, but doesn't know the details
+ * of the cache entries. Those details are left to the CacheEntry object.
+ * 
+ * @author Rob
+ *
+ * @param <T> Cache entry object
+ */
+public class BasicResultsCache< T > implements ResultsCache< T > {
 
 	private static final Logger LOGGER = Logger.getLogger( BasicResultsCache.class );
 	
@@ -18,12 +25,23 @@ public class BasicResultsCache< T > {
 	private final Map< String, T > resultsCache;
 	private int maxResultsCached;
 	
+	/**
+	 * Constructs a basic cache that holds the specified number of entries. When an item is added, and
+	 * that causes the number of items to exceed the maximum number of items, the oldest item is dropped.
+	 * @param maxResults The maximum number of cache entries allowed.
+	 */
 	public BasicResultsCache( final int maxResults )
 	{
 		resultsCache = new LinkedHashMap<>();
 		maxResultsCached = maxResults;
 	}
 	
+	/**
+	 * Constructs a basic cache that holds the default number of entries. When an item is added, and
+	 * that causes the number of items to exceed the maximum number of items, the oldest item is dropped.
+	 * 
+	 * The maximum number of cached items ({@link #MAX_RESULTS}) defaults to a value of {@value #MAX_RESULTS}.
+	 */
 	public BasicResultsCache()
 	{
 		this( MAX_RESULTS );
@@ -38,10 +56,10 @@ public class BasicResultsCache< T > {
 	 * serialize and deserialize it
 	 * @return the entry that was previously stored in the cache with this key
 	 */
-	public synchronized T cacheResults( final ResultId key, final T cacheEntry )
+	public synchronized T cache( final String key, final T cacheEntry )
 	{
 		// put the new result to the cache
-		final T previousResults = resultsCache.put( key.getResultId(), cacheEntry );
+		final T previousResults = resultsCache.put( key, cacheEntry );
 		if( LOGGER.isInfoEnabled() )
 		{
 			final StringBuffer message = new StringBuffer();
@@ -60,48 +78,33 @@ public class BasicResultsCache< T > {
 		return previousResults;
 	}
 
-	/**
-	 * Returns the result from the {@link #resultsCache} by generating the cache key from the
-	 * specified signature and request ID
-	 * @param signature The signature of the method that was executed
-	 * @param requestId The request ID that was specified as part of the {@link ExecuteDiffuserRequest}
-	 * @return the result from the {@link #resultsCache} associated with the specified signature 
-	 * and request ID 
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.diffuser.restful.resources.ResultsCache#getResultFromCache(java.lang.String)
 	 */
-	public synchronized T getResultFromCache( final String signature, final String requestId )
+	@Override
+	public T get( String key )
 	{
-		return resultsCache.get( createResultsCacheId( signature, requestId ) );
+		return resultsCache.get( key );
 	}
-	
-	/**
-	 * Returns true if the specified key is contained in the results cache; false otherwise
-	 * @param signature The signature of the method that was executed
-	 * @param requestId The request ID that was specified as part of the {@link ExecuteDiffuserRequest}
-	 * @return true if the specified key is contained in the results cache; false otherwise
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.diffuser.restful.resources.ResultsCache#isResultCached(java.lang.String)
 	 */
-	public synchronized boolean isResultCached( final String signature, final String requestId )
-	{
-		return resultsCache.containsKey( createResultsCacheId( signature, requestId ) );
-	}
-	
-	/**
-	 * Returns true if the specified key is contained in the results cache; false otherwise
-	 * @param key The key to the results object
-	 * @return true if the specified key is contained in the results cache; false otherwise
-	 */
-	public synchronized boolean isResultCached( final String key )
+	@Override
+	public synchronized boolean isCached( final String key )
 	{
 		return resultsCache.containsKey( key );
 	}
 	
-	/**
-	 * Creates the results cache ID used as the key into the {@link #resultsCache} {@link Map}.
-	 * @param signature The signature of the method that was executed
-	 * @param requestId The request ID that was specified as part of the {@link ExecuteDiffuserRequest}
-	 * @return The key for the {@link #resultsCache} {@link Map}.
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.diffuser.restful.resources.ResultsCache#remove(org.microtitan.diffusive.diffuser.restful.resources.ResultId)
 	 */
-	public static final String createResultsCacheId( final String signature, final String requestId )
+	@Override
+	public void remove( ResultId key )
 	{
-		return ResultId.create( signature, requestId );
+		resultsCache.remove( key );
 	}
 }
