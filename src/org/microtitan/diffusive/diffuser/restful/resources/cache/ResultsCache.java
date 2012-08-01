@@ -1,4 +1,6 @@
-package org.microtitan.diffusive.diffuser.restful.resources;
+package org.microtitan.diffusive.diffuser.restful.resources.cache;
+
+import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
 
 
 /**
@@ -7,7 +9,7 @@ package org.microtitan.diffusive.diffuser.restful.resources;
  * Implementations are not intended to manage the cached items. Rather the user of the cache should supply
  * the cache entry objects and should hide the details from the cache.
  * 
- * @author Rob
+ * @author Robert Philipp
  *
  * @param <T> Cache entry object
  */

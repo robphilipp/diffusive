@@ -1,4 +1,4 @@
-package org.microtitan.diffusive.diffuser.restful.resources;
+package org.microtitan.diffusive.diffuser.restful.resources.cache;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.freezedry.persistence.utils.Constants;
+import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
 
 /**
  * Basic cache for holding execution results. Manages the items cached, but doesn't know the details

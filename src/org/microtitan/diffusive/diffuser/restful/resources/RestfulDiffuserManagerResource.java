@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -37,6 +36,7 @@ import org.apache.abdera.model.Feed;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.classloaders.RestfulClassLoader;
+import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
@@ -44,6 +44,10 @@ import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.diffuser.restful.client.RestfulDiffuserManagerClient;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
+import org.microtitan.diffusive.diffuser.restful.resources.cache.BasicResultCacheEntry;
+import org.microtitan.diffusive.diffuser.restful.resources.cache.BasicResultsCache;
+import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultCacheEntry;
+import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
@@ -83,7 +87,7 @@ public class RestfulDiffuserManagerResource {
 	private final Map< String, DiffuserEntry > diffusers;
 	
 	// fields to manage the resultsCache cache
-	private final BasicResultsCache< ResultCacheEntry > resultsCache;
+	private final ResultsCache< BasicResultCacheEntry< Object > > resultsCache;
 	
 	private final ExecutorService executor;
 	private static final int THREAD_POOL_THREADS = 100;
@@ -93,14 +97,24 @@ public class RestfulDiffuserManagerResource {
 	 * diffuser created through this resource. 
 	 * @param The executor service to which tasks are submitted
 	 */
-	public RestfulDiffuserManagerResource( final ExecutorService executor )
+	public RestfulDiffuserManagerResource( final ExecutorService executor, final ResultsCache< BasicResultCacheEntry< Object > > resultsCache )
 	{
 		this.executor = executor;
 		
-		diffusers = new HashMap<>();
-		resultsCache = new BasicResultsCache<>( MAX_RESULTS_CACHED );
+		this.diffusers = new HashMap<>();
+		this.resultsCache = resultsCache;
 	}
 
+	/**
+	 * Constructs the basic diffuser manager resource that allows clients to interact with the
+	 * diffuser created through this resource. 
+	 * @param The executor service to which tasks are submitted
+	 */
+	public RestfulDiffuserManagerResource( final ExecutorService executor )
+	{
+		this( executor, new BasicResultsCache< BasicResultCacheEntry< Object > >( MAX_RESULTS_CACHED ) );
+	}
+	
 	/**
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
 	 * diffuser created through this resource. 
@@ -398,7 +412,7 @@ public class RestfulDiffuserManagerResource {
 		// submit the task to the executor service to run on a different thread,
 		// and put the future result into the results cache with the signature/id as the key
 		final Future< Object > future = executor.submit( task );
-		resultsCache.cache( createResultsCacheId( resultId ), new ResultCacheEntry( future, serializer ) );
+		resultsCache.cache( createResultsCacheId( resultId ), new BasicResultCacheEntry< Object >( future, serializer ) );
 		
 		//
 		// create the response
@@ -514,7 +528,7 @@ public class RestfulDiffuserManagerResource {
 	private synchronized boolean isRunning( final String signature, final String requestId )
 	{
 		boolean isRunning = false;
-		final ResultCacheEntry entry = resultsCache.get( createResultsCacheId( signature, requestId ) );
+		final ResultCacheEntry< Object > entry = resultsCache.get( createResultsCacheId( signature, requestId ) );
 		if( entry != null )
 		{
 			isRunning = !entry.isDone();
@@ -607,7 +621,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 
 		Response response = null;
-		ResultCacheEntry result = null;
+		ResultCacheEntry< Object > result = null;
 		if( ( result = resultsCache.get( createResultsCacheId( signature, requestId ) ) ) != null )
 		{
 			Feed feed = null;
@@ -780,107 +794,40 @@ public class RestfulDiffuserManagerResource {
 	}
 
 	/**
-	 * The entry into the results cache. Each entry holds the results object and the serializer
-	 * name used for serializing and deserializing the result object.
+	 * An entry used by the map of diffusers that contains the {@link Diffuser} and the list of class path end-points.
 	 *  
 	 * @author Robert Philipp
 	 */
-	private static class ResultCacheEntry {
-		
-		private final Future< Object > result;
-		private final String serializerType;
-		
-		public ResultCacheEntry( final Future< Object > result, final String serializerType )
-		{
-			this.result = result;
-			this.serializerType = serializerType;
-		}
-		
-		public ResultCacheEntry( final Future< Object > result, final Serializer serializer )
-		{
-			this( result, SerializerFactory.getSerializerName( serializer.getClass() ) );
-		}
-		
-		public String getSerializerType()
-		{
-			return serializerType;
-		}
-		
-//		public Future< Object > getFuture()
-//		{
-//			return result;
-//		}
-		
-		/**
-		 * Blocks until the result is completed and then returns it
-		 * @return the result object
-		 */
-		public Object getResult()
-		{
-			Object resultObject = null;
-			try
-			{
-				resultObject = result.get();
-			}
-			catch( InterruptedException e )
-			{
-				Thread.currentThread().interrupt();
-			}
-			catch( ExecutionException e )
-			{
-				throw new IllegalStateException( e );
-			}
-			return resultObject;
-		}
-		
-		/**
-		 * @return true if the result is complete; false otherwise
-		 */
-		public boolean isDone()
-		{
-			return result.isDone();
-		}
-		
-//		public boolean isCancelled()
-//		{
-//			return result.isCancelled();
-//		}
-	}
-	
 	private static class DiffuserEntry {
 		
 		private final RestfulDiffuser diffuser;
 		private final List< URI > classPaths;
-		
+
+		/**
+		 * Constructs an entry containing the {@link Diffuser} and the list of class path end-points
+		 * @param diffuser The {@link Diffuser}
+		 * @param classPaths The list of class path endpoints
+		 */
 		public DiffuserEntry( final RestfulDiffuser diffuser, final List< URI > classPaths )
 		{
 			this.diffuser = diffuser;
 			this.classPaths = classPaths;
 		}
 		
-//		public DiffuserEntry( final RestfulDiffuser diffuser )
-//		{
-//			this( diffuser, new ArrayList< URI >() );
-//		}
-		
+		/**
+		 * @return the diffuser associated with this entry
+		 */
 		public RestfulDiffuser getDiffuser()
 		{
 			return diffuser;
 		}
 		
+		/**
+		 * @return the list if {@link URI} representing the class path end-points
+		 */
 		public List< URI > getClassPaths()
         {
         	return classPaths;
         }
-
-//		public boolean addClassPath( final URI classPath )
-//		{
-//			return classPaths.add( classPath );
-//		}
-//		
-//		public boolean removeClassPath( final URI classPath )
-//		{
-//			return classPaths.remove( classPath );
-//		}
 	}
 }

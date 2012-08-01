@@ -25,6 +25,8 @@ public class MultiThreadedCalc {
 			tasks.add( new Task( i, (int)(random.nextFloat() * 25_000 ) ) );
 		}
 		
+		final long start = System.currentTimeMillis();
+
 		// create the completion service that allows us to poll for the results
 		final CompletionService< Result > completionService = new ExecutorCompletionService<>( executor );
 		for( final Task task : tasks )
@@ -53,6 +55,8 @@ public class MultiThreadedCalc {
 		}
 		finally
 		{
+			System.out.println( "done: " + (double)(System.currentTimeMillis() - start)/1000 + " s" );
+
 			// done, shutdown the thread pool (program won't exit until the thread pool resources are shut down.
 			System.out.println( "Shutting down the threads" );
 			executor.shutdown();

@@ -151,7 +151,7 @@ public class RestfulDiffuserServer {
 	public static void main( String[] args )
 	{
 		DOMConfigurator.configure( "log4j.xml" );
-		Logger.getRootLogger().setLevel( Level.DEBUG );
+		Logger.getRootLogger().setLevel( Level.ERROR );
 
 		// ensure that a class has been specified (the class must have a main)
 		if( args.length < 1 )
