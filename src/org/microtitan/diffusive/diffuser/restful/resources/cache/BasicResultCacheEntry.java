@@ -12,7 +12,7 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
  * 
  * @author Robert Philipp
  */
-public class BasicResultCacheEntry< T > implements ResultCacheEntry< T > {
+public class BasicResultCacheEntry< T > {
 
 	private final Future< T > result;
 	private final String serializerType;
@@ -28,20 +28,11 @@ public class BasicResultCacheEntry< T > implements ResultCacheEntry< T > {
 		this( result, SerializerFactory.getSerializerName( serializer.getClass() ) );
 	}
 
-	/* (non-Javadoc)
-	 * @see org.microtitan.diffusive.diffuser.restful.resources.ResultCacheEntry#getSerializerType()
-	 */
-	@Override
 	public String getSerializerType()
 	{
 		return serializerType;
 	}
 
-	/*
-	 *  (non-Javadoc)
-	 * @see org.microtitan.diffusive.diffuser.restful.resources.ResultCacheEntry#getResult()
-	 */
-	@Override
 	public T getResult()
 	{
 		T resultObject = null;
@@ -60,10 +51,6 @@ public class BasicResultCacheEntry< T > implements ResultCacheEntry< T > {
 		return resultObject;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.microtitan.diffusive.diffuser.restful.resources.ResultCacheEntry#isDone()
-	 */
-	@Override
 	public boolean isDone()
 	{
 		return result.isDone();

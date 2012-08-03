@@ -13,7 +13,7 @@ package org.microtitan.diffusive.cache;
  * @param <K> The key to the cache entry
  * @param <E> Cache entry object
  */
-public interface ResultsCache< K, E > {
+public interface Cache< K, E > {
 
 	/**
 	 * Adds a result to the resultsCache cache. If the addition of this result causes the

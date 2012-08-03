@@ -46,7 +46,6 @@ import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.BasicResultCacheEntry;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.BasicResultsCache;
-import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultCacheEntry;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
@@ -86,7 +85,7 @@ public class RestfulDiffuserManagerResource {
 	private final Map< String, DiffuserEntry > diffusers;
 	
 	// fields to manage the resultsCache cache
-	private final BasicResultsCache< BasicResultCacheEntry< Object > > resultsCache;
+	private final BasicResultsCache resultsCache;
 	
 	private final ExecutorService executor;
 	private static final int THREAD_POOL_THREADS = 100;
@@ -96,7 +95,7 @@ public class RestfulDiffuserManagerResource {
 	 * diffuser created through this resource. 
 	 * @param The executor service to which tasks are submitted
 	 */
-	public RestfulDiffuserManagerResource( final ExecutorService executor, final BasicResultsCache< BasicResultCacheEntry< Object > > resultsCache )
+	public RestfulDiffuserManagerResource( final ExecutorService executor, final BasicResultsCache resultsCache )
 	{
 		this.executor = executor;
 		
@@ -111,7 +110,7 @@ public class RestfulDiffuserManagerResource {
 	 */
 	public RestfulDiffuserManagerResource( final ExecutorService executor )
 	{
-		this( executor, new BasicResultsCache< BasicResultCacheEntry< Object > >( MAX_RESULTS_CACHED ) );
+		this( executor, new BasicResultsCache( MAX_RESULTS_CACHED ) );
 	}
 	
 	/**
@@ -519,23 +518,6 @@ public class RestfulDiffuserManagerResource {
 	}
 	
 	/*
-	 * Returns true if the task is still running; false otherwise
-	 * @param signature The signature of the task
-	 * @param requestId The ID associated with the request
-	 * @return true if the task is still running; false otherwise
-	 */
-	private synchronized boolean isRunning( final String signature, final String requestId )
-	{
-		boolean isRunning = false;
-		final ResultCacheEntry< Object > entry = resultsCache.get( createResultsCacheId( signature, requestId ) );
-		if( entry != null )
-		{
-			isRunning = !entry.isDone();
-		}
-		return isRunning;
-	}
-	
-	/*
 	 * Deserializes the object in the specified execute diffuser request and returns it. Uses the 
 	 * serializer and the class type specified in the request.
 	 * @param request The execute diffuser request that holds the object
@@ -620,8 +602,9 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 
 		Response response = null;
-		ResultCacheEntry< Object > result = null;
-		if( ( result = resultsCache.get( createResultsCacheId( signature, requestId ) ) ) != null )
+		BasicResultCacheEntry< Object > result = null;
+		final String cacheKey = createResultsCacheId( signature, requestId );
+		if( ( result = resultsCache.get( cacheKey ) ) != null )
 		{
 			Feed feed = null;
 			try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
@@ -632,8 +615,7 @@ public class RestfulDiffuserManagerResource {
 				serializer.serialize( object, output );
 				
 				// create the atom feed
-				final String resultKey = createResultsCacheId( signature, requestId );
-				feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
+				feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
 				
 				// create an entry for the feed and set the results as the content
 				final Entry entry = Atom.createEntry();
@@ -658,14 +640,13 @@ public class RestfulDiffuserManagerResource {
 				throw new IllegalArgumentException( message.toString() );
 			}
 		}
-		else if( isRunning( signature, requestId ) )
+		else if( resultsCache.isRunning( cacheKey ) )
 		{
 			response = Response.noContent().build();
 		}
 		else
 		{
-			final String resultKey = createResultsCacheId( signature, requestId );
-			final Feed feed = Atom.createFeed( resultUri, resultKey, date, uriInfo.getBaseUri() );
+			final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
 
 			final Entry entry = Atom.createEntry();
 			entry.setId( requestId );
