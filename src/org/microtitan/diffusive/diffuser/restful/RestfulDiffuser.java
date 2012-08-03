@@ -25,6 +25,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	private final List< URI > clientEndpoints;
 	private final List< URI > classPaths;
 	
+	// TODO the diffuser should be handed a strategy instead of a list of end-points
+	
 	/**
 	 * 
 	 * @param serializer The object that converts the object into and out of the form that is transmitted across
@@ -163,17 +165,10 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				throw new IllegalArgumentException( message.toString() );
 			}
 
-			// grab the result of the call by polling until the result is returned
+			// ask for the result, which blocks until the result returns
 			final DiffuserId diffuserId = DiffuserId.parse( executeResponse.getSignature() );
 			final Class< ? > clazz = diffuserId.getClazz();
-//			final String resultId = executeResponse.getResultId();
-//			while( !client.isComplete( resultId ) )
-//			{
-//				// wait
-//				try{ Thread.sleep( 500 ); } catch( InterruptedException e ) {}
-//			}
 
-			// ask for the result, which blocks until the result returns
 			result = client.getResult( returnType, clazz, methodName, executeResponse.getRequestId(), serializer );
 		}
 		return result;
