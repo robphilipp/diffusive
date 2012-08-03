@@ -44,8 +44,8 @@ import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.diffuser.restful.client.RestfulDiffuserManagerClient;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
-import org.microtitan.diffusive.diffuser.restful.resources.cache.BasicResultCacheEntry;
-import org.microtitan.diffusive.diffuser.restful.resources.cache.BasicResultsCache;
+import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultCacheEntry;
+import org.microtitan.diffusive.diffuser.restful.resources.cache.FifoResultsCache;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
@@ -85,7 +85,7 @@ public class RestfulDiffuserManagerResource {
 	private final Map< String, DiffuserEntry > diffusers;
 	
 	// fields to manage the resultsCache cache
-	private final BasicResultsCache resultsCache;
+	private final FifoResultsCache resultsCache;
 	
 	private final ExecutorService executor;
 	private static final int THREAD_POOL_THREADS = 100;
@@ -95,7 +95,7 @@ public class RestfulDiffuserManagerResource {
 	 * diffuser created through this resource. 
 	 * @param The executor service to which tasks are submitted
 	 */
-	public RestfulDiffuserManagerResource( final ExecutorService executor, final BasicResultsCache resultsCache )
+	public RestfulDiffuserManagerResource( final ExecutorService executor, final FifoResultsCache resultsCache )
 	{
 		this.executor = executor;
 		
@@ -110,7 +110,7 @@ public class RestfulDiffuserManagerResource {
 	 */
 	public RestfulDiffuserManagerResource( final ExecutorService executor )
 	{
-		this( executor, new BasicResultsCache( MAX_RESULTS_CACHED ) );
+		this( executor, new FifoResultsCache( MAX_RESULTS_CACHED ) );
 	}
 	
 	/**
@@ -410,7 +410,7 @@ public class RestfulDiffuserManagerResource {
 		// submit the task to the executor service to run on a different thread,
 		// and put the future result into the results cache with the signature/id as the key
 		final Future< Object > future = executor.submit( task );
-		resultsCache.add( createResultsCacheId( resultId ), new BasicResultCacheEntry< Object >( future, serializer ) );
+		resultsCache.add( createResultsCacheId( resultId ), new ResultCacheEntry< Object >( future, serializer ) );
 		
 		//
 		// create the response
@@ -602,7 +602,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 
 		Response response = null;
-		BasicResultCacheEntry< Object > result = null;
+		ResultCacheEntry< Object > result = null;
 		final String cacheKey = createResultsCacheId( signature, requestId );
 		if( ( result = resultsCache.get( cacheKey ) ) != null )
 		{

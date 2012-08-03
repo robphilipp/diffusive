@@ -12,18 +12,18 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
  * 
  * @author Robert Philipp
  */
-public class BasicResultCacheEntry< T > {
+public class ResultCacheEntry< T > {
 
 	private final Future< T > result;
 	private final String serializerType;
 
-	public BasicResultCacheEntry( final Future< T > result, final String serializerType )
+	public ResultCacheEntry( final Future< T > result, final String serializerType )
 	{
 		this.result = result;
 		this.serializerType = serializerType;
 	}
 
-	public BasicResultCacheEntry( final Future< T > result, final Serializer serializer )
+	public ResultCacheEntry( final Future< T > result, final Serializer serializer )
 	{
 		this( result, SerializerFactory.getSerializerName( serializer.getClass() ) );
 	}

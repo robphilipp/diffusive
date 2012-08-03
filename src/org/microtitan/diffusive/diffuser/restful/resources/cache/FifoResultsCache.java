@@ -10,7 +10,7 @@ import org.microtitan.diffusive.cache.FifoCache;
  *
  * @param <T> Cache entry object
  */
-public class BasicResultsCache extends FifoCache< String, BasicResultCacheEntry< Object > > {
+public class FifoResultsCache extends FifoCache< String, ResultCacheEntry< Object > > {
 
 //	private static final Logger LOGGER = Logger.getLogger( BasicResultsCache.class );
 	
@@ -25,7 +25,7 @@ public class BasicResultsCache extends FifoCache< String, BasicResultCacheEntry<
 	 * that causes the number of items to exceed the maximum number of items, the oldest item is dropped.
 	 * @param maxResults The maximum number of cache entries allowed.
 	 */
-	public BasicResultsCache( final int maxResults )
+	public FifoResultsCache( final int maxResults )
 	{
 		super( maxResults );
 	}
@@ -36,7 +36,7 @@ public class BasicResultsCache extends FifoCache< String, BasicResultCacheEntry<
 	 * 
 	 * The maximum number of cached items ({@link #MAX_RESULTS}) defaults to a value of {@value #MAX_RESULTS}.
 	 */
-	public BasicResultsCache()
+	public FifoResultsCache()
 	{
 		this( MAX_RESULTS );
 	}
@@ -50,7 +50,7 @@ public class BasicResultsCache extends FifoCache< String, BasicResultCacheEntry<
 	public synchronized boolean isRunning( final String key )
 	{
 		boolean isRunning = false;
-		final BasicResultCacheEntry< Object > entry = get( key );
+		final ResultCacheEntry< Object > entry = get( key );
 		if( entry != null )
 		{
 			isRunning = !entry.isDone();
