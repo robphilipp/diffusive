@@ -1,6 +1,5 @@
-package org.microtitan.diffusive.diffuser.restful.resources.cache;
+package org.microtitan.diffusive.cache;
 
-import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
 
 
 /**
@@ -11,9 +10,10 @@ import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
  * 
  * @author Robert Philipp
  *
- * @param <T> Cache entry object
+ * @param <K> The key to the cache entry
+ * @param <E> Cache entry object
  */
-public interface ResultsCache< T > {
+public interface ResultsCache< K, E > {
 
 	/**
 	 * Adds a result to the resultsCache cache. If the addition of this result causes the
@@ -23,14 +23,8 @@ public interface ResultsCache< T > {
 	 * @param cacheEntry The entry associated with the cache key
 	 * @return the entry that was previously stored in the cache with this key
 	 */
-	T cache( final String key, final T cacheEntry );
+	E add( final K key, final E cacheEntry );
 	
-	/**
-	 * Removes the entry with the specified key from the cache
-	 * @param key The key for the cache
-	 */
-	void remove( final ResultId key );
-
 	/**
 	 * Returns the result from the {@link #resultsCache} by generating the cache key from the
 	 * specified signature and request ID
@@ -38,12 +32,18 @@ public interface ResultsCache< T > {
 	 * @return the result from the {@link #resultsCache} associated with the specified signature 
 	 * and request ID 
 	 */
-	T get( final String key );
+	E get( final K key );
 	
 	/**
 	 * Returns true if the specified key is contained in the results cache; false otherwise
 	 * @param key The key for the cache
 	 * @return true if the specified key is contained in the results cache; false otherwise
 	 */
-	boolean isCached( final String key );
+	boolean isCached( final K key );
+
+	/**
+	 * Removes the entry with the specified key from the cache
+	 * @param key The key for the cache
+	 */
+	void remove( final K key );
 }

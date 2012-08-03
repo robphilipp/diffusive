@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.freezedry.persistence.utils.Constants;
-import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
+import org.microtitan.diffusive.cache.ResultsCache;
 
 /**
  * Basic cache for holding execution results. Manages the items cached, but doesn't know the details
@@ -16,7 +16,7 @@ import org.microtitan.diffusive.diffuser.restful.resources.ResultId;
  *
  * @param <T> Cache entry object
  */
-public class BasicResultsCache< T > implements ResultsCache< T > {
+public class BasicResultsCache< T > implements ResultsCache< String, T > {
 
 	private static final Logger LOGGER = Logger.getLogger( BasicResultsCache.class );
 	
@@ -57,7 +57,7 @@ public class BasicResultsCache< T > implements ResultsCache< T > {
 	 * serialize and deserialize it
 	 * @return the entry that was previously stored in the cache with this key
 	 */
-	public synchronized T cache( final String key, final T cacheEntry )
+	public synchronized T add( final String key, final T cacheEntry )
 	{
 		// put the new result to the cache
 		final T previousResults = resultsCache.put( key, cacheEntry );
@@ -104,7 +104,7 @@ public class BasicResultsCache< T > implements ResultsCache< T > {
 	 * @see org.microtitan.diffusive.diffuser.restful.resources.ResultsCache#remove(org.microtitan.diffusive.diffuser.restful.resources.ResultId)
 	 */
 	@Override
-	public void remove( ResultId key )
+	public void remove( final String key )
 	{
 		resultsCache.remove( key );
 	}

@@ -47,7 +47,6 @@ import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.BasicResultCacheEntry;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.BasicResultsCache;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultCacheEntry;
-import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
@@ -87,7 +86,7 @@ public class RestfulDiffuserManagerResource {
 	private final Map< String, DiffuserEntry > diffusers;
 	
 	// fields to manage the resultsCache cache
-	private final ResultsCache< BasicResultCacheEntry< Object > > resultsCache;
+	private final BasicResultsCache< BasicResultCacheEntry< Object > > resultsCache;
 	
 	private final ExecutorService executor;
 	private static final int THREAD_POOL_THREADS = 100;
@@ -97,7 +96,7 @@ public class RestfulDiffuserManagerResource {
 	 * diffuser created through this resource. 
 	 * @param The executor service to which tasks are submitted
 	 */
-	public RestfulDiffuserManagerResource( final ExecutorService executor, final ResultsCache< BasicResultCacheEntry< Object > > resultsCache )
+	public RestfulDiffuserManagerResource( final ExecutorService executor, final BasicResultsCache< BasicResultCacheEntry< Object > > resultsCache )
 	{
 		this.executor = executor;
 		
@@ -412,7 +411,7 @@ public class RestfulDiffuserManagerResource {
 		// submit the task to the executor service to run on a different thread,
 		// and put the future result into the results cache with the signature/id as the key
 		final Future< Object > future = executor.submit( task );
-		resultsCache.cache( createResultsCacheId( resultId ), new BasicResultCacheEntry< Object >( future, serializer ) );
+		resultsCache.add( createResultsCacheId( resultId ), new BasicResultCacheEntry< Object >( future, serializer ) );
 		
 		//
 		// create the response
