@@ -14,4 +14,9 @@ public interface DiffuserStrategy {
 	 * should return an end-point based on the implementing classes strategy.
 	 */
 	URI getEndpoint();
+	
+	/**
+	 * @return true if the strategy has no end points
+	 */
+	boolean isEmpty();
 }

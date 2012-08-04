@@ -15,31 +15,37 @@ import org.microtitan.diffusive.diffuser.restful.client.RestfulDiffuserManagerCl
 import org.microtitan.diffusive.diffuser.restful.response.ExecuteDiffuserResponse;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
+import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 
+/**
+ * A diffuser that uses REST to diffuser methods to remote RESTful diffusers, or runs the task locally.
+ * To diffuse to a remote diffuser, this diffuser instantiates a RESTful client 
+ * ({@link RestfulDiffuserManagerClient}) that is then used to send the task to the remote server.
+ *  
+ * @author Robert Philipp
+ */
 public class RestfulDiffuser extends AbstractDiffuser {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuser.class );
 	
 	// used to serialize objects for making requests across the network
 	private final Serializer serializer;
-	private final List< URI > clientEndpoints;
-//	private final DiffuserStrategy strategy;
+	private final DiffuserStrategy strategy;
 	private final List< URI > classPaths;
 	
-	// TODO the diffuser should be handed a strategy instead of a list of end-points
-	
 	/**
-	 * 
+	 * Constructs the RESTful diffuser that runs methods either locally or sends them on to a remote
+	 * RESTful diffuser.
 	 * @param serializer The object that converts the object into and out of the form that is transmitted across
 	 * the wire.
-	 * @param clientEndpoints The URIs at which other diffusers are located, which this diffuser can call.
+	 * @param strategy The diffuser strategy that determines which end-point will get called next
+	 * @param classPaths The class paths on a remote server needed for loading classes that aren't 
+	 * locally available 
 	 */
-	public RestfulDiffuser( final Serializer serializer, final List< URI > clientEndpoints, final List< URI > classPaths )
-//	public RestfulDiffuser( final Serializer serializer, final DiffuserStrategy strategy, final List< URI > classPaths )
+	public RestfulDiffuser( final Serializer serializer, final DiffuserStrategy strategy, final List< URI > classPaths )
 	{
 		this.serializer = serializer;
-		this.clientEndpoints = clientEndpoints;
-//		this.strategy = strategy;
+		this.strategy = strategy;
 		this.classPaths = classPaths;
 	}
 	
@@ -52,7 +58,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	{
 		// TODO develop execution-performance based approach to determining whether to run locally or remotely, as well as the current approach.
 		T result = null;
-		if( isRemoteCall || clientEndpoints == null || clientEndpoints.isEmpty() ) // and it meets other conditions for local execution
+		if( isRemoteCall || strategy.isEmpty() ) // and it meets other conditions for local execution
 		{
 			if( LOGGER.isInfoEnabled() )
 			{
@@ -63,7 +69,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				{
 					message.append( "call to runObject(...) came from a remote call." + Constants.NEW_LINE );
 				}
-				else if( clientEndpoints == null || clientEndpoints.isEmpty() )
+				else if( strategy.isEmpty() )
 				{
 					message.append( "RESTful diffuser was not assigned any client end-points." + Constants.NEW_LINE );
 				}
@@ -74,9 +80,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		}
 		else
 		{
-			// create the client manager for the first endpoint in the list
-			// TODO develop a better method for picking an endpoint
-			final URI endpoint = clientEndpoints.get( 0 );
+			// create the client manager for the next end point from the strategy
+			final URI endpoint = strategy.getEndpoint();
 			final RestfulDiffuserManagerClient client = new RestfulDiffuserManagerClient( endpoint );
 
 			// create the diffuser on the server
@@ -186,11 +191,13 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	{
 		final StringBuffer buffer = new StringBuffer();
 		buffer.append( "Serializer: " + serializer.toString() + Constants.NEW_LINE );
-		buffer.append( "Client Endpoints: " + Constants.NEW_LINE );
-		for( URI uri : clientEndpoints )
-		{
-			buffer.append( "  " + uri.toString() + Constants.NEW_LINE );
-		}
+		buffer.append( "Strategy: " + strategy.getClass().getName() + Constants.NEW_LINE );
+		buffer.append( strategy.toString() );
+//		buffer.append( "Client Endpoints: " + Constants.NEW_LINE );
+//		for( URI uri : clientEndpoints )
+//		{
+//			buffer.append( "  " + uri.toString() + Constants.NEW_LINE );
+//		}
 		return buffer.toString();
 	}
 }

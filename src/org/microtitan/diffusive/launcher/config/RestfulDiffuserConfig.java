@@ -14,6 +14,8 @@ import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManage
 import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
+import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
+import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 
 /**
@@ -56,9 +58,9 @@ public class RestfulDiffuserConfig {
 		// into the repository (needed by the Javassist diffuser method replacement)
 //		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.OBJECT.getName() );
 		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.PERSISTENCE_XML.getName() );
-		final List< URI > clientEndpoints = createEndpointList();
+		final DiffuserStrategy strategy = createStrategy();
 		final List< URI > classPaths = createClassPathList();
-		final Diffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints, classPaths );
+		final Diffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths );
 		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
 	}
 	
@@ -74,6 +76,15 @@ public class RestfulDiffuserConfig {
 			endpoints.add( URI.create( client + RestfulDiffuserManagerResource.DIFFUSER_PATH ) );
 		}
 		return endpoints;
+	}
+	
+	/**
+	 * @return a {@link List} of {@link URI} that hold the location of endpoints to which the
+	 * local {@link RestfulDiffuser} can diffuse method calls.
+	 */
+	private static DiffuserStrategy createStrategy()
+	{
+		return new RandomDiffuserStrategy( createEndpointList() );
 	}
 	
 	/**

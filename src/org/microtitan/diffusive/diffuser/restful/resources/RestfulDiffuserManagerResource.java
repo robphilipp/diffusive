@@ -92,6 +92,9 @@ public class RestfulDiffuserManagerResource {
 	private final ExecutorService executor;
 	private static final int THREAD_POOL_THREADS = 100;
 	
+	// the strategy that is applied to diffusers created by this resource.
+	// recall that the strategy determines the order and number of times an
+	// end-point is called.
 	private final DiffuserStrategy diffuserStrategy;
 
 	/**
@@ -158,7 +161,7 @@ public class RestfulDiffuserManagerResource {
 						   final List< String > argumentTypes )
 	{
 		// create the diffuser
-		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, clientEndpoints, classPaths );
+		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths );
 		
 		// create the name/id for the diffuser
 		final String key = DiffuserId.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );

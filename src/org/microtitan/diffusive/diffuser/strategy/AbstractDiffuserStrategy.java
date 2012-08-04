@@ -3,6 +3,8 @@ package org.microtitan.diffusive.diffuser.strategy;
 import java.net.URI;
 import java.util.List;
 
+import org.microtitan.diffusive.Constants;
+
 
 /**
  * Abstract class that deals with the {@link List} of end-point {@link URI}. Implementing classes
@@ -42,5 +44,30 @@ public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 	public final URI removeEndpoint( final int index )
 	{
 		return endpoints.remove( index );
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy#isEmpty()
+	 */
+	@Override
+	public boolean isEmpty()
+	{
+		return ( endpoints == null || endpoints.isEmpty() );
+	}
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		final StringBuffer buffer = new StringBuffer();
+		buffer.append( "Client Endpoints: " + Constants.NEW_LINE );
+		for( URI uri : endpoints )
+		{
+			buffer.append( "  " + uri.toString() + Constants.NEW_LINE );
+		}
+		return buffer.toString();
 	}
 }
