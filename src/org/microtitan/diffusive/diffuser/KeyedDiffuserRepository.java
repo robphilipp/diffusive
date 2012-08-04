@@ -18,7 +18,7 @@ public class KeyedDiffuserRepository {
 	// registries
 	private static final Map< Object, KeyedDiffuserRepository > instances;
 
-	// create a shared calc-model registry that can be accessed by anyone
+	// create a shared diffuser registry that can be accessed by anyone
 	public static class SharedRegistry {}
 	static 
 	{
@@ -40,10 +40,10 @@ public class KeyedDiffuserRepository {
 	}
 	
 	/**
-	 * Returns the named INSTANCE if the key exists, or a new object
+	 * Returns the named instance if the key exists, or a new object
 	 * with the key name if the key doesn't already exist. 
-	 * @param key The key associated, or to be associated, with the registry INSTANCE
-	 * @return the named INSTANCE if the key exists, or a new object if the key 
+	 * @param key The key associated, or to be associated, with the registry instance
+	 * @return the named instance if the key exists, or a new object if the key 
 	 * doesn't exist
 	 */
 	public static KeyedDiffuserRepository getInstance( final Object key )
@@ -55,7 +55,7 @@ public class KeyedDiffuserRepository {
 
 			if( instance == null )
 			{
-				// lazily create INSTANCE
+				// lazily create instance
 				instance = new KeyedDiffuserRepository();
 
 				// add it to map
@@ -85,7 +85,7 @@ public class KeyedDiffuserRepository {
 			instance = instances.get( key );
 
 			// if key exists, then add the new object to the map as a
-			// a key to the same INSTANCE
+			// a key to the same instance
 			if( instance != null )
 			{
 				// add the new key to the map of instances
@@ -159,14 +159,29 @@ public class KeyedDiffuserRepository {
 		}
 	}
 
+	/**
+	 * Deletes the repository associated with the specified key
+	 * @param key The key associated with the repository to be deleted
+	 * @return The repository that was deleted; or null if no such key exists.
+	 */
 	public static KeyedDiffuserRepository deleteRepository( final Object key )
 	{
-		return instances.remove( key );
+		synchronized( instances )
+		{
+			return instances.remove( key );
+		}
 	}
 	
+	/**
+	 * Deletes this repository instance from the available repositories
+	 * @return This repository instance from the available repositories
+	 */
 	public KeyedDiffuserRepository deleteRepository()
 	{
-		return instances.remove( getKey() );
+		synchronized( instances )
+		{
+			return instances.remove( getKey() );
+		}
 	}
 	
 	/**

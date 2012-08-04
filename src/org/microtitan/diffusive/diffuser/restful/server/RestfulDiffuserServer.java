@@ -1,9 +1,11 @@
-package org.microtitan.diffusive.diffuser.restful;
+package org.microtitan.diffusive.diffuser.restful.server;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 
@@ -13,6 +15,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.utils.Constants;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 
@@ -33,7 +36,11 @@ public class RestfulDiffuserServer {
 	private static final String SERVER_SCHEME = "http";
 	public static final String DEFAULT_SERVER_URI = createDefaultServerUri( SERVER_SCHEME, SERVER_PORT );
 	
-	private HttpServer server;
+	public static final String DEFAULT_CONFIGURATION_CLASS = "";
+	
+	private final HttpServer server;
+	private final List< String > configurationClasses;
+
 	
 	/**
 	 * Creates a starts the RESTful diffuser server listening at the specified server URI and using the 
@@ -41,9 +48,12 @@ public class RestfulDiffuserServer {
 	 * @param serverUri The URI for this RESTful diffuser (i.e. the URI at which others would call this diffuser)
 	 * @param application The JAX-RS application that contains information about the resources that contain the JAX-RS bindings
 	 */
-	public RestfulDiffuserServer( final URI serverUri, final RestfulDiffuserApplication application )
+	public RestfulDiffuserServer( final URI serverUri, 
+								  final RestfulDiffuserApplication application,
+								  final List< String > configurationClasses )
 	{
 		this.server = createHttpServer( serverUri, application );
+		this.configurationClasses = configurationClasses;
 	}
 	
 	/*
@@ -154,7 +164,7 @@ public class RestfulDiffuserServer {
 		Logger.getRootLogger().setLevel( Level.ERROR );
 
 		// ensure that a class has been specified (the class must have a main)
-		if( args.length < 1 )
+		if( args.length < 2 )
 		{
 			System.out.println();
 			System.out.println( "+-------------------------------------+" );
@@ -163,7 +173,7 @@ public class RestfulDiffuserServer {
 			System.out.println( "|  **** Running simple test code **** |" );
 			System.out.println( "+-------------------------------------+" );
 			System.out.println();
-			args = new String[] { DEFAULT_SERVER_URI };
+			args = new String[] { DEFAULT_SERVER_URI, DEFAULT_CONFIGURATION_CLASS };
 		}
 		
 		// TODO this needs to be set up through a configuration or programatically. Probably best through a RESTfulDiffusiveLauncher,
@@ -175,7 +185,8 @@ public class RestfulDiffuserServer {
 		application.addPerRequestResource( RestfulClassPathResource.class );
 
 		final URI serverUri = URI.create( args[ 0 ] );
-		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
+		final List< String > configClasses = Arrays.asList( args[ 1 ] );
+		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application, configClasses );
 				
 		System.out.println( String.format( "Jersy app start with WADL available at %sapplication.wadl", serverUri ) );
 		System.out.println( String.format( "Try out %s.", serverUri ) );

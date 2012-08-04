@@ -39,13 +39,13 @@ import org.microtitan.diffusive.classloaders.RestfulClassLoader;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.diffuser.restful.client.RestfulDiffuserManagerClient;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultCacheEntry;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.FifoResultsCache;
+import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
@@ -169,8 +169,8 @@ public class RestfulDiffuserManagerResource {
 	 * <ul>
 	 * 	<li>The {@link Serializer} used to serialize (marshal) and deserialize (unmarshal) the objects that
 	 * 		get flung across the network.</li>
-	 * 	<li>The end-points containing {@link RestfulDiffuser}s to which the new {@link RestfulDiffuser} can 
-	 * 		diffuse method calls.</li>
+	 * 	<li>Any additional end-points containing {@link RestfulDiffuser}s to which the new {@link RestfulDiffuser}
+	 * 		can diffuse method calls. The base endpoints are specified in the configuration.</li>
 	 * 	<li>The return type</li>
 	 * 	<li>The {@link Class} containing the diffused method.</li>
 	 * 	<li>The name of the diffused method</li>

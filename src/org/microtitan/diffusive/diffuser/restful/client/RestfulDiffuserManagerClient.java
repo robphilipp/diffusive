@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
@@ -25,6 +24,7 @@ import org.microtitan.diffusive.diffuser.restful.response.CreateDiffuserResponse
 import org.microtitan.diffusive.diffuser.restful.response.DeleteDiffuserResponse;
 import org.microtitan.diffusive.diffuser.restful.response.ExecuteDiffuserResponse;
 import org.microtitan.diffusive.diffuser.restful.response.ListDiffuserResponse;
+import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.XmlPersistenceSerializer;
@@ -165,6 +165,13 @@ public class RestfulDiffuserManagerClient {
 		return new CreateDiffuserResponse( feed );
 	}
 	
+	/**
+	 * Converts a {@link List} of {@link URI} into a {@link List} of {@link String}s that represent the
+	 * {@link URI}. Effectively, iterates through the list of URI calling the {@link URI#toString()} method
+	 * on each and adding that to the return list.
+	 * @param classPathUri The URI representing the remote class path
+	 * @return a {@link List} of URI represented as {@link String}s.
+	 */
 	private static List< String > convertClassPaths( final List< URI > classPathUri )
 	{
 		final List< String > classPaths = new ArrayList<>();

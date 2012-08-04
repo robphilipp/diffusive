@@ -9,9 +9,9 @@ import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
+import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
@@ -27,7 +27,7 @@ import org.microtitan.diffusive.launcher.DiffusiveLauncher;
  */
 public class RestfulDiffuserConfig {
 	
-	// holds the list of client endpoints to which diffused methods are sent. the host must
+	// holds the list of client endpoints to which diffused methods are sent. the end-point must
 	// have a restful diffusive server running that can accept requests.
 	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
 //	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.4:8182" );
@@ -41,7 +41,7 @@ public class RestfulDiffuserConfig {
 	
 	/**
 	 * Method that is called to configure the Diffusive framework. In particular, creates a 
-	 * {@link RestfulDiffuser} with the specified diffusion endpoints and the class path URI
+	 * {@link RestfulDiffuser} with the specified diffusion end-points and the class path URI
 	 * passed to the remote restful diffuser so that it can load classes for which it needs to 
 	 * run diffused methods.
 	 * 
@@ -52,7 +52,7 @@ public class RestfulDiffuserConfig {
 	@DiffusiveConfiguration
 	public static final void configure()
 	{
-		// create a default diffuser, load the diffuser repository, and set the defualt diffuser
+		// create a default diffuser, load the diffuser repository, and set the default diffuser
 		// into the repository (needed by the Javassist diffuser method replacement)
 //		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.OBJECT.getName() );
 		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.PERSISTENCE_XML.getName() );
@@ -62,7 +62,7 @@ public class RestfulDiffuserConfig {
 		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
 	}
 	
-	/*
+	/**
 	 * @return a {@link List} of {@link URI} that hold the location of endpoints to which the
 	 * local {@link RestfulDiffuser} can diffuse method calls.
 	 */
@@ -76,7 +76,7 @@ public class RestfulDiffuserConfig {
 		return endpoints;
 	}
 	
-	/*
+	/**
 	 * @return a {@link List} of {@link URI} holding the location from which a {@link RestfulClassLoader}
 	 * can load local classes. To each URI in the list, the resource path is appended.
 	 */

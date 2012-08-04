@@ -322,7 +322,7 @@ public class DiffusiveLoader extends Loader {
 		super.run( classname, args );
 	}
 
-	/*
+	/**
 	 * Invokes the methods of the classes specified in the {@link #configurationClasses} list
 	 * that are annotated with @{@link DiffusiveConfiguration}.
 	 * 

@@ -16,7 +16,7 @@ import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserServer;
+import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 import org.microtitan.diffusive.tests.threaded.MultiThreadedCalc;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;

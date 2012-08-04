@@ -89,6 +89,7 @@ public class CreateDiffuserRequest {
 	 * @param classPaths A list of URI (represented as strings) used to load classes remotely.
 	 * @param className The name of class containing the method that is diffused by this diffuser.
 	 * @param methodName The name of the method to diffuse
+	 * @param returnTypeClassName The fully qualified class name representing the return type
 	 * @param argumentTypes The fully qualified class names of the method's parameters
 	 * @return a request to create a diffuser that acts on the specified method of the class name, and has the
 	 * specified argument types.
