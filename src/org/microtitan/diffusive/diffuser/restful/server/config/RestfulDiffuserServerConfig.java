@@ -6,15 +6,24 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 import org.microtitan.diffusive.diffuser.restful.server.KeyedDiffusiveStrategyRepository;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
 
+/**
+ * Configuration used by the {@link RestfulDiffuserManagerResource} so that it can supply
+ * newly created {@link RestfulDiffuser}s with their diffuser strategy (end-points, weights,
+ * selection criteria, etc)
+ * 
+ * @author Robert Philipp
+ */
 public class RestfulDiffuserServerConfig {
-	
-	// holds the list of client endpoints to which diffused methods are sent. the end-point must
-	// have a restful diffusive server running that can accept requests.
+
+	// list of end-points that newly created diffuser will look to send their requests, if
+	// the list is empty, then the newly created diffusers will execute ALL requests locally,
+	// and not be able to diffuse them to other end-points if they are currently busy.
 	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList();
 
 	/**

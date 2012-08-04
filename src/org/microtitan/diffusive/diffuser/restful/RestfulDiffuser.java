@@ -23,6 +23,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	// used to serialize objects for making requests across the network
 	private final Serializer serializer;
 	private final List< URI > clientEndpoints;
+//	private final DiffuserStrategy strategy;
 	private final List< URI > classPaths;
 	
 	// TODO the diffuser should be handed a strategy instead of a list of end-points
@@ -34,9 +35,11 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * @param clientEndpoints The URIs at which other diffusers are located, which this diffuser can call.
 	 */
 	public RestfulDiffuser( final Serializer serializer, final List< URI > clientEndpoints, final List< URI > classPaths )
+//	public RestfulDiffuser( final Serializer serializer, final DiffuserStrategy strategy, final List< URI > classPaths )
 	{
 		this.serializer = serializer;
 		this.clientEndpoints = clientEndpoints;
+//		this.strategy = strategy;
 		this.classPaths = classPaths;
 	}
 	

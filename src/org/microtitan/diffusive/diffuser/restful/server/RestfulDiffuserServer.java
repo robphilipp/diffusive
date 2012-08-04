@@ -1,6 +1,8 @@
 package org.microtitan.diffusive.diffuser.restful.server;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -12,9 +14,10 @@ import javax.ws.rs.ext.RuntimeDelegate;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.freezedry.persistence.utils.Constants;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
@@ -39,9 +42,7 @@ public class RestfulDiffuserServer {
 	public static final String DEFAULT_CONFIGURATION_CLASS = "";
 	
 	private final HttpServer server;
-	private final List< String > configurationClasses;
 
-	
 	/**
 	 * Creates a starts the RESTful diffuser server listening at the specified server URI and using the 
 	 * specified JAX-RS application.
@@ -53,7 +54,8 @@ public class RestfulDiffuserServer {
 								  final List< String > configurationClasses )
 	{
 		this.server = createHttpServer( serverUri, application );
-		this.configurationClasses = configurationClasses;
+		
+		invokeConfigurationClasses( configurationClasses );
 	}
 	
 	/*
@@ -119,6 +121,65 @@ public class RestfulDiffuserServer {
 			LOGGER.debug( message.toString() );
 		}
 		return server;
+	}
+	
+	/**
+	 * Invokes the methods of the classes specified in the {@link #configurationClasses} list
+	 * that are annotated with @{@link DiffusiveServerConfiguration}.
+	 *  
+	 * @throws Throwable
+	 */
+	private static void invokeConfigurationClasses( final List< String > configurationClasses )
+	{
+		// run through the class names, load the classes, and then invoke the configuration methods
+		// (that have been annotated with @DiffusiveConfiguration)
+		for( String className : configurationClasses )
+		{
+			Method configurationMethod = null;
+			try
+			{
+				// attempt to load the class...if it isn't found, then a warning will be issued in
+				// the class not found exception, and the loop will continue to attempt to load any
+				// other configuration classes.
+				final Class< ? > setupClazz = RestfulDiffuserServer.class.getClassLoader().loadClass( className );
+				
+				// grab the methods that have an annotation @DiffusiveServerConfiguration and invoke them
+				for( final Method method : setupClazz.getMethods() )
+				{
+					if( method.isAnnotationPresent( DiffusiveServerConfiguration.class ) )
+					{
+						// hold on the the method in case there is an invocation exception
+						// and to warn the user if no configuration method was found
+						configurationMethod = method;
+						method.invoke( null/*setupClazz.newInstance()*/ );
+					}
+				}
+				if( configurationMethod == null )
+				{
+					final StringBuffer message = new StringBuffer();
+					message.append( "Error finding a method annotated with @Configure" + Constants.NEW_LINE );
+					message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
+					LOGGER.warn( message.toString() );
+				}
+			}
+			catch( InvocationTargetException | IllegalAccessException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Error invoking target method." + Constants.NEW_LINE );
+				message.append( "  Class Name: " + className + Constants.NEW_LINE );
+				message.append( "  Method Name: " + configurationMethod.getName() );
+				LOGGER.error( message.toString(), e );
+				throw new IllegalArgumentException( message.toString(), e );
+			}
+			catch( ClassNotFoundException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Unable to load the configuration class. " + RestfulDiffuserServer.class.getName() );
+				message.append( " may not have been configured properly." + Constants.NEW_LINE );
+				message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
+				LOGGER.warn( message.toString() );
+			}
+		}
 	}
 	
 	/**

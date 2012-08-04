@@ -219,7 +219,7 @@ public class KeyedDiffusiveStrategyRepository {
 		return new RandomDiffuserStrategy();
 	}
 
-	public DiffuserStrategy getDiffuser()
+	public DiffuserStrategy getStrategy()
 	{
 		return strategy;
 	}

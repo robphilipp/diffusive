@@ -45,9 +45,11 @@ import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultCacheEntry;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.FifoResultsCache;
+import org.microtitan.diffusive.diffuser.restful.server.KeyedDiffusiveStrategyRepository;
 import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
+import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 
 /**
@@ -89,6 +91,8 @@ public class RestfulDiffuserManagerResource {
 	
 	private final ExecutorService executor;
 	private static final int THREAD_POOL_THREADS = 100;
+	
+	private final DiffuserStrategy diffuserStrategy;
 
 	/**
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
@@ -101,6 +105,8 @@ public class RestfulDiffuserManagerResource {
 		
 		this.diffusers = new HashMap<>();
 		this.resultsCache = resultsCache;
+		
+		this.diffuserStrategy = KeyedDiffusiveStrategyRepository.getInstance().getStrategy();
 	}
 
 	/**
