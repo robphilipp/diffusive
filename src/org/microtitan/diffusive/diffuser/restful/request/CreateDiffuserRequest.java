@@ -24,12 +24,16 @@ public class CreateDiffuserRequest {
 	private List< String > clientEndpoints;
 
 	/**
-	 * 
+	 * Constructs the request to create a diffuser based on the specified parameters
+	 * @param returnTypeClassName The fully qualified class name of the return type
+	 * @param className The fully qualified class name of the class containing the specified method
 	 * @param methodName The name of the method, in the specified {@link Class}, to be called
 	 * @param argumentTypes The type of each argument accepted by the specified method. The types
 	 * must be in the same order as in the method signature.
 	 * @param classPaths The list of class paths
-	 * @param containingClassName The {@link Class} of the object containing the method to be called
+	 * @param serializerType The name of the serializer. See {@link SerializerType} for a list of
+	 * serializer names. The serializers are instantiated using the {@link SerializerFactory}.
+	 * @param clientEndpoints The list of end-point {@link URI} to which run/execution is diffused.
 	 */
 	public CreateDiffuserRequest( final String returnTypeClassName, 
 								  final String className,
@@ -47,7 +51,19 @@ public class CreateDiffuserRequest {
 		this.serializerType = ( serializerType == null || serializerType.isEmpty() ? SerializerType.PERSISTENCE_XML.getName() : serializerType );
 		this.clientEndpoints = (clientEndpoints == null ? new ArrayList< String >() : clientEndpoints );
 	}
-	
+
+	/**
+	 * Constructs the request to create a diffuser based on the specified parameters. Sets the return
+	 * type to be {@code void} using {@code void.class.getName()}.
+	 * @param className The fully qualified class name of the class containing the specified method
+	 * @param methodName The name of the method, in the specified {@link Class}, to be called
+	 * @param argumentTypes The type of each argument accepted by the specified method. The types
+	 * must be in the same order as in the method signature.
+	 * @param classPaths The list of class paths
+	 * @param serializerType The name of the serializer. See {@link SerializerType} for a list of
+	 * serializer names. The serializers are instantiated using the {@link SerializerFactory}.
+	 * @param clientEndpoints The list of end-point {@link URI} to which run/execution is diffused.
+	 */
 	public CreateDiffuserRequest( final String className, 
 								  final String methodName,
 								  final List< String > argumentTypes, 
@@ -60,7 +76,7 @@ public class CreateDiffuserRequest {
 
 	/**
 	 * Creates a default request to create a diffuser. The name of the containing class, the method name are 
-	 * set to empty strings, the argument types, class paths, serializer type, and client endpoints are set to null.
+	 * set to empty strings, the argument types, class paths, serializer type, and client end-points are set to null.
 	 */
 	public CreateDiffuserRequest()
 	{
@@ -71,12 +87,17 @@ public class CreateDiffuserRequest {
 	 * Creates a request to create a diffuser that acts on the specified method of the class name, and has the
 	 * specified argument types.
 	 * @param classPaths A list of URI (represented as strings) used to load classes remotely.
-	 * @param className The name of 
-	 * @param methodName
-	 * @param argumentTypes
-	 * @return
+	 * @param className The name of class containing the method that is diffused by this diffuser.
+	 * @param methodName The name of the method to diffuse
+	 * @param argumentTypes The fully qualified class names of the method's parameters
+	 * @return a request to create a diffuser that acts on the specified method of the class name, and has the
+	 * specified argument types.
 	 */
-	public static CreateDiffuserRequest create( final List< String > classPaths, final String className, final String methodName, final String returnTypeClassName, final String...argumentTypes )
+	public static CreateDiffuserRequest create( final List< String > classPaths, 
+												final String className, 
+												final String methodName, 
+												final String returnTypeClassName, 
+												final String...argumentTypes )
 	{
 		final CreateDiffuserRequest request = new CreateDiffuserRequest();
 		request.setContainingClass( className )
@@ -87,17 +108,28 @@ public class CreateDiffuserRequest {
 		return request;
 	}
 	
+	/**
+	 * @return the fully qualified class name of the class containing the method to diffuse
+	 */
 	public String getContainingClass()
 	{
 		return containingClassName;
 	}
 	
+	/**
+	 * Sets the fully qualified class name of the class containing the method to diffuse
+	 * @param className The fully qualified class name of the class containing the method to diffuse
+	 * @return This object to be used for chaining
+	 */
 	public CreateDiffuserRequest setContainingClass( final String className )
 	{
 		this.containingClassName = className;
 		return this;
 	}
 	
+	/**
+	 * @return The name of the method to diffuse
+	 */
 	public String getMethodName()
 	{
 		return methodName;
