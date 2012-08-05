@@ -378,7 +378,8 @@ public class RestfulDiffuserManagerResource {
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
-		final Object deserializedObject = deserialize( request, signature );
+		final Class< ? > signatureDerivedClass = getClass( request.getObjectType(), signature );
+		final Object deserializedObject = deserialize( request, signatureDerivedClass );
 		
 		//
 		// call the diffused method using the diffuser with the matching signature
@@ -404,17 +405,11 @@ public class RestfulDiffuserManagerResource {
 		final ResultId resultId = new ResultId( signature, requestId );
 		
 		// create the task that will be submitted to the executor service to run
-		final Callable< Object > task = new Callable< Object >() {
-
-			@Override
-			public Object call()
-			{
-				final Class< ? > returnType = request.getReturnTypeClass();
-				final Object resultObject = diffuser.runObject( true, returnType, deserializedObject, diffuserId.getMethodName(), arguments.toArray( new Object[ 0 ] ) );
-				
-				return resultObject;
-			}
-		};
+		final DiffuserTask task = new DiffuserTask( diffuserId.getMethodName(), 
+													arguments, 
+													diffuserId.getReturnTypeClazz(), 
+													deserializedObject, 
+													diffuser );
 		
 		// submit the task to the executor service to run on a different thread,
 		// and put the future result into the results cache with the signature/id as the key
@@ -452,7 +447,7 @@ public class RestfulDiffuserManagerResource {
 		return response;
 	}
 	
-	/*
+	/**
 	 * Returns the {@link Class} for the specified name. The signature comes along for the ride, in case
 	 * there is a problem loading the {@link Class} of the specified name.
 	 * @param classname The name of the class to load
@@ -526,21 +521,49 @@ public class RestfulDiffuserManagerResource {
 		return clazz;
 	}
 	
-	/*
+//	/**
+//	 * Deserializes the object in the specified execute diffuser request and returns it. Uses the 
+//	 * serializer and the class type specified in the request.
+//	 * @param request The execute diffuser request that holds the object
+//	 * @param signature The signature of the diffused method
+//	 * @return The object deserialized from the specified request
+//	 */
+//	private Object deserialize( final ExecuteDiffuserRequest request, final String signature )
+//	{
+//		Object deserializedObject = null;
+//		try( final InputStream input = new ByteArrayInputStream( request.getObject() ) )
+//		{
+//			// create the Class result for the argument type (specified as a string)
+//			final Class< ? > clazz = getClass( request.getObjectType(), signature );
+//
+//			// deserialize the result
+//			deserializedObject = request.getSerializer().deserialize( input, clazz );
+//		}
+//		catch( IOException e )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Error closing the ByteArrayInputStream for the result." + Constants.NEW_LINE );
+//			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+//			message.append( "  Object Type: " + request.getObjectType() + Constants.NEW_LINE );
+//			LOGGER.error( message.toString() );
+//			throw new IllegalArgumentException( message.toString() );
+//		}
+//		
+//		return deserializedObject;
+//	}
+	
+	/**
 	 * Deserializes the object in the specified execute diffuser request and returns it. Uses the 
 	 * serializer and the class type specified in the request.
 	 * @param request The execute diffuser request that holds the object
 	 * @param signature The signature of the diffused method
 	 * @return The object deserialized from the specified request
 	 */
-	private Object deserialize( final ExecuteDiffuserRequest request, final String signature )
+	private < T > T deserialize( final ExecuteDiffuserRequest request, final Class< T > clazz )
 	{
-		Object deserializedObject = null;
+		T deserializedObject = null;
 		try( final InputStream input = new ByteArrayInputStream( request.getObject() ) )
 		{
-			// create the Class result for the argument type (specified as a string)
-			final Class< ? > clazz = getClass( request.getObjectType(), signature );
-
 			// deserialize the result
 			deserializedObject = request.getSerializer().deserialize( input, clazz );
 		}
@@ -548,7 +571,7 @@ public class RestfulDiffuserManagerResource {
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Error closing the ByteArrayInputStream for the result." + Constants.NEW_LINE );
-			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+			message.append( "  Class Type: " + clazz.getName() + Constants.NEW_LINE );
 			message.append( "  Object Type: " + request.getObjectType() + Constants.NEW_LINE );
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
@@ -556,7 +579,6 @@ public class RestfulDiffuserManagerResource {
 		
 		return deserializedObject;
 	}
-	
 	/**
 	 * Returns the status for the task for the specified result ID and signature
 	 * @param signature The signature of the diffused method
@@ -818,5 +840,50 @@ public class RestfulDiffuserManagerResource {
         {
         	return classPaths;
         }
+	}
+	
+	/**
+	 * {@link Callable} task that can be submitted to the {@link ExecutorService} to run.
+	 * 
+	 * @author Robert Philipp
+	 */
+	private static class DiffuserTask implements Callable< Object > {
+		
+		private final Class< ? > returnType;
+		private final Object deserializedObject;
+		private final Diffuser diffuser;
+		private final String methodName;
+		private final Object[] arguments;
+		
+		/**
+		 * Constructs a {@link Callable} task for the {@link ExecutorService}
+		 * @param methodName The name of the method to call
+		 * @param arguments The arguments/parameters passed to the method
+		 * @param returnType The return type of the method call
+		 * @param deserializedObject The deserialized object that holds the state
+		 * @param diffuser The diffuser that is used to run/diffuser the method call
+		 */
+		public DiffuserTask( final String methodName,
+							 final List< ? super Object > arguments,
+							 final Class< ? > returnType,
+							 final Object deserializedObject,
+							 final Diffuser diffuser )
+		{
+			this.returnType = returnType;
+			this.deserializedObject = deserializedObject;
+			this.diffuser = diffuser;
+			this.methodName = methodName;
+			this.arguments = arguments.toArray( new Object[ 0 ] );
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see java.util.concurrent.Callable#call()
+		 */
+		@Override
+		public Object call()
+		{
+			return diffuser.runObject( true, returnType, deserializedObject, methodName, arguments );
+		}
 	}
 }

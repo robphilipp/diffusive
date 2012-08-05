@@ -96,7 +96,10 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			
 			// execute the method on the diffuser
 			ExecuteDiffuserResponse executeResponse = null;
-			try( final ByteArrayOutputStream out = new ByteArrayOutputStream() )
+			// try argumennt is supposed to close the ByteArrayOutputStream, but it seems it doesn't.
+			// yet, at the same time, closing a ByteArrayOutputStream has no effect anyway, so we can
+			// safely suppress the warning.
+			try( @SuppressWarnings( "resource" ) final ByteArrayOutputStream out = new ByteArrayOutputStream() )
 			{
 				// serialize the object into the byte[] output stream and flush it
 				serializer.serialize( object, out );
@@ -176,7 +179,6 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			// ask for the result, which blocks until the result returns
 			final DiffuserId diffuserId = DiffuserId.parse( executeResponse.getSignature() );
 			final Class< ? > clazz = diffuserId.getClazz();
-
 			result = client.getResult( returnType, clazz, methodName, executeResponse.getRequestId(), serializer );
 		}
 		return result;
