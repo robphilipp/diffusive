@@ -1,8 +1,10 @@
 package org.microtitan.diffusive.cache;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.freezedry.persistence.utils.Constants;
@@ -87,6 +89,16 @@ public class FifoCache< K, T > implements Cache< K, T > {
 	public T get( final K key )
 	{
 		return cache.get( key );
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.cache.Cache#getKeys()
+	 */
+	@Override
+	public Set< K > getKeys()
+	{
+		return Collections.unmodifiableSet( cache.keySet() );
 	}
 
 	/*

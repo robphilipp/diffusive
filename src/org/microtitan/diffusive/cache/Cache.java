@@ -1,5 +1,7 @@
 package org.microtitan.diffusive.cache;
 
+import java.util.Set;
+
 
 
 /**
@@ -46,4 +48,9 @@ public interface Cache< K, E > {
 	 * @param key The key for the cache
 	 */
 	void remove( final K key );
+	
+	/**
+	 * @return the set of keys held in this cache
+	 */
+	Set< K > getKeys();
 }
