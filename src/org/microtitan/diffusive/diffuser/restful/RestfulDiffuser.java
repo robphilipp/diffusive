@@ -32,6 +32,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	private final Serializer serializer;
 	private final DiffuserStrategy strategy;
 	private final List< URI > classPaths;
+	private final double loadThreshold;
 	
 	/**
 	 * Constructs the RESTful diffuser that runs methods either locally or sends them on to a remote
@@ -42,11 +43,23 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * @param classPaths The class paths on a remote server needed for loading classes that aren't 
 	 * locally available 
 	 */
-	public RestfulDiffuser( final Serializer serializer, final DiffuserStrategy strategy, final List< URI > classPaths )
+	public RestfulDiffuser( final Serializer serializer, 
+							final DiffuserStrategy strategy, 
+							final List< URI > classPaths,
+							final double loadThreshold )
 	{
 		this.serializer = serializer;
 		this.strategy = strategy;
 		this.classPaths = classPaths;
+		
+		if( loadThreshold <= 0.0 )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "The load threshold must be greater than 0.0" + Constants.NEW_LINE );
+			message.append( "  Specified Load Threshold: " + loadThreshold );
+			throw new IllegalArgumentException( message.toString() );
+		}
+		this.loadThreshold = loadThreshold;
 	}
 	
 	/*
@@ -54,20 +67,26 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(boolean, java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object... arguments )
+//	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object... arguments )
+	public < T > T runObject( final double load, final Class< T > returnType, final Object object, final String methodName, final Object... arguments )
 	{
 		// TODO develop execution-performance based approach to determining whether to run locally or remotely, as well as the current approach.
 		T result = null;
-		if( isRemoteCall || strategy.isEmpty() ) // and it meets other conditions for local execution
+//		if( isRemoteCall || strategy.isEmpty() ) // and it meets other conditions for local execution
+		if( load < loadThreshold || strategy.isEmpty() ) // and it meets other conditions for local execution
 		{
 			if( LOGGER.isInfoEnabled() )
 			{
 				final StringBuffer message = new StringBuffer();
 				message.append( "Called " + RestfulDiffuser.class.getName() + "runObject(...) method." + Constants.NEW_LINE );
 				message.append( "Using " + LocalDiffuser.class.getName() + " because: " );
-				if( isRemoteCall )
+//				if( isRemoteCall )
+//				{
+//					message.append( "call to runObject(...) came from a remote call." + Constants.NEW_LINE );
+//				}
+				if( load < loadThreshold )
 				{
-					message.append( "call to runObject(...) came from a remote call." + Constants.NEW_LINE );
+					message.append( "because the load (" + load + ") was less than the load threshold (" + loadThreshold + ")." + Constants.NEW_LINE );
 				}
 				else if( strategy.isEmpty() )
 				{
@@ -76,7 +95,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			}
 			
 			// execute the method on the local diffuser
-			result = new LocalDiffuser().runObject( false, returnType, object, methodName, arguments );
+//			result = new LocalDiffuser().runObject( false, returnType, object, methodName, arguments );
+			result = new LocalDiffuser().runObject( load, returnType, object, methodName, arguments );
 		}
 		else
 		{

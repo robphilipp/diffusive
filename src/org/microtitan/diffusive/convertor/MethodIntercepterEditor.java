@@ -79,7 +79,8 @@ public class MethodIntercepterEditor extends ExprEditor {
 				code.append( "    System.out.println( \"  Return: \" + $type.getName() );\n" );
 
 				// the actual Diffusive call
-				code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( false, $type, $0, \"" + methodName + "\", $$ );" );
+//				code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( false, $type, $0, \"" + methodName + "\", $$ );" );
+				code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
 				
 //				code.append( "\n}" );
 				

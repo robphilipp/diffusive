@@ -15,6 +15,7 @@ public class KeyedDiffusiveStrategyRepository {
 	private static final Logger LOGGER = Logger.getLogger( KeyedDiffusiveStrategyRepository.class );
 
 	public static final String STRATEGY_SET_PROPERTY = "KeyedDiffusiveStrategyRepository:strategy_set";
+	public static final String LOAD_THRESHOLD_SET = "KeyedDiffusiveStrategyRepository:load_threshold_set";
 
 	// registries
 	private static final Map< Object, KeyedDiffusiveStrategyRepository > instances;
@@ -29,6 +30,7 @@ public class KeyedDiffusiveStrategyRepository {
 	}
 
 	private DiffuserStrategy strategy;
+	private double loadThreshold;
 
 	private final PropertyChangeSupport propertyChangeSupport;
 
@@ -211,6 +213,7 @@ public class KeyedDiffusiveStrategyRepository {
 	private KeyedDiffusiveStrategyRepository()
 	{
 		this.strategy = createDefaultStrategy();
+		this.loadThreshold = 0.7;
 		this.propertyChangeSupport = new PropertyChangeSupport( this );
 	}
 
@@ -230,6 +233,25 @@ public class KeyedDiffusiveStrategyRepository {
 		this.strategy = strategy;
 		firePropertyChange( STRATEGY_SET_PROPERTY, oldStrategy, this.strategy );
 		return oldStrategy;
+	}
+	
+	public double setLoadThreshold( final double loadThreshold )
+	{
+		final double oldThreshold = this.loadThreshold;
+		this.loadThreshold = loadThreshold;
+		firePropertyChange( LOAD_THRESHOLD_SET, oldThreshold, this.loadThreshold );
+		return oldThreshold;
+	}
+	
+	public double getLoadThreshold()
+	{
+		return loadThreshold;
+	}
+	
+	public void setValues( final DiffuserStrategy strategy, final double loadThreshold )
+	{
+		setStrategy( strategy );
+		setLoadThreshold( loadThreshold );
 	}
 
 	public void addPropertyChangeListener( final PropertyChangeListener listener )

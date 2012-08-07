@@ -7,9 +7,13 @@ public abstract class AbstractDiffuser implements Diffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(java.lang.Object, java.lang.String)
 	 */
 	@Override
-	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName )
+//	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName )
+//	{
+//		return runObject( isRemoteCall, returnType, object, methodName, (Object[])null );
+//	}
+	public < T > T runObject( final double load, final Class< T > returnType, final Object object, final String methodName )
 	{
-		return runObject( isRemoteCall, returnType, object, methodName, (Object[])null );
+		return runObject( load, returnType, object, methodName, (Object[])null );
 	}
 	
 	/*
@@ -17,8 +21,12 @@ public abstract class AbstractDiffuser implements Diffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(java.lang.Object, java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object argument )
+//	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object argument )
+//	{
+//		return runObject( isRemoteCall, returnType, object, methodName, new Object[] { argument } );
+//	}
+	public < T > T runObject( final double load, final Class< T > returnType, final Object object, final String methodName, final Object argument )
 	{
-		return runObject( isRemoteCall, returnType, object, methodName, new Object[] { argument } );
+		return runObject( load, returnType, object, methodName, new Object[] { argument } );
 	}
 }

@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 
@@ -21,6 +22,8 @@ import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
+import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
+import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoad;
 
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 
@@ -240,7 +243,11 @@ public class RestfulDiffuserServer {
 		// TODO this needs to be set up through a configuration or programatically. Probably best through a RESTfulDiffusiveLauncher,
 		// a LocalDiffusiveLauncher, a NullDiffusiveLauncher, etc..
 		// run and set up the local RESTful Diffuser server
-		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
+//		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
+		final ExecutorService executor = RestfulDiffuserManagerResource.createExecutorService( 100 );
+		final ResultsCache cache = RestfulDiffuserManagerResource.createResultsCache( 100 );
+		final DiffuserLoad loadCalc = RestfulDiffuserManagerResource.createLoadCalc( cache );
+		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc );
 		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
 		application.addSingletonResource( resource );
 		application.addPerRequestResource( RestfulClassPathResource.class );

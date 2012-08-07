@@ -21,7 +21,8 @@ public class LocalDiffuser extends AbstractDiffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object...arguments )
+//	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object...arguments )
+	public < T > T runObject( final double laod, final Class< T > returnType, final Object object, final String methodName, final Object...arguments )
 	{
 		final Class< ? > clazz = object.getClass();
 		

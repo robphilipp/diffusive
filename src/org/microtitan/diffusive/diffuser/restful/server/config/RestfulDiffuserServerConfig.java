@@ -25,6 +25,13 @@ public class RestfulDiffuserServerConfig {
 	// the list is empty, then the newly created diffusers will execute ALL requests locally,
 	// and not be able to diffuse them to other end-points if they are currently busy.
 	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList();
+	
+	// for diffusers created through calls to the server, this is the load threshold value.
+	// the threshold for CPU loads, above which the diffuser will send the tasks to a remote diffuser,
+	// unless of course, there are no client end-points specified. When the threshold is below the 
+	// load threshold, the diffuser will call the local diffuser to execute the tasks.
+	public static final double LOAD_THRESHOLD = 0.7;
+
 
 	/**
 	 * Creates the list of end-points, the default strategy based on those end-points,
@@ -35,7 +42,9 @@ public class RestfulDiffuserServerConfig {
 	{
 		final List< URI > clientEndpoints = createEndpointList();
 		final DiffuserStrategy strategy = new RandomDiffuserStrategy( clientEndpoints );
-		KeyedDiffusiveStrategyRepository.getInstance().setStrategy( strategy );
+		KeyedDiffusiveStrategyRepository.getInstance().setValues( strategy, LOAD_THRESHOLD );
+//		KeyedDiffusiveStrategyRepository.getInstance().setStrategy( strategy );
+//		KeyedDiffusiveStrategyRepository.getInstance().setLoadThreshold( LOAD_THRESHOLD );
 	}
 	
 	/**

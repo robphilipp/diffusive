@@ -41,6 +41,11 @@ public class RestfulDiffuserConfig {
 	// have been deployed there) and is running a restful diffuser server
 	public static final List< String > CLASSPATH_URI = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
 	
+	// the threshold for CPU loads, above which the diffuser will send the tasks to a remote diffuser,
+	// unless of course, there are no client end-points specified. When the threshold is below the 
+	// load threshold, the diffuser will call the local diffuser to execute the tasks.
+	public static final double LOAD_THRESHOLD = 0.5;
+	
 	/**
 	 * Method that is called to configure the Diffusive framework. In particular, creates a 
 	 * {@link RestfulDiffuser} with the specified diffusion end-points and the class path URI
@@ -60,7 +65,7 @@ public class RestfulDiffuserConfig {
 		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.PERSISTENCE_XML.getName() );
 		final DiffuserStrategy strategy = createStrategy();
 		final List< URI > classPaths = createClassPathList();
-		final Diffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths );
+		final Diffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, LOAD_THRESHOLD );
 		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
 	}
 	

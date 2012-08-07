@@ -6,9 +6,10 @@ import java.lang.management.OperatingSystemMXBean;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
 
 /**
- * Load calculator
+ * Load calculator that uses the number of tasks running in the cache divided by the number of
+ * processors available on the machine.
+ * 
  * @author Robert Philipp
- *
  */
 public class TaskCpuLoad implements DiffuserLoad {
 

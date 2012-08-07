@@ -51,6 +51,8 @@ import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
+import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoad;
+import org.microtitan.diffusive.diffuser.strategy.load.TaskCpuLoad;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 
 /**
@@ -66,7 +68,7 @@ public class RestfulDiffuserManagerResource {
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserManagerResource.class );
 
 	// the maximum number of resultsCache cached
-	private static final int MAX_RESULTS_CACHED = 100;
+//	private static final int MAX_RESULTS_CACHED = 100;
 	
 	public static final String DIFFUSER_PATH = "/diffusers";
 	
@@ -91,56 +93,80 @@ public class RestfulDiffuserManagerResource {
 	private final ResultsCache resultsCache;
 	
 	private final ExecutorService executor;
-	private static final int THREAD_POOL_THREADS = 100;
+//	private static final int THREAD_POOL_THREADS = 100;
 	
 	// the strategy that is applied to diffusers created by this resource.
 	// recall that the strategy determines the order and number of times an
 	// end-point is called.
 	private final DiffuserStrategy diffuserStrategy;
+	
+	// the load calc is ultimately used by the DiffuserStrategy to determine whether to run
+	// locally, or to diffuse the request forward to one of its end-points
+	private final DiffuserLoad loadCalc;
+	private final double loadThreshold;
 
 	/**
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
 	 * diffuser created through this resource. 
 	 * @param The executor service to which tasks are submitted
 	 */
-	public RestfulDiffuserManagerResource( final ExecutorService executor, final FifoResultsCache resultsCache )
+	public RestfulDiffuserManagerResource( final ExecutorService executor, 
+										   final ResultsCache resultsCache,
+										   final DiffuserLoad loadCalc )
 	{
 		this.executor = executor;
 		
 		this.diffusers = new HashMap<>();
 		this.resultsCache = resultsCache;
+		this.loadCalc = loadCalc;
 		
 		this.diffuserStrategy = KeyedDiffusiveStrategyRepository.getInstance().getStrategy();
+		this.loadThreshold = KeyedDiffusiveStrategyRepository.getInstance().getLoadThreshold();
+	}
+	
+	public static final ExecutorService createExecutorService( final int numThreads )
+	{
+		return Executors.newFixedThreadPool( numThreads );
+	}
+	
+	public static final ResultsCache createResultsCache( final int maxResultsCached )
+	{
+		return new FifoResultsCache( maxResultsCached );
+	}
+	
+	public static final DiffuserLoad createLoadCalc( final ResultsCache cache )
+	{
+		return new TaskCpuLoad( cache );
 	}
 
-	/**
-	 * Constructs the basic diffuser manager resource that allows clients to interact with the
-	 * diffuser created through this resource. 
-	 * @param The executor service to which tasks are submitted
-	 */
-	public RestfulDiffuserManagerResource( final ExecutorService executor )
-	{
-		this( executor, new FifoResultsCache( MAX_RESULTS_CACHED ) );
-	}
-	
-	/**
-	 * Constructs the basic diffuser manager resource that allows clients to interact with the
-	 * diffuser created through this resource. 
-	 * @param numThreads The number of threads for the default fixed thread pool
-	 */
-	public RestfulDiffuserManagerResource( final int numThreads )
-	{
-		this( Executors.newFixedThreadPool( numThreads ) );
-	}
-	
-	/**
-	 * Constructs the basic diffuser manager resource that allows clients to interact with the
-	 * diffuser created through this resource. 
-	 */
-	public RestfulDiffuserManagerResource()
-	{
-		this( THREAD_POOL_THREADS );
-	}
+//	/**
+//	 * Constructs the basic diffuser manager resource that allows clients to interact with the
+//	 * diffuser created through this resource. 
+//	 * @param The executor service to which tasks are submitted
+//	 */
+//	public RestfulDiffuserManagerResource( final ExecutorService executor )
+//	{
+//		this( executor, new FifoResultsCache( MAX_RESULTS_CACHED ) );
+//	}
+//	
+//	/**
+//	 * Constructs the basic diffuser manager resource that allows clients to interact with the
+//	 * diffuser created through this resource. 
+//	 * @param numThreads The number of threads for the default fixed thread pool
+//	 */
+//	public RestfulDiffuserManagerResource( final int numThreads )
+//	{
+//		this( Executors.newFixedThreadPool( numThreads ) );
+//	}
+//	
+//	/**
+//	 * Constructs the basic diffuser manager resource that allows clients to interact with the
+//	 * diffuser created through this resource. 
+//	 */
+//	public RestfulDiffuserManagerResource()
+//	{
+//		this( THREAD_POOL_THREADS );
+//	}
 	
 	/*
 	 * Creates the diffuser and crafts the response. Decouples the way the information is sent from
@@ -162,7 +188,7 @@ public class RestfulDiffuserManagerResource {
 						   final List< String > argumentTypes )
 	{
 		// create the diffuser
-		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths );
+		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
 		
 		// create the name/id for the diffuser
 		final String key = DiffuserId.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );
@@ -406,11 +432,13 @@ public class RestfulDiffuserManagerResource {
 		final ResultId resultId = new ResultId( signature, requestId );
 		
 		// create the task that will be submitted to the executor service to run
+		// TODO add the DiffuserLoad (loadCalc) to the constructor so that it can be passed to the diffuser.
 		final DiffuserTask task = new DiffuserTask( diffuserId.getMethodName(), 
 													arguments, 
 													diffuserId.getReturnTypeClazz(), 
 													deserializedObject, 
-													diffuser );
+													diffuser,
+													loadCalc );
 		
 		// submit the task to the executor service to run on a different thread,
 		// and put the future result into the results cache with the signature/id as the key
@@ -855,6 +883,7 @@ public class RestfulDiffuserManagerResource {
 		private final Diffuser diffuser;
 		private final String methodName;
 		private final Object[] arguments;
+		private final DiffuserLoad loadCalc;
 		
 		/**
 		 * Constructs a {@link Callable} task for the {@link ExecutorService}
@@ -868,13 +897,15 @@ public class RestfulDiffuserManagerResource {
 							 final List< ? super Object > arguments,
 							 final Class< ? > returnType,
 							 final Object deserializedObject,
-							 final Diffuser diffuser )
+							 final Diffuser diffuser,
+							 final DiffuserLoad loadCalc )
 		{
 			this.returnType = returnType;
 			this.deserializedObject = deserializedObject;
 			this.diffuser = diffuser;
 			this.methodName = methodName;
 			this.arguments = arguments.toArray( new Object[ 0 ] );
+			this.loadCalc = loadCalc;
 		}
 
 		/*
@@ -884,7 +915,8 @@ public class RestfulDiffuserManagerResource {
 		@Override
 		public Object call()
 		{
-			return diffuser.runObject( true, returnType, deserializedObject, methodName, arguments );
+//			return diffuser.runObject( true, returnType, deserializedObject, methodName, arguments );
+			return diffuser.runObject( loadCalc.getLoad(), returnType, deserializedObject, methodName, arguments );
 		}
 	}
 }
