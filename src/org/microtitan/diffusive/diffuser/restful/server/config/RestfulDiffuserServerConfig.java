@@ -30,8 +30,7 @@ public class RestfulDiffuserServerConfig {
 	// the threshold for CPU loads, above which the diffuser will send the tasks to a remote diffuser,
 	// unless of course, there are no client end-points specified. When the threshold is below the 
 	// load threshold, the diffuser will call the local diffuser to execute the tasks.
-	public static final double LOAD_THRESHOLD = 0.7;
-
+	public static final double LOAD_THRESHOLD = 0.75;
 
 	/**
 	 * Creates the list of end-points, the default strategy based on those end-points,

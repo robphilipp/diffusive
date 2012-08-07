@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +37,7 @@ import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
 import org.microtitan.diffusive.classloaders.RestfulClassLoader;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
@@ -112,7 +115,8 @@ public class RestfulDiffuserManagerResource {
 	 */
 	public RestfulDiffuserManagerResource( final ExecutorService executor, 
 										   final ResultsCache resultsCache,
-										   final DiffuserLoad loadCalc )
+										   final DiffuserLoad loadCalc,
+										   final List< String > configurationClasses )
 	{
 		this.executor = executor;
 		
@@ -120,6 +124,10 @@ public class RestfulDiffuserManagerResource {
 		this.resultsCache = resultsCache;
 		this.loadCalc = loadCalc;
 		
+		// call the configuration classes used to configure this resource (strategy, load threshold)
+		invokeConfigurationClasses( configurationClasses );
+		
+		// set the values based on the configuration
 		this.diffuserStrategy = KeyedDiffusiveStrategyRepository.getInstance().getStrategy();
 		this.loadThreshold = KeyedDiffusiveStrategyRepository.getInstance().getLoadThreshold();
 	}
@@ -832,6 +840,67 @@ public class RestfulDiffuserManagerResource {
 	{
 		return resultId.getResultId();
 	}
+	
+	/**
+	 * Invokes the methods of the classes specified in the {@link #configurationClasses} list
+	 * that are annotated with @{@link DiffusiveServerConfiguration}.
+	 *  
+	 * @throws Throwable
+	 */
+	private static void invokeConfigurationClasses( final List< String > configurationClasses )
+	{
+		// run through the class names, load the classes, and then invoke the configuration methods
+		// (that have been annotated with @DiffusiveConfiguration)
+		for( String className : configurationClasses )
+		{
+			Method configurationMethod = null;
+			try
+			{
+				// attempt to load the class...if it isn't found, then a warning will be issued in
+				// the class not found exception, and the loop will continue to attempt to load any
+				// other configuration classes.
+				final Class< ? > setupClazz = RestfulDiffuserServer.class.getClassLoader().loadClass( className );
+				
+				// grab the methods that have an annotation @DiffusiveServerConfiguration and invoke them
+				for( final Method method : setupClazz.getMethods() )
+				{
+					if( method.isAnnotationPresent( DiffusiveServerConfiguration.class ) )
+					{
+						// hold on the the method in case there is an invocation exception
+						// and to warn the user if no configuration method was found
+						configurationMethod = method;
+						method.invoke( null/*setupClazz.newInstance()*/ );
+					}
+				}
+				if( configurationMethod == null )
+				{
+					final StringBuffer message = new StringBuffer();
+					message.append( "Error finding a method annotated with @Configure" + Constants.NEW_LINE );
+					message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
+					LOGGER.warn( message.toString() );
+				}
+			}
+			catch( InvocationTargetException | IllegalAccessException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Error invoking target method." + Constants.NEW_LINE );
+				message.append( "  Class Name: " + className + Constants.NEW_LINE );
+				message.append( "  Method Name: " + configurationMethod.getName() );
+				LOGGER.error( message.toString(), e );
+				throw new IllegalArgumentException( message.toString(), e );
+			}
+			catch( ClassNotFoundException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Unable to load the configuration class. " + RestfulDiffuserServer.class.getName() );
+				message.append( " may not have been configured properly." + Constants.NEW_LINE );
+				message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
+				LOGGER.warn( message.toString() );
+			}
+		}
+	}
+	
+
 
 	/**
 	 * An entry used by the map of diffusers that contains the {@link Diffuser} and the list of class path end-points.

@@ -1,8 +1,6 @@
 package org.microtitan.diffusive.diffuser.restful.server;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -18,11 +16,11 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
+import org.microtitan.diffusive.diffuser.restful.server.config.RestfulDiffuserServerConfig;
 import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoad;
 
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
@@ -42,7 +40,7 @@ public class RestfulDiffuserServer {
 	private static final String SERVER_SCHEME = "http";
 	public static final String DEFAULT_SERVER_URI = createDefaultServerUri( SERVER_SCHEME, SERVER_PORT );
 	
-	public static final String DEFAULT_CONFIGURATION_CLASS = "";
+	public static final String DEFAULT_CONFIGURATION_CLASS = RestfulDiffuserServerConfig.class.getName();
 	
 	private final HttpServer server;
 
@@ -53,12 +51,12 @@ public class RestfulDiffuserServer {
 	 * @param application The JAX-RS application that contains information about the resources that contain the JAX-RS bindings
 	 */
 	public RestfulDiffuserServer( final URI serverUri, 
-								  final RestfulDiffuserApplication application,
-								  final List< String > configurationClasses )
+								  final RestfulDiffuserApplication application )//,
+//								  final List< String > configurationClasses )
 	{
 		this.server = createHttpServer( serverUri, application );
-		
-		invokeConfigurationClasses( configurationClasses );
+//		
+//		invokeConfigurationClasses( configurationClasses );
 	}
 	
 	/*
@@ -126,65 +124,65 @@ public class RestfulDiffuserServer {
 		return server;
 	}
 	
-	/**
-	 * Invokes the methods of the classes specified in the {@link #configurationClasses} list
-	 * that are annotated with @{@link DiffusiveServerConfiguration}.
-	 *  
-	 * @throws Throwable
-	 */
-	private static void invokeConfigurationClasses( final List< String > configurationClasses )
-	{
-		// run through the class names, load the classes, and then invoke the configuration methods
-		// (that have been annotated with @DiffusiveConfiguration)
-		for( String className : configurationClasses )
-		{
-			Method configurationMethod = null;
-			try
-			{
-				// attempt to load the class...if it isn't found, then a warning will be issued in
-				// the class not found exception, and the loop will continue to attempt to load any
-				// other configuration classes.
-				final Class< ? > setupClazz = RestfulDiffuserServer.class.getClassLoader().loadClass( className );
-				
-				// grab the methods that have an annotation @DiffusiveServerConfiguration and invoke them
-				for( final Method method : setupClazz.getMethods() )
-				{
-					if( method.isAnnotationPresent( DiffusiveServerConfiguration.class ) )
-					{
-						// hold on the the method in case there is an invocation exception
-						// and to warn the user if no configuration method was found
-						configurationMethod = method;
-						method.invoke( null/*setupClazz.newInstance()*/ );
-					}
-				}
-				if( configurationMethod == null )
-				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "Error finding a method annotated with @Configure" + Constants.NEW_LINE );
-					message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
-					LOGGER.warn( message.toString() );
-				}
-			}
-			catch( InvocationTargetException | IllegalAccessException e )
-			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Error invoking target method." + Constants.NEW_LINE );
-				message.append( "  Class Name: " + className + Constants.NEW_LINE );
-				message.append( "  Method Name: " + configurationMethod.getName() );
-				LOGGER.error( message.toString(), e );
-				throw new IllegalArgumentException( message.toString(), e );
-			}
-			catch( ClassNotFoundException e )
-			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Unable to load the configuration class. " + RestfulDiffuserServer.class.getName() );
-				message.append( " may not have been configured properly." + Constants.NEW_LINE );
-				message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
-				LOGGER.warn( message.toString() );
-			}
-		}
-	}
-	
+//	/**
+//	 * Invokes the methods of the classes specified in the {@link #configurationClasses} list
+//	 * that are annotated with @{@link DiffusiveServerConfiguration}.
+//	 *  
+//	 * @throws Throwable
+//	 */
+//	private static void invokeConfigurationClasses( final List< String > configurationClasses )
+//	{
+//		// run through the class names, load the classes, and then invoke the configuration methods
+//		// (that have been annotated with @DiffusiveConfiguration)
+//		for( String className : configurationClasses )
+//		{
+//			Method configurationMethod = null;
+//			try
+//			{
+//				// attempt to load the class...if it isn't found, then a warning will be issued in
+//				// the class not found exception, and the loop will continue to attempt to load any
+//				// other configuration classes.
+//				final Class< ? > setupClazz = RestfulDiffuserServer.class.getClassLoader().loadClass( className );
+//				
+//				// grab the methods that have an annotation @DiffusiveServerConfiguration and invoke them
+//				for( final Method method : setupClazz.getMethods() )
+//				{
+//					if( method.isAnnotationPresent( DiffusiveServerConfiguration.class ) )
+//					{
+//						// hold on the the method in case there is an invocation exception
+//						// and to warn the user if no configuration method was found
+//						configurationMethod = method;
+//						method.invoke( null/*setupClazz.newInstance()*/ );
+//					}
+//				}
+//				if( configurationMethod == null )
+//				{
+//					final StringBuffer message = new StringBuffer();
+//					message.append( "Error finding a method annotated with @Configure" + Constants.NEW_LINE );
+//					message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
+//					LOGGER.warn( message.toString() );
+//				}
+//			}
+//			catch( InvocationTargetException | IllegalAccessException e )
+//			{
+//				final StringBuffer message = new StringBuffer();
+//				message.append( "Error invoking target method." + Constants.NEW_LINE );
+//				message.append( "  Class Name: " + className + Constants.NEW_LINE );
+//				message.append( "  Method Name: " + configurationMethod.getName() );
+//				LOGGER.error( message.toString(), e );
+//				throw new IllegalArgumentException( message.toString(), e );
+//			}
+//			catch( ClassNotFoundException e )
+//			{
+//				final StringBuffer message = new StringBuffer();
+//				message.append( "Unable to load the configuration class. " + RestfulDiffuserServer.class.getName() );
+//				message.append( " may not have been configured properly." + Constants.NEW_LINE );
+//				message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
+//				LOGGER.warn( message.toString() );
+//			}
+//		}
+//	}
+//	
 	/**
 	 * Stops the {@link RestfulDiffuserServer}
 	 */
@@ -239,22 +237,31 @@ public class RestfulDiffuserServer {
 			System.out.println();
 			args = new String[] { DEFAULT_SERVER_URI, DEFAULT_CONFIGURATION_CLASS };
 		}
-		
-		// TODO this needs to be set up through a configuration or programatically. Probably best through a RESTfulDiffusiveLauncher,
-		// a LocalDiffusiveLauncher, a NullDiffusiveLauncher, etc..
-		// run and set up the local RESTful Diffuser server
-//		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource();
+
+		// grab the command line information for setting up the server and the manager resource
+		// 1. the serverUri is the base URI from which the restful diffuser server can be accessed
+		// 2. the classes that are used to configure manager resource (annotated with @DiffusiveServerConfiguration)
+		final URI serverUri = URI.create( args[ 0 ] );
+		final List< String > configClasses = Arrays.asList( args[ 1 ] );
+
+		// create and set up the executor service that is used to distribute tasks amongst threads in its thread-pool
 		final ExecutorService executor = RestfulDiffuserManagerResource.createExecutorService( 100 );
+		
+		// create and set up the cache that holds the results of executed methods so that they can be retrieved
 		final ResultsCache cache = RestfulDiffuserManagerResource.createResultsCache( 100 );
+		
+		// create and set up the load calculator that is used to determine if the task should be run on this
+		// server, or should be diffused to one of (if any exist) end-points attached to this server.
 		final DiffuserLoad loadCalc = RestfulDiffuserManagerResource.createLoadCalc( cache );
-		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc );
+		
+		// create the manager resource and the web application needed by the web server
+		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc, configClasses );
 		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
 		application.addSingletonResource( resource );
 		application.addPerRequestResource( RestfulClassPathResource.class );
 
-		final URI serverUri = URI.create( args[ 0 ] );
-		final List< String > configClasses = Arrays.asList( args[ 1 ] );
-		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application, configClasses );
+		// create the web server
+		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
 				
 		System.out.println( String.format( "Jersy app start with WADL available at %sapplication.wadl", serverUri ) );
 		System.out.println( String.format( "Try out %s.", serverUri ) );
