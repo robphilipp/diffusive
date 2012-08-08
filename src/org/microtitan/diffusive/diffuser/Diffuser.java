@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
+import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
+import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
 
 /**
  * The {@link Diffuser} is responsible for running the specified object's method. For local {@link Diffuser}s
@@ -31,27 +33,30 @@ public interface Diffuser {
 
 	/**
 	 * Runs the specified no-arg method on the specified object.
-	 * @param isRemoteCall specifies whether the call comes from a remote or non-remote location. The 
-	 * location is considered remote if it comes from a different process than the one in which this is
-	 * executing. For example, if this method is called from a web resource, then it would be a remote
-	 * call. Similarly, if the method is called from within process, then likely the intent of this method
-	 * is to call a diffuser that is running outside of this process.
+	 * @param load The CPU load gives the load (under a measure specified by the implementation of the 
+	 * {@link DiffuserLoadCalc}). The load is compared to a configured load threshold. If the load is
+	 * less than the threshold, then the {@link Diffuser} ought to execute the task locally. On the other
+	 * hand, if the load is larger than the threshold, then the {@link Diffuser} ought to forward the 
+	 * task to a remote {@link Diffuser}. The remote {@link Diffuser} is selected based on a configured
+	 * {@link DiffuserStrategy}, which returns the end-point of the remove {@link Diffuser} to which to
+	 * forward the task.
 	 * @param object The object on which to make the method call given by the specified method name
 	 * @param methodName The name of the method to call on the object
 	 * @return The result of the method on the specified object
 	 * @see #runObject(Object, String, Object)
 	 * @see #runObject(Object, String, Object...)
 	 */
-//	< T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName );
 	< T > T runObject( final double load, final Class< T > returnType, final Object object, final String methodName );
 	
 	/**
 	 * Runs the specified single-argument method on the specified object.
-	 * @param isRemoteCall specifies whether the call comes from a remote or non-remote location. The 
-	 * location is considered remote if it comes from a different process than the one in which this is
-	 * executing. For example, if this method is called from a web resource, then it would be a remote
-	 * call. Similarly, if the method is called from within process, then likely the intent of this method
-	 * is to call a diffuser that is running outside of this process.
+	 * @param load The CPU load gives the load (under a measure specified by the implementation of the 
+	 * {@link DiffuserLoadCalc}). The load is compared to a configured load threshold. If the load is
+	 * less than the threshold, then the {@link Diffuser} ought to execute the task locally. On the other
+	 * hand, if the load is larger than the threshold, then the {@link Diffuser} ought to forward the 
+	 * task to a remote {@link Diffuser}. The remote {@link Diffuser} is selected based on a configured
+	 * {@link DiffuserStrategy}, which returns the end-point of the remove {@link Diffuser} to which to
+	 * forward the task.
 	 * @param object The object on which to make the method call given by the specified method name
 	 * @param methodName The name of the method to call on the object
 	 * @param argument The argument to be passed to the method. Typically the implementing class will
@@ -61,16 +66,17 @@ public interface Diffuser {
 	 * @see #runObject(Object, String)
 	 * @see #runObject(Object, String, Object...)
 	 */
-//	< T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object argument );
 	< T > T runObject( final double load, final Class< T > returnType, final Object object, final String methodName, final Object argument );
 	
 	/**
 	 * Runs the specified method on the specified object.
-	 * @param isRemoteCall specifies whether the call comes from a remote or non-remote location. The 
-	 * location is considered remote if it comes from a different process than the one in which this is
-	 * executing. For example, if this method is called from a web resource, then it would be a remote
-	 * call. Similarly, if the method is called from within process, then likely the intent of this method
-	 * is to call a diffuser that is running outside of this process.
+	 * @param load The CPU load gives the load (under a measure specified by the implementation of the 
+	 * {@link DiffuserLoadCalc}). The load is compared to a configured load threshold. If the load is
+	 * less than the threshold, then the {@link Diffuser} ought to execute the task locally. On the other
+	 * hand, if the load is larger than the threshold, then the {@link Diffuser} ought to forward the 
+	 * task to a remote {@link Diffuser}. The remote {@link Diffuser} is selected based on a configured
+	 * {@link DiffuserStrategy}, which returns the end-point of the remove {@link Diffuser} to which to
+	 * forward the task.
 	 * @param object The object on which to make the method call given by the specified method name
 	 * @param methodName The name of the method to call on the object
 	 * @param arguments The arguments to be passed to the method. Typically the implementing class will
@@ -80,6 +86,5 @@ public interface Diffuser {
 	 * @see #runObject(Object, String)
 	 * @see #runObject(Object, String, Object)
 	 */
-//	< T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object...arguments );
 	< T > T runObject( final double load, final Class< T > returnType, final Object object, final String methodName, final Object...arguments );
 }

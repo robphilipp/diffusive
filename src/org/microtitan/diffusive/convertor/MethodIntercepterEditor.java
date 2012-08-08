@@ -9,26 +9,28 @@ import javassist.expr.MethodCall;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.Diffusive;
+import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 
 /**
- *  
+ * Method intercepter editor is responsible for writing the method-call replacement code that is
+ * used to replace and method calls to methods annotated with {@link Diffusive}. The replacement
+ * code uses a {@link Diffuser} to run the method instead of it running directly. The {@link Diffuser}
+ * is taken from the {@link KeyedDiffuserRepository}, and then its {@link Diffuser#runObject(double, Class, Object, String, Object...)}
+ * method (or a derivative) is called with the appropriate information.
+ * 
  * @author Robert Philipp
  */
 public class MethodIntercepterEditor extends ExprEditor {
 	
 	private static final Logger LOGGER = Logger.getLogger( MethodIntercepterEditor.class );
 
-//	private Diffuser diffuser;
-	
-	public MethodIntercepterEditor( /*final Diffuser diffuser*/ )
+	/**
+	 * Default no arg constructor
+	 */
+	public MethodIntercepterEditor()
 	{
-//		this.diffuser = diffuser;
 	}
-	
-//	public Diffuser getDiffuser()
-//	{
-//		return diffuser;
-//	}
 	
 	/*
 	 * (non-Javadoc)
@@ -79,7 +81,6 @@ public class MethodIntercepterEditor extends ExprEditor {
 				code.append( "    System.out.println( \"  Return: \" + $type.getName() );\n" );
 
 				// the actual Diffusive call
-//				code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( false, $type, $0, \"" + methodName + "\", $$ );" );
 				code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
 				
 //				code.append( "\n}" );

@@ -16,6 +16,7 @@ import org.microtitan.diffusive.diffuser.restful.response.ExecuteDiffuserRespons
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
+import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
 
 /**
  * A diffuser that uses REST to diffuser methods to remote RESTful diffusers, or runs the task locally.
@@ -42,6 +43,9 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * @param strategy The diffuser strategy that determines which end-point will get called next
 	 * @param classPaths The class paths on a remote server needed for loading classes that aren't 
 	 * locally available 
+	 * @param loadThreshold The load threshold above which the {@link RestfulDiffuser} will forward execution
+	 * of the task to remote diffuser. The load threshold must be in the interval {@code (0.0, infinity]}
+	 * @see DiffuserLoadCalc
 	 */
 	public RestfulDiffuser( final Serializer serializer, 
 							final DiffuserStrategy strategy, 

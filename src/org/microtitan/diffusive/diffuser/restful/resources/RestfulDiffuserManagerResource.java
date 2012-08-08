@@ -111,7 +111,14 @@ public class RestfulDiffuserManagerResource {
 	/**
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
 	 * diffuser created through this resource. 
-	 * @param The executor service to which tasks are submitted
+	 * @param executor The executor service to which tasks are submitted
+	 * @param resultsCache The cache holding the execution results in a {@link ResultCacheEntry}.
+	 * @param loadCalc The calculator that is used to calculate the load on this machine, and is
+	 * used to determine whether the diffuser will execute the task locally or diffuse it to a 
+	 * remote diffuser.
+	 * @param configurationClasses A {@link List} of fully qualified class names. Each class should
+	 * have methods annotated with {@link DiffusiveServerConfiguration}, which are called and used
+	 * to configure this resource. These annotated methods should be {@code static}.
 	 */
 	public RestfulDiffuserManagerResource( final ExecutorService executor, 
 										   final ResultsCache resultsCache,
@@ -132,30 +139,52 @@ public class RestfulDiffuserManagerResource {
 		this.loadThreshold = KeyedDiffusiveStrategyRepository.getInstance().getLoadThreshold();
 	}
 	
+	/**
+	 * Creates a default {@link ExecutorService} (fixed thread pool) with the specified number
+	 * of threads. The number of threads must be greater than 0.
+	 * @param numThreads The number of threads (must be greater than 0)
+	 * @return The newly create fixed thread pool {@link ExecutorService}.
+	 */
 	public static final ExecutorService createExecutorService( final int numThreads )
 	{
 		return Executors.newFixedThreadPool( numThreads );
 	}
 	
+	/**
+	 * Creates a default {@link ResultsCache} (a {@link FifoResultsCache}) with the specified
+	 * maximum number of cached items.
+	 * @param maxResultsCached The maximum number of cached items.
+	 * @return a newly created {@link FifoResultsCache}
+	 * @see FifoResultsCache
+	 */
 	public static final ResultsCache createResultsCache( final int maxResultsCached )
 	{
 		return new FifoResultsCache( maxResultsCached );
 	}
 	
+	/**
+	 * Creates a default {@link DiffuserLoadCalc} ({@link TaskCpuLoadCalc}) with the specified
+	 * {@link ResultsCache} used to determine how many tasks are currently executing.
+	 * @param cache The {@link ResultsCache} used to determine how many tasks are currently executing
+	 * @return a newly created {@link TaskCpuLoadCalc}
+	 * @see TaskCpuLoadCalc
+	 */
 	public static final DiffuserLoadCalc createLoadCalc( final ResultsCache cache )
 	{
 		return new TaskCpuLoadCalc( cache );
 	}
 	
-	/*
+	/**
 	 * Creates the diffuser and crafts the response. Decouples the way the information is sent from
 	 * the creation of the diffuser and the response
 	 * @param serializer The {@link Serializer} used to serialize/deserialize objects
-	 * @param clientEndpoints The URI of the endpoints to which result requests can be sent
-	 * @param containingClassName The class name of the returned type 
-	 * @param containingClassName The name of the class containing the method to execute
+	 * @param clientEndpoints The URI of the end-points to which result requests can be sent
+	 * @param classPaths The URI of the end-points which can act as a class path. In other words,
+	 * these end-points can return a {@link Class} object.
+	 * @param returnTypeClassName The class name of the returned type 
+	 * @param containingClassName The name of the {@link Class} containing the method to execute
 	 * @param methodName The name of the method to execute
-	 * @param argumentTypes The parameter types that form part of the method's signature
+	 * @param argumentTypes The parameter types (fully qualified class names) that form part of the method's signature
 	 * @return The diffuser ID (signature) of the diffusive method associated with the newly created diffuser.
 	 */
 	private String create( final Serializer serializer,
@@ -901,7 +930,7 @@ public class RestfulDiffuserManagerResource {
 		 * @param deserializedObject The deserialized object that holds the state
 		 * @param diffuser The diffuser that is used to run/diffuser the method call
 		 * @param loadCalc The {@link DiffuserLoadCalc} that is used to determine the load which
-		 * allows the diffuser to determine whether to compute locally, or diffuser forward
+		 * allows the diffuser to determine whether to compute locally, or diffuser forward.
 		 */
 		public DiffuserTask( final String methodName,
 							 final List< ? super Object > arguments,

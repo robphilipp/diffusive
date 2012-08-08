@@ -1,5 +1,6 @@
 package org.microtitan.diffusive.diffuser.restful.server;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
@@ -10,12 +11,22 @@ import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
 
+/**
+ * Keyed repository hold information about how to diffuser tasks (strategy and load threshold)
+ * The {@link SharedRegistry} is the shared registry, but others can be created with different
+ * keys as needed.
+ * 
+ * @author Robert Philipp
+ */
 public class KeyedDiffusiveStrategyRepository {
 
 	private static final Logger LOGGER = Logger.getLogger( KeyedDiffusiveStrategyRepository.class );
 
 	public static final String STRATEGY_SET_PROPERTY = "KeyedDiffusiveStrategyRepository:strategy_set";
 	public static final String LOAD_THRESHOLD_SET = "KeyedDiffusiveStrategyRepository:load_threshold_set";
+	
+	private static final DiffuserStrategy DEFAULT_STRATEGY = new RandomDiffuserStrategy();
+	private static final double DEFAULT_LOAD_THRESHOLD = 0.7;
 
 	// registries
 	private static final Map< Object, KeyedDiffusiveStrategyRepository > instances;
@@ -24,6 +35,7 @@ public class KeyedDiffusiveStrategyRepository {
 	public static class SharedRegistry {
 	}
 
+	// create the map that holds the key-repository pairs
 	static
 	{
 		instances = new HashMap< Object, KeyedDiffusiveStrategyRepository >();
@@ -35,7 +47,12 @@ public class KeyedDiffusiveStrategyRepository {
 	private final PropertyChangeSupport propertyChangeSupport;
 
 	/**
-	 * @return the shared instance of the diffusive strategy repository
+	 * @return the shared instance of the diffusive strategy repository. Sets the {@link DiffuserStrategy}
+	 * to the {@link #DEFAULT_STRATEGY} ({@link RandomDiffuserStrategy}), and the load threshold to
+	 * the {@link #DEFAULT_LOAD_THRESHOLD} = {@value #DEFAULT_LOAD_THRESHOLD}.
+	 * @see #setLoadThreshold(double)
+	 * @see #setStrategy(DiffuserStrategy)
+	 * @see #setValues(DiffuserStrategy, double)
 	 */
 	public static KeyedDiffusiveStrategyRepository getInstance()
 	{
@@ -43,10 +60,15 @@ public class KeyedDiffusiveStrategyRepository {
 	}
 
 	/**
-	 * Returns the named instance if the key exists, or a new object with the key name if the key doesn't already exist.
-	 * 
+	 * Returns the named instance if the key exists, or a new object with the key name if the key doesn't
+	 * already exist. Sets the {@link DiffuserStrategy} to the {@link #DEFAULT_STRATEGY} 
+	 * ({@link RandomDiffuserStrategy}), and the load threshold to the {@link #DEFAULT_LOAD_THRESHOLD} 
+	 * = {@value #DEFAULT_LOAD_THRESHOLD}.
 	 * @param key The key associated, or to be associated, with the registry instance
 	 * @return the named instance if the key exists, or a new object if the key doesn't exist
+	 * @see #setLoadThreshold(double)
+	 * @see #setStrategy(DiffuserStrategy)
+	 * @see #setValues(DiffuserStrategy, double)
 	 */
 	public static KeyedDiffusiveStrategyRepository getInstance( final Object key )
 	{
@@ -75,7 +97,7 @@ public class KeyedDiffusiveStrategyRepository {
 	 * 
 	 * @param key The key that holds the current association to the registry
 	 * @param newKey The object to associate to the same registry as the key.
-	 * @return the keyed calc model registry associated with specified new key if it is being replaced; or null if it is
+	 * @return the keyed registry associated with specified new key if it is being replaced; or null if it is
 	 *         not being replaced
 	 */
 	public static KeyedDiffusiveStrategyRepository associate( Object key, Object newKey )
@@ -152,7 +174,7 @@ public class KeyedDiffusiveStrategyRepository {
 	 * associations the new key may have are over written.
 	 * 
 	 * @param newKey The object to associate to the same registry as the key.
-	 * @return the keyed calc model registry associated with specified new key if it is being replaced; or null if it is
+	 * @return the keyed registry associated with specified new key if it is being replaced; or null if it is
 	 *         not being replaced
 	 */
 	public KeyedDiffusiveStrategyRepository associate( final Object newKey )
@@ -212,17 +234,9 @@ public class KeyedDiffusiveStrategyRepository {
 	 */
 	private KeyedDiffusiveStrategyRepository()
 	{
-		this.strategy = createDefaultStrategy();
-		this.loadThreshold = 0.7;
+		this.strategy = DEFAULT_STRATEGY;
+		this.loadThreshold = DEFAULT_LOAD_THRESHOLD;
 		this.propertyChangeSupport = new PropertyChangeSupport( this );
-	}
-
-	/**
-	 * @return the default {@link DiffuserStrategy}
-	 */
-	private static DiffuserStrategy createDefaultStrategy()
-	{
-		return new RandomDiffuserStrategy();
 	}
 
 	/**
@@ -233,6 +247,11 @@ public class KeyedDiffusiveStrategyRepository {
 		return strategy;
 	}
 
+	/**
+	 * Sets the {@link DiffuserStrategy} and returns the previous value (if there is one)
+	 * @param strategy The new {@link DiffuserStrategy}
+	 * @return The previous {@link DiffuserStrategy} assigned to this registry
+	 */
 	public DiffuserStrategy setStrategy( final DiffuserStrategy strategy )
 	{
 		final DiffuserStrategy oldStrategy = this.strategy;
@@ -241,6 +260,11 @@ public class KeyedDiffusiveStrategyRepository {
 		return oldStrategy;
 	}
 	
+	/**
+	 * Sets the load threshold above which the diffuser should diffuse the task to a remote diffuser
+	 * @param loadThreshold The load threshold in the interval (0.0, infinity]
+	 * @return the previous value of the load threshold
+	 */
 	public double setLoadThreshold( final double loadThreshold )
 	{
 		final double oldThreshold = this.loadThreshold;
@@ -249,27 +273,53 @@ public class KeyedDiffusiveStrategyRepository {
 		return oldThreshold;
 	}
 	
+	/**
+	 * @return The CPU load threshold for determining whether to execute locally or diffuse the
+	 * execution to a remote diffuser.
+	 */
 	public double getLoadThreshold()
 	{
 		return loadThreshold;
 	}
 	
+	/**
+	 * Convenience method that allows setting the strategy and the load threshold at once 
+	 * @param strategy The new {@link DiffuserStrategy}
+	 * @param loadThreshold The load threshold in the interval (0.0, infinity]
+	 * @see #setStrategy(DiffuserStrategy)
+	 * @see #setLoadThreshold(double)
+	 */
 	public void setValues( final DiffuserStrategy strategy, final double loadThreshold )
 	{
 		setStrategy( strategy );
 		setLoadThreshold( loadThreshold );
 	}
 
+	/**
+	 * Allows registering a {@link PropertyChangeListener} to receive property change events
+	 * when the strategy or load threshold are changed.
+	 * @param listener The {@link PropertyChangeListener} to register
+	 */
 	public void addPropertyChangeListener( final PropertyChangeListener listener )
 	{
 		propertyChangeSupport.addPropertyChangeListener( listener );
 	}
 
+	/**
+	 * Removes the specified {@link PropertyChangeListener} from receiving change events.
+	 * @param listener The {@link PropertyChangeListener} to remove
+	 */
 	public void removePropertyChangeListener( final PropertyChangeListener listener )
 	{
 		propertyChangeSupport.removePropertyChangeListener( listener );
 	}
 
+	/**
+	 * Fires a {@link PropertyChangeEvent} for the specified change
+	 * @param propertyName The name of the property change
+	 * @param oldValue The value of the property before the change
+	 * @param newValue The value of the property after the change
+	 */
 	private void firePropertyChange( final String propertyName, final Object oldValue, final Object newValue )
 	{
 		propertyChangeSupport.firePropertyChange( propertyName, oldValue, newValue );
