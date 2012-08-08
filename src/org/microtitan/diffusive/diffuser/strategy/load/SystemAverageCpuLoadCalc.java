@@ -12,28 +12,28 @@ import java.lang.management.OperatingSystemMXBean;
  * 
  * @author Robert Philipp
  */
-public class SystemAverageCpuLoad implements DiffuserLoad {
+public class SystemAverageCpuLoadCalc implements DiffuserLoadCalc {
 	
-	private static SystemAverageCpuLoad INSTANCE = null;
+	private static SystemAverageCpuLoadCalc INSTANCE = null;
 	
 	private final OperatingSystemMXBean mxBean;
 	
-	private SystemAverageCpuLoad()
+	private SystemAverageCpuLoadCalc()
 	{
 		this.mxBean = ManagementFactory.getOperatingSystemMXBean();
 	}
 
 	/**
-	 * @return the one and only instance (per class loader) of the {@link DiffuserLoad}
+	 * @return the one and only instance (per class loader) of the {@link DiffuserLoadCalc}
 	 */
-	public static SystemAverageCpuLoad getInstance()
+	public static SystemAverageCpuLoadCalc getInstance()
 	{
 		synchronized( INSTANCE )
 		{
 			if( INSTANCE == null )
 			{
 				// lazily create the instance
-				INSTANCE = new SystemAverageCpuLoad();
+				INSTANCE = new SystemAverageCpuLoadCalc();
 			}
 
 			return INSTANCE;

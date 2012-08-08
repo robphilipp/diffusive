@@ -13,7 +13,7 @@ import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
  * 
  * @author Robert Philipp
  */
-public class TaskThreadLoad implements DiffuserLoad {
+public class TaskThreadLoadCalc implements DiffuserLoadCalc {
 	
 	private final long numThreads;
 	private final ResultsCache cache;
@@ -24,7 +24,7 @@ public class TaskThreadLoad implements DiffuserLoad {
 	 * @param numThreads The maximum number of threads in the thread pool.
 	 * @param cache The cache holding the task futures
 	 */
-	public TaskThreadLoad( final long numThreads, final ResultsCache cache )
+	public TaskThreadLoadCalc( final long numThreads, final ResultsCache cache )
 	{
 		if( numThreads <= 0 )
 		{

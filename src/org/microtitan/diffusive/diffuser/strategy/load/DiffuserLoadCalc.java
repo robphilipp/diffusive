@@ -11,7 +11,7 @@ package org.microtitan.diffusive.diffuser.strategy.load;
  * 
  * @author Robert Philipp
  */
-public interface DiffuserLoad {
+public interface DiffuserLoadCalc {
 
 	/**
 	 * @return the CPU load. The method of calculating the load is determined by the implementing

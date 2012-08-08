@@ -10,28 +10,28 @@ import com.sun.management.OperatingSystemMXBean;
  * 
  * @author Robert Philipp
  */
-public class SystemCpuLoad implements DiffuserLoad {
+public class SystemCpuLoadCalc implements DiffuserLoadCalc {
 	
-	private static SystemCpuLoad INSTANCE = null;
+	private static SystemCpuLoadCalc INSTANCE = null;
 	
 	private final OperatingSystemMXBean mxBean;
 	
-	private SystemCpuLoad()
+	private SystemCpuLoadCalc()
 	{
 		this.mxBean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
 	}
 
 	/**
-	 * @return the one and only instance (per class loader) of the {@link DiffuserLoad}
+	 * @return the one and only instance (per class loader) of the {@link DiffuserLoadCalc}
 	 */
-	public static SystemCpuLoad getInstance()
+	public static SystemCpuLoadCalc getInstance()
 	{
 		synchronized( INSTANCE )
 		{
 			if( INSTANCE == null )
 			{
 				// lazily create the instance
-				INSTANCE = new SystemCpuLoad();
+				INSTANCE = new SystemCpuLoadCalc();
 			}
 
 			return INSTANCE;

@@ -54,8 +54,8 @@ import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
-import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoad;
-import org.microtitan.diffusive.diffuser.strategy.load.TaskCpuLoad;
+import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
+import org.microtitan.diffusive.diffuser.strategy.load.TaskCpuLoadCalc;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 
 /**
@@ -105,7 +105,7 @@ public class RestfulDiffuserManagerResource {
 	
 	// the load calc is ultimately used by the DiffuserStrategy to determine whether to run
 	// locally, or to diffuse the request forward to one of its end-points
-	private final DiffuserLoad loadCalc;
+	private final DiffuserLoadCalc loadCalc;
 	private final double loadThreshold;
 
 	/**
@@ -115,7 +115,7 @@ public class RestfulDiffuserManagerResource {
 	 */
 	public RestfulDiffuserManagerResource( final ExecutorService executor, 
 										   final ResultsCache resultsCache,
-										   final DiffuserLoad loadCalc,
+										   final DiffuserLoadCalc loadCalc,
 										   final List< String > configurationClasses )
 	{
 		this.executor = executor;
@@ -142,39 +142,10 @@ public class RestfulDiffuserManagerResource {
 		return new FifoResultsCache( maxResultsCached );
 	}
 	
-	public static final DiffuserLoad createLoadCalc( final ResultsCache cache )
+	public static final DiffuserLoadCalc createLoadCalc( final ResultsCache cache )
 	{
-		return new TaskCpuLoad( cache );
+		return new TaskCpuLoadCalc( cache );
 	}
-
-//	/**
-//	 * Constructs the basic diffuser manager resource that allows clients to interact with the
-//	 * diffuser created through this resource. 
-//	 * @param The executor service to which tasks are submitted
-//	 */
-//	public RestfulDiffuserManagerResource( final ExecutorService executor )
-//	{
-//		this( executor, new FifoResultsCache( MAX_RESULTS_CACHED ) );
-//	}
-//	
-//	/**
-//	 * Constructs the basic diffuser manager resource that allows clients to interact with the
-//	 * diffuser created through this resource. 
-//	 * @param numThreads The number of threads for the default fixed thread pool
-//	 */
-//	public RestfulDiffuserManagerResource( final int numThreads )
-//	{
-//		this( Executors.newFixedThreadPool( numThreads ) );
-//	}
-//	
-//	/**
-//	 * Constructs the basic diffuser manager resource that allows clients to interact with the
-//	 * diffuser created through this resource. 
-//	 */
-//	public RestfulDiffuserManagerResource()
-//	{
-//		this( THREAD_POOL_THREADS );
-//	}
 	
 	/*
 	 * Creates the diffuser and crafts the response. Decouples the way the information is sent from
@@ -440,7 +411,6 @@ public class RestfulDiffuserManagerResource {
 		final ResultId resultId = new ResultId( signature, requestId );
 		
 		// create the task that will be submitted to the executor service to run
-		// TODO add the DiffuserLoad (loadCalc) to the constructor so that it can be passed to the diffuser.
 		final DiffuserTask task = new DiffuserTask( diffuserId.getMethodName(), 
 													arguments, 
 													diffuserId.getReturnTypeClazz(), 
@@ -557,37 +527,6 @@ public class RestfulDiffuserManagerResource {
 		}
 		return clazz;
 	}
-	
-//	/**
-//	 * Deserializes the object in the specified execute diffuser request and returns it. Uses the 
-//	 * serializer and the class type specified in the request.
-//	 * @param request The execute diffuser request that holds the object
-//	 * @param signature The signature of the diffused method
-//	 * @return The object deserialized from the specified request
-//	 */
-//	private Object deserialize( final ExecuteDiffuserRequest request, final String signature )
-//	{
-//		Object deserializedObject = null;
-//		try( final InputStream input = new ByteArrayInputStream( request.getObject() ) )
-//		{
-//			// create the Class result for the argument type (specified as a string)
-//			final Class< ? > clazz = getClass( request.getObjectType(), signature );
-//
-//			// deserialize the result
-//			deserializedObject = request.getSerializer().deserialize( input, clazz );
-//		}
-//		catch( IOException e )
-//		{
-//			final StringBuffer message = new StringBuffer();
-//			message.append( "Error closing the ByteArrayInputStream for the result." + Constants.NEW_LINE );
-//			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
-//			message.append( "  Object Type: " + request.getObjectType() + Constants.NEW_LINE );
-//			LOGGER.error( message.toString() );
-//			throw new IllegalArgumentException( message.toString() );
-//		}
-//		
-//		return deserializedObject;
-//	}
 	
 	/**
 	 * Deserializes the object in the specified execute diffuser request and returns it. Uses the 
@@ -952,7 +891,7 @@ public class RestfulDiffuserManagerResource {
 		private final Diffuser diffuser;
 		private final String methodName;
 		private final Object[] arguments;
-		private final DiffuserLoad loadCalc;
+		private final DiffuserLoadCalc loadCalc;
 		
 		/**
 		 * Constructs a {@link Callable} task for the {@link ExecutorService}
@@ -961,13 +900,15 @@ public class RestfulDiffuserManagerResource {
 		 * @param returnType The return type of the method call
 		 * @param deserializedObject The deserialized object that holds the state
 		 * @param diffuser The diffuser that is used to run/diffuser the method call
+		 * @param loadCalc The {@link DiffuserLoadCalc} that is used to determine the load which
+		 * allows the diffuser to determine whether to compute locally, or diffuser forward
 		 */
 		public DiffuserTask( final String methodName,
 							 final List< ? super Object > arguments,
 							 final Class< ? > returnType,
 							 final Object deserializedObject,
 							 final Diffuser diffuser,
-							 final DiffuserLoad loadCalc )
+							 final DiffuserLoadCalc loadCalc )
 		{
 			this.returnType = returnType;
 			this.deserializedObject = deserializedObject;
@@ -984,7 +925,6 @@ public class RestfulDiffuserManagerResource {
 		@Override
 		public Object call()
 		{
-//			return diffuser.runObject( true, returnType, deserializedObject, methodName, arguments );
 			return diffuser.runObject( loadCalc.getLoad(), returnType, deserializedObject, methodName, arguments );
 		}
 	}

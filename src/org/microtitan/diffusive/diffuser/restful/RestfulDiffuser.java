@@ -67,23 +67,19 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(boolean, java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-//	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object... arguments )
 	public < T > T runObject( final double load, final Class< T > returnType, final Object object, final String methodName, final Object... arguments )
 	{
-		// TODO develop execution-performance based approach to determining whether to run locally or remotely, as well as the current approach.
+		// if the load is less than the threshold, then we can compute this task locally, or if there are no
+		// end-points to which to diffuse the task further. Otherwise, the task is diffused to an end-point
+		// based on the strategy that selects the end-point
 		T result = null;
-//		if( isRemoteCall || strategy.isEmpty() ) // and it meets other conditions for local execution
-		if( load < loadThreshold || strategy.isEmpty() ) // and it meets other conditions for local execution
+		if( load < loadThreshold || strategy.isEmpty() )
 		{
 			if( LOGGER.isInfoEnabled() )
 			{
 				final StringBuffer message = new StringBuffer();
 				message.append( "Called " + RestfulDiffuser.class.getName() + "runObject(...) method." + Constants.NEW_LINE );
 				message.append( "Using " + LocalDiffuser.class.getName() + " because: " );
-//				if( isRemoteCall )
-//				{
-//					message.append( "call to runObject(...) came from a remote call." + Constants.NEW_LINE );
-//				}
 				if( load < loadThreshold )
 				{
 					message.append( "because the load (" + load + ") was less than the load threshold (" + loadThreshold + ")." + Constants.NEW_LINE );
@@ -95,7 +91,6 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			}
 			
 			// execute the method on the local diffuser
-//			result = new LocalDiffuser().runObject( false, returnType, object, methodName, arguments );
 			result = new LocalDiffuser().runObject( load, returnType, object, methodName, arguments );
 		}
 		else
@@ -116,7 +111,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			
 			// execute the method on the diffuser
 			ExecuteDiffuserResponse executeResponse = null;
-			// try argumennt is supposed to close the ByteArrayOutputStream, but it seems it doesn't.
+			// try argument is supposed to close the ByteArrayOutputStream, but it seems it doesn't.
 			// yet, at the same time, closing a ByteArrayOutputStream has no effect anyway, so we can
 			// safely suppress the warning.
 			try( @SuppressWarnings( "resource" ) final ByteArrayOutputStream out = new ByteArrayOutputStream() )
@@ -215,11 +210,6 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		buffer.append( "Serializer: " + serializer.toString() + Constants.NEW_LINE );
 		buffer.append( "Strategy: " + strategy.getClass().getName() + Constants.NEW_LINE );
 		buffer.append( strategy.toString() );
-//		buffer.append( "Client Endpoints: " + Constants.NEW_LINE );
-//		for( URI uri : clientEndpoints )
-//		{
-//			buffer.append( "  " + uri.toString() + Constants.NEW_LINE );
-//		}
 		return buffer.toString();
 	}
 }

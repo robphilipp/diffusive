@@ -207,8 +207,8 @@ public class KeyedDiffusiveStrategyRepository {
 		}
 	}
 
-	/*
-	 * 
+	/**
+	 * Constructor that sets the default {@link DiffuserStrategy} and load threshold
 	 */
 	private KeyedDiffusiveStrategyRepository()
 	{
@@ -217,11 +217,17 @@ public class KeyedDiffusiveStrategyRepository {
 		this.propertyChangeSupport = new PropertyChangeSupport( this );
 	}
 
+	/**
+	 * @return the default {@link DiffuserStrategy}
+	 */
 	private static DiffuserStrategy createDefaultStrategy()
 	{
 		return new RandomDiffuserStrategy();
 	}
 
+	/**
+	 * @return the {@link DiffuserStrategy} set
+	 */
 	public DiffuserStrategy getStrategy()
 	{
 		return strategy;

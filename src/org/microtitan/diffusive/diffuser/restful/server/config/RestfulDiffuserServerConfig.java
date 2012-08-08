@@ -42,8 +42,6 @@ public class RestfulDiffuserServerConfig {
 		final List< URI > clientEndpoints = createEndpointList();
 		final DiffuserStrategy strategy = new RandomDiffuserStrategy( clientEndpoints );
 		KeyedDiffusiveStrategyRepository.getInstance().setValues( strategy, LOAD_THRESHOLD );
-//		KeyedDiffusiveStrategyRepository.getInstance().setStrategy( strategy );
-//		KeyedDiffusiveStrategyRepository.getInstance().setLoadThreshold( LOAD_THRESHOLD );
 	}
 	
 	/**

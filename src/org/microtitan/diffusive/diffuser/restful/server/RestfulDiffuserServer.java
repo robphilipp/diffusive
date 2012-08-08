@@ -21,7 +21,7 @@ import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResou
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
 import org.microtitan.diffusive.diffuser.restful.server.config.RestfulDiffuserServerConfig;
-import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoad;
+import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
 
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 
@@ -51,12 +51,9 @@ public class RestfulDiffuserServer {
 	 * @param application The JAX-RS application that contains information about the resources that contain the JAX-RS bindings
 	 */
 	public RestfulDiffuserServer( final URI serverUri, 
-								  final RestfulDiffuserApplication application )//,
-//								  final List< String > configurationClasses )
+								  final RestfulDiffuserApplication application )
 	{
 		this.server = createHttpServer( serverUri, application );
-//		
-//		invokeConfigurationClasses( configurationClasses );
 	}
 	
 	/*
@@ -124,65 +121,6 @@ public class RestfulDiffuserServer {
 		return server;
 	}
 	
-//	/**
-//	 * Invokes the methods of the classes specified in the {@link #configurationClasses} list
-//	 * that are annotated with @{@link DiffusiveServerConfiguration}.
-//	 *  
-//	 * @throws Throwable
-//	 */
-//	private static void invokeConfigurationClasses( final List< String > configurationClasses )
-//	{
-//		// run through the class names, load the classes, and then invoke the configuration methods
-//		// (that have been annotated with @DiffusiveConfiguration)
-//		for( String className : configurationClasses )
-//		{
-//			Method configurationMethod = null;
-//			try
-//			{
-//				// attempt to load the class...if it isn't found, then a warning will be issued in
-//				// the class not found exception, and the loop will continue to attempt to load any
-//				// other configuration classes.
-//				final Class< ? > setupClazz = RestfulDiffuserServer.class.getClassLoader().loadClass( className );
-//				
-//				// grab the methods that have an annotation @DiffusiveServerConfiguration and invoke them
-//				for( final Method method : setupClazz.getMethods() )
-//				{
-//					if( method.isAnnotationPresent( DiffusiveServerConfiguration.class ) )
-//					{
-//						// hold on the the method in case there is an invocation exception
-//						// and to warn the user if no configuration method was found
-//						configurationMethod = method;
-//						method.invoke( null/*setupClazz.newInstance()*/ );
-//					}
-//				}
-//				if( configurationMethod == null )
-//				{
-//					final StringBuffer message = new StringBuffer();
-//					message.append( "Error finding a method annotated with @Configure" + Constants.NEW_LINE );
-//					message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
-//					LOGGER.warn( message.toString() );
-//				}
-//			}
-//			catch( InvocationTargetException | IllegalAccessException e )
-//			{
-//				final StringBuffer message = new StringBuffer();
-//				message.append( "Error invoking target method." + Constants.NEW_LINE );
-//				message.append( "  Class Name: " + className + Constants.NEW_LINE );
-//				message.append( "  Method Name: " + configurationMethod.getName() );
-//				LOGGER.error( message.toString(), e );
-//				throw new IllegalArgumentException( message.toString(), e );
-//			}
-//			catch( ClassNotFoundException e )
-//			{
-//				final StringBuffer message = new StringBuffer();
-//				message.append( "Unable to load the configuration class. " + RestfulDiffuserServer.class.getName() );
-//				message.append( " may not have been configured properly." + Constants.NEW_LINE );
-//				message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
-//				LOGGER.warn( message.toString() );
-//			}
-//		}
-//	}
-//	
 	/**
 	 * Stops the {@link RestfulDiffuserServer}
 	 */
@@ -252,7 +190,7 @@ public class RestfulDiffuserServer {
 		
 		// create and set up the load calculator that is used to determine if the task should be run on this
 		// server, or should be diffused to one of (if any exist) end-points attached to this server.
-		final DiffuserLoad loadCalc = RestfulDiffuserManagerResource.createLoadCalc( cache );
+		final DiffuserLoadCalc loadCalc = RestfulDiffuserManagerResource.createLoadCalc( cache );
 		
 		// create the manager resource and the web application needed by the web server
 		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc, configClasses );

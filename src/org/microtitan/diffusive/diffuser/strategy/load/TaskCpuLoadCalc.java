@@ -11,12 +11,12 @@ import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
  * 
  * @author Robert Philipp
  */
-public class TaskCpuLoad implements DiffuserLoad {
+public class TaskCpuLoadCalc implements DiffuserLoadCalc {
 
 	private final ResultsCache cache;
 	private final OperatingSystemMXBean mxBean;
 	
-	public TaskCpuLoad( final ResultsCache cache )
+	public TaskCpuLoadCalc( final ResultsCache cache )
 	{
 		this.cache = cache;
 		this.mxBean = ManagementFactory.getOperatingSystemMXBean();
