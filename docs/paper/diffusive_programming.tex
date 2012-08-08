@@ -1,0 +1,66 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Diffusive Programming}
+\author{Robert Philipp}
+\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\section{Introduction}
+Diffusive programming is an approach for performing task-oriented distributed computing that adheres to the following principles.
+\begin{description}
+
+	% marking, diffusive
+	\item[Marking] 
+	A method can be marked for remote execution. The act of \emph{marking}, alone, is sufficient and necessary for a method to be executed on a remote location and have the results returned. 
+	
+	\emph{Definition}: A \textbf{diffusive} method to be a \emph{marked} method.
+
+	% location opaquenes
+	\item[Location Opaqueness]
+	Code calling a \emph{diffusive} method does not, and can not, know on which resource that method was executed. This helps keep code \emph{cohesive} by removing distribution logic from the application. 
+	
+	\emph{Definition}: A \textbf{diffused} method to be a \emph{diffusive} method that was executed. 
+	
+	\emph{Definition}: A \textbf{diffuser} is what executes \emph{diffusive} method.
+	
+	% generic computation engine
+	\item[Generic Computation Engine]
+	Any \emph{diffusive} method can be executed by a \emph{diffuser}.
+	
+	% indistinguishablity
+	\item[Indistinguishability]
+	A \emph{diffuser} is responsible for executing any \emph{diffusive} method, and it is also responsible for \emph{diffusing} methods to other \emph{diffusers}. This implies that there is no distinction between workers and brokers, or clients and servers, in diffusive programming.
+	
+	% open topology
+	\item[Open Topology]
+	\emph{Diffusers} can be connected in any topology that can represented as a directed graph. Each node in the directed graph represents a \emph{diffuser}. Each directed edge represents a connection from one \emph{diffuser} to another. The direction of the edge represents the direction of the \emph{diffusion}. And, each \emph{diffuser} may contains connections to a set of other \emph{diffusers}. 
+	
+	\emph{Definition}: A \emph{diffuser network} is a set of connected \emph{diffusers}.
+	
+	\emph{Definition}: Suppose we have two \emph{diffusers}, \textbf{A} and \textbf{B}. We say that \textbf{B} is an \emph{end-point} of \textbf{A}, if \textbf{A} \emph{diffuses} methods to \textbf{B}.
+	
+	This principle allows the construction of networks tailored to solve certain problems, networks that can naturally learn/discover an optimal configuration for performing certain types of tasks, or networks that contain sufficient redundancy to provide execution within required timelines.
+
+\end{description}
+
+
+Task-oriented distributed computing is difficult. Endowing applications with the ability to execute tasks remotely, typically requires calls to an application programming interface (API) that manages the distribution of those tasks to remote servers. Typically, these servers must be configured to run the desired tasks.
+
+Coding to such an API pollutes the application's \emph{business} logic with its distribution logic. It is true that with care the business and distribution logic can be cleanly separated in most cases. However, when an application needs to provide the ability to execute its tasks both locally and in a distributed mode, applications will require two versions of the execution logic: one for running locally, and one for distributed execution.
+
+Embedding execution distribution code into the application, in any case, causes additional difficulties for testing the business logic and debugging. 
+
+%\subsection{}
+
+
+
+\end{document}  
