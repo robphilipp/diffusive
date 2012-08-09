@@ -26,13 +26,13 @@ In this article I describe an approach to task-oriented distributed programming 
 	\item[Marking] 
 	A method can be marked for remote execution. The act of \emph{marking}, alone, is sufficient and necessary for a method to be executed on a remote location and have the results returned. 
 	
-	\emph{Definition}: A \textbf{diffusive} method to be a \emph{marked} method.
+	\emph{Definition}: A \textbf{diffusive} method is a method that has been \emph{marked}.
 
 	% location opaquenes
 	\item[Location Opaqueness]
 	Code calling a \emph{diffusive} method does not, and can not, know on which resource that method was executed. This helps keep code \emph{cohesive} by removing distribution logic from the application. 
 	
-	\emph{Definition}: A \textbf{diffused} method to be a \emph{diffusive} method that was executed. 
+	\emph{Definition}: A \textbf{diffused} method is a \emph{diffusive} method that was executed. 
 	
 	\emph{Definition}: A \textbf{diffuser} is what executes \emph{diffusive} method.
 	
@@ -56,21 +56,61 @@ In this article I describe an approach to task-oriented distributed programming 
 
 \end{description}
 
+%
+% Principles of diffusive programming
+%
 \section{Principles of Diffusive Programming}
+In this section, I describe the five principles \emph{diffusive programming} in more detail. The principles build on each other, progressing from action of distributing the code to deployment and configuration of the \emph{diffusers}. I describe the reason for, and the importance of, each principle. Where applicable, I describe how the principle differs from more typical or traditional methods of distributed computing.
 
 \subsection{Marking}
+\emph{Diffusive programming} allows the execution of individual methods to be distributed. \emph{Marking} a method is the act of specifying that a specific method is to be distributed. How a method is \emph{marked} is up to the implementation of this principle. However, this principle does state that the act of \emph{marking} a method is necessary and sufficient for the method to be distributed. This means that \emph{any} method can be marked, and, therefore, executed, regardless of its name, parameters, or return type. This is a departure from many typical task-orient approaches that require the implementation of task interfaces, where the method to be executed has a defined signature (and return type).
+
+The way a method is marked, to become a \emph{diffusive} method, depends on the implementation of this principle. For example, the reference implementation written in Java currently uses annotations to mark methods. However, it could just as easily allow the fully qualified method names to be specified in a configuration file instead.
+
+The act of marking a method decouples the distribution logic from the application logic. And this leads us to the next principle: location opaqueness.
 
 \subsection{Location Opaqueness}
+\emph{Marking} a method tells the diffusive framework that that method is to be executed in a distributed manner. But it is the principle of \emph{location opaqueness} that places the requirement that any code calling a diffusive method does not know, or need to know, where that method is executed. Removing the responsibility of knowing or having to deal with the consequences of where the method is executed relieves the calling code of any responsibility regarding distribution. And this allows the application code to remain cohesive. It also means that the same code can be called in a distributed manner, or to run completely locally with any change to the application logic.
+
+In typical distributed systems, the distribution logic must be called directly from the application code. This may occur by calling low level application programming interfaces (API) such as in MPI, or writing task classes that implement interfaces defined by the distribution framework, and then modifying application code to deliver these tasks to the middleware.
+
+Location opaqueness allows code to be endowed with its execution logic, and that execution logic is then automatically mirrored, but in a distributed manner, simply by marking the method(s). When this is coupled with the next principle, \emph{generic computation}, we have a powerful and simple mechanism to distribute computation.
 
 \subsection{Generic Computation}
+The principle of \emph{generic computation} provides that any method can be executed on a \emph{diffuser} without out the need to deploy the resource needed to execute that diffused method. Simply put, the shared object libraries or classes don't need to be deployed to the remote server prior to making the request. Each \emph{diffuser} must contain a mechanism for providing resources to remote locations and for loading resources from a remote location.
+
+In typical distributed computing, required resources must be deployed to the remote servers prior to requesting remote execution of a specific task. Diffusive programming removes this restriction by requiring that the mechanism which distributes the method execution also provides a capability to deliver the required resources to execute the method. 
+
+Note that, however, this does not prevent users from deploying resources to a common location from which they can be obtained at run-time. Under certain deployment scenarios, it may be desirable to have such a common location to provide a centralized control over the versions. But even in this case, the resources need only be deployed to the one common area.
 
 \subsection{Indistinguishability}
+The principle of \emph{indistinguishability} means that a \emph{diffuser} must be able to receive requests to execute, and at the same time be able to \emph{diffuse} (forward) those requests to another \emph{diffuser}. In other words, there isn't such a thing as a client diffuser and a server diffuser: they are one and the same.
+
+The \emph{generic computation} principle alluded to this principle of \emph{indistinguishability}. The generic computation principle states that a diffuser must be able to load resources from a remote diffusers, \textbf{and} at the same time must be able to provide resources to a remote diffuser.
 
 \subsection{Open Topology}
+The \emph{open topology} principle, coupled with the \emph{indistinguishability} principle, requires that it is possible to create networks of \emph{diffusers}, called \emph{diffuser networks}, in any topology that can be represented as a directed graph. Each node in the directed graph represents a \emph{diffuser}, and each (directed) edge connects that \emph{diffuser} to an \emph{end-point}, which is another \emph{diffuser}. Any network that can be represented by a directed graph can be constructed. Section \ref{sec:diffusion_patterns} (\textbf{Diffusion Patterns}) describes a few possible network topologies (patterns) that are designed to solve specific problems.
 
+%
+% Diffusion patterns
+%
+\section{Diffusion Patterns}\label{sec:diffusion_patterns}
+
+\subsection{Layered}
+
+\subsection{Redundant}
+
+\subsection{Learning}
+
+%
+% Reference implementation
+%
 \section{Diffusive: Reference Implementation}
 
-\section{Further Work}
+%
+% Future work
+%
+\section{Future Work}
 
 %Before describing these principles and their implications in more detail, I illustrate how such an approach could behave. First you would create a \emph{diffuser network} by running \emph{diffusers} on a collection of servers. Then you would configure the \emph{diffuser network} by giving each \emph{diffuser} a set of \emph{end-points} to which it can \emph{diffuse} method execution. Then you would specify, through configuration, which methods should be diffused. Then you need to instrument the code so that when the specified methods are called, the method calls are intercepted, and diverted to a \emph{diffuser}, which executes the method and returns the result, or diffuses the method further.
 
