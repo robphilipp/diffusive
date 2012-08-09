@@ -14,8 +14,12 @@
 
 \begin{document}
 \maketitle
+
+% abstract
+In this article I describe an approach to task-oriented distributed programming that allows a developer to simply mark a method, and allow the distribution framework to take care of distributing its execution. I define a set of principles that facilitate task-oriented distributed computing, and obviate the use of a distribution API within your code. Finally, I describe \emph{Diffusive}, a reference implementation in Java that meets the outlined principles. This reference implementation allows developers to simply annotate methods whose execution is to be distributed. Then they launch the application through a \emph{diffusive launcher} that instruments the code at load-time, replacing the annotated method calls with ones that distributes the execution.
+
 \section{Introduction}
-Diffusive programming is an approach for performing task-oriented distributed computing that adheres to the following principles.
+\emph{Diffusive programming} is an approach for performing task-oriented distributed computing, at the method level, that adheres to the following principles.
 \begin{description}
 
 	% marking, diffusive
@@ -33,8 +37,8 @@ Diffusive programming is an approach for performing task-oriented distributed co
 	\emph{Definition}: A \textbf{diffuser} is what executes \emph{diffusive} method.
 	
 	% generic computation engine
-	\item[Generic Computation Engine]
-	Any \emph{diffusive} method can be executed by a \emph{diffuser}.
+	\item[Generic Computation]
+	Any \emph{diffusive} method can be executed by a \emph{diffuser}. A \emph{diffuser} need not be configured with resources prior to requesting it to execute a method.
 	
 	% indistinguishablity
 	\item[Indistinguishability]
@@ -48,16 +52,23 @@ Diffusive programming is an approach for performing task-oriented distributed co
 	
 	\emph{Definition}: Suppose we have two \emph{diffusers}, \textbf{A} and \textbf{B}. We say that \textbf{B} is an \emph{end-point} of \textbf{A}, if \textbf{A} \emph{diffuses} methods to \textbf{B}.
 	
-	This principle allows the construction of networks tailored to solve certain problems, networks that can naturally learn/discover an optimal configuration for performing certain types of tasks, or networks that contain sufficient redundancy to provide execution within required timelines.
+	This principle allows the construction of networks tailored to solve specific or general problems, networks that can naturally learn/discover an optimal configuration for performing certain types of tasks, or networks that contain sufficient redundancy to provide execution within required timelines.
 
 \end{description}
 
+%Before describing these principles and their implications in more detail, I illustrate how such an approach could behave. First you would create a \emph{diffuser network} by running \emph{diffusers} on a collection of servers. Then you would configure the \emph{diffuser network} by giving each \emph{diffuser} a set of \emph{end-points} to which it can \emph{diffuse} method execution. Then you would specify, through configuration, which methods should be diffused. Then you need to instrument the code so that when the specified methods are called, the method calls are intercepted, and diverted to a \emph{diffuser}, which executes the method and returns the result, or diffuses the method further.
 
-Task-oriented distributed computing is difficult. Endowing applications with the ability to execute tasks remotely, typically requires calls to an application programming interface (API) that manages the distribution of those tasks to remote servers. Typically, these servers must be configured to run the desired tasks.
+%Although this may seem complicated, a framework constructed from the above principles, would only require that the \emph{diffusive} methods be specified, and the code could be launched through a container that would automatically instrumented the code to divert method calls. In this way, there isn't any need to modify the base code.
 
-Coding to such an API pollutes the application's \emph{business} logic with its distribution logic. It is true that with care the business and distribution logic can be cleanly separated in most cases. However, when an application needs to provide the ability to execute its tasks both locally and in a distributed mode, applications will require two versions of the execution logic: one for running locally, and one for distributed execution.
+%I have developed an open-source reference implementation of a Diffusive framework in Java that meets the above principles. Through the use of Aspect-Oriented programming frameworks, one could also implement such a framework in C/C++.
 
-Embedding execution distribution code into the application, in any case, causes additional difficulties for testing the business logic and debugging. 
+%Suppose we needed to perform 800 calculations, each calculation tools about 1 minute to execute. Suppose further that we had written code to run on a dual-quad-core server. And, on this hardware it took about 2 hours to execute. Suddenly, we are given access to 100 similar servers and asked to distribute the calculation across these 100 servers to reduce the computation time to a few minutes.
+
+%Task-oriented distributed computing is difficult. Endowing applications with the ability to execute tasks remotely, typically requires calls to an application programming interface (API) that manages the distribution of those tasks to remote servers. Typically, these servers must be configured to run the desired tasks.
+
+%Coding to such an API pollutes the application's \emph{business} logic with its distribution logic. It is true that with care the business and distribution logic can be cleanly separated in most cases. However, when an application needs to provide the ability to execute its tasks both locally and in a distributed mode, applications will require two versions of the execution logic: one for running locally, and one for distributed execution.
+
+%Embedding execution distribution code into the application, in any case, causes additional difficulties for testing the business logic and debugging. 
 
 %\subsection{}
 
