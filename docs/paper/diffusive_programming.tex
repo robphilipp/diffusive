@@ -16,7 +16,7 @@
 \maketitle
 
 % abstract
-In this article I describe an approach to task-oriented distributed programming that allows a developer to simply mark a method, and allow the distribution framework to take care of distributing its execution. I define a set of principles that facilitate task-oriented distributed computing, and obviate the use of a distribution API within your code. Finally, I describe \emph{Diffusive}, a reference implementation in Java that meets the outlined principles. This reference implementation allows developers to simply annotate methods whose execution is to be distributed. Then they launch the application through a \emph{diffusive launcher} that instruments the code at load-time, replacing the annotated method calls with ones that distributes the execution.
+In this article I describe an approach to task-oriented distributed programming that allows a developer to simply mark a method, and allow the distribution framework to take care of distributing its execution. I define a set of principles that facilitate task-oriented distributed computing, and obviate the use of a distribution API within your code. Finally, I describe \emph{Diffusive}, a reference implementation in Java that meets the outlined principles. This reference implementation allows developers to simply annotate methods whose execution is to be distributed. Then they launch the application through a \emph{diffusive launcher} that instruments the code at load-time, replacing the annotated method calls with ones that distributes the execution. Diffusive programming allows the construction of distribution networks tailored to solve specific or general problems, that can learn/discover an optimal configuration for performing certain types of tasks, or that contain sufficient redundancy to provide execution within required timelines.
 
 \section{Introduction}
 \emph{Diffusive programming} is an approach for performing task-oriented distributed computing, at the method level, that adheres to the following principles.
@@ -55,6 +55,22 @@ In this article I describe an approach to task-oriented distributed programming 
 	This principle allows the construction of networks tailored to solve specific or general problems, networks that can naturally learn/discover an optimal configuration for performing certain types of tasks, or networks that contain sufficient redundancy to provide execution within required timelines.
 
 \end{description}
+
+\section{Principles of Diffusive Programming}
+
+\subsection{Marking}
+
+\subsection{Location Opaqueness}
+
+\subsection{Generic Computation}
+
+\subsection{Indistinguishability}
+
+\subsection{Open Topology}
+
+\section{Diffusive: Reference Implementation}
+
+\section{Further Work}
 
 %Before describing these principles and their implications in more detail, I illustrate how such an approach could behave. First you would create a \emph{diffuser network} by running \emph{diffusers} on a collection of servers. Then you would configure the \emph{diffuser network} by giving each \emph{diffuser} a set of \emph{end-points} to which it can \emph{diffuse} method execution. Then you would specify, through configuration, which methods should be diffused. Then you need to instrument the code so that when the specified methods are called, the method calls are intercepted, and diverted to a \emph{diffuser}, which executes the method and returns the result, or diffuses the method further.
 
