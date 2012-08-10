@@ -1,24 +1,39 @@
-\documentclass[11pt]{amsart}
+\documentclass[11pt]{article}
+
 \usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
 \geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
-%\geometry{landscape}                % Activate for for rotated page geometry
+
 \usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{epstopdf}
+
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\begin{document}
 
 \title{Diffusive Programming}
 \author{Robert Philipp}
-\date{}                                           % Activate to display a given date or no date
-
-\begin{document}
+\date{\today}
 \maketitle
 
+%
 % abstract
-In this article I describe an approach to task-oriented distributed programming that allows a developer to simply mark a method, and allow the distribution framework to take care of distributing its execution. I define a set of principles that facilitate task-oriented distributed computing, and obviate the use of a distribution API within your code. Finally, I describe \emph{Diffusive}, a reference implementation in Java that meets the outlined principles. This reference implementation allows developers to simply annotate methods whose execution is to be distributed. Then they launch the application through a \emph{diffusive launcher} that instruments the code at load-time, replacing the annotated method calls with ones that distributes the execution. Diffusive programming allows the construction of distribution networks tailored to solve specific or general problems, that can learn/discover an optimal configuration for performing certain types of tasks, or that contain sufficient redundancy to provide execution within required timelines.
+%
+\begin{abstract}
+This article describes an approach to task-oriented distributed programming that allows a developer to simply \emph{mark} a method to inform the distribution framework to distribute its execution. \emph{Diffusive programming} is defined through a set of principles that govern the action of distributing method-level execution and the topology of the distribution network. Through these principles, \emph{diffusive programming} allows the construction of distribution networks that can be tailored to solve specific or general problems,  learn/discover an optimal distribution network configuration for performing certain types of tasks, or that can contain sufficient redundancy to provide execution within required timelines. Finally, I describe \emph{Diffusive}, a reference implementation in Java, that meets the diffusive programming principles.
+\end{abstract}
 
+%
+% introduction
+%
 \section{Introduction}
+Task-oriented distributed computing allows independent execution tasks to be distributed to multiple computing nodes, presumably to execute in parallel. This approach can reduce the overall compute time of a set of independent tasks. For example, in quantitative finance, one may desire to calculate risk metrics on a large portfolio of financial instruments. The calculation of the risk metrics is independent for each instrument, and therefore, we can speed up the calculation of the risk metrics for the entire portfolio by spreading these independent tasks over many compute nodes at once, and then collecting the results.
+
+Typically this type of distribution is performed by some distribution middleware, and the application must either include calls to the middleware application programming interface (API), or implement an interfaces that represents a compute tasks, or both. Including middleware API calls in the application code couples the application to the middleware, and potentially, this inclusion of distribution code can lead to less cohesive application code. Additionally, requiring that compute tasks implement a middleware-specific interface constrains the application to the available compute-method signature(s).
+
+Distribution middleware likely also requires that certain resources (dynamic libraries, class files, etc) be loaded onto the compute nodes \emph{before} they are able to execute the remote request. This requires careful versioning. And allows the compute nodes to be generic only in so far as the required resources have been deployed.
+
 \emph{Diffusive programming} is an approach for performing task-oriented distributed computing, at the method level, that adheres to the following principles.
 \begin{description}
 
@@ -125,6 +140,9 @@ The \emph{open topology} principle, coupled with the \emph{indistinguishability}
 %Coding to such an API pollutes the application's \emph{business} logic with its distribution logic. It is true that with care the business and distribution logic can be cleanly separated in most cases. However, when an application needs to provide the ability to execute its tasks both locally and in a distributed mode, applications will require two versions of the execution logic: one for running locally, and one for distributed execution.
 
 %Embedding execution distribution code into the application, in any case, causes additional difficulties for testing the business logic and debugging. 
+
+% reference implémentation
+%This reference implementation allows developers to simply annotate methods whose execution is to be distributed. Then they launch the application through a \emph{diffusive launcher} that instruments the code at load-time, replacing the annotated method calls with ones that distributes the execution.
 
 %\subsection{}
 
