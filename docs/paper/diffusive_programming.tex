@@ -4,11 +4,13 @@
 \geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
 
 \usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
-\usepackage{graphicx}
+
 \usepackage{amssymb}
 \usepackage{epstopdf}
 
+\usepackage{graphicx}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\graphicspath{{./figures/}}
 
 \begin{document}
 
@@ -116,6 +118,15 @@ The \emph{open topology} principle, coupled with the \emph{indistinguishability}
 Because any diffuser network that can be represented as a directed graph is possible to construct, there are an infinite number of patters in which these networks can be constructed. And furthermore, their dynamic nature also allows the networks to evolve over time. In the next subsections I describe three illustrative patterns that solve specific problems.
 
 \subsection{Layered}
+The layered topology is the simplest, and most similar to many distributed middleware solutions. In this topology, the diffuser collocated with the application, which we will call the \emph{local diffuser}, is connected to a set of end-points, which we call the \emph{remote diffusers}. The local diffuser, depending on the specifics of its configuration, is responsible for distributing the tasks to the the remote diffusers. The remote diffusers execute the task and return the results to the local diffuser, which returns the results to the application\footnote{In the discussion about the reference implementation, \emph{Diffusive}, I'll provide details on how these steps can be implemented.}. 
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[scale=1.0]{topology_single_layer}
+\caption{Single Layer Diffuser Network Topology}
+\label{default}
+\end{center}
+\end{figure}
 
 
 \subsection{Redundant}

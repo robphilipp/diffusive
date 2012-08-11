@@ -13,6 +13,7 @@ public interface DiffuserStrategy {
 	 * @return An end-point to which to send the next run/execute request. Each subsequent call
 	 * should return an end-point based on the implementing classes strategy.
 	 */
+	// TODO change to return a list of URI instead of one. the diffuser sends to each end-point
 	URI getEndpoint();
 	
 	/**
