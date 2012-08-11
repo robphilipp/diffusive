@@ -117,18 +117,37 @@ The \emph{open topology} principle, coupled with the \emph{indistinguishability}
 
 Because any diffuser network that can be represented as a directed graph is possible to construct, there are an infinite number of patters in which these networks can be constructed. And furthermore, their dynamic nature also allows the networks to evolve over time. In the next subsections I describe three illustrative patterns that solve specific problems.
 
+Finally, it is important to emphasize that it is the \emph{marking} principle and the \emph{location opaqueness} principle that require the diffusive framework to provide a mechism for intercepting \emph{marked} method calls and handing them to the (local) diffuser assigned to the application. It is that (local) diffuser that then takes care of diffusing the execution of the \emph{marked} method to other remote diffusers for execution. Therefore, all the topologies have this characteristic in common.
+
+% layer network topology
 \subsection{Layered}
 The layered topology is the simplest, and most similar to many distributed middleware solutions. In this topology, the diffuser collocated with the application, which we will call the \emph{local diffuser}, is connected to a set of end-points, which we call the \emph{remote diffusers}. The local diffuser, depending on the specifics of its configuration, is responsible for distributing the tasks to the the remote diffusers. The remote diffusers execute the task and return the results to the local diffuser, which returns the results to the application\footnote{In the discussion about the reference implementation, \emph{Diffusive}, I'll provide details on how these steps can be implemented.}. 
+
+Figure \ref{fig:topology_single_layer} shows the simplest topology--a single layered diffuser network. In this figure, the circles label with \textbf{D} are \emph{diffusers}, the square at the bottom label with \textbf{A} is the application containing the methods to be diffused. In this topology, the local diffuser is responsible for distributing the tasks to the remote diffusers. The remote diffusers execute their assigned task and return the result to the local diffuser, which then returns it to the application.
 
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[scale=1.0]{topology_single_layer}
-\caption{Single Layer Diffuser Network Topology}
-\label{default}
+\caption{Single Layer Diffuser Network Topology\label{fig:topology_single_layer}}
 \end{center}
 \end{figure}
 
+Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at this point that any implementation must address the strategy used to distribute the tasks amongst the diffusers--local and remote. The reference implementation \emph{Diffusive} provides a \textsf{Strategy} interface that can be implemented to provide a specific strategy based on load, number of executing threads, weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance characteristics of the diffusive network.
 
+A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. Two such patterns are shown in figure \ref{fig:topology_multi_layer}. However, unless the implementation of the diffusive principles allows nested method \emph{marking}, such network designs do not appear to provide any benefit over a single layer. Furthermore, in practice nested method marking is difficult to implement in a generic manner. If fact, it is not part of the reference implementation.
+
+%The topology depicted on the left-hand side of the figure simply provides the diffusers in the first layer additional diffusers to which to diffuse tasks in the event that their load is too high. The utility of such a network is questionable because it would usually be more efficient to simply add the second-layer diffusers to the first layer. However, if the implementation of the diffusive principle allowed nested method \emph{marking} then such a network design could be used to distribute tasks that contained subtasks requiring post processing. However, in practice this is difficult to implement in a generic manner, and therefore, is not part of the reference implementation.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[scale=1.0]{topology_multi_layer}
+\caption{Multi-Layer Diffuser Network Topologies\label{fig:topology_multi_layer}}
+\end{center}
+\end{figure}
+
+%The diffuser network on the right-hand side of figure \ref{fig:topology_multi_layer} is intended to provide a mechanism for load balancing. However, again, the appropriate diffusion strategy diffusing tasks to the same total number of diffusers should be more efficient. 
+
+% redundant network topology
 \subsection{Redundant}
 
 \subsection{Learning}
