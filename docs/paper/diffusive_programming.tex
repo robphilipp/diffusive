@@ -28,13 +28,14 @@ This article describes an approach to task-oriented distributed programming that
 % introduction
 %
 \section{Introduction}
-Task-oriented distributed computing allows independent execution tasks to be distributed to multiple computing nodes, presumably to execute in parallel. This approach can reduce the overall compute time of a set of independent tasks. For example, in quantitative finance, one may desire to calculate risk metrics on a large portfolio of financial instruments. The calculation of the risk metrics is independent for each instrument, and therefore, we can speed up the calculation of the risk metrics for the entire portfolio by spreading these independent tasks over many compute nodes at once, and then collecting the results.
+Task-oriented distributed computing allows independent computational tasks to be distributed to multiple computing nodes, presumably to execute in parallel. This approach can reduce the overall compute time of a set of independent tasks. For example, in quantitative finance, one may desire to calculate risk metrics on a large portfolio of financial instruments. Suppose that the calculation of these risk metrics for each instrument is independent of other instruments. In this case, we can speed up the calculation of the risk metrics for the entire portfolio by spreading these independent tasks over many compute nodes at once, and then collecting the results.
 
-Typically this type of distribution is performed by some distribution middleware, and the application must either include calls to the middleware application programming interface (API), or implement an interfaces that represents a compute tasks, or both. Including middleware API calls in the application code couples the application to the middleware, and potentially, this inclusion of distribution code can lead to less cohesive application code. Additionally, requiring that compute tasks implement a middleware-specific interface constrains the application to the available compute-method signature(s).
+Typically this type of distribution is performed by a distribution middleware. In many cases, the application makes calls to the middleware's application programming interface (API) and implements an interface that represents a compute tasks. Including middleware API calls in the application code couples the application to the middleware. And more concerning, the application is now polluted with code used to distribute execution to remote compute nodes. Clearly, with careful design, much of the distribution logic can be hidden behind wrappers that allow the application logic to interact with an abstract compute engine which could execute locally or remotely. But even that approach doesn't overcome the constraints imposed by requiring that compute tasks implement a specific interface\footnote{An execution method is required. That means that any task must adhere to the signature of the execution method. And conversely, the signature of the execution method must be general enough to support any task.}.
 
-Distribution middleware likely also requires that certain resources (dynamic libraries, class files, etc) be loaded onto the compute nodes \emph{before} they are able to execute the remote request. This requires careful versioning. And allows the compute nodes to be generic only in so far as the required resources have been deployed.
+Distribution middleware may also require deployment of certain resources (dynamic libraries, class files, etc) to the compute nodes \emph{before} they can execute remote requests. This requires careful synchronization of versioned resources. And this renders the compute nodes generic, only insofar as the required resources have been deployed to the node.
 
-\emph{Diffusive programming} is an approach for performing task-oriented distributed computing, at the method level, that adheres to the following principles.
+\emph{Diffusive programming} is an approach for performing task-oriented distributed computing that is based on the following principles intended to overcome challenges described above. In the remainder of this section I describe these principles and define some terms. In the next section, I discuss each principle in more detail. Note that the principles are ordered. The first two principles are related to the action of distributing execution, and the remaining principles are increasingly more focused on the configuration and topology of the compute nodes.
+
 \begin{description}
 
 	% marking, diffusive
@@ -75,7 +76,7 @@ Distribution middleware likely also requires that certain resources (dynamic lib
 % Principles of diffusive programming
 %
 \section{Principles of Diffusive Programming}
-In this section, I describe the five principles \emph{diffusive programming} in more detail. The principles build on each other, progressing from action of distributing the code to deployment and configuration of the \emph{diffusers}. I describe the reason for, and the importance of, each principle. Where applicable, I describe how the principle differs from more typical or traditional methods of distributed computing.
+In this section, I describe the five principles \emph{diffusive programming} in more detail. The principles build on each other, progressing from the action of distributing the code to the deployment and configuration of the \emph{diffusers}. I describe the reason for, and the importance of, each principle. Where applicable, I describe how the principle differs from more typical or traditional methods of distributed computing.
 
 \subsection{Marking}
 \emph{Diffusive programming} allows the execution of individual methods to be distributed. \emph{Marking} a method is the act of specifying that a specific method is to be distributed. How a method is \emph{marked} is up to the implementation of this principle. However, this principle does state that the act of \emph{marking} a method is necessary and sufficient for the method to be distributed. This means that \emph{any} method can be marked, and, therefore, executed, regardless of its name, parameters, or return type. This is a departure from many typical task-orient approaches that require the implementation of task interfaces, where the method to be executed has a defined signature (and return type).
@@ -110,8 +111,12 @@ The \emph{open topology} principle, coupled with the \emph{indistinguishability}
 % Diffusion patterns
 %
 \section{Diffusion Patterns}\label{sec:diffusion_patterns}
+\emph{Diffusion patterns} are made possible by the last three diffusive programming principles: generic computing; indistinguishability, and open topology. Together, these three principles make the statement that \emph{diffusers} form building blocks that can be connected as directed graphs. The principle of \emph{open topology} requires that a diffuser be connected to zero or more end-points to which it can diffuse execution of a method. The principle of \emph{indistinguishability} states that each end-point, itself, must be a diffuser. This means that that diffuser itself is connected to zero or more other end-points. And, therefore, it can receive tasks as well as diffuse them. Finally, the principle of \emph{generic computing} requires that a diffuser be able to receive (and send) resources needed to execute a task, allowing tasks to be diffused to other nodes dynamically and executed.
+
+Because any diffuser network that can be represented as a directed graph is possible to construct, there are an infinite number of patters in which these networks can be constructed. And furthermore, their dynamic nature also allows the networks to evolve over time. In the next subsections I describe three illustrative patterns that solve specific problems.
 
 \subsection{Layered}
+
 
 \subsection{Redundant}
 
