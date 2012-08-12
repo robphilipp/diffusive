@@ -134,9 +134,7 @@ Figure \ref{fig:topology_single_layer} shows the simplest topology--a single lay
 
 Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at this point that any implementation must address the strategy used to distribute the tasks amongst the diffusers--local and remote. The reference implementation \emph{Diffusive} provides a \textsf{Strategy} interface that can be implemented to provide a specific strategy based on load, number of executing threads, weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance characteristics of the diffusive network.
 
-A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. Two such patterns are shown in figure \ref{fig:topology_multi_layer}. However, unless the implementation of the diffusive principles allows nested method \emph{marking}, such network designs do not appear to provide any benefit over a single layer. Furthermore, in practice nested method marking is difficult to implement in a generic manner. If fact, it is not part of the reference implementation.
-
-%The topology depicted on the left-hand side of the figure simply provides the diffusers in the first layer additional diffusers to which to diffuse tasks in the event that their load is too high. The utility of such a network is questionable because it would usually be more efficient to simply add the second-layer diffusers to the first layer. However, if the implementation of the diffusive principle allowed nested method \emph{marking} then such a network design could be used to distribute tasks that contained subtasks requiring post processing. However, in practice this is difficult to implement in a generic manner, and therefore, is not part of the reference implementation.
+A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is  shown in figure \ref{fig:topology_multi_layer}. If the implementation of the diffusive principles allows nested method \emph{marking}, this topology allows tasks to be diffused that, themselves, contain subtasks. One example where such a network topology would be far more suitable than a single layered topology is when the task, itself, is composed of multiple independent subtasks that each produce a large amount of data which the task combines. Allowing the diffusers in the first layer to perform the combining (averaging, summation, etc) before returning the result to the local diffuser alleviates the local diffuser from become overloaded with the tasks of combining a many large sets of data. 
 
 \begin{figure}[htbp]
 \begin{center}
@@ -145,12 +143,26 @@ A natural extension of the single-layered diffuser pattern is a multi-layered di
 \end{center}
 \end{figure}
 
+This type of topology can dramatically improve the performance such calculations. However, this network topology is only an improvement \textbf{if} nested method marking is supported. In practice nested method marking is difficult to implement in a generic manner. In fact, it is not part of the reference implementation.
+
+%The topology depicted on the left-hand side of the figure simply provides the diffusers in the first layer additional diffusers to which to diffuse tasks in the event that their load is too high. The utility of such a network is questionable because it would usually be more efficient to simply add the second-layer diffusers to the first layer. However, if the implementation of the diffusive principle allowed nested method \emph{marking} then such a network design could be used to distribute tasks that contained subtasks requiring post processing. However, in practice this is difficult to implement in a generic manner, and therefore, is not part of the reference implementation.
+
 %The diffuser network on the right-hand side of figure \ref{fig:topology_multi_layer} is intended to provide a mechanism for load balancing. However, again, the appropriate diffusion strategy diffusing tasks to the same total number of diffusers should be more efficient. 
 
 % redundant network topology
 \subsection{Redundant}
+In distributed computing it is not uncommon that a task fails to complete. A compute node may have crashed or lost network connectivity with the collective. Or some mysterious set of events placed the execution of the task in an unusual, never-to-be-repeated-until-a-demo state that prevented its completion. In cases where the completion of each individual task is required to occur at least once in a given time period, we could send redundant tasks to different compute nodes, and use the first result from each individual task to come back.
+
+The principles of \emph{generic computation} and \emph{location opaqueness} mean the the implementation of the diffusive principles hides this from the application. The application configuration would be the only change to the application's execution. Furthermore, it turns out that this redundancy is quite straight forward to implement through the user of the \textsf{Strategy} interface. By having the \textsf{Strategy} return a set of endpoints, rather than a single one, the same tasks can be sent to all the end-points in a set. The first result to return is passed to the application, and the rest are either ignored, or cancelled.
 
 \subsection{Learning}
+All servers are not created equal. For the purposes of distributed computing, they differ in three important areas:
+\begin{enumerate}
+\item Execution capacity
+\item File input-output (I/O) capacity
+\item Network I/O capacity
+\end{enumerate}
+For example, for CPU intensive tasks, a server that is running a quad quad-core processor should receive substantially more tasks than a server running a single dual-core processor\footnote{Assuming they have a similar clock speed and instruction set and aren't memory or I/O bound.}.
 
 %
 % Reference implementation
