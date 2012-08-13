@@ -7,7 +7,7 @@
 
 \usepackage{amssymb}
 \usepackage{epstopdf}
-
+\usepackage{fixltx2e}
 \usepackage{graphicx}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 \graphicspath{{./figures/}}
@@ -123,7 +123,7 @@ Finally, it is important to emphasize that it is the \emph{marking} principle an
 \subsection{Layered}
 The layered topology is the simplest, and most similar to many distributed middleware solutions. In this topology, the diffuser collocated with the application, which we will call the \emph{local diffuser}, is connected to a set of end-points, which we call the \emph{remote diffusers}. The local diffuser, depending on the specifics of its configuration, is responsible for distributing the tasks to the the remote diffusers. The remote diffusers execute the task and return the results to the local diffuser, which returns the results to the application\footnote{In the discussion about the reference implementation, \emph{Diffusive}, I'll provide details on how these steps can be implemented.}. 
 
-Figure \ref{fig:topology_single_layer} shows the simplest topology--a single layered diffuser network. In this figure, the circles label with \textbf{D} are \emph{diffusers}, the square at the bottom label with \textbf{A} is the application containing the methods to be diffused. In this topology, the local diffuser is responsible for distributing the tasks to the remote diffusers. The remote diffusers execute their assigned task and return the result to the local diffuser, which then returns it to the application.
+Figure \ref{fig:topology_single_layer} shows the simplest topology---a single layered diffuser network. In this figure, the circles label with \textbf{D} are \emph{diffusers}, the square at the bottom label with \textbf{A} is the application containing the methods to be diffused. In this topology, the local diffuser is responsible for distributing the tasks to the remote diffusers. The remote diffusers execute their assigned task and return the result to the local diffuser, which then returns it to the application.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -132,7 +132,7 @@ Figure \ref{fig:topology_single_layer} shows the simplest topology--a single lay
 \end{center}
 \end{figure}
 
-Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at this point that any implementation must address the strategy used to distribute the tasks amongst the diffusers--local and remote. The reference implementation \emph{Diffusive} provides a \textsf{Strategy} interface that can be implemented to provide a specific strategy based on load, number of executing threads, weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance characteristics of the diffusive network.
+Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at this point that any implementation must address the strategy used to distribute the tasks amongst the diffusers---local and remote. The reference implementation \emph{Diffusive} provides a \textsf{Strategy} interface that can be implemented to provide a specific strategy based on load, number of executing threads, weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance characteristics of the diffusive network.
 
 A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is  shown in figure \ref{fig:topology_multi_layer}. If the implementation of the diffusive principles allows nested method \emph{marking}, this topology allows tasks to be diffused that, themselves, contain subtasks. One example where such a network topology would be far more suitable than a single layered topology is when the task, itself, is composed of multiple independent subtasks that each produce a large amount of data which the task combines. Allowing the diffusers in the first layer to perform the combining (averaging, summation, etc) before returning the result to the local diffuser alleviates the local diffuser from become overloaded with the tasks of combining a many large sets of data. 
 
@@ -156,18 +156,26 @@ In distributed computing it is not uncommon that a task fails to complete. A com
 The principles of \emph{generic computation} and \emph{location opaqueness} mean the the implementation of the diffusive principles hides this from the application. The application configuration would be the only change to the application's execution. Furthermore, it turns out that this redundancy is quite straight forward to implement through the user of the \textsf{Strategy} interface. By having the \textsf{Strategy} return a set of endpoints, rather than a single one, the same tasks can be sent to all the end-points in a set. The first result to return is passed to the application, and the rest are either ignored, or cancelled.
 
 \subsection{Learning}
-All servers are not created equal. For the purposes of distributed computing, they differ in three important areas:
+Not all servers are created equal. For purposes of distributed computing, I focus on three important differences:
 \begin{enumerate}
 \item Execution capacity
 \item File input-output (I/O) capacity
 \item Network I/O capacity
 \end{enumerate}
-For example, for CPU intensive tasks, a server that is running a quad quad-core processor should receive substantially more tasks than a server running a single dual-core processor\footnote{Assuming they have a similar clock speed and instruction set and aren't memory or I/O bound.}.
+
+Execution capacity describes the available processing capacity of the server\footnote{I am referring to a physical server in these examples. However, the arguments apply equally as well if the servers are virtualized, but roughly guarantee a certain execution capacity.}. All else equal, servers with a higher processor and core count will provide higher execution capacity. Clearly there are many other factors that determine the execution capacity of a server. And, therefore, when distributing execution tasks, having information about the execution capacity of a server helps determine the optimal amount of work to distribute to that server relative to other servers. 
+
+As an oversimplified example, suppose that you have two servers available to which tasks can be sent: server \textbf{A} and server \textbf{B}. If the server \textbf{A} has four processors and server \textbf{B} has only one processor, then if the servers are otherwise the same, you would expect  that server \textbf{A} can process about four times as much work as server \textbf{B}. If the tasks involve writing a large amount of data to a distributed data base, then it may be necessary to consider differences in the servers' file I/O or network I/O capacity when determining the optimal distribution of tasks.
+
+To account for the differences in the capacity of a server to perform tasks, one can use a \textsf{Strategy} that takes in to account weighting factors assigned to each server. These weighting factors would be configured to represent the capacity of the node to perform specific sets of tasks. And the \textsf{Strategy} would select servers for tasks based on their weighting. For example, if server \textbf{A} had four processors and server \textbf{B} has only one processor, we may configure server \textbf{A}'s weight to be four, and server \textbf{B}'s weight to be 1. The \textsf{Strategy} would use these weights to send about for times as many tasks, on average, to server \textbf{A} than to the server \textbf{B}.
+
+The assignment of these relative weights to each server can be automated in cases where the same type of processing is performed repeatedly. This type of automation can be achieved through the use of a \textsf{Strategy} that adjusts the weights and the logs them. Once the overall execution of the process is complete, the local diffuser makes an associate of the overall execution time (possibly scaled to the number of similar tasks) with those weights. The next time the process is run, \textsf{Strategy} uses this information---weight-to-server assignments and the execution time of that combination---to again adjust the weighting factors according to some optimization algorithm.
 
 %
 % Reference implementation
 %
 \section{Diffusive: Reference Implementation}
+
 
 %
 % Future work
