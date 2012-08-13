@@ -175,7 +175,27 @@ The assignment of these relative weights to each server can be automated in case
 % Reference implementation
 %
 \section{Diffusive: Reference Implementation}
+The \emph{Diffusive} reference implementation is a Java-based framework that implements the \emph{diffusive} principles. Aspects of \emph{Diffusive} are specific to its implementation, and could be implemented in other ways. For example, in \emph{Diffusive} methods are \emph{marked} through the use of annotations. In particular, a \emph{diffusive} method is annotated with \textsf{@Diffusive}. However, it would have been possible to allow methods to be marked through a configuration file that holds a list of \emph{markers} represented by fully qualified method names\footnote{For example, the fully qualified method name could be represented by the fully qualified class name with the method name appended with a ``.'', such as \textsf{org.myapp.calc.PriceCalc.calculate}.}. These aspects only change the specifics of how a \emph{diffusive} framework implements the principles, but not how it behaves.
 
+In the next sections I discuss how \emph{Diffusive} framework implements the five diffusive principles.
+
+% marking and diffusing
+\subsection{Marking and Diffusing}
+The diffusive principle, \emph{marking}, requires that a method is somehow marked as a \emph{diffusive method}. It further requires that \emph{marking} a method is both sufficient and necessary for a method to be diffused. The \emph{location opaqueness} principle takes it a step further by requiring that any application method calling a diffusive (marked) method does not, and can not, know where that method is being executed.
+
+\emph{Diffusive} accomplishes this through a combination of annotations and load-time byte-code engineering. The annotations are simple: any method that is to be diffused is annotated with \textsf{@Diffusive}. This signals the class-loader that any calls to this method should be replaced with a call to a diffuser that has already been configured\footnote{I'll discuss the configuration of \emph{Diffusive} later.}. \emph{Diffusive} uses the byte-code engineering framework Javassist\footnote{http://www.jboss.org/javassist/}\textsuperscript{,}\footnote{Another approach would have been to use aspect-oriented programming frameworks such as AspectJ. However, the compact Javassist framework provides everything \emph{Diffusive} needs.} to replace marked method calls to call the diffuser instead.
+
+In order to replace marked methods during class-loading, the application classes must be loaded through the diffusive class loader (\textsf{DiffusiveLoader}). This is accomplished by using an application launcher, called the diffusive launcher. The diffusive launcher (\textsf{DiffusiveLauncher}) accepts the name of the application's Java class, creates a diffusive class loader, and asks it to run the application. The diffusive loader reads the configuration items, sets up the local diffuser to which marked method calls are diverted, manages details of which classes are loaded by the application's class loader and which are passed to the Javassist \textsf{Loader}.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics{diffusive_launcher}
+\caption{Launching an application in Diffusive}
+\label{fig:diffusive_launch_application}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:diffusive_launch_application} illustrates launching an application in \emph{Diffusive}. At the top of the figure is a box labeled ``Application'' which represents the unadulterated application. The light blue dot in that box represents a method call to the red dot. The red dot represents a \emph{marked} method. The application passes through the launcher and into the loader. The \textsf{DiffusiveLoader} sets up the repository, reads the configuration items, creates a local diffuser, and hands the application to the Javassist \textsf{Loader} to instrument the application. The tan box labeled ``Application'' in the lower-right hand side of the figure represents the instrumented, or modified, application. Notice that now, all the method calls to the \emph{marked} method go to the local diffuser, which contains it's own version of that method. It is the local diffuser, the green circle on the bottom left-hand side of the figure, that is responsible for distributing the method execution. Notice that aside from the marking of the methods, the application code is untouched.
 
 %
 % Future work
