@@ -8,7 +8,7 @@ import java.lang.management.OperatingSystemMXBean;
  * method. This gives the average load over the past minute. In cases where the tasks are long running (say
  * about greater than a minute) then this method may yield reasonable results for load-balancing 
  * strategies. However, in cases where there are many short running tasks, the average won't pick them up
- * and the strategy may ot yield optimal load balancing.
+ * and the strategy may not yield optimal load balancing.
  * 
  * @author Robert Philipp
  */
