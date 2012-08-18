@@ -108,7 +108,7 @@ The principle of \emph{indistinguishability} means that a \emph{diffuser} must b
 The \emph{generic computation} principle alluded to this principle of \emph{indistinguishability}. The generic computation principle states that a diffuser must be able to load resources from a remote diffusers, \textbf{and} at the same time must be able to provide resources to a remote diffuser.
 
 \subsection{Open Topology}
-The \emph{open topology} principle, coupled with the \emph{indistinguishability} principle, requires that it is possible to create networks of \emph{diffusers}, called \emph{diffuser networks}, in any topology that can be represented as a directed graph. Each node in the directed graph represents a \emph{diffuser}, and each (directed) edge connects that \emph{diffuser} to an \emph{end-point}, which is another \emph{diffuser}. Any network that can be represented by a directed graph can be constructed. Section \ref{sec:diffusion_patterns} (\textbf{Diffusion Patterns}) describes a few possible network topologies (patterns) that are designed to solve specific problems.
+The \emph{open topology} principle, coupled with the \emph{indistinguishability} principle, requires that it is possible to create networks of \emph{diffusers}, called \emph{diffuser networks}, in any topology that can be represented as a directed graph. Each node in the directed graph represents a \emph{diffuser}, and each (directed) edge connects that \emph{diffuser} to an \emph{end-point}, which is another \emph{diffuser}. Any network that can be represented by a directed graph can be constructed. Section \ref{sec:diffusion_patterns}, \nameref{sec:diffusion_patterns}, describes a few possible network topologies (patterns) that are designed to solve specific problems.
 
 %
 % Diffusion patterns
@@ -226,6 +226,12 @@ Once the execution environment receives the serialized objects, it needs to reco
 \emph{Diffusive} provides an interface, \textsf{Serializer}, that defines what a serializer must provide to \emph{Diffusive}. Two key serialization implementations have been wrapped to conform to the \textsf{Serializer} interface: \textsf{ObjectSerializer} and \textsf{PersistenceSerializer}. The \textsf{ObjectSerializer} is Java's own serialization framework which requires that classes implement the \textsf{Serializable} interface. Using this serialization framework this requires altering existing classes that don't yet implement \textsf{Serializable}. In some cases this may be acceptable. In other cases it may not be possible.
 
 The \textsf{PersistenceSerializer} wraps the \href{http://freezedried.sourceforge.net}{FreezeDry} persistence framework\footnote{\url{http://freezedried.sourceforge.net}}. FreezeDry does not require any classes to implement a FreezeDry-specific interface. In fact, FreezeDry can take any existing class (even those without no-arg constructors) and serialize them into XML, JSON, or key-value pairs. However, if the class is too complex, it may require some coding.
+
+% generic computation
+\subsection{Generic Computation\label{sec:generic_computation}}
+Section \ref{sec:serialization}, \nameref{sec:serialization}, described the need for serializing objects for transport across the network, and for the remote diffuser to be able to execute the diffusive method. Recall that to execute a diffusive method requires the object containing the serialized method and all the objects passed as arguments to the method to be serialized. Once these serialized objects are received by the remote diffuser, it needs to deserialize them back into objects. To deserialize any object requires that the class loader has loaded a \textsf{Class} object corresponding to that object (and any objects that object references). Usually, this is handled by deploying the class files (as jar or war files) to the remote servers that will be executing the methods.
+
+The \emph{Generic Computation} principle states that deployment of resources to the remote nodes must not be necessary. \emph{Diffusive} provides
 
 %
 % Future work
