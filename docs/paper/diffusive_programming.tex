@@ -269,6 +269,21 @@ There are a few noteworthy points.
 
 % indistinguishability and open topology
 \subsection{Indistinguishability and Open Topology\label{sec:indistinguishability_and_open_topology}}
+In \emph{Diffusive} all diffusers of a certain type are the same. And with the exception of the \emph{application-attached} diffuser, all diffusers are managed the same way. The application-attached diffuser, as the name implies, is attached to the application through the diffusive launcher. Recall that the diffuser launcher is used to launch the application, and during the process of launching the application, the application is instrumented to divert calls to diffusive methods to the application-attached diffuser. It is the application-attached diffuser that diffuses (distributes) method calls to remote diffusers.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[scale=1.1]{restful_diffuser_server}
+\caption{RESTful Diffuser Server}
+\label{fig:restful_diffuser_server}
+\end{center}
+\end{figure}
+
+Recall that in \emph{Diffusive}, a remote diffuser is managed by RESTful diffuser server. A RESTful diffuser servers (\textsf{RestfulDiffuserServer}) act as servers to which methods can be diffused. The RESTful diffuser servers also act as clients when diffusing methods to other remote diffusers, or when other diffusers request \textsf{Class} objects from their class path. And therefore, all remote diffusers look alike. Figure \ref{fig:restful_diffuser_server} shows the basic elements contained in a RESTful diffuser server and depicts a typical interaction. In this scenario, the \textsf{RestfulDiffuserServer} receives a request to execute a method (task). The \textsf{RestfulDiffuserServer}, a web server, forwards the request to the web resource (JSR-311 web resource) which binds to the \textsf{execute(...)} method of that resource. The execute method looks up the appropriate diffuser based on the diffuser method signature, which is part of the its URI, and then forwards the method to that diffuser. The diffuser 
+
+Each diffuser contains a list of end-points to which it can diffuse code, a list of class paths from which it can load \textsf{Class} objects, and a \textsf{Strategy} which determines how the end-points for executing the next task are selected. It is the combination of these that allows diffusers to be connected in arbitrary way, as long as that arbitrary way can be represented by a directed graph.
+
+% create a figure that shows the diffuser, and the two ways in which the diffuser is managed: app-attached; remote restful diffuser server.
 
 %
 % Future work
