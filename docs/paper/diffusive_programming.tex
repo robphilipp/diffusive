@@ -279,36 +279,25 @@ In \emph{Diffusive} all diffusers of a certain type are the same. And with the e
 \end{center}
 \end{figure}
 
-Recall that in \emph{Diffusive}, a remote diffuser is managed by RESTful diffuser server. A RESTful diffuser servers (\textsf{RestfulDiffuserServer}) act as servers to which methods can be diffused. The RESTful diffuser servers also act as clients when diffusing methods to other remote diffusers, or when other diffusers request \textsf{Class} objects from their class path. And therefore, all remote diffusers look alike. Figure \ref{fig:restful_diffuser_server} shows the basic elements contained in a RESTful diffuser server and depicts a typical interaction. In this scenario, the \textsf{RestfulDiffuserServer} receives a request to execute a method (task). The \textsf{RestfulDiffuserServer}, a web server, forwards the request to the web resource (JSR-311 web resource) which binds to the \textsf{execute(...)} method of that resource. The execute method looks up the appropriate diffuser based on the diffuser method signature, which is part of the its URI, and then forwards the method to that diffuser. The diffuser 
+Recall that in \emph{Diffusive}, a remote diffuser is managed by RESTful diffuser server. A RESTful diffuser servers (\textsf{RestfulDiffuserServer}) act as servers to which methods can be diffused. The RESTful diffuser servers also act as clients when diffusing methods to other remote diffusers, or when other diffusers request \textsf{Class} objects from their class path. And therefore, all remote diffusers look alike. Figure \ref{fig:restful_diffuser_server} shows the basic elements contained in a RESTful diffuser server and depicts a typical interaction. In this scenario, the \textsf{RestfulDiffuserServer} receives a request to execute a method (task). The \textsf{RestfulDiffuserServer}, a web server, forwards the request to the web resource\footnote{A JSR-311 web resource.} (\textsf{RestfulDiffuserManagerResource}) which is bound to its \textsf{execute(...)} method. The execute method looks up the appropriate diffuser based on the diffuser method signature, which is part of the its URI, returns a response containing the result ID (a URI to the result resource) and then forwards the method to that diffuser. 
 
-Each diffuser contains a list of end-points to which it can diffuse code, a list of class paths from which it can load \textsf{Class} objects, and a \textsf{Strategy} which determines how the end-points for executing the next task are selected. It is the combination of these that allows diffusers to be connected in arbitrary way, as long as that arbitrary way can be represented by a directed graph.
+Each RESTful diffuser contains a \textsf{RestfulClassLoader} which loads a class using a RESTful web service. The \textsf{RestfulClassLoader} acts as a client to the \textsf{RestfulClassPathResource}, which serializes the request \textsf{Class} object and returns it. The RESTful class loader then deserializes the \textsf{Class} object and loads it. Notice that each \textsf{RestfulDiffuserServer} contains the \textsf{RestfulClassPathResource}.
 
-% create a figure that shows the diffuser, and the two ways in which the diffuser is managed: app-attached; remote restful diffuser server.
+At this point, the diffuser can execute the method and return the result to the \textsf{Restful\-Diffuser\-Manager\-Resource}.
+
+Each diffuser contains a list of end-points to which it can diffuse code, a list of class paths from which it can load \textsf{Class} objects, a \textsf{Strategy} which determines how the end-points for executing the next task are selected, and a RESTful class loader to load class over the network. It is the fact that each diffuser server looks the same that makes each diffuser server a building block from which to construct arbitrary diffuser networks---as long as they can be represented by a directed graph.
 
 %
 % Future work
 %
 \section{Future Work}
-
-%Before describing these principles and their implications in more detail, I illustrate how such an approach could behave. First you would create a \emph{diffuser network} by running \emph{diffusers} on a collection of servers. Then you would configure the \emph{diffuser network} by giving each \emph{diffuser} a set of \emph{end-points} to which it can \emph{diffuse} method execution. Then you would specify, through configuration, which methods should be diffused. Then you need to instrument the code so that when the specified methods are called, the method calls are intercepted, and diverted to a \emph{diffuser}, which executes the method and returns the result, or diffuses the method further.
-
-%Although this may seem complicated, a framework constructed from the above principles, would only require that the \emph{diffusive} methods be specified, and the code could be launched through a container that would automatically instrumented the code to divert method calls. In this way, there isn't any need to modify the base code.
-
-%I have developed an open-source reference implementation of a Diffusive framework in Java that meets the above principles. Through the use of Aspect-Oriented programming frameworks, one could also implement such a framework in C/C++.
-
-%Suppose we needed to perform 800 calculations, each calculation tools about 1 minute to execute. Suppose further that we had written code to run on a dual-quad-core server. And, on this hardware it took about 2 hours to execute. Suddenly, we are given access to 100 similar servers and asked to distribute the calculation across these 100 servers to reduce the computation time to a few minutes.
-
-%Task-oriented distributed computing is difficult. Endowing applications with the ability to execute tasks remotely, typically requires calls to an application programming interface (API) that manages the distribution of those tasks to remote servers. Typically, these servers must be configured to run the desired tasks.
-
-%Coding to such an API pollutes the application's \emph{business} logic with its distribution logic. It is true that with care the business and distribution logic can be cleanly separated in most cases. However, when an application needs to provide the ability to execute its tasks both locally and in a distributed mode, applications will require two versions of the execution logic: one for running locally, and one for distributed execution.
-
-%Embedding execution distribution code into the application, in any case, causes additional difficulties for testing the business logic and debugging. 
-
-% reference implémentation
-%This reference implementation allows developers to simply annotate methods whose execution is to be distributed. Then they launch the application through a \emph{diffusive launcher} that instruments the code at load-time, replacing the annotated method calls with ones that distributes the execution.
-
-%\subsection{}
-
+\begin{enumerate}
+\item Nested diffusion
+\item Deployment options: into servlet container, etc
+\item RMI diffusers
+\item Deployment and management tools (because RESTful, can build javascript UI to interact, map, and manage diffusers).
+\item Tools to start/stop the resources (this may be taken care of by deploying into Tomcat?)
+\end{enumerate}
 
 
 \end{document}  
