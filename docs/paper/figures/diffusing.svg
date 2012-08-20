@@ -646,5 +646,10 @@
          id="textPath9396"><tspan
    id="tspan9394"
    style="stroke:none">(class path=URI)</tspan></textPath></text>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#g9382"
+       id="use9943" />
   </g>
 </svg>
