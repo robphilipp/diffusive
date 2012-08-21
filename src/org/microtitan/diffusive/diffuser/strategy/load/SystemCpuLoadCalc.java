@@ -1,10 +1,10 @@
 package org.microtitan.diffusive.diffuser.strategy.load;
 
 import java.lang.management.ManagementFactory;
-
-import com.sun.management.OperatingSystemMXBean;
+import java.lang.management.OperatingSystemMXBean;
 
 /**
+ * TODO fix this class to give the system CPU load. currently gives the average system load instead
  * Uses the system's CPU load based on the {@link OperatingSystemMXBean#getProcessCpuLoad()}
  * method. This gives the current load for the system (not just this JVM process).
  * 
@@ -18,7 +18,7 @@ public class SystemCpuLoadCalc implements DiffuserLoadCalc {
 	
 	private SystemCpuLoadCalc()
 	{
-		this.mxBean = (com.sun.management.OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
+		this.mxBean = ManagementFactory.getOperatingSystemMXBean();
 	}
 
 	/**
@@ -45,7 +45,8 @@ public class SystemCpuLoadCalc implements DiffuserLoadCalc {
 	@Override
 	public double getLoad()
 	{
-		return mxBean.getSystemCpuLoad();
+		// TODO fix this to get the system CPU load instead...haven't figured this out yet
+		return mxBean.getSystemLoadAverage();//getSystemCpuLoad();
 	}
 
 }

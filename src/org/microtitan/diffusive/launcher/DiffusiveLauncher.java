@@ -85,14 +85,14 @@ public class DiffusiveLauncher {
 		return new BasicDiffusiveTranslator( expressionEditor );
 	}
 	
-	/*
+	/**
 	 * Creates a default method intercepter using the specified {@link Diffuser}
 	 * @param diffuser The diffuser used with the default method intercepter
 	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
 	 */
-	private static MethodIntercepterEditor createDefaultMethodIntercepter( /*final Diffuser diffuser*/ )
+	private static MethodIntercepterEditor createDefaultMethodIntercepter()
 	{
-		return new MethodIntercepterEditor( /*diffuser*/ );
+		return new MethodIntercepterEditor();
 	}
 	
 	/**
