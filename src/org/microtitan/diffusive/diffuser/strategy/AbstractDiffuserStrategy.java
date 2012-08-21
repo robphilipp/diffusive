@@ -8,7 +8,7 @@ import org.microtitan.diffusive.Constants;
 
 /**
  * Abstract class that deals with the {@link List} of end-point {@link URI}. Implementing classes
- * need to implement the {@link #getEndpoint()} method from the {@link DiffuserStrategy} interface.
+ * need to implement the {@link #getEndpoints()} method from the {@link DiffuserStrategy} interface.
  * 
  * @author Robert Philipp
  */

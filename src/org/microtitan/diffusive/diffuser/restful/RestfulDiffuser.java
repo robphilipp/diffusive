@@ -6,6 +6,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
@@ -34,6 +41,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	private final DiffuserStrategy strategy;
 	private final List< URI > classPaths;
 	private final double loadThreshold;
+	
+//	private final ExecutorService executor;
 	
 	/**
 	 * Constructs the RESTful diffuser that runs methods either locally or sends them on to a remote
@@ -64,6 +73,9 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			throw new IllegalArgumentException( message.toString() );
 		}
 		this.loadThreshold = loadThreshold;
+		
+		// TODO make this number configurable
+//		executor = Executors.newFixedThreadPool( 100 );
 	}
 	
 	/*
@@ -99,106 +111,155 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		}
 		else
 		{
-			// create the client manager for the next end point from the strategy
-			final URI endpoint = strategy.getEndpoint();
-			final RestfulDiffuserManagerClient client = new RestfulDiffuserManagerClient( endpoint );
-
-			// create the diffuser on the server
-			final int numArguments = (arguments == null ? 0 : arguments.length);
-			final Class< ? >[] argumentTypes = new Class< ? >[ numArguments ];
-			for( int i = 0; i < numArguments; ++i )
-			{
-				argumentTypes[ i ] = arguments[ i ].getClass();
-			}
-			/*final CreateDiffuserResponse response = */
-			client.createDiffuser( classPaths, returnType, object.getClass(), methodName, argumentTypes );
+			// create the client manager for the next end points from the strategy
+			final List< URI > endpoints = strategy.getEndpoints();
 			
-			// execute the method on the diffuser
-			ExecuteDiffuserResponse executeResponse = null;
-			// try argument is supposed to close the ByteArrayOutputStream, but it seems it doesn't.
-			// yet, at the same time, closing a ByteArrayOutputStream has no effect anyway, so we can
-			// safely suppress the warning.
-			try( @SuppressWarnings( "resource" ) final ByteArrayOutputStream out = new ByteArrayOutputStream() )
+			// create the list of futures that are waiting for the task to return from 
+			// the first end point
+			final List< Future< T > > futures = new ArrayList<>( endpoints.size() );
+			
+			// create the executor service for running the tasks.
+			final ExecutorService executor = Executors.newFixedThreadPool( 100 );
+			
+			// diffuse each end point, adding the reference to the result in the list of futures
+			for( URI endpoint : endpoints )
 			{
-				// serialize the object into the byte[] output stream and flush it
-				serializer.serialize( object, out );
-				out.flush();
-				
-				//
-				// call the client to execute the method on the object
-				//
-				// we need to serialize the object containing the method we are calling, and then we need to serialize each
-				// of the arguments passed into the method.
-				if( numArguments == 0 )
-				{
-					executeResponse = client.executeMethod( returnType, object.getClass(), methodName, out.toByteArray(), serializer );
-				}
-				else
-				{
-					// serialize the argument values
-					final List< byte[] > serializedArgs = new ArrayList<>();
-					for( Object argument : arguments )
-					{
-						try( final ByteArrayOutputStream outArg = new ByteArrayOutputStream() )
-						{
-							serializer.serialize( argument, outArg );
-							outArg.flush();
-							
-							// add the byte[] to the list of serialized arguments
-							serializedArgs.add( outArg.toByteArray() );
-						}
-						catch( IOException e )
-						{
-							final StringBuffer message = new StringBuffer();
-							message.append( "I/O error occured attempting to flush the byte[] output stream holding a serialized argument in" + Constants.NEW_LINE );
-							message.append( "preparation for calling the execute(...) method on the client." + Constants.NEW_LINE );
-							message.append( "  Client Endpoint: " + endpoint.toString() + Constants.NEW_LINE );
-							message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-							message.append( "  Argument Value: " + argument + Constants.NEW_LINE );
-							message.append( "  Argument Type: " + argument.getClass().getName() + Constants.NEW_LINE );
-							message.append( "  Argument Types: " + Constants.NEW_LINE );
-							for( int i = 0; i < numArguments; ++i )
-							{
-								message.append( "    " + argumentTypes[ i ].getName() + Constants.NEW_LINE );
-							}
-							message.append( "  Return Type: " + returnType.getName() + Constants.NEW_LINE );
-							message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
-							message.append( "  Serializer: " + serializer.getClass().getName() + Constants.NEW_LINE );
-							
-							LOGGER.error( message.toString() );
-							throw new IllegalArgumentException( message.toString() );
-						}
-					}
-					
-					final List< Class< ? > > argTypes = Arrays.asList( argumentTypes );
-					final String serializerName = SerializerFactory.getSerializerName( serializer.getClass() );
-					executeResponse = client.executeMethod( returnType, object.getClass(), methodName, argTypes, serializedArgs, out.toByteArray(), serializerName );
-				}
-			}
-			catch( IOException e )
-			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "I/O error occured attempting to flush the byte[] output stream holding the serialized object in" + Constants.NEW_LINE );
-				message.append( "preparation for calling the execute(...) method on the client." + Constants.NEW_LINE );
-				message.append( "  Client Endpoint: " + endpoint.toString() + Constants.NEW_LINE );
-				message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-				message.append( "  Argument Types: " + (numArguments == 0 ? "[none]" : "" ) + Constants.NEW_LINE );
+				final RestfulDiffuserManagerClient client = new RestfulDiffuserManagerClient( endpoint );
+	
+				// create the diffuser on the server
+				final int numArguments = (arguments == null ? 0 : arguments.length);
+				final Class< ? >[] argumentTypes = new Class< ? >[ numArguments ];
 				for( int i = 0; i < numArguments; ++i )
 				{
-					message.append( "    " + argumentTypes[ i ].getName() + Constants.NEW_LINE );
+					argumentTypes[ i ] = arguments[ i ].getClass();
 				}
-				message.append( "  Return Type: " + returnType.getName() + Constants.NEW_LINE );
-				message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
-				message.append( "  Serializer: " + serializer.getClass().getName() + Constants.NEW_LINE );
+				/*final CreateDiffuserResponse response = */
+				client.createDiffuser( classPaths, returnType, object.getClass(), methodName, argumentTypes );
 				
-				LOGGER.error( message.toString() );
-				throw new IllegalArgumentException( message.toString() );
-			}
+				// execute the method on the diffuser
+				ExecuteDiffuserResponse executeResponse = null;
+				try( final ByteArrayOutputStream out = new ByteArrayOutputStream() )
+				{
+					// serialize the object into the byte[] output stream and flush it
+					serializer.serialize( object, out );
+					out.flush();
+					
+					//
+					// call the client to execute the method on the object
+					//
+					// we need to serialize the object containing the method we are calling, and then we need to serialize each
+					// of the arguments passed into the method.
+					if( numArguments == 0 )
+					{
+						executeResponse = client.executeMethod( returnType, object.getClass(), methodName, out.toByteArray(), serializer );
+					}
+					else
+					{
+						// serialize the argument values
+						final List< byte[] > serializedArgs = new ArrayList<>();
+						for( Object argument : arguments )
+						{
+							try( final ByteArrayOutputStream outArg = new ByteArrayOutputStream() )
+							{
+								serializer.serialize( argument, outArg );
+								outArg.flush();
+								
+								// add the byte[] to the list of serialized arguments
+								serializedArgs.add( outArg.toByteArray() );
+							}
+							catch( IOException e )
+							{
+								final StringBuffer message = new StringBuffer();
+								message.append( "I/O error occured attempting to flush the byte[] output stream holding a serialized argument in" + Constants.NEW_LINE );
+								message.append( "preparation for calling the execute(...) method on the client." + Constants.NEW_LINE );
+								message.append( "  Client Endpoint: " + endpoint.toString() + Constants.NEW_LINE );
+								message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+								message.append( "  Argument Value: " + argument + Constants.NEW_LINE );
+								message.append( "  Argument Type: " + argument.getClass().getName() + Constants.NEW_LINE );
+								message.append( "  Argument Types: " + Constants.NEW_LINE );
+								for( int i = 0; i < numArguments; ++i )
+								{
+									message.append( "    " + argumentTypes[ i ].getName() + Constants.NEW_LINE );
+								}
+								message.append( "  Return Type: " + returnType.getName() + Constants.NEW_LINE );
+								message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
+								message.append( "  Serializer: " + serializer.getClass().getName() + Constants.NEW_LINE );
+								
+								LOGGER.error( message.toString() );
+								throw new IllegalArgumentException( message.toString() );
+							}
+						}
+						
+						final List< Class< ? > > argTypes = Arrays.asList( argumentTypes );
+						final String serializerName = SerializerFactory.getSerializerName( serializer.getClass() );
+						executeResponse = client.executeMethod( returnType, object.getClass(), methodName, argTypes, serializedArgs, out.toByteArray(), serializerName );
+					}
+				}
+				catch( IOException e )
+				{
+					final StringBuffer message = new StringBuffer();
+					message.append( "I/O error occured attempting to flush the byte[] output stream holding the serialized object in" + Constants.NEW_LINE );
+					message.append( "preparation for calling the execute(...) method on the client." + Constants.NEW_LINE );
+					message.append( "  Client Endpoint: " + endpoint.toString() + Constants.NEW_LINE );
+					message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+					message.append( "  Argument Types: " + (numArguments == 0 ? "[none]" : "" ) + Constants.NEW_LINE );
+					for( int i = 0; i < numArguments; ++i )
+					{
+						message.append( "    " + argumentTypes[ i ].getName() + Constants.NEW_LINE );
+					}
+					message.append( "  Return Type: " + returnType.getName() + Constants.NEW_LINE );
+					message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
+					message.append( "  Serializer: " + serializer.getClass().getName() + Constants.NEW_LINE );
+					
+					LOGGER.error( message.toString() );
+					throw new IllegalArgumentException( message.toString() );
+				}
 
-			// ask for the result, which blocks until the result returns
-			final DiffuserId diffuserId = DiffuserId.parse( executeResponse.getSignature() );
-			final Class< ? > clazz = diffuserId.getClazz();
-			result = client.getResult( returnType, clazz, methodName, executeResponse.getRequestId(), serializer );
+				// create a task that makes a blocking call to get the result of the calc, and then
+				// submit that task to the executor service to run it
+				final ExecuteDiffuserResponse executeResponseCopy = executeResponse;
+				final Callable< T > task = new Callable< T >() {
+
+					@Override
+					public T call() throws Exception
+					{
+						final DiffuserId diffuserId = DiffuserId.parse( executeResponseCopy.getSignature() );
+						final Class< ? > clazz = diffuserId.getClazz();
+						return client.getResult( returnType, clazz, methodName, executeResponseCopy.getRequestId(), serializer );
+					}
+				};
+				futures.add( executor.submit( task ) );
+			}
+			
+			// now that all the tasks have been submitted, we wait for the first result to return,
+			// and when it does, then we accept it, ignore the rest, and return
+			// TOOO issue a cancel order to the tasks that aren't yet finished.
+			boolean isDone = false;
+			int i = 0;
+			do
+			{
+				final int index = i % futures.size();
+				final Future< T > future = futures.get( index );
+				try
+				{
+					result = future.get( 50, TimeUnit.MILLISECONDS );
+					isDone = true;
+				}
+				catch( InterruptedException | ExecutionException e )
+				{
+					// execution crapped out or was interrupted, so remove the future and keep checking the others
+					futures.remove( index );
+				}
+				catch( TimeoutException e )
+				{
+					// increment the index, timed out, get the next future and see if it is done.
+					++i;
+				}
+			}
+			while( !isDone || futures.isEmpty() );
+			
+			// shutdown the executor service
+			executor.shutdownNow();
 		}
 		return result;
 	}

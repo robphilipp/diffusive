@@ -2,6 +2,7 @@ package org.microtitan.diffusive.diffuser.strategy;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -51,7 +52,7 @@ public class RandomDiffuserStrategy extends AbstractDiffuserStrategy {
 	 * @see org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy#getEndpoint()
 	 */
 	@Override
-	public URI getEndpoint()
+	public List< URI > getEndpoints()
 	{
 		// grab the next value in [0.0, 1.0)
 		final double value = random.nextDouble();
@@ -60,7 +61,7 @@ public class RandomDiffuserStrategy extends AbstractDiffuserStrategy {
 		final int index = (int)( value * getNumEndpoints() );
 		
 		// return the URI that is at that index
-		return getEndpoint( index );
+		return Arrays.asList( getEndpoint( index ) );
 	}
 
 }
