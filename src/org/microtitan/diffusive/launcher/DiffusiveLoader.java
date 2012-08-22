@@ -171,13 +171,13 @@ public class DiffusiveLoader extends Loader {
 		configurationClasses.clear();
 	}
 	
-	/*
+	/**
 	 * @return Creates and returns the default list of delegation prefixes. These are the
 	 * prefixes of fully qualified class names that should be loaded by the parent class
 	 * loader, instead of this class loader.
 	 * @see #loadClassByDelegation(String)
 	 */
-	private static List< String > createDefaultDelegationPrefixes()
+	protected final static List< String > createDefaultDelegationPrefixes()
 	{
 		final List< String > prefixes = new ArrayList<>();
 		prefixes.add( "org.apache.log4j." );
@@ -185,7 +185,7 @@ public class DiffusiveLoader extends Loader {
 		prefixes.add( "org.apache.abdera." );
 		
 		// we want to make sure that the DiffusiveConfiguration annotation is loaded
-		// by the default app class loader, and NOT the this one.
+		// by the default app class loader, and NOT this one.
 		prefixes.add( DiffusiveConfiguration.class.getName() );
 		
 		return prefixes;
@@ -380,13 +380,13 @@ public class DiffusiveLoader extends Loader {
 	 * @see javassist.Loader#loadClassByDelegation(java.lang.String)
 	 */
 	@Override
-	protected Class< ? > loadClassByDelegation( String name ) throws ClassNotFoundException
+	protected Class< ? > loadClassByDelegation( final String name ) throws ClassNotFoundException
 	{
 		// ask the javassist class loader to delegate what it wants to delegate
 		Class< ? > clazz = super.loadClassByDelegation( name );
 
 		// if not delegated then check if we want to delegate
-		if( clazz == null )//&& doDelegation )
+		if( clazz == null )
 		{
 			for( String prefix : delegationPrefixes )
 			{

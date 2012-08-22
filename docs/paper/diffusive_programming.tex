@@ -152,7 +152,7 @@ A natural extension of the single-layered diffuser pattern is a multi-layered di
 \end{center}
 \end{figure}
 
-This type of topology can dramatically improve the performance such calculations. However, this network topology is only an improvement \textbf{if} nested method marking is supported. In practice nested method marking is difficult to implement in a generic manner. In fact, it is not part of the reference implementation.
+This type of topology can dramatically improve the performance such calculations. However, this network topology is only an improvement \textit{if} nested method marking is supported\footnote{The reference implementation, \emph{Diffusive}, does not yet support nested diffusion. However, it is on the list of future work, and will be implemented.}. 
 
 %The topology depicted on the left-hand side of the figure simply provides the diffusers in the first layer additional diffusers to which to diffuse tasks in the event that their load is too high. The utility of such a network is questionable because it would usually be more efficient to simply add the second-layer diffusers to the first layer. However, if the implementation of the diffusive principle allowed nested method \emph{marking} then such a network design could be used to distribute tasks that contained subtasks requiring post processing. However, in practice this is difficult to implement in a generic manner, and therefore, is not part of the reference implementation.
 

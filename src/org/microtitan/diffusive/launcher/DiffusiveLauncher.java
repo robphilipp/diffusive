@@ -63,7 +63,7 @@ public class DiffusiveLauncher {
 		this( createLoader( createDefaultConfiguration(), createDefaultTranslator( createDefaultMethodIntercepter() ) ) );
 	}
 	
-	/*
+	/**
 	 * @return creates a default list of class names that have configuration items (methods used to configure
 	 * diffusive)
 	 */
@@ -75,10 +75,10 @@ public class DiffusiveLauncher {
 		return configurations;
 	}
 	
-	/*
-	 * 
-	 * @param expressionEditor
-	 * @return
+	/**
+	 * Creates the default translator for Javassist to replace method calls from diffused methods
+	 * @param expressionEditor The expression editor containing the code that replaces the method call
+	 * @return A new translator for rewriting method calls to diffused methods
 	 */
 	private static DiffusiveTranslator createDefaultTranslator( final MethodIntercepterEditor expressionEditor )
 	{

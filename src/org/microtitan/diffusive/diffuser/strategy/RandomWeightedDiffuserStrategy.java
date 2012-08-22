@@ -1,8 +1,10 @@
 package org.microtitan.diffusive.diffuser.strategy;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -69,5 +71,42 @@ public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 		
 		// return the URI that is at that index
 		return Arrays.asList( endpoint );
+	}
+	
+	public static void main( String[] args )
+	{
+		final Map< Double, URI > endpoints = new LinkedHashMap<>();
+		endpoints.put( 0.5, URI.create( "http://localhost:1" ) );
+		endpoints.put( 1.5, URI.create( "http://localhost:2" ) );
+		endpoints.put( 3.0, URI.create( "http://localhost:3" ) );
+		endpoints.put( 0.1, URI.create( "http://localhost:4" ) );
+		
+		final RandomWeightedDiffuserStrategy strategy = new RandomWeightedDiffuserStrategy( endpoints );
+		
+		final int size = 1_000_000;
+		final List< URI > selected = new ArrayList<>( size );
+		for( int i = 0; i < size; ++i )
+		{
+			selected.add( strategy.getEndpoints().get( 0 ) );
+		}
+		
+		final Map< URI, Integer > results = new LinkedHashMap<>();
+		for( URI uri : selected )
+		{
+			if( results.containsKey( uri ) )
+			{
+				final int num = results.get( uri ) + 1;
+				results.put( uri, num );
+			}
+			else
+			{
+				results.put( uri, 1 );
+			}
+		}
+		
+		for( Map.Entry< URI, Integer > entry : results.entrySet() )
+		{
+			System.out.println( entry.getKey().toString() + ": " + entry.getValue() );
+		}
 	}
 }

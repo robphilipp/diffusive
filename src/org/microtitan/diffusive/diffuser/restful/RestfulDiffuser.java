@@ -42,8 +42,6 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	private final List< URI > classPaths;
 	private final double loadThreshold;
 	
-//	private final ExecutorService executor;
-	
 	/**
 	 * Constructs the RESTful diffuser that runs methods either locally or sends them on to a remote
 	 * RESTful diffuser.

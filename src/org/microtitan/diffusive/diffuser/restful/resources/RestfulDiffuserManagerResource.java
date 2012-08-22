@@ -39,6 +39,8 @@ import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
 import org.microtitan.diffusive.classloaders.RestfulClassLoader;
+import org.microtitan.diffusive.classloaders.RestfulDiffuserClassLoader;
+import org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
@@ -94,9 +96,9 @@ public class RestfulDiffuserManagerResource {
 	
 	// fields to manage the resultsCache cache
 	private final ResultsCache resultsCache;
-	
+
+	// the executor service holds the thread pool for managing concurrent diffusions
 	private final ExecutorService executor;
-//	private static final int THREAD_POOL_THREADS = 100;
 	
 	// the strategy that is applied to diffusers created by this resource.
 	// recall that the strategy determines the order and number of times an
@@ -107,6 +109,8 @@ public class RestfulDiffuserManagerResource {
 	// locally, or to diffuse the request forward to one of its end-points
 	private final DiffuserLoadCalc loadCalc;
 	private final double loadThreshold;
+	
+	private final ClassLoaderFactory classLoaderFactory;
 
 	/**
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
@@ -119,11 +123,15 @@ public class RestfulDiffuserManagerResource {
 	 * @param configurationClasses A {@link List} of fully qualified class names. Each class should
 	 * have methods annotated with {@link DiffusiveServerConfiguration}, which are called and used
 	 * to configure this resource. These annotated methods should be {@code static}.
+	 * @param classLoaderFactory The factory for creating class loaders needed for the diffusers. This
+	 * allows using different class loaders for the server. For example, {@link RestfulClassLoader}
+	 * for non-nested diffusion or a {@link RestfulDiffuserClassLoader} for nested diffusion.
 	 */
 	public RestfulDiffuserManagerResource( final ExecutorService executor, 
 										   final ResultsCache resultsCache,
 										   final DiffuserLoadCalc loadCalc,
-										   final List< String > configurationClasses )
+										   final List< String > configurationClasses,
+										   final ClassLoaderFactory classLoaderFactory )
 	{
 		this.executor = executor;
 		
@@ -137,6 +145,9 @@ public class RestfulDiffuserManagerResource {
 		// set the values based on the configuration
 		this.diffuserStrategy = KeyedDiffusiveStrategyRepository.getInstance().getStrategy();
 		this.loadThreshold = KeyedDiffusiveStrategyRepository.getInstance().getLoadThreshold();
+		
+		// set the class-loader factory (RESTful class loader with or without nested diffusion)
+		this.classLoaderFactory = classLoaderFactory;
 	}
 	
 	/**
@@ -202,7 +213,9 @@ public class RestfulDiffuserManagerResource {
 		final String key = DiffuserId.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );
 
 		// add the diffuser to the map of diffusers
-		diffusers.put( key, new DiffuserEntry( diffuser, classPaths ) );
+		final ClassLoader classLoader = classLoaderFactory.create( classPaths );
+		diffusers.put( key, new DiffuserEntry( diffuser, classLoader ) );
+//		diffusers.put( key, new DiffuserEntry( diffuser, classPaths ) );
 
 		return key;
 	}
@@ -512,15 +525,14 @@ public class RestfulDiffuserManagerResource {
 			{
 				// grab the list of class path URI. if the list is empty or doesn't exist, then
 				// there is no further place to look, and so we punt.
-				final List< URI > classPaths = entry.getClassPaths();
-				if( classPaths != null && !classPaths.isEmpty() )
+				final ClassLoader loader = entry.getClassLoader();
+				if( loader != null )
 				{
 					// set up the RESTful class loader and attempt to load the class from the remote server 
 					// listed in the class paths URI list
-					final RestfulClassLoader loader = new RestfulClassLoader( classPaths );
 					try
 					{
-						clazz = Class.forName( classname, true, loader );//loader.loadClass( classname );
+						clazz = Class.forName( classname, true, loader );
 					}
 					catch( ClassNotFoundException e1 )
 					{
@@ -878,17 +890,26 @@ public class RestfulDiffuserManagerResource {
 	private static class DiffuserEntry {
 		
 		private final RestfulDiffuser diffuser;
-		private final List< URI > classPaths;
+		private final ClassLoader classLoader;
 
 		/**
 		 * Constructs an entry containing the {@link Diffuser} and the list of class path end-points
 		 * @param diffuser The {@link Diffuser}
 		 * @param classPaths The list of class path endpoints
 		 */
-		public DiffuserEntry( final RestfulDiffuser diffuser, final List< URI > classPaths )
+//		public DiffuserEntry( final RestfulDiffuser diffuser, final List< URI > classPaths )
+		public DiffuserEntry( final RestfulDiffuser diffuser, final ClassLoader classLoader )
 		{
 			this.diffuser = diffuser;
-			this.classPaths = classPaths;
+			this.classLoader = classLoader;
+//			if( classPaths == null || classPaths.isEmpty() )
+//			{
+//				this.classLoader = null;
+//			}
+//			else
+//			{
+//				this.classLoader = new RestfulClassLoader( classPaths );
+//			}
 		}
 		
 		/**
@@ -898,14 +919,14 @@ public class RestfulDiffuserManagerResource {
 		{
 			return diffuser;
 		}
-		
+
 		/**
-		 * @return the list if {@link URI} representing the class path end-points
+		 * @return The class loader associated with the diffuser
 		 */
-		public List< URI > getClassPaths()
-        {
-        	return classPaths;
-        }
+		public ClassLoader getClassLoader()
+		{
+			return classLoader;
+		}
 	}
 	
 	/**

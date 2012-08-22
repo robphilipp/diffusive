@@ -16,6 +16,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.classloaders.factories.RestfulClassLoaderFactory;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
@@ -193,7 +194,8 @@ public class RestfulDiffuserServer {
 		final DiffuserLoadCalc loadCalc = RestfulDiffuserManagerResource.createLoadCalc( cache );
 		
 		// create the manager resource and the web application needed by the web server
-		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc, configClasses );
+//		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc, configClasses );
+		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc, configClasses, RestfulClassLoaderFactory.getInstance() );
 		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
 		application.addSingletonResource( resource );
 		application.addPerRequestResource( RestfulClassPathResource.class );
