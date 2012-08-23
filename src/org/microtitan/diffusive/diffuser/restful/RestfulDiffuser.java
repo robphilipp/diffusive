@@ -36,11 +36,21 @@ public class RestfulDiffuser extends AbstractDiffuser {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuser.class );
 	
+	public static final int MAX_REDUNDANCY = 20;
+	public static final int POLLING_TIME_OUT = 50;
+	public static final TimeUnit POLLING_TIME_UNIT = TimeUnit.MILLISECONDS;
+	
 	// used to serialize objects for making requests across the network
 	private final Serializer serializer;
 	private final DiffuserStrategy strategy;
 	private final List< URI > classPaths;
 	private final double loadThreshold;
+	
+	// the maximum number of threads in the thread pool (ExecutorService) to account 
+	// for redundant diffusion
+	private int maxRedundancy = MAX_REDUNDANCY;
+	private int pollingTimeout = POLLING_TIME_OUT;
+	private TimeUnit pollingTimeUnit = POLLING_TIME_UNIT;
 	
 	/**
 	 * Constructs the RESTful diffuser that runs methods either locally or sends them on to a remote
@@ -71,9 +81,6 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			throw new IllegalArgumentException( message.toString() );
 		}
 		this.loadThreshold = loadThreshold;
-		
-		// TODO make this number configurable
-//		executor = Executors.newFixedThreadPool( 100 );
 	}
 	
 	/*
@@ -81,7 +88,11 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(boolean, java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-	public < T > T runObject( final double load, final Class< T > returnType, final Object object, final String methodName, final Object... arguments )
+	public < T > T runObject( final double load, 
+							  final Class< T > returnType, 
+							  final Object object, 
+							  final String methodName, 
+							  final Object... arguments )
 	{
 		// if the load is less than the threshold, then we can compute this task locally, or if there are no
 		// end-points to which to diffuse the task further. Otherwise, the task is diffused to an end-point
@@ -117,7 +128,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			final List< Future< T > > futures = new ArrayList<>( endpoints.size() );
 			
 			// create the executor service for running the tasks.
-			final ExecutorService executor = Executors.newFixedThreadPool( 100 );
+			final ExecutorService executor = Executors.newFixedThreadPool( maxRedundancy );
 			
 			// diffuse each end point, adding the reference to the result in the list of futures
 			for( URI endpoint : endpoints )
@@ -240,7 +251,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				final Future< T > future = futures.get( index );
 				try
 				{
-					result = future.get( 50, TimeUnit.MILLISECONDS );
+					result = future.get( pollingTimeout, pollingTimeUnit );
 					isDone = true;
 				}
 				catch( InterruptedException | ExecutionException e )

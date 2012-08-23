@@ -1,5 +1,8 @@
 package org.microtitan.diffusive.convertor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.NotFoundException;
@@ -11,6 +14,8 @@ import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.Diffusive;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
+import org.microtitan.diffusive.diffuser.restful.DiffuserId;
+import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 
 /**
  * Method intercepter editor is responsible for writing the method-call replacement code that is
@@ -25,11 +30,36 @@ public class MethodIntercepterEditor extends ExprEditor {
 	
 	private static final Logger LOGGER = Logger.getLogger( MethodIntercepterEditor.class );
 
+	private boolean isUseSignature;
+	
 	/**
-	 * Default no arg constructor
+	 * Constructs the method intercepter. If the {@link #isUseSignature} is true then the
+	 * method call to the method is replaced by a diffuser that is attached to a specific 
+	 * diffuser method signature. If false, then the diffuser is the default diffuser in 
+	 * the {@link KeyedDiffuserRepository}.
+	 * 
+	 * <p>For the application-attached diffuser, we want to use the one and only, the default, 
+	 * diffuser. However, for the diffusers attached to the restful diffuser manager resource, 
+	 * there is one diffuser per diffuser method signature, and so we want to use the signature.
+	 * 
+	 * <p>Effectively, the rule-of-thumb is that for application-attached diffusers set to false;
+	 * and for diffusers managed by the {@link RestfulDiffuserManagerResource} set to true.
+	 * @param isUseSignature true then the method call to the method is replaced by a diffuser 
+	 * that is attached to a specific diffuser method signature. If false, then the diffuser 
+	 * is the default diffuser in the {@link KeyedDiffuserRepository}.
+	 */
+	public MethodIntercepterEditor( final boolean isUseSignature )
+	{
+		this.isUseSignature = isUseSignature;
+	}
+	
+	/**
+	 * Default no arg constructor that sets the {@link #isUseSignature} to false.
+	 * @see #MethodIntercepterEditor(boolean)
 	 */
 	public MethodIntercepterEditor()
 	{
+		this( false );
 	}
 	
 	/*
@@ -80,9 +110,34 @@ public class MethodIntercepterEditor extends ExprEditor {
 				}
 				code.append( "    System.out.println( \"  Return: \" + $type.getName() );\n" );
 
-				// the actual Diffusive call
-				code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
-				
+				// make the appropriate call to the diffuser repository to get the diffuser: either use
+				// the signature or use the default diffuser (recall that for the application-attached
+				// diffuser, we want to use the one and only, the default, diffuser. however, for the
+				// diffusers attached to the restful diffuser manager resource, there is one diffuser per
+				// diffuser method signature, and so we want to use the signature).
+				if( isUseSignature )
+				{
+					// get the parameter types
+					final List< String > argumentTypes = new ArrayList<>();
+					for( CtClass arg : methodCall.getMethod().getParameterTypes() )
+					{
+						argumentTypes.add( arg.getName() );
+					}
+					
+					// grab the class name of the return type
+					final String returnType = methodCall.getMethod().getReturnType().getName();
+	
+					// create the signature of the method call
+					final String signature = DiffuserId.createId( returnType, className, methodName, argumentTypes );
+	
+					// the actual Diffusive call
+					code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser( " + signature + " ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
+				}
+				else
+				{
+					// the actual Diffusive call
+					code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
+				}
 //				code.append( "\n}" );
 				
 				// make the call to replace the code in the method call

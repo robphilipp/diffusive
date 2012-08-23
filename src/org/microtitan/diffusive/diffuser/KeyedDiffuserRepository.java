@@ -5,15 +5,31 @@ import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.Marshaller.Listener;
+
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 
-
+/**
+ * Repository that holds diffusers. The global repository uses the {@link SharedRegistry}'s {@link Class}
+ * as a key and can be accessed via {@link #getInstance()}. Local or private repositories can be created
+ * and accessed through the {@link #getInstance(Object)} with a key.
+ * 
+ * Each repository holds a set of diffusers and their associated keys. The default diffuser can be accessed
+ * through {@link #getDiffuser()} method and set through the {@link #setDiffuser(Diffuser)} method. Other
+ * diffusers may be added and accessed through the {@link #putDiffuser(String, Diffuser)} and 
+ * {@link #getDiffuser(String)} methods where the first argument is the key to that diffuser.
+ * 
+ * @author Robert Philipp
+ */
 public class KeyedDiffuserRepository {
 
 	private static final Logger LOGGER = Logger.getLogger( KeyedDiffuserRepository.class );
 	
 	public static final String DIFFUSER_SET_PROPERTY = "KeyedDiffuserRepository:diffuser_set";
+	public static final String DIFFUSER_DELETE_PROPERTY = "KeyedDiffuserRepository:diffuser_deleted";
+	
+	private static final String DEFAULT_DIFFUSER = "default_diffuser";
 	
 	// registries
 	private static final Map< Object, KeyedDiffuserRepository > instances;
@@ -25,14 +41,13 @@ public class KeyedDiffuserRepository {
 		instances = new HashMap< Object, KeyedDiffuserRepository >();
 	}
 	
-	private Diffuser diffuser;
+	// the diffusers and their associated keys
+	private final Map< String, Diffuser > diffusers;
 	
 	private final PropertyChangeSupport propertyChangeSupport;
 
 	/**
-	 * 
-	 * @param diffuser
-	 * @return
+	 * @return the instance of the global diffuser repository
 	 */
 	public static KeyedDiffuserRepository getInstance()
 	{
@@ -203,46 +218,103 @@ public class KeyedDiffuserRepository {
 		}
 	}
 	
-	/*
-	 * 
+	/**
+	 * Private constructor to keep this a singleton (per class loader)
 	 */
 	private KeyedDiffuserRepository()
 	{
-		this.diffuser = createDefaultDiffuser();
+		// create the map that holds the diffusers and their associated signature
+		this.diffusers = new HashMap<>();
+		this.diffusers.put( DEFAULT_DIFFUSER, createDefaultDiffuser() );
 		this.propertyChangeSupport = new PropertyChangeSupport( this );
 	}
 	
+	/**
+	 * @return creates and returns a default {@link Diffuser}
+	 */
 	private static Diffuser createDefaultDiffuser()
 	{
-//		final Serializer serializer = new ObjectSerializer();
-//		final List< URI > endpoints = Arrays.asList( URI.create( "http://localhost:8182/diffuser" ) );
-//		return new RestfulDiffuser( serializer, endpoints );
 		return new LocalDiffuser();
 	}
 	
-	public Diffuser getDiffuser()
+	/**
+	 * @return the default {@link Diffuser} for the repository
+	 */
+	public final synchronized Diffuser getDiffuser()
 	{
-		return diffuser;
+		return getDiffuser( DEFAULT_DIFFUSER );
 	}
 	
-	public Diffuser setDiffuser( final Diffuser diffuser )
+	/**
+	 * Returns the {@link Diffuser} with the specified key
+	 * @param key The key associated with the {@link Diffuser}
+	 * @return the {@link Diffuser} with the specified key
+	 */
+	public final synchronized Diffuser getDiffuser( final String key )
 	{
-		final Diffuser oldDiffuser = this.diffuser;
-		this.diffuser = diffuser;
-		firePropertyChange( DIFFUSER_SET_PROPERTY, oldDiffuser, this.diffuser );
+		return diffusers.get( key );
+	}
+	
+	/**
+	 * Sets the default {@link Diffuser} to the specified {@link Diffuser}
+	 * @param diffuser The {@link Diffuser} that serves as the default {@link Diffuser}
+	 * @return any previously set default {@link Diffuser}
+	 */
+	public final synchronized Diffuser setDiffuser( final Diffuser diffuser )
+	{
+		return putDiffuser( DEFAULT_DIFFUSER, diffuser );
+	}
+	
+	/**
+	 * Adds a {@link Diffuser} to the repository that is associated with the specified key and
+	 * returns any {@link Diffuser} that might have been associated with the key prior to this call.
+	 * @param key The key associated with the specified {@link Diffuser}
+	 * @param diffuser The {@link Diffuser} to add to the repository
+	 * @return any {@link Diffuser} that might have been associated with the key prior to this call
+	 */
+	public final synchronized Diffuser putDiffuser( final String key, final Diffuser diffuser )
+	{
+		final Diffuser oldDiffuser = diffusers.put( key, diffuser );
+		firePropertyChange( DIFFUSER_SET_PROPERTY, oldDiffuser, diffuser );
 		return oldDiffuser;
 	}
 	
+	/**
+	 * Removes the {@link Diffuser} associated with the specified key and returns it
+	 * @param key The key associated with the {@link Diffuser} to remove
+	 * @return the removed {@link Diffuser}; null the key was not found
+	 */
+	public final synchronized Diffuser removeDiffuser( final String key )
+	{
+		final Diffuser diffuser = diffusers.remove( key );
+		firePropertyChange( DIFFUSER_DELETE_PROPERTY, diffuser, diffuser );
+		return diffuser;
+	}
+	
+	/**
+	 * Adds a listener to receive property change events (adding, removing, setting diffusers)
+	 * @param listener The {@link Listener}
+	 */
 	public void addPropertyChangeListener( final PropertyChangeListener listener )
 	{
 		propertyChangeSupport.addPropertyChangeListener( listener );
 	}
 	
+	/**
+	 * Removes a listener from receiving property change events (adding, removing, setting diffusers)
+	 * @param listener The {@link Listener}
+	 */
 	public void removePropertyChangeListener( final PropertyChangeListener listener )
 	{
 		propertyChangeSupport.removePropertyChangeListener( listener );
 	}
 	
+	/**
+	 * Fires a property change event with the specified property name, old and new value.
+	 * @param propertyName The name of the property that changed
+	 * @param oldValue The old value of the property
+	 * @param newValue The new value of the property
+	 */
 	private void firePropertyChange( final String propertyName, final Object oldValue, final Object newValue )
 	{
 		propertyChangeSupport.firePropertyChange( propertyName, oldValue, newValue );

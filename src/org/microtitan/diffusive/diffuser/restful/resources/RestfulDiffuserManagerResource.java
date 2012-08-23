@@ -42,6 +42,7 @@ import org.microtitan.diffusive.classloaders.RestfulClassLoader;
 import org.microtitan.diffusive.classloaders.RestfulDiffuserClassLoader;
 import org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory;
 import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 import org.microtitan.diffusive.diffuser.restful.DiffuserId;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.atom.Atom;
@@ -72,9 +73,6 @@ public class RestfulDiffuserManagerResource {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserManagerResource.class );
 
-	// the maximum number of resultsCache cached
-//	private static final int MAX_RESULTS_CACHED = 100;
-	
 	public static final String DIFFUSER_PATH = "/diffusers";
 	
 	// parameters for creating a diffuser
@@ -209,15 +207,19 @@ public class RestfulDiffuserManagerResource {
 		// create the diffuser
 		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
 		
-		// create the name/id for the diffuser
-		final String key = DiffuserId.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );
+		// create the diffuser method signature to be used as the key for the diffuser
+		final String signature = DiffuserId.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );
 
 		// add the diffuser to the map of diffusers
 		final ClassLoader classLoader = classLoaderFactory.create( classPaths );
-		diffusers.put( key, new DiffuserEntry( diffuser, classLoader ) );
-//		diffusers.put( key, new DiffuserEntry( diffuser, classPaths ) );
+		diffusers.put( signature, new DiffuserEntry( diffuser, classLoader ) );
+		
+		// add the diffuser to the keyed diffuser repository, along with its signature.
+		// this is needed for nested diffusion where Javassist method interceptor uses
+		// the repository to point the method calls to the diffuser's runObject(...) method
+		KeyedDiffuserRepository.getInstance().putDiffuser( signature, diffuser );
 
-		return key;
+		return signature;
 	}
 
 	/**
@@ -770,7 +772,9 @@ public class RestfulDiffuserManagerResource {
 		Response response = null;
 		if( diffusers.containsKey( signature ) )
 		{
+			// remove the diffuser from the local store, and from the global diffuser repository
 			diffusers.remove( signature );
+			KeyedDiffuserRepository.getInstance().removeDiffuser( signature );
 			
 			// create the atom feed
 			final Feed feed = Atom.createFeed( diffuserUri, "delete-diffuser", date );
