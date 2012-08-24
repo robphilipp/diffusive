@@ -37,7 +37,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 */
 	public static RestfulDiffuserClassLoaderFactory getInstance()
 	{
-		synchronized( instance )
+		synchronized( RestfulDiffuserClassLoaderFactory.class )
 		{
 			if( instance == null )
 			{
