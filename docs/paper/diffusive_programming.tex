@@ -6,7 +6,6 @@
 \usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
 
 \usepackage{amssymb}
-%\usepackage{epstopdf}
 \usepackage{fixltx2e}
 \usepackage{hyperref}
 \usepackage{graphicx}
@@ -24,7 +23,7 @@
 % abstract
 %
 \begin{abstract}
-\emph{Diffusive programming}, defined by a set of five principles, is an approach for performing method-level, task-oriented distributed computing. In \emph{diffusive programming}, any method can be \emph{marked} for distribution, regardless of its signature. And \emph{marking} a method is necessary and sufficient for its execution to be distributed. Distribution of tasks occurs through a network of nodes that can accept tasks and execute them, or forward them on. Nodes executing a task, load the required resources as needed, and cache them. The topology of the network of nodes can be anything that can be represented as a directed graph. Topologies can be tailored to solve specific problems. \emph{Diffusive} is a Java reference implementation of the five principles that define \emph{diffusive programming}.
+\emph{Diffusive programming}, defined by a set of six principles, is an approach for performing method-level, task-oriented distributed computing. In \emph{diffusive programming}, any method can be \emph{marked} for distribution, regardless of its signature. And \emph{marking} a method is necessary and sufficient for its execution to be distributed. Distribution of tasks occurs through a network of nodes that can accept tasks and execute them, or forward them on. Nodes executing a task, load the required resources as needed, and cache them. The topology of the network of nodes can be anything that can be represented as a directed graph. Topologies can be tailored to solve specific problems. \emph{Diffusive} is a Java reference implementation of the six principles that define \emph{diffusive programming}.
 \end{abstract}
 %
 % introduction
@@ -36,7 +35,7 @@ Typically this type of distribution is performed by a distribution middleware. I
 
 Distribution middleware may also require deployment of certain resources (dynamic libraries, class files, etc) to the compute nodes \emph{before} they can execute remote requests. This requires careful synchronization of versioned resources. And this renders the compute nodes generic, only insofar as the required resources have been deployed to that node.
 
-\emph{Diffusive programming} is an approach for performing task-oriented distributed computing that allows the execution of individual methods to be distributed. Any method can be distributed, regardless of its signature. And aside from specifying that a method is to be distributed, no further code changes are required. \emph{Diffusive programming} is based on a set of five principles intended to facilitate the development of distributed applications. 
+\emph{Diffusive programming} is an approach for performing task-oriented distributed computing that allows the execution of individual methods to be distributed. Any method can be distributed, regardless of its signature. And aside from specifying that a method is to be distributed, no further code changes are required. \emph{Diffusive programming} is based on a set of six principles intended to facilitate the development of distributed applications. 
 
 Section \ref{sec:principles_of_diffusive_programming}, \textit{\nameref{sec:principles_of_diffusive_programming}}, provides a concise version of the principles and defines additional terms used throughout the rest of the paper. Its subsections, \ref{sec:marking} through \ref{sec:open_topoloogy}, describe each principle in more detail. With the principles defined and explained, section \ref{sec:diffusion_patterns}, \textit{\nameref{sec:diffusion_patterns}}, puts forth a few network topologies, or patterns, that are possible through diffusive programming. And section \ref{sec:reference_implementation}, \textit{\nameref{sec:reference_implementation}}, describes \emph{Diffusive}, the Java reference implementation of the \emph{diffusive programming principles}. Finally, section \ref{sec:future_work}, presents future work to be done on diffusive.
 
@@ -44,13 +43,13 @@ Section \ref{sec:principles_of_diffusive_programming}, \textit{\nameref{sec:prin
 % Principles of diffusive programming
 %
 \section{Principles of Diffusive Programming\label{sec:principles_of_diffusive_programming}}
-\emph{Diffusive programming} is based on five principles that define a framework for performing task-oriented distributed computing. The five principles are ordered. They build on each other, progressing from the action of distributing the code to the deployment and configuration of the computation nodes.
+\emph{Diffusive programming} is based on six principles that define a framework for performing task-oriented distributed computing. The six principles are ordered. They build on each other, progressing from the action of distributing the code to the deployment and configuration of the computation nodes.
 
 \begin{description}
 
 	% marking, diffusive
 	\item[Marking] 
-	A method can be marked for remote execution. The act of \emph{marking}, alone, is sufficient and necessary for a method to be executed on a remote location and have the results returned. 
+	A method can be marked for remote execution. The act of \emph{marking}, alone, is sufficient and necessary for a method to be executed on a remote location and have the results returned.
 	
 	\emph{Definition}: A \textbf{diffusive} method is a method that has been \emph{marked}.
 
@@ -61,6 +60,12 @@ Section \ref{sec:principles_of_diffusive_programming}, \textit{\nameref{sec:prin
 	\emph{Definition}: A \textbf{diffuser} is what executes a \emph{diffusive} method.
 	
 	\emph{Definition}: A \textbf{diffused} method is a \emph{diffusive} method that was executed by a \emph{diffuser}. 
+	
+	% failure hiding
+	\item[Best-Efforts Failure Resolution]
+	A \emph{diffuser} will attempt to recover from a \emph{diffusive failure}. If the \emph{diffuser} is unable to recover, it will transfer error handling to a specified handler or report the error as a local error.
+	
+	\emph{Definition}: A \emph{diffusive failure} is a the failure of a remote \emph{diffuser} to execute a \emph{diffusive} method, or the loss of connectivity to a remote \emph{diffuser}.
 	
 	% generic computation engine
 	\item[Generic Computation]
@@ -97,6 +102,14 @@ The act of marking a method decouples the distribution logic from the applicatio
 In typical distributed systems, the distribution logic must be called directly from the application code. This may occur by calling low level application programming interfaces (API) such as in MPI, or writing task classes that implement interfaces defined by the distribution framework, and then modifying application code to deliver these tasks to the middleware.
 
 Location hiding allows code to be endowed with its execution logic, and that execution logic is then automatically mirrored, but in a distributed manner, simply by marking the method(s). When this is coupled with the next principle, \emph{generic computation}, we have a powerful and simple mechanism to distribute computation.
+
+% best efforts failure resolution
+\subsection{Best-Efforts Failure Resolution\label{sec:best_efforts_failure_resolution}}
+A task that is called and executed completely within a local address space\footnote{For example, code running entirely in one process.} may fail to return a result. The failure may occur because an input or logic error, and in this case, it may be possible to trap and handle the error condition. In other cases, the failure may occur because of an unanticipated bug\footnote{As opposed to the anticipated bug.} or because the server crashed. Under these conditions it may not be possible to trap and handle the error condition, and the entire application may crash or become unresponsive. In both scenarios, however, the fact that there was a failure is known\footnote{Either to the code trapping the error, or the user because the application crashed.}.
+
+The situation may be quite different when a task is called from one address space and executed in another. For example, suppose the application-attached diffuser diffuses a method to a remote diffuser. Now suppose further that the task fails to execute because of an input or logic error. If the remote diffuser traps the error, it could return an error condition which is return, and again trapped by the application-attached diffuser, and handled as in the non-distributed case. However, suppose instead that the input or logic error isn't trapped, or if there is a bug that causes the task to crash, or if the server crashes, or if the network connection goes down. In this case, the application-attached diffuser waits for the result, but doesn't receive one. Yet, the application-attached diffuser doesn't know if the task is still executing, or if there was a failure.
+
+The \emph{best efforts failure resolution} principle requires that the application doesn't see a difference between a purely local and a distributed failure. The diffuser making the request is expected to perform its best to recover from a \emph{diffusive failure}, and if it can't, then it reports the error. For example, diffusers could provide a status service that responds if the diffuser is running and accessible. If the requesting diffuser finds that the status of the remote server is down, then it diffuses the method to a different diffuser. It may attempt to send the task to a different diffuser a configured-number of times before giving up and reporting an error.
 
 % generic computation
 \subsection{Generic Computation\label{sec:generic_computation}}
@@ -236,6 +249,9 @@ When the remote execution environment receives these serialized objects, it must
 \emph{Diffusive} provides an interface, \textsf{Serializer}, that defines what a serializer must provide to \emph{Diffusive}. Two key serialization implementations have been wrapped to conform to the \textsf{Serializer} interface: \textsf{ObjectSerializer} and \textsf{PersistenceSerializer}. The \textsf{ObjectSerializer} is Java's own serialization framework which requires that classes implement the \textsf{Serializable} interface. Using this serialization framework requires altering existing classes, that are to be serialized, if they don't implement \textsf{Serializable}. In some cases this may be acceptable. In other cases it may not be possible.
 
 The \textsf{PersistenceSerializer} wraps the \href{http://freezedried.sourceforge.net}{FreezeDry} persistence framework\footnote{\url{http://freezedried.sourceforge.net}}. FreezeDry does not require any classes to implement a FreezeDry-specific interface. In fact, FreezeDry can take any existing class (even those without no-arg constructors) and serialize them into XML, JSON, or key-value pairs. However, if the class is too complex, it may require some coding.
+
+% best-efforts failure resolution
+\subsection{Best-Efforts Failure Resolution\label{sec:best_efforts_failure_resolution_ref_impl}}
 
 % generic computation
 \subsection{Generic Computation\label{sec:generic_computation}}
