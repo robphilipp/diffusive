@@ -128,10 +128,14 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			{
 				final StringBuffer message = new StringBuffer();
 				message.append( RestfulDiffuser.class.getName() + " will call the runObject(...) method on the remote diffusers: " + Constants.NEW_LINE );
-				message.append( "  End-points: " + Constants.NEW_LINE );
+				message.append( "  End-points: " );
+				if( endpoints.size() > 1 )
+				{
+					message.append( "[redundant calls to diffusers]" );
+				}
 				for( URI endpoint : endpoints )
 				{
-					message.append( "    " + endpoint.toString() + Constants.NEW_LINE );
+					message.append( Constants.NEW_LINE + "    " + endpoint.toString() );
 				}
 				message.append( "Multiple end-points means that the diffusers are making redundant calls" );
 				LOGGER.info( message.toString() );
