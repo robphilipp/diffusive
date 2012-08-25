@@ -79,7 +79,7 @@ public class SerializerFactory {
 	 * @return The previous {@link Serializer} {@link Class} associated with the name; null
 	 * if the name was previously unused.
 	 */
-	public Class< ? extends Serializer > putSerializer( final String name, final Class< ? extends Serializer > clazz )
+	public synchronized Class< ? extends Serializer > putSerializer( final String name, final Class< ? extends Serializer > clazz )
 	{
 		return serializerClasses.put( name, clazz );
 	}
@@ -90,7 +90,7 @@ public class SerializerFactory {
 	 * @return The newly created {@link Serializer} whose {@link Class} is associated with the 
 	 * specified name
 	 */
-	public Serializer createSerializer( final String name )
+	public synchronized Serializer createSerializer( final String name )
 	{
 		// grab the class from the mapping
 		final Class< ? extends Serializer > clazz = serializerClasses.get( name );
