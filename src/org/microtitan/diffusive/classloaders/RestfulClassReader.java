@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Feed;
+import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.request.ClassRequest;
@@ -89,7 +90,7 @@ public class RestfulClassReader {
 			classBytes = new byte[ objectStream.available() ];
 			objectStream.read( classBytes );
 		}
-		catch( IOException e )
+		catch( ParseException | IOException e )
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Failed to parse the class-request response into an Atom feed" + Constants.NEW_LINE );

@@ -13,6 +13,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Feed;
+import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
@@ -103,20 +104,6 @@ public class RestfulDiffuserManagerClient {
 		return createDiffuser( classPathUri, void.class, clazz, methodName, argumentTypes );
 	}
 
-//	/**
-//	 * Requests that the server create a RESTful diffuser for a method that returns a value. 
-//	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
-//	 * @param clazz The {@link Class} containing the diffusive method 
-//	 * @param methodName The name of the diffusive method
-//	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
-//	 * @return An Atom feed containing the result of the create request, and specifically, the URI of the newly
-//	 * created diffuser.
-//	 */
-//	public CreateDiffuserResponse createDiffuser( final Class< ? > returnTypeClazz, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
-//	{
-//		return createDiffuser( new ArrayList< URI >(), returnTypeClazz, clazz, methodName, argumentTypes );
-//	}
-	
 	/**
 	 * Requests that the server create a RESTful diffuser for a method that returns a value. 
 	 * @param classPathUri The list of URI which to search for remote classes
@@ -143,12 +130,13 @@ public class RestfulDiffuserManagerClient {
 		final ClientResponse createDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( ClientResponse.class, request );
 		
 		// parse the response into an Atom feed object and return it
-		Feed feed = null;
+		CreateDiffuserResponse diffuserResponse = null;
 		try( InputStream response = createDiffuserResponse.getEntity( InputStream.class ) )
 		{
-			feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			final Feed feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			diffuserResponse = new CreateDiffuserResponse( feed );
 		}
-		catch( IOException e )
+		catch( ParseException | IOException e )
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Failed to parse the create-diffuser response into an Atom feed" + Constants.NEW_LINE );
@@ -162,7 +150,7 @@ public class RestfulDiffuserManagerClient {
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}
-		return new CreateDiffuserResponse( feed );
+		return diffuserResponse;
 	}
 	
 	/**
@@ -191,15 +179,16 @@ public class RestfulDiffuserManagerClient {
 		final WebResource resource = client.resource( baseUri.toString() );
 
 		final ClientResponse clientResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
-		
-		Feed feed = null;
+
+		ListDiffuserResponse diffuserResponse = null;
 		if( clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode() )
 		{
 			try( InputStream response = clientResponse.getEntity( InputStream.class ) )
 			{
-				feed = abdera.getParser().< Feed >parse( response ).getRoot();
+				final Feed feed = abdera.getParser().< Feed >parse( response ).getRoot();
+				diffuserResponse = new ListDiffuserResponse( feed );
 			}
-			catch( IOException e )
+			catch( ParseException | IOException e )
 			{
 				final StringBuffer message = new StringBuffer();
 				message.append( "Failed to parse the get-diffuser-list response into an Atom feed" + Constants.NEW_LINE );
@@ -214,7 +203,7 @@ public class RestfulDiffuserManagerClient {
 			LOGGER.warn( message.toString() );
 		}
 		
-		return new ListDiffuserResponse( feed );
+		return diffuserResponse;
 	}
 
 	/**
@@ -259,14 +248,15 @@ public class RestfulDiffuserManagerClient {
 		// make the call to delete the resource
 		final ClientResponse clientResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).delete( ClientResponse.class );
 		
-		Feed feed = null;
+		DeleteDiffuserResponse diffuserResponse = null;
 		if( clientResponse.getStatus() == ClientResponse.Status.OK.getStatusCode() )
 		{
 			try( InputStream response = clientResponse.getEntity( InputStream.class ) )
 			{
-				feed = abdera.getParser().< Feed >parse( response ).getRoot();
+				final Feed feed = abdera.getParser().< Feed >parse( response ).getRoot();
+				diffuserResponse = new DeleteDiffuserResponse( feed );
 			}
-			catch( IOException e )
+			catch( ParseException | IOException e )
 			{
 				final StringBuffer message = new StringBuffer();
 				message.append( "Failed to parse the delete-diffuser response into an Atom feed" + Constants.NEW_LINE );
@@ -280,7 +270,7 @@ public class RestfulDiffuserManagerClient {
 			message.append( clientResponse.toString() );
 			LOGGER.warn( message.toString() );
 		}
-		return new DeleteDiffuserResponse( feed );
+		return diffuserResponse;
 	}
 
 	/**
@@ -386,7 +376,6 @@ public class RestfulDiffuserManagerClient {
 	 * @param argumentValues The serialized value of each of the arguments passed to the diffusive method
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
-//	 * @param serializedObjectType The {@link Class} of the serialized object that contains the diffusive method
 	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
 	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
 	 * underlying Atom feed.
@@ -397,14 +386,12 @@ public class RestfulDiffuserManagerClient {
 							   					  final List< Class< ? > > argumentTypes, 
 							   					  final List< byte[] > argumentValues, 
 							   					  final byte[] serializedObject,
-//							   					  final Class< ? > serializedObjectType,
 							   					  final String serializerType )
 	{
 		// construct the signature from the specified parameters
 		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
 		// call the execute method
-//		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, serializedObjectType, serializerType );
 		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, clazz, serializerType );
 	}
 
@@ -461,12 +448,13 @@ public class RestfulDiffuserManagerClient {
 		final ClientResponse executeDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).post( ClientResponse.class, request );
 		
 		// parse the response into an Atom feed object and return it
-		Feed feed = null;
+		ExecuteDiffuserResponse diffuserResponse = null;
 		try( InputStream response = executeDiffuserResponse.getEntity( InputStream.class ) )
 		{
-			feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			final Feed feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			diffuserResponse = new ExecuteDiffuserResponse( feed );
 		}
-		catch( IOException e )
+		catch( ParseException | IOException e )
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Failed to parse the execute-diffuser response into an Atom feed" + Constants.NEW_LINE );
@@ -483,7 +471,7 @@ public class RestfulDiffuserManagerClient {
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}
-		return new ExecuteDiffuserResponse( feed );
+		return diffuserResponse;
 	}
 
 	/**
@@ -554,12 +542,11 @@ public class RestfulDiffuserManagerClient {
 			return null;
 		}
 		
-		Feed feed = null;
 		Object object = null;
 		try( InputStream response = resultResponse.getEntity( InputStream.class ) )
 		{
 			// the response is an Atom feed
-			feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			final Feed feed = abdera.getParser().< Feed >parse( response ).getRoot();
 			
 			// grab the content from the entry and deserialize it
 			final InputStream objectStream = feed.getEntries().get( 0 ).getContentStream();
@@ -574,7 +561,7 @@ public class RestfulDiffuserManagerClient {
 				object = serializer.deserialize( objectStream, returnType );
 			}
 		}
-		catch( IOException e )
+		catch( ParseException | IOException e )
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Failed to parse the execute-diffuser response into an Atom feed" + Constants.NEW_LINE );
