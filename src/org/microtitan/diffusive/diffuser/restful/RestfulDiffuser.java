@@ -103,16 +103,17 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			if( LOGGER.isInfoEnabled() )
 			{
 				final StringBuffer message = new StringBuffer();
-				message.append( "Called " + RestfulDiffuser.class.getName() + "runObject(...) method." + Constants.NEW_LINE );
-				message.append( "Using " + LocalDiffuser.class.getName() + " because: " );
+				message.append( RestfulDiffuser.class.getName() + " will call the runObject(...) method on the local diffuser: " + Constants.NEW_LINE );
+				message.append( "  Diffuser Name: " + LocalDiffuser.class.getName() + Constants.NEW_LINE + "  Reason: " );
 				if( load < loadThreshold )
 				{
-					message.append( "because the load (" + load + ") was less than the load threshold (" + loadThreshold + ")." + Constants.NEW_LINE );
+					message.append( "the load (" + load + ") was less than the load threshold (" + loadThreshold + ")." );
 				}
 				else if( strategy.isEmpty() )
 				{
-					message.append( "RESTful diffuser was not assigned any client end-points." + Constants.NEW_LINE );
+					message.append( "the RESTful diffuser was not assigned any client end-points." );
 				}
+				LOGGER.info( message.toString() );
 			}
 			
 			// execute the method on the local diffuser
@@ -122,6 +123,19 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		{
 			// create the client manager for the next end points from the strategy
 			final List< URI > endpoints = strategy.getEndpoints();
+
+			if( LOGGER.isInfoEnabled() )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( RestfulDiffuser.class.getName() + " will call the runObject(...) method on the remote diffusers: " + Constants.NEW_LINE );
+				message.append( "  End-points: " + Constants.NEW_LINE );
+				for( URI endpoint : endpoints )
+				{
+					message.append( "    " + endpoint.toString() + Constants.NEW_LINE );
+				}
+				message.append( "Multiple end-points means that the diffusers are making redundant calls" );
+				LOGGER.info( message.toString() );
+			}
 			
 			// create the list of futures that are waiting for the task to return from 
 			// the first end point
@@ -130,9 +144,11 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			// create the executor service for running the tasks.
 			final ExecutorService executor = Executors.newFixedThreadPool( maxRedundancy );
 			
-			// diffuse each end point, adding the reference to the result in the list of futures
+			// diffuse to each of the end-points, adding the reference to the result in the list of futures.
+			// there are multiple end-points in case there is to be redundancy. usually, there is just one end-point
 			for( URI endpoint : endpoints )
 			{
+				// create a client with which to interact with the remote diffuser manager (RestfulDiffuserManagerResource) 
 				final RestfulDiffuserManagerClient client = new RestfulDiffuserManagerClient( endpoint );
 	
 				// create the diffuser on the server
