@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.AbstractDiffuser;
@@ -274,7 +275,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 					result = future.get( pollingTimeout, pollingTimeUnit );
 					isDone = true;
 				}
-				catch( InterruptedException | ExecutionException e )
+				catch( ParseException | InterruptedException | ExecutionException e )
 				{
 					// execution crapped out or was interrupted, so remove the future and keep checking the others
 					futures.remove( index );
@@ -285,7 +286,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 					++i;
 				}
 			}
-			while( !isDone || futures.isEmpty() );
+//			while( !isDone || futures.isEmpty() );
+			while( !isDone && !futures.isEmpty() );
 			
 			// shutdown the executor service
 			executor.shutdownNow();

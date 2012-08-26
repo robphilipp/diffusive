@@ -4,6 +4,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.bind.Marshaller.Listener;
 
@@ -224,7 +225,7 @@ public class KeyedDiffuserRepository {
 	private KeyedDiffuserRepository()
 	{
 		// create the map that holds the diffusers and their associated signature
-		this.diffusers = new HashMap<>();
+		this.diffusers = new ConcurrentHashMap<>();
 		this.diffusers.put( DEFAULT_DIFFUSER, createDefaultDiffuser() );
 		this.propertyChangeSupport = new PropertyChangeSupport( this );
 	}

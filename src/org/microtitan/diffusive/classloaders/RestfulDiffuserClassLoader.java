@@ -85,13 +85,7 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	 */
 	public RestfulDiffuserClassLoader( final List< URI > classPaths, final List< String > configClasses, final ClassPool classPool )
 	{
-		super( configClasses, classPool );
-		
-		// the base URI of the resource
-		this.classPaths = classPaths;
-
-		// create the RESTful class data reader
-		this.classReader = new RestfulClassReader( AbderaFactory.getInstance(), RestfulClientFactory.getInstance() );
+		this( classPaths, configClasses, RestfulDiffuserClassLoader.class.getClassLoader(), classPool );
 	}
 
 	/**
@@ -103,33 +97,6 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 		this( classPaths, new ArrayList< String >(), classPool );
 	}
 		
-	/**
-     * Creates a new class loader. Also provides a mechanism for running additional configuration that 
-     * will be loaded by the same class loader that is loading the application with the diffuser annotations.
-	 * @param configClasses A {@link List} containing the names of configuration classes that are 
-	 * used for configuration. Because these need to be loaded by this class loader, they must all 
-	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
-	 */
-	public RestfulDiffuserClassLoader( final List< URI > classPaths, final List< String > configClasses )
-	{
-		super( configClasses );
-
-		// the base URI of the resource
-		this.classPaths = classPaths;
-
-		// create the RESTful class data reader
-		this.classReader = new RestfulClassReader( AbderaFactory.getInstance(), RestfulClientFactory.getInstance() );
-	}
-	
-	/**
-     * Creates a new class loader.
-	 */
-	public RestfulDiffuserClassLoader( final List< URI > classPaths )
-	{
-		this( classPaths, new ArrayList< String >() );
-	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see org.microtitan.diffusive.classloaders.RestfulClassLoader#findClass(java.lang.String)

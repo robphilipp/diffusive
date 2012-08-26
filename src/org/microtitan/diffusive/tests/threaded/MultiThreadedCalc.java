@@ -42,7 +42,14 @@ public class MultiThreadedCalc {
 			{
 				final Future< Result > resultFuture = completionService.take();
 				final Result result = resultFuture.get();
-				System.out.println( "(" + (t+1) + "/" + numTasks + ") id=" + result.getId() + ": loops=" + result.getNumLoops() + " => " + result.getResult() );
+				if( result == null )
+				{
+					System.out.println( "(" + (t+1) + "/" + numTasks + ") id=[null]: loops=[null] => [null]" );
+				}
+				else
+				{
+					System.out.println( "(" + (t+1) + "/" + numTasks + ") id=" + result.getId() + ": loops=" + result.getNumLoops() + " => " + result.getResult() );
+				}
 			}
 		}
 		catch( InterruptedException e )

@@ -1,8 +1,8 @@
 package org.microtitan.diffusive.cache;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +35,7 @@ public class FifoCache< K, T > implements Cache< K, T > {
 	 */
 	public FifoCache( final int maxResults )
 	{
-		cache = new LinkedHashMap<>();
+		cache = new HashMap<>();
 		maxCachedItems = maxResults;
 	}
 	
@@ -86,7 +86,7 @@ public class FifoCache< K, T > implements Cache< K, T > {
 	 * @see org.microtitan.diffusive.diffuser.restful.resources.ResultsCache#getResultFromCache(java.lang.String)
 	 */
 	@Override
-	public T get( final K key )
+	public synchronized T get( final K key )
 	{
 		return cache.get( key );
 	}
@@ -96,7 +96,7 @@ public class FifoCache< K, T > implements Cache< K, T > {
 	 * @see org.microtitan.diffusive.cache.Cache#getKeys()
 	 */
 	@Override
-	public Set< K > getKeys()
+	public synchronized Set< K > getKeys()
 	{
 		return Collections.unmodifiableSet( cache.keySet() );
 	}
@@ -116,7 +116,7 @@ public class FifoCache< K, T > implements Cache< K, T > {
 	 * @see org.microtitan.diffusive.diffuser.restful.resources.ResultsCache#remove(org.microtitan.diffusive.diffuser.restful.resources.ResultId)
 	 */
 	@Override
-	public void remove( final K key )
+	public synchronized void remove( final K key )
 	{
 		cache.remove( key );
 	}

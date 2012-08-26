@@ -134,14 +134,14 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 			loader = new RestfulDiffuserClassLoader( classPaths, configClasses, delegationPrefixes, parentLoader, classPool );
 		}
 		else
-		if( ( configClasses == null || configClasses.isEmpty() ) &&
-			( delegationPrefixes == null || delegationPrefixes.isEmpty() ) &&
-			parentLoader == null &&
-			classPool == null )
-		{
-			loader = new RestfulDiffuserClassLoader( classPaths );
-		}
-		else
+//		if( ( configClasses == null || configClasses.isEmpty() ) &&
+//			( delegationPrefixes == null || delegationPrefixes.isEmpty() ) &&
+//			parentLoader == null &&
+//			classPool == null )
+//		{
+//			loader = new RestfulDiffuserClassLoader( classPaths );
+//		}
+//		else
 		if( ( configClasses != null && !configClasses.isEmpty() ) &&
 			( delegationPrefixes == null || delegationPrefixes.isEmpty() ) &&
 			parentLoader != null &&

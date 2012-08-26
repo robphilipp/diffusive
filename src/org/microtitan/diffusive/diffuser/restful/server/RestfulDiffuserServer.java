@@ -204,7 +204,7 @@ public class RestfulDiffuserServer {
 		// create the web server
 		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
 				
-		System.out.println( String.format( "Jersy app start with WADL available at %sapplication.wadl", serverUri ) );
+		System.out.println( String.format( "Jersy app start with WADL available at %s/application.wadl", serverUri ) );
 		System.out.println( String.format( "Try out %s.", serverUri ) );
 		System.out.println( "Hit enter to stop it..." );
 		try

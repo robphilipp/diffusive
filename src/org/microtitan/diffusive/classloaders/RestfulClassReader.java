@@ -70,7 +70,7 @@ public class RestfulClassReader {
 	 * @return the {@code byte} array representing the serialized {@link Class} object
 	 * @see #readClassData(String)
 	 */
-	public final byte[] readClassData( final String className, final URI uri )
+	public synchronized final byte[] readClassData( final String className, final URI uri )
 	{
 		// construct the request to create the diffuser for the specific signature (class, method, arguments)
 		final ClassRequest request = ClassRequest.create( uri.toString(), className );

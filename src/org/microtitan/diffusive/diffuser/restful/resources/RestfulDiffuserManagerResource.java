@@ -9,10 +9,10 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -133,7 +133,7 @@ public class RestfulDiffuserManagerResource {
 	{
 		this.executor = executor;
 		
-		this.diffusers = new HashMap<>();
+		this.diffusers = new ConcurrentHashMap<>();
 		this.resultsCache = resultsCache;
 		this.loadCalc = loadCalc;
 		
@@ -454,10 +454,13 @@ public class RestfulDiffuserManagerResource {
 		final String requestId = request.getRequestId();
 		final ResultId resultId = new ResultId( signature, requestId );
 		
+		// grab the return type class, which may need to come from a remote source
+		final Class< ? > returnType = getClass( diffuserId.getReturnTypeClassName(), signature );
+
 		// create the task that will be submitted to the executor service to run
 		final DiffuserTask task = new DiffuserTask( diffuserId.getMethodName(), 
-													arguments, 
-													diffuserId.getReturnTypeClazz(), 
+													arguments,
+													returnType,
 													deserializedObject, 
 													diffuser,
 													loadCalc );
@@ -507,7 +510,7 @@ public class RestfulDiffuserManagerResource {
 	 * @return The {@link Class} associated with the specified class name.
 	 * @throws IllegalArgumentException if the class of the specified name can't be found
 	 */
-	private Class< ? > getClass( final String classname, final String signature )
+	private synchronized Class< ? > getClass( final String classname, final String signature )
 	{
 		// attempt to get the class for the specified class name, and if that fails, create and use
 		// a URL class loader with the diffuser's specific class paths, and whose parent class loader
@@ -656,7 +659,6 @@ public class RestfulDiffuserManagerResource {
 		final String cacheKey = createResultsCacheId( signature, requestId );
 		if( ( result = resultsCache.get( cacheKey ) ) != null )
 		{
-			Feed feed = null;
 			try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
 			{
 				// serialize the result result to be used in the response (blocks until the result is done)
@@ -665,7 +667,7 @@ public class RestfulDiffuserManagerResource {
 				serializer.serialize( object, output );
 				
 				// create the atom feed
-				feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
+				final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
 				
 				// create an entry for the feed and set the results as the content
 				final Entry entry = Atom.createEntry();
