@@ -21,7 +21,6 @@ public class LocalDiffuser extends AbstractDiffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-//	public < T > T runObject( final boolean isRemoteCall, final Class< T > returnType, final Object object, final String methodName, final Object...arguments )
 	public < T > T runObject( final double laod, final Class< T > returnType, final Object object, final String methodName, final Object...arguments )
 	{
 		final Class< ? > clazz = object.getClass();
@@ -40,10 +39,13 @@ public class LocalDiffuser extends AbstractDiffuser {
 		
 		// attempt to call the method
 		T returnResult = null;
+		Object returnValue = null;
 		try
 		{
 			// grab the method and invoke it, if the method doesn't exist, then an exception is thrown
-			returnResult = returnType.cast( clazz.getMethod( methodName, params ).invoke( object, arguments ) );
+//			returnResult = returnType.cast( clazz.getMethod( methodName, params ).invoke( object, arguments ) );
+			returnValue = clazz.getMethod( methodName, params ).invoke( object, arguments );
+			returnResult = returnType.cast( returnValue );
 
 			if( LOGGER.isDebugEnabled() )
 			{
@@ -64,6 +66,18 @@ public class LocalDiffuser extends AbstractDiffuser {
 				LOGGER.debug( message.toString() );
 				System.out.println( message.toString() );
 			}
+		}
+		catch( ClassCastException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Return type from the method and the intended result type do not match." + Constants.NEW_LINE );
+			message.append( "  Expected Return Type: " + returnType.getName() + Constants.NEW_LINE );
+			message.append( "  Actual Return Type: " + returnValue.getClass().getName() + Constants.NEW_LINE );
+			message.append( "  Expected Return Type Class Loader: " + returnType.getClassLoader() + Constants.NEW_LINE );
+			message.append( "  Actual Return Type Class Loader: " + returnValue.getClass().getClassLoader() );
+			LOGGER.error( message.toString(), e );
+			
+			throw new IllegalStateException( message.toString(), e );
 		}
 		catch( NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e )
 		{

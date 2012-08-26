@@ -286,7 +286,6 @@ public class RestfulDiffuser extends AbstractDiffuser {
 					++i;
 				}
 			}
-//			while( !isDone || futures.isEmpty() );
 			while( !isDone && !futures.isEmpty() );
 			
 			// shutdown the executor service
