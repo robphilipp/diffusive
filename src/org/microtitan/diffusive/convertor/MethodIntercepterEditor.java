@@ -74,29 +74,11 @@ public class MethodIntercepterEditor extends ExprEditor {
 		final StringBuffer code = new StringBuffer();
 		try
 		{
-			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null )
+			// if the method itself is annotated with @Diffusive, AND, the method making the call is not
+			// TODO does the check for nested diffusion have to be recursive? if so, how to do that with this framework
+			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null && methodCall.where().getAnnotation( Diffusive.class ) == null )
 			{
 				// write the code to replace the method call with a Diffusive call
-//				final StringBuffer code = new StringBuffer( "{\n" );
-
-//				code.append( "{\n" );
-//				
-//				code.append( "  org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger( $class );\n" );
-//				code.append( "  if( logger.isDebugEnabled() )\n" );
-//				code.append( "  {\n " );
-//				code.append( "    java.lang.StringBuffer message = new java.lang.StringBuffer();\n" );
-//				code.append( "    message.append( \"(diffused): " + className + "." + methodName + "\" );\n" );
-//				code.append( "    message.append( \"  Object: \" + $0.getClass().getName() );\n" );
-//				int i = 1;
-//				for( CtClass arg : methodCall.getMethod().getParameterTypes() )
-//				{
-//					code.append( "    message.append( \"  Method Param: value=\" + $" + i + " + \"; type=" + arg.getName() + "\" );\n" );
-//					++i;
-//				}
-//				code.append( "    message.append( \"  Return: \" + $type.getName() );\n" );
-//				code.append( "    logger.debug( message.toString() );\n" );
-//				code.append( "  }\n" );
-
 				// TODO replace this with a logger, which will require adding a logger field
 				code.append( "    System.out.println( \"(diffused): " + className + "." + methodName + "\" );\n" );
 				code.append( "    System.out.println( \"  Class Loader Name: \" + $0.getClass().getClassLoader().getClass().getName() );\n" );
@@ -115,6 +97,8 @@ public class MethodIntercepterEditor extends ExprEditor {
 				// diffuser, we want to use the one and only, the default, diffuser. however, for the
 				// diffusers attached to the restful diffuser manager resource, there is one diffuser per
 				// diffuser method signature, and so we want to use the signature).
+				final String repoClassName = KeyedDiffuserRepository.class.getName();
+				final String getInstance = "getInstance()";
 				if( isUseSignature )
 				{
 					// get the parameter types
@@ -131,14 +115,15 @@ public class MethodIntercepterEditor extends ExprEditor {
 					final String signature = DiffuserId.createId( returnType, className, methodName, argumentTypes );
 	
 					// the actual Diffusive call
-					code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser( " + signature + " ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
+					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance );
+					code.append( ".getDiffuser( " + signature + " ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
 				}
 				else
 				{
 					// the actual Diffusive call
-					code.append( "    $_ = ($r)org.microtitan.diffusive.diffuser.KeyedDiffuserRepository.getInstance().getDiffuser().runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
+					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance ); 
+					code.append( ".getDiffuser().runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
 				}
-//				code.append( "\n}" );
 				
 				// make the call to replace the code in the method call
 				methodCall.replace( code.toString() );
@@ -204,7 +189,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 			final StringBuffer message = new StringBuffer();
 			message.append( "The source code that is to replace the byte code of the diffusive method call did not compile:" + Constants.NEW_LINE );
 			message.append( "  Class Name: " + className + Constants.NEW_LINE );
-			message.append( "  Method Name: " + className + Constants.NEW_LINE );
+			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
 			message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
 			message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
 			message.append( "  Line Number: " + methodCall.getLineNumber() + Constants.NEW_LINE );

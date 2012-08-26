@@ -22,12 +22,24 @@ public class Task implements Callable< Result > {
 		double result = 0;
 		for( int i = 0; i < 10_000; ++i )
 		{
-			for( int j = 0; j < numInnerLoops; ++j )
-			{
-				result += i / ( j + 1 );
-			}
+//			for( int j = 0; j < numInnerLoops; ++j )
+//			{
+//				result += i / ( j + 1 );
+//			}
+			result += loop( numInnerLoops, i );
 		}
 		return new Result( result, numInnerLoops, id );
+	}
+	
+	@Diffusive
+	public double loop( final int numLoops, final int currentLoop )
+	{
+		double result = 0;
+		for( int i = 0; i < numLoops; ++i )
+		{
+			result += currentLoop / ( i + 1 );
+		}
+		return result;
 	}
 
 }
