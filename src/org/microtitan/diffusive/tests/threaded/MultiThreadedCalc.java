@@ -35,15 +35,17 @@ public class MultiThreadedCalc {
 		}
 		
 		// grab the results as they complete, and print them out to the console
+		final int numTasks = tasks.size();
+		int numFailures = 0;
 		try
 		{
-			final int numTasks = tasks.size();
 			for( int t = 0; t < numTasks; t++ )
 			{
 				final Future< Result > resultFuture = completionService.take();
 				final Result result = resultFuture.get();
 				if( result == null )
 				{
+					++numFailures;
 					System.out.println( "(" + (t+1) + "/" + numTasks + ") id=[null]: loops=[null] => [null]" );
 				}
 				else
@@ -63,6 +65,9 @@ public class MultiThreadedCalc {
 		finally
 		{
 			System.out.println( "done: " + (double)(System.currentTimeMillis() - start)/1000 + " s" );
+			System.out.println( "Total tasks: " + numTasks );
+			System.out.println( "  Failed tasks: " + numFailures );
+			System.out.println( "  Successful tasks: " + ( numTasks - numFailures ) );
 
 			// done, shutdown the thread pool (program won't exit until the thread pool resources are shut down.
 			System.out.println( "Shutting down the threads" );

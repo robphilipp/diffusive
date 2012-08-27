@@ -15,7 +15,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -470,8 +469,8 @@ public class RestfulDiffuserManagerResource {
 		
 		// submit the task to the executor service to run on a different thread,
 		// and put the future result into the results cache with the signature/id as the key
-		final Future< Object > future = executor.submit( task );
-		resultsCache.add( createResultsCacheId( resultId ), new ResultCacheEntry< Object >( future, serializer ) );
+		final String resultsId = createResultsCacheId( resultId );
+		resultsCache.add( resultsId, new ResultCacheEntry< Object >( executor.submit( task ), serializer ) );
 		
 		//
 		// create the response
@@ -660,6 +659,9 @@ public class RestfulDiffuserManagerResource {
 		Response response = null;
 		ResultCacheEntry< Object > result = null;
 		final String cacheKey = createResultsCacheId( signature, requestId );
+		
+		// the result can either have been cached already, or the task can still be running,
+		// or it just isn't found, and we report the error
 		if( ( result = resultsCache.get( cacheKey ) ) != null )
 		{
 			try( final ByteArrayOutputStream output = new ByteArrayOutputStream() )
@@ -695,10 +697,12 @@ public class RestfulDiffuserManagerResource {
 				throw new IllegalArgumentException( message.toString() );
 			}
 		}
+		// currently running
 		else if( resultsCache.isRunning( cacheKey ) )
 		{
 			response = Response.noContent().build();
 		}
+		// not in cache
 		else
 		{
 			final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );

@@ -543,10 +543,11 @@ public class RestfulDiffuserManagerClient {
 		}
 		
 		Object object = null;
+		Feed feed = null;
 		try( InputStream response = resultResponse.getEntity( InputStream.class ) )
 		{
 			// the response is an Atom feed
-			final Feed feed = abdera.getParser().< Feed >parse( response ).getRoot();
+			feed = abdera.getParser().< Feed >parse( response ).getRoot();
 			
 			// grab the content from the entry and deserialize it
 			final InputStream objectStream = feed.getEntries().get( 0 ).getContentStream();
@@ -564,7 +565,7 @@ public class RestfulDiffuserManagerClient {
 		catch( ParseException | IOException e )
 		{
 			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to parse the execute-diffuser response into an Atom feed" + Constants.NEW_LINE );
+			message.append( "Failed to parse the get-result response into an Atom feed" + Constants.NEW_LINE );
 			message.append( "  Signature: " + signature + Constants.NEW_LINE );
 			message.append( "  Request ID: " + requestId + Constants.NEW_LINE );
 			final DiffuserId diffuserId = DiffuserId.parse( signature );
@@ -577,6 +578,28 @@ public class RestfulDiffuserManagerClient {
 			}
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
+		}
+		catch( Exception e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Failed to deserialize the get-result response." + Constants.NEW_LINE );
+			message.append( "  Signature: " + signature + Constants.NEW_LINE );
+			message.append( "  Request ID: " + requestId + Constants.NEW_LINE );
+			final DiffuserId diffuserId = DiffuserId.parse( signature );
+			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
+			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
+			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
+			for( String name : diffuserId.getArgumentTypeNames() )
+			{
+				message.append( "    " + name + Constants.NEW_LINE );
+			}
+			message.append( "  Feed: " + Constants.NEW_LINE );
+			if( feed != null )
+			{
+				message.append( "    " + feed.toString() );
+			}
+			LOGGER.error( message.toString(), e );
+			throw new IllegalStateException( message.toString(), e );
 		}
 		return object;
 	}

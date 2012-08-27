@@ -1,8 +1,8 @@
 package org.microtitan.diffusive.cache;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +35,7 @@ public class FifoCache< K, T > implements Cache< K, T > {
 	 */
 	public FifoCache( final int maxResults )
 	{
-		cache = new HashMap<>();
+		cache = new LinkedHashMap<>();	// WARNING: must be a LINKED hash map...FIFO cache!
 		maxCachedItems = maxResults;
 	}
 	
