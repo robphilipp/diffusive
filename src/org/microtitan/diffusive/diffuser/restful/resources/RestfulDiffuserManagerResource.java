@@ -184,7 +184,7 @@ public class RestfulDiffuserManagerResource {
 	}
 	
 	/**
-	 * Creates the diffuser and crafts the response. Decouples the way the information is sent from
+	 * Creates the diffuser if it doesn't already exist and crafts the response. Decouples the way the information is sent from
 	 * the creation of the diffuser and the response
 	 * @param serializer The {@link Serializer} used to serialize/deserialize objects
 	 * @param clientEndpoints The URI of the end-points to which result requests can be sent
@@ -204,21 +204,24 @@ public class RestfulDiffuserManagerResource {
 						   final String methodName,
 						   final List< String > argumentTypes )
 	{
-		// create the diffuser
-		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
-		
 		// create the diffuser method signature to be used as the key for the diffuser
 		final String signature = DiffuserId.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );
 
-		// add the diffuser to the map of diffusers
-		final ClassLoader classLoader = classLoaderFactory.create( classPaths );
-		diffusers.put( signature, new DiffuserEntry( diffuser, classLoader ) );
-		
-		// add the diffuser to the keyed diffuser repository, along with its signature.
-		// this is needed for nested diffusion where Javassist method interceptor uses
-		// the repository to point the method calls to the diffuser's runObject(...) method
-		KeyedDiffuserRepository.getInstance().putDiffuser( signature, diffuser );
-
+		// only create the diffuser if it hasn't alread been created
+		if( !diffusers.containsKey( signature ) )
+		{
+			// create the diffuser
+			final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
+			
+			// add the diffuser to the map of diffusers
+			final ClassLoader classLoader = classLoaderFactory.create( classPaths );
+			diffusers.put( signature, new DiffuserEntry( diffuser, classLoader ) );
+			
+			// add the diffuser to the keyed diffuser repository, along with its signature.
+			// this is needed for nested diffusion where Javassist method interceptor uses
+			// the repository to point the method calls to the diffuser's runObject(...) method
+			KeyedDiffuserRepository.getInstance().putDiffuser( signature, diffuser );
+		}
 		return signature;
 	}
 
