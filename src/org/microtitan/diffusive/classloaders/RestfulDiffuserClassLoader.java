@@ -6,7 +6,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javassist.CannotCompileException;
 import javassist.ClassPool;
+import javassist.NotFoundException;
+import javassist.Translator;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
@@ -134,8 +137,9 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 		// the act of calling makeClass(...) on the class pool creates the CtClass object in the
 		// class pool, and this allows the the parent Loader to pull out the class bytes the way
 		// it normally does...
-		// TODO rewrite the Loader class to be a Restful version, and perhaps a bit better design
+		Class< ? > clazz = null;
 		final ClassPool classPool = getClassPool();
+		final Translator translator = getTranslator();
 		if( classPool != null )
 		{
 			try( final ByteArrayInputStream input = new ByteArrayInputStream( bytes ) )
@@ -145,17 +149,46 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 			catch( IOException e )
 			{
 				final StringBuffer message = new StringBuffer();
-				message.append( "Failed to instrument the diffusive method." + Constants.NEW_LINE );
+				message.append( "Failed to add Class-object bytes to the class pool for modification." + Constants.NEW_LINE );
 				message.append( "  Class Name: " + className + Constants.NEW_LINE );
 				message.append( "  Class Pool: " + classPool.toString() + Constants.NEW_LINE );
 				message.append( "  Bytes Read: " + bytes );
 				LOGGER.error( message.toString(), e );
 				throw new IllegalStateException( message.toString(), e );
 			}
+			
+			try
+			{
+				// modify the class file as it is loaded
+				translator.onLoad( classPool, className );
+
+				// grab the modified class from the class pool
+				final byte[] classfile = classPool.get( className ).toBytecode();
+				
+				// define the class (actually load it into the JVM
+				clazz = defineClass( className, classfile, 0, classfile.length );
+			}
+			catch( CannotCompileException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Failed to instrument diffusive method call." + Constants.NEW_LINE );
+				message.append( "  Class Name: " + className + Constants.NEW_LINE );
+				message.append( "  Class Pool: " + classPool.toString() + Constants.NEW_LINE );
+				message.append( "  Bytes Read: " + bytes );
+				LOGGER.error( message.toString(), e );
+				throw new IllegalStateException( message.toString(), e );
+			}
+			catch( NotFoundException | IOException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Class not found in the class pool. This shouldn't happen." + Constants.NEW_LINE );
+				message.append( "  Class Name: " + className + Constants.NEW_LINE );
+				message.append( "  Class Pool: " + classPool.toString() + Constants.NEW_LINE );
+				message.append( "  Bytes Read: " + bytes );
+				LOGGER.error( message.toString(), e );
+				throw new ClassNotFoundException( message.toString(), e );
+			}
 		}
-		
-		// ask the parent (javassist Loader) to load from the class pool 
-		final Class< ? > clazz = super.findClass( className );
 		
 		if( LOGGER.isInfoEnabled() )
 		{
