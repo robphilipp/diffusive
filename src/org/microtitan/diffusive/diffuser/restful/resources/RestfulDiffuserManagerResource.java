@@ -213,7 +213,7 @@ public class RestfulDiffuserManagerResource {
 			final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
 			
 			// add the diffuser to the map of diffusers
-			final ClassLoader classLoader = classLoaderFactory.create( classPaths );
+			final ClassLoader classLoader = classLoaderFactory.create( signature, classPaths );
 			diffusers.put( signature, new DiffuserEntry( diffuser, classLoader ) );
 			
 			// add the diffuser to the keyed diffuser repository, along with its signature.
@@ -910,19 +910,10 @@ public class RestfulDiffuserManagerResource {
 		 * @param diffuser The {@link Diffuser}
 		 * @param classPaths The list of class path endpoints
 		 */
-//		public DiffuserEntry( final RestfulDiffuser diffuser, final List< URI > classPaths )
 		public DiffuserEntry( final RestfulDiffuser diffuser, final ClassLoader classLoader )
 		{
 			this.diffuser = diffuser;
 			this.classLoader = classLoader;
-//			if( classPaths == null || classPaths.isEmpty() )
-//			{
-//				this.classLoader = null;
-//			}
-//			else
-//			{
-//				this.classLoader = new RestfulClassLoader( classPaths );
-//			}
 		}
 		
 		/**

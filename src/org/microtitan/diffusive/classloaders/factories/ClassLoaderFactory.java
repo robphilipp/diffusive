@@ -12,9 +12,10 @@ public interface ClassLoaderFactory {
 	
 	/**
 	 * Creates a {@link ClassLoader} for loading classes over the network
+	 * @param baseSignature The signature of the base method that shouldn't be diffused further
 	 * @param classPaths The list of {@link URI} specifying the web service end-point for
 	 * retrieving serialized {@link Class} objects
 	 * @return The {@link ClassLoader} for loading classes over the network
 	 */
-	ClassLoader create( final List< URI > classPaths );
+	ClassLoader create( final String baseSignature, final List< URI > classPaths );
 }

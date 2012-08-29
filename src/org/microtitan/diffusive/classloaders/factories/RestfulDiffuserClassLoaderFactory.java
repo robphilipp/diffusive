@@ -29,21 +29,24 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	private static RestfulDiffuserClassLoaderFactory instance = null;
 	
 	private List< String > configClasses;
-    private List< String > delegationPrefixes;
-    private ClassLoader parentLoader; 
-    private ClassPool classPool;
-    private DiffusiveTranslator translator;
+	private List< String > delegationPrefixes;
+	private ClassLoader parentLoader;
+	private ClassPool classPool;
+//	private DiffusiveTranslator translator;
     
-    /**
-	 * Default no-arg constructor. Sets a few default values for the {@link DiffusiveTranslator}, the {@link ExprEditor},
-	 * the parent class loader, and the class pool.
+	/**
+	 * Default no-arg constructor. Sets a few default values for the
+	 * {@link DiffusiveTranslator}, the {@link ExprEditor}, the parent class
+	 * loader, and the class pool.
 	 */
 	private RestfulDiffuserClassLoaderFactory()
 	{
-		// creates the default translator for translating the diffusive method calls 
-		this.translator = createDefaultTranslator( createDefaultMethodIntercepter() );
+//		// creates the default translator for translating the diffusive method
+//		// calls
+//		this.translator = createDefaultTranslator( createDefaultMethodIntercepter() );
 
-		// sets the default parent class loader should be the class loader that loaded the RestfulDiffuserClassLoader
+		// sets the default parent class loader should be the class loader that
+		// loaded the RestfulDiffuserClassLoader
 		this.parentLoader = RestfulDiffuserClassLoaderFactory.class.getClassLoader();
 
 		// gets the default class pool
@@ -67,15 +70,15 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 		}
 	}
 	
-	/**
-	 * Sets the Javassist (byte code engineering) translator used for translating diffusive method calls through
-	 * the {@link ExprEditor}
-	 * @param translator The {@link DiffusiveTranslator} used for translating method calls
-	 */
-	public void set( final DiffusiveTranslator translator )
-	{
-		this.translator = translator;
-	}
+//	/**
+//	 * Sets the Javassist (byte code engineering) translator used for translating diffusive method calls through
+//	 * the {@link ExprEditor}
+//	 * @param translator The {@link DiffusiveTranslator} used for translating method calls
+//	 */
+//	public void set( final DiffusiveTranslator translator )
+//	{
+//		this.translator = translator;
+//	}
 	
 	/**
 	 * Sets the specified parameters. None of the parameter objects should be null, and none of the lists should be empty. 
@@ -158,12 +161,13 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	
 	/**
 	 * Creates a default method intercepter using the specified {@link Diffuser}
-	 * @param diffuser The diffuser used with the default method intercepter
+	 * @param signature The base signature of the associated diffuser. Method calls with this signature won't be
+	 * diffused further.
 	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
 	 */
-	private static MethodIntercepterEditor createDefaultMethodIntercepter()
+	private static MethodIntercepterEditor createDefaultMethodIntercepter( final String signature )
 	{
-		return new MethodIntercepterEditor( true );
+		return new MethodIntercepterEditor( signature );//, true );
 	}
 
 	/*
@@ -171,7 +175,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 * @see org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory#create(java.util.List)
 	 */
 	@Override
-	public RestfulDiffuserClassLoader create( final List< URI > classPaths )
+	public RestfulDiffuserClassLoader create( final String signature, final List< URI > classPaths )
 	{
 		RestfulDiffuserClassLoader loader = null;
 		// everything is set
@@ -202,7 +206,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 		// set up the class loader with the translator
 		try
 		{
-			loader.addTranslator( classPool, translator );
+			loader.addTranslator( classPool, createDefaultTranslator( createDefaultMethodIntercepter( signature ) ) );
 		}
 		catch( Throwable exception )
 		{
