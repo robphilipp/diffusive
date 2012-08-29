@@ -5,9 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javassist.ClassPool;
+import javassist.expr.ExprEditor;
 
+import org.apache.log4j.Logger;
+import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.classloaders.RestfulDiffuserClassLoader;
+import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
+import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
+import org.microtitan.diffusive.translator.DiffusiveTranslator;
 
 /**
  * Factory for creating {@link RestfulDiffuserClassLoader} objects. Use the {@code set(...)} methods to set the parameters
@@ -17,19 +24,30 @@ import org.microtitan.diffusive.classloaders.RestfulDiffuserClassLoader;
  */
 public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 
+	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserClassLoaderFactory.class );
+	
 	private static RestfulDiffuserClassLoaderFactory instance = null;
 	
 	private List< String > configClasses;
     private List< String > delegationPrefixes;
     private ClassLoader parentLoader; 
     private ClassPool classPool;
+    private DiffusiveTranslator translator;
     
     /**
-	 * Default no-arg constructor
+	 * Default no-arg constructor. Sets a few default values for the {@link DiffusiveTranslator}, the {@link ExprEditor},
+	 * the parent class loader, and the class pool.
 	 */
 	private RestfulDiffuserClassLoaderFactory()
 	{
-		/* disallow */ 
+		// creates the default translator for translating the diffusive method calls 
+		this.translator = createDefaultTranslator( createDefaultMethodIntercepter() );
+
+		// sets the default parent class loader should be the class loader that loaded the RestfulDiffuserClassLoader
+		this.parentLoader = RestfulDiffuserClassLoader.class.getClassLoader();
+
+		// gets the default class pool
+		this.classPool = ClassPool.getDefault();
 	}
 	
 	/**
@@ -47,6 +65,16 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 
 			return instance;
 		}
+	}
+	
+	/**
+	 * Sets the Javassist (byte code engineering) translator used for translating diffusive method calls through
+	 * the {@link ExprEditor}
+	 * @param translator The {@link DiffusiveTranslator} used for translating method calls
+	 */
+	public void set( final DiffusiveTranslator translator )
+	{
+		this.translator = translator;
 	}
 	
 	/**
@@ -118,6 +146,26 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 		this.classPool = pool;
 	}
 	
+	/**
+	 * Creates the default translator for Javassist to replace method calls from diffused methods
+	 * @param expressionEditor The expression editor containing the code that replaces the method call
+	 * @return A new translator for rewriting method calls to diffused methods
+	 */
+	private static DiffusiveTranslator createDefaultTranslator( final MethodIntercepterEditor expressionEditor )
+	{
+		return new BasicDiffusiveTranslator( expressionEditor );
+	}
+	
+	/**
+	 * Creates a default method intercepter using the specified {@link Diffuser}
+	 * @param diffuser The diffuser used with the default method intercepter
+	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
+	 */
+	private static MethodIntercepterEditor createDefaultMethodIntercepter()
+	{
+		return new MethodIntercepterEditor();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory#create(java.util.List)
@@ -126,65 +174,47 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	public RestfulDiffuserClassLoader create( final List< URI > classPaths )
 	{
 		RestfulDiffuserClassLoader loader = null;
-		if( ( configClasses != null && !configClasses.isEmpty() ) &&
-			( delegationPrefixes != null && !delegationPrefixes.isEmpty() ) &&
-			parentLoader != null &&
-			classPool != null )
+		ClassPool pool = classPool;
+		// everything is set
+		if( ( configClasses != null && !configClasses.isEmpty() ) && ( delegationPrefixes != null && !delegationPrefixes.isEmpty() ) )
 		{
 			loader = new RestfulDiffuserClassLoader( classPaths, configClasses, delegationPrefixes, parentLoader, classPool );
 		}
 		else
-		if( ( configClasses == null || configClasses.isEmpty() ) &&
-			( delegationPrefixes == null || delegationPrefixes.isEmpty() ) &&
-			parentLoader == null &&
-			classPool == null )
-		{
-			// the parent class loader should be the class loader that loaded the RestfulDiffuserClassLoader
-			final ClassLoader defaultParentLoader = RestfulDiffuserClassLoader.class.getClassLoader();
-
-			// get the default class pool
-			final ClassPool pool = ClassPool.getDefault();
-
-			loader = new RestfulDiffuserClassLoader( classPaths, defaultParentLoader, pool );
-		}
-		else
-		if( ( configClasses != null && !configClasses.isEmpty() ) &&
-			( delegationPrefixes == null || delegationPrefixes.isEmpty() ) &&
-			parentLoader != null &&
-			classPool != null )
-		{
-			loader = new RestfulDiffuserClassLoader( classPaths, configClasses, parentLoader, classPool );
-		}
-		else
-		if( ( configClasses == null || configClasses.isEmpty() ) &&
-			( delegationPrefixes == null || delegationPrefixes.isEmpty() ) &&
-			parentLoader != null &&
-			classPool != null )
+		// nothing is set
+		if( ( configClasses == null || configClasses.isEmpty() ) && ( delegationPrefixes == null || delegationPrefixes.isEmpty() ) ) 
 		{
 			loader = new RestfulDiffuserClassLoader( classPaths, parentLoader, classPool );
 		}
 		else
-		if( ( configClasses != null && !configClasses.isEmpty() ) &&
-			( delegationPrefixes == null || delegationPrefixes.isEmpty() ) &&
-			parentLoader == null &&
-			classPool != null )
+		// everything except delegation prefixes are set
+		if( ( configClasses != null && !configClasses.isEmpty() ) && ( delegationPrefixes == null || delegationPrefixes.isEmpty() ) )
 		{
-			loader = new RestfulDiffuserClassLoader( classPaths, configClasses, classPool );
+			loader = new RestfulDiffuserClassLoader( classPaths, configClasses, parentLoader, classPool );
 		}
-		else
-		if( ( configClasses == null || configClasses.isEmpty() ) &&
-			( delegationPrefixes == null || delegationPrefixes.isEmpty() ) &&
-			parentLoader == null &&
-			classPool != null )
-		{
-			loader = new RestfulDiffuserClassLoader( classPaths, classPool );
-		}
+		// invalid configuration
 		else
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Invalid factory configuration: should never reach this point!" );
 			throw new IllegalStateException( message.toString() );
 		}
+		
+		// set up the class loader with the translator
+		try
+		{
+			loader.addTranslator( pool, translator );
+		}
+		catch( Throwable exception )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error loading the specified class" + Constants.NEW_LINE );
+			message.append( "  Loader: " + loader.getClass().getName() + Constants.NEW_LINE );
+
+			LOGGER.error( message.toString(), exception );
+			throw new IllegalArgumentException( message.toString(), exception );
+		}
+
 		
 		return loader;
 	}
