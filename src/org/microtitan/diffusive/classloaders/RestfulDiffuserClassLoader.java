@@ -4,14 +4,21 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javassist.CannotCompileException;
 import javassist.ClassPool;
+import javassist.NotFoundException;
+import javassist.Translator;
 
+import org.apache.log4j.Logger;
+import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.client.RestfulClientFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLoader;
 
 public class RestfulDiffuserClassLoader extends DiffusiveLoader {
+	
+	private static Logger LOGGER = Logger.getLogger( RestfulDiffuserClassLoader.class );
 
 	private List< URI > classPaths;
 	private final RestfulClassReader classReader;
@@ -125,12 +132,69 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 			throw new ClassNotFoundException( className );
 		}
 		
-		// here we need to get the javassist class loader to load this...
+		// attempt to instrument the class as it's loaded
+		final ClassPool classPool = getClassPool();
+		final Translator translator = getTranslator();
+		try
+		{
+			if( classPool != null && translator != null )
+			{
+				translator.onLoad( classPool, className );
+			}
+			else
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Failed to instrument the diffusive method because the class pool or translator was null." + Constants.NEW_LINE );
+				message.append( "  Class Name: " + className + Constants.NEW_LINE );
+				if( classPool == null )
+				{
+					message.append( "  Class Pool: [null]" + Constants.NEW_LINE );
+				}
+				else
+				{
+					message.append( "  Class Pool: " + classPool.toString() + Constants.NEW_LINE );
+				}
+				if( translator == null )
+				{
+					message.append( "  Translator: [null]" + Constants.NEW_LINE );
+				}
+				else
+				{
+					message.append( "  Translator: " + translator.toString() + Constants.NEW_LINE );
+				}
+				LOGGER.warn( message.toString() );
+			}
+		}
+		catch( NotFoundException | CannotCompileException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Failed to instrument the diffusive method." + Constants.NEW_LINE );
+			message.append( "  Class Name: " + className + Constants.NEW_LINE );
+			message.append( "  Class Pool: " + classPool.toString() + Constants.NEW_LINE );
+			message.append( "  Translator: " + translator.toString() + Constants.NEW_LINE );
+			LOGGER.error( message.toString(), e );
+			throw new IllegalStateException( message.toString(), e );
+		}
+
+        // here we need to get the javassist class loader to load this...
 		// define the class 
 		final Class< ? > clazz = defineClass( className, bytes, 0, bytes.length );
 		if( clazz == null )
 		{
 			throw new ClassFormatError( className );
+		}
+		
+		if( LOGGER.isInfoEnabled() )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Loaded class using the RESTful diffuser class loader: " + RestfulDiffuserClassLoader.class.getName() + Constants.NEW_LINE );
+			message.append( "  Class Name: " + className + Constants.NEW_LINE );
+			message.append( "  Class Paths: " );
+			for( URI uri : classPaths )
+			{
+				message.append( Constants.NEW_LINE + uri.toString() );
+			}
+			LOGGER.info( message.toString() );
 		}
 
 		return clazz;

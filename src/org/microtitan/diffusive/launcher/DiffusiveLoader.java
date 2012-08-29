@@ -5,8 +5,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.Loader;
+import javassist.NotFoundException;
+import javassist.Translator;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
@@ -32,6 +35,10 @@ public class DiffusiveLoader extends Loader {
 	private final List< String > configurationClasses;
 	private final List< String > delegationPrefixes;
 	
+	// hold a reference to this, because we need it to overload the javassist Loader
+	private ClassPool classPool;
+	private Translator translator;
+	
 	/**
      * Creates a new class loader using the specified parent class loader for delegation. Also
      * provides a mechanism for running additional configuration that will be loaded by the
@@ -53,6 +60,8 @@ public class DiffusiveLoader extends Loader {
 		super( parentLoader, classPool );
 		configurationClasses = new ArrayList<>( configClasses );
 		this.delegationPrefixes = new ArrayList<>( delegationPrefixes );
+
+		this.classPool = classPool;
 	}
 	
 	/**
@@ -97,6 +106,8 @@ public class DiffusiveLoader extends Loader {
 		super( classPool );
 		configurationClasses = new ArrayList<>( configClasses );
 		delegationPrefixes = createDefaultDelegationPrefixes();
+
+		this.classPool = classPool;
 	}
 
 	/**
@@ -285,6 +296,45 @@ public class DiffusiveLoader extends Loader {
 	public void clearDelegationPrefixes()
 	{
 		delegationPrefixes.clear();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see javassist.Loader#setClassPool(javassist.ClassPool)
+	 */
+	@Override
+	public final void setClassPool( final ClassPool classPool )
+	{
+		super.setClassPool( classPool );
+		this.classPool = classPool;
+	}
+	
+	/**
+	 * @return The source of the class files
+	 */
+	protected final ClassPool getClassPool()
+	{
+		return classPool;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see javassist.Loader#addTranslator(javassist.ClassPool, javassist.Translator)
+	 */
+	@Override
+	public final void addTranslator( final ClassPool classPool, final Translator translator ) throws NotFoundException, CannotCompileException
+    {
+    	super.addTranslator( classPool, translator );
+    	this.classPool = classPool;
+    	this.translator = translator;
+    }
+	
+	/**
+	 * @return the translator that gets called when a class is loaded
+	 */
+	protected final Translator getTranslator()
+	{
+		return translator;
 	}
 	
 	/* 

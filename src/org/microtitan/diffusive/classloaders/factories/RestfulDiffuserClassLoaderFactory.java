@@ -44,7 +44,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 		this.translator = createDefaultTranslator( createDefaultMethodIntercepter() );
 
 		// sets the default parent class loader should be the class loader that loaded the RestfulDiffuserClassLoader
-		this.parentLoader = RestfulDiffuserClassLoader.class.getClassLoader();
+		this.parentLoader = RestfulDiffuserClassLoaderFactory.class.getClassLoader();
 
 		// gets the default class pool
 		this.classPool = ClassPool.getDefault();
@@ -174,9 +174,8 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	public RestfulDiffuserClassLoader create( final List< URI > classPaths )
 	{
 		RestfulDiffuserClassLoader loader = null;
-		ClassPool pool = classPool;
 		// everything is set
-		if( ( configClasses != null && !configClasses.isEmpty() ) && ( delegationPrefixes != null && !delegationPrefixes.isEmpty() ) )
+		if( configClasses != null && !configClasses.isEmpty() && delegationPrefixes != null && !delegationPrefixes.isEmpty() )
 		{
 			loader = new RestfulDiffuserClassLoader( classPaths, configClasses, delegationPrefixes, parentLoader, classPool );
 		}
@@ -203,7 +202,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 		// set up the class loader with the translator
 		try
 		{
-			loader.addTranslator( pool, translator );
+			loader.addTranslator( classPool, translator );
 		}
 		catch( Throwable exception )
 		{
