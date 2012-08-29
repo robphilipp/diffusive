@@ -139,7 +139,13 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 			parentLoader == null &&
 			classPool == null )
 		{
-			loader = new RestfulDiffuserClassLoader( classPaths );
+			// the parent class loader should be the class loader that loaded the RestfulDiffuserClassLoader
+			final ClassLoader defaultParentLoader = RestfulDiffuserClassLoader.class.getClassLoader();
+
+			// get the default class pool
+			final ClassPool pool = ClassPool.getDefault();
+
+			loader = new RestfulDiffuserClassLoader( classPaths, defaultParentLoader, pool );
 		}
 		else
 		if( ( configClasses != null && !configClasses.isEmpty() ) &&
