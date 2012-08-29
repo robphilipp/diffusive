@@ -76,7 +76,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 		{
 			// if the method itself is annotated with @Diffusive, AND, the method making the call is not
 			// TODO does the check for nested diffusion have to be recursive? if so, how to do that with this framework
-			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null && methodCall.where().getAnnotation( Diffusive.class ) == null )
+			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null )
 			{
 				// write the code to replace the method call with a Diffusive call
 				// TODO replace this with a logger, which will require adding a logger field
@@ -116,7 +116,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 	
 					// the actual Diffusive call
 					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance );
-					code.append( ".getDiffuser( " + signature + " ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
+					code.append( ".getDiffuser( \"" + signature + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
 				}
 				else
 				{

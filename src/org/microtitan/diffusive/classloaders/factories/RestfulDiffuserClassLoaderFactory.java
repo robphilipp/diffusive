@@ -163,7 +163,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 */
 	private static MethodIntercepterEditor createDefaultMethodIntercepter()
 	{
-		return new MethodIntercepterEditor();
+		return new MethodIntercepterEditor( true );
 	}
 
 	/*

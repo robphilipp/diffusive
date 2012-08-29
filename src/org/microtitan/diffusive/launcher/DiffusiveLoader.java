@@ -5,11 +5,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.Loader;
-import javassist.NotFoundException;
-import javassist.Translator;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
@@ -37,7 +34,6 @@ public class DiffusiveLoader extends Loader {
 	
 	// hold a reference to this, because we need it to overload the javassist Loader
 	private ClassPool classPool;
-	private Translator translator;
 	
 	/**
      * Creates a new class loader using the specified parent class loader for delegation. Also
@@ -315,26 +311,6 @@ public class DiffusiveLoader extends Loader {
 	protected final ClassPool getClassPool()
 	{
 		return classPool;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see javassist.Loader#addTranslator(javassist.ClassPool, javassist.Translator)
-	 */
-	@Override
-	public final void addTranslator( final ClassPool classPool, final Translator translator ) throws NotFoundException, CannotCompileException
-    {
-    	super.addTranslator( classPool, translator );
-    	this.classPool = classPool;
-    	this.translator = translator;
-    }
-	
-	/**
-	 * @return the translator that gets called when a class is loaded
-	 */
-	protected final Translator getTranslator()
-	{
-		return translator;
 	}
 	
 	/* 

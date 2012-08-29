@@ -26,18 +26,19 @@ public class Task implements Callable< Result > {
 //			{
 //				result += i / ( j + 1 );
 //			}
-			result += loop( numInnerLoops, i );
+			result += loop( new int[] {numInnerLoops, i} );
 		}
 		return new Result( result, numInnerLoops, id );
 	}
 	
 	@Diffusive
-	public double loop( final int numLoops, final int currentLoop )
+//	public double loop( final int numLoops, final int currentLoop )
+	public double loop( final int numLoops[] )
 	{
 		double result = 0;
-		for( int i = 0; i < numLoops; ++i )
+		for( int i = 0; i < numLoops[0]; ++i )
 		{
-			result += currentLoop / ( i + 1 );
+			result += numLoops[1] / ( i + 1 );
 		}
 		return result;
 	}
