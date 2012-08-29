@@ -97,6 +97,20 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 		this( classPaths, new ArrayList< String >(), classPool );
 	}
 		
+	/**
+     * Creates a new class loader with the specified class paths, and uses the default class pool.
+	 */
+	public RestfulDiffuserClassLoader( final List< URI > classPaths )
+	{
+		super();
+
+		// the base URI of the resource
+		this.classPaths = classPaths;
+
+		// create the RESTful class data reader
+		this.classReader = new RestfulClassReader( AbderaFactory.getInstance(), RestfulClientFactory.getInstance() );
+	}
+		
 	/*
 	 * (non-Javadoc)
 	 * @see org.microtitan.diffusive.classloaders.RestfulClassLoader#findClass(java.lang.String)
