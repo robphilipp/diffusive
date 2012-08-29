@@ -56,8 +56,15 @@ public class MethodIntercepterEditor extends ExprEditor {
 	public MethodIntercepterEditor( final String baseSignature )//, final boolean isUseSignature )
 	{
 //		this.baseSignature = baseSignature;
-		diffuserId = DiffuserId.parse( baseSignature );
 		this.isUseSignature = ( baseSignature != null && !baseSignature.isEmpty() );
+		if( isUseSignature )
+		{
+			diffuserId = DiffuserId.parse( baseSignature );
+		}
+		else
+		{
+			diffuserId = null;
+		}
 	}
 	
 	/**
@@ -67,6 +74,16 @@ public class MethodIntercepterEditor extends ExprEditor {
 	public MethodIntercepterEditor()
 	{
 		this( null );//, false );
+	}
+	
+	private boolean isBaseMethod( final String className, final String methodName )
+	{
+		boolean isBaseMethod = false;
+		if( diffuserId != null )
+		{
+			isBaseMethod = diffuserId.getClassName().equals( className ) && diffuserId.getMethodName().equals( methodName );
+		}
+		return isBaseMethod;
 	}
 	
 	/*
@@ -83,9 +100,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 		{
 			// if the method itself is annotated with @Diffusive, AND, the method making the call is not
 			// TODO does the check for nested diffusion have to be recursive? if so, how to do that with this framework
-			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null &&
-				!diffuserId.getClassName().equals( className ) && 
-				!diffuserId.getMethodName().equals( methodName ) )
+			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null && !isBaseMethod( className, methodName ) )
 			{
 				// write the code to replace the method call with a Diffusive call
 				// TODO replace this with a logger, which will require adding a logger field
