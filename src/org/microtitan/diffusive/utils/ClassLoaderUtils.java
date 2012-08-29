@@ -9,7 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.classloaders.RestfulClassLoader;
-import org.microtitan.diffusive.tests.BeanTest;
+import org.microtitan.tests.BeanTest;
 
 public class ClassLoaderUtils {
 

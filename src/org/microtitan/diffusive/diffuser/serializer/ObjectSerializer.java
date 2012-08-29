@@ -12,8 +12,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.utils.Constants;
-import org.microtitan.diffusive.tests.TestClassA;
-import org.microtitan.diffusive.tests.TestClassB;
+import org.microtitan.tests.TestClassA;
+import org.microtitan.tests.TestClassB;
 
 /**
  * Serializes objects into Java serializes form and deserializes them back into objects.

@@ -1,4 +1,4 @@
-package org.microtitan.diffusive.tests.threaded;
+package org.microtitan.tests.threaded;
 
 import java.util.ArrayList;
 import java.util.List;

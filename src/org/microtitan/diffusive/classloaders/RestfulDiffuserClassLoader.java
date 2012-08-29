@@ -202,7 +202,7 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 			{
 				message.append( Constants.NEW_LINE + uri.toString() );
 			}
-			LOGGER.error( message.toString() );
+			LOGGER.info( message.toString() );
 		}
 		
 		return clazz;

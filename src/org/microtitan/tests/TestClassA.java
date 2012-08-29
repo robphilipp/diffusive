@@ -1,4 +1,4 @@
-package org.microtitan.diffusive.tests;
+package org.microtitan.tests;
 
 import java.io.Serializable;
 

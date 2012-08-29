@@ -14,8 +14,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.Persistence;
 import org.freezedry.persistence.utils.Constants;
-import org.microtitan.diffusive.tests.TestClassA;
-import org.microtitan.diffusive.tests.TestClassB;
+import org.microtitan.tests.TestClassA;
+import org.microtitan.tests.TestClassB;
 
 /**
  * Serializes objects into a serializes for specified by the {@link Persistence} engine, and deserializes

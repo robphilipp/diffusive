@@ -18,9 +18,9 @@ import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
-import org.microtitan.diffusive.tests.threaded.MultiThreadedCalc;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
+import org.microtitan.tests.threaded.MultiThreadedCalc;
 
 
 /**
