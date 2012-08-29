@@ -30,7 +30,8 @@ public class MethodIntercepterEditor extends ExprEditor {
 	
 	private static final Logger LOGGER = Logger.getLogger( MethodIntercepterEditor.class );
 
-	private final String baseSignature;
+//	private final String baseSignature;
+	private final DiffuserId diffuserId;
 	private final boolean isUseSignature;
 	
 	/**
@@ -54,7 +55,8 @@ public class MethodIntercepterEditor extends ExprEditor {
 	 */
 	public MethodIntercepterEditor( final String baseSignature )//, final boolean isUseSignature )
 	{
-		this.baseSignature = baseSignature;
+//		this.baseSignature = baseSignature;
+		diffuserId = DiffuserId.parse( baseSignature );
 		this.isUseSignature = ( baseSignature != null && !baseSignature.isEmpty() );
 	}
 	
@@ -81,7 +83,9 @@ public class MethodIntercepterEditor extends ExprEditor {
 		{
 			// if the method itself is annotated with @Diffusive, AND, the method making the call is not
 			// TODO does the check for nested diffusion have to be recursive? if so, how to do that with this framework
-			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null )
+			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null &&
+				!diffuserId.getClassName().equals( className ) && 
+				!diffuserId.getMethodName().equals( methodName ) )
 			{
 				// write the code to replace the method call with a Diffusive call
 				// TODO replace this with a logger, which will require adding a logger field
@@ -123,26 +127,29 @@ public class MethodIntercepterEditor extends ExprEditor {
 					// recall that the base signature is the signature associated with the diffuser that is responsible for
 					// calling the method, and that means the method came from a remote address space, and shouldn't be diffused.
 					// however, if the signatures aren't equal, then it is valid to be diffused as a nested diffusion.
-					if( !baseSignature.equals( signature ) )
-					{
+//					if( !baseSignature.equals( signature ) )
+//					{
 						// the actual Diffusive call
 						code.append( "    $_ = ($r)" + repoClassName + "." + getInstance );
 						code.append( ".getDiffuser( \"" + signature + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
-	
-						// make the call to replace the code in the method call
-						methodCall.replace( code.toString() );
-					}
+//	
+//						// make the call to replace the code in the method call
+//						methodCall.replace( code.toString() );
+//					}
 				}
 				else
 				{
 					// the actual Diffusive call
 					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance ); 
 					code.append( ".getDiffuser().runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
-
-					// make the call to replace the code in the method call
-					methodCall.replace( code.toString() );
+//
+//					// make the call to replace the code in the method call
+//					methodCall.replace( code.toString() );
 				}
 				
+				// make the call to replace the code in the method call
+				methodCall.replace( code.toString() );
+
 				if( LOGGER.isDebugEnabled() )
 				{
 					final StringBuffer message = new StringBuffer();
