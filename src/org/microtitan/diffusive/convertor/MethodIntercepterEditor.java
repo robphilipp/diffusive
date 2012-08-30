@@ -30,14 +30,15 @@ public class MethodIntercepterEditor extends ExprEditor {
 	
 	private static final Logger LOGGER = Logger.getLogger( MethodIntercepterEditor.class );
 
-//	private final String baseSignature;
 	private final DiffuserId diffuserId;
 	private final boolean isUseSignature;
 	
 	/**
-	 * Constructs the method intercepter. If the {@link #isUseSignature} is true then the
+	 * Constructs the method intercepter. 
+	 * 
+	 * If a base signature is specified, then the, {@link #isUseSignature} is set to true, and the
 	 * method call to the method is replaced by a diffuser that is attached to a specific 
-	 * diffuser method signature. If false, then the diffuser is the default diffuser in 
+	 * diffuser method signature. If not specified, then the diffuser is the default diffuser in 
 	 * the {@link KeyedDiffuserRepository}.
 	 * 
 	 * <p>For the application-attached diffuser, we want to use the one and only, the default, 
@@ -48,14 +49,11 @@ public class MethodIntercepterEditor extends ExprEditor {
 	 * and for diffusers managed by the {@link RestfulDiffuserManagerResource} set to true.
 	 * 
 	 * @param baseSignature The base signature is the signature associated with the specified diffuser.
-	 * When the meth
-	 * @param isUseSignature true then the method call to the method is replaced by a diffuser 
-	 * that is attached to a specific diffuser method signature. If false, then the diffuser 
-	 * is the default diffuser in the {@link KeyedDiffuserRepository}.
+	 * If the base signature is specified, and the method call is to a method that has the same signature,
+	 * then the method call is not replaced by a call to the diffuser's runObject(...) method.
 	 */
-	public MethodIntercepterEditor( final String baseSignature )//, final boolean isUseSignature )
+	public MethodIntercepterEditor( final String baseSignature )
 	{
-//		this.baseSignature = baseSignature;
 		this.isUseSignature = ( baseSignature != null && !baseSignature.isEmpty() );
 		if( isUseSignature )
 		{
@@ -73,9 +71,16 @@ public class MethodIntercepterEditor extends ExprEditor {
 	 */
 	public MethodIntercepterEditor()
 	{
-		this( null );//, false );
+		this( null );
 	}
 	
+	/**
+	 * Returns true if the class name and method name correspond to the base method name (the
+	 * method that is associated with the diffuser, and therefore shouldn't be instrumented)
+	 * @param className The name of the class containing the method
+	 * @param methodName The name of the method
+	 * @return true if the call is in regards to the base method; false otherwise
+	 */
 	private boolean isBaseMethod( final String className, final String methodName )
 	{
 		boolean isBaseMethod = false;
@@ -98,7 +103,11 @@ public class MethodIntercepterEditor extends ExprEditor {
 		final StringBuffer code = new StringBuffer();
 		try
 		{
-			// if the method itself is annotated with @Diffusive, AND, the method making the call is not
+			// if the method itself is annotated with @Diffusive, AND, the method making the call does not have the base 
+			// signature, then we want to diffuse it further. recall that the base signature is the signature associated 
+			// with the diffuser that is responsible for calling the method, and that means the method came from a remote 
+			// address space, and shouldn't be diffused. however, if the signatures aren't equal, then it is valid to be 
+			// diffused as a nested diffusion.
 			// TODO does the check for nested diffusion have to be recursive? if so, how to do that with this framework
 			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null && !isBaseMethod( className, methodName ) )
 			{
@@ -137,104 +146,122 @@ public class MethodIntercepterEditor extends ExprEditor {
 	
 					// create the signature of the method call
 					final String signature = DiffuserId.createId( returnType, className, methodName, argumentTypes );
-					
-					// if the signature equals the base signature, then we don't want to diffuse it further...so we leave it.
-					// recall that the base signature is the signature associated with the diffuser that is responsible for
-					// calling the method, and that means the method came from a remote address space, and shouldn't be diffused.
-					// however, if the signatures aren't equal, then it is valid to be diffused as a nested diffusion.
-//					if( !baseSignature.equals( signature ) )
-//					{
-						// the actual Diffusive call
-						code.append( "    $_ = ($r)" + repoClassName + "." + getInstance );
-						code.append( ".getDiffuser( \"" + signature + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
-//	
-//						// make the call to replace the code in the method call
-//						methodCall.replace( code.toString() );
-//					}
+				
+					// the actual Diffusive call
+					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance );
+					code.append( ".getDiffuser( \"" + signature + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
 				}
 				else
 				{
 					// the actual Diffusive call
 					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance ); 
 					code.append( ".getDiffuser().runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
-//
-//					// make the call to replace the code in the method call
-//					methodCall.replace( code.toString() );
 				}
 				
 				// make the call to replace the code in the method call
 				methodCall.replace( code.toString() );
 
-				if( LOGGER.isDebugEnabled() )
+				if( LOGGER.isInfoEnabled() )
 				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "Diffusive method intercepted and replaced:" + Constants.NEW_LINE );
-					message.append( "  Class Name: " + className + Constants.NEW_LINE );
-					message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-					message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
-					message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
-					message.append( "  Line Number: " + methodCall.getLineNumber() + Constants.NEW_LINE );
-					message.append( "  Replacement Code: " + Constants.NEW_LINE );
-					message.append( code.toString() );
-					LOGGER.debug( message.toString() );
+					final String header = "Diffusive method intercepted and replaced.";
+					final String message = createMessage( header, className, methodName, methodCall, code.toString() );
+					LOGGER.info( message );
 				}
 			}
 			else
 			{
 				if( LOGGER.isTraceEnabled() )
 				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "Method is not a diffusive method:" + Constants.NEW_LINE );
-					message.append( "  Class Name: " + className + Constants.NEW_LINE );
-					message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-					message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
-					message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
-					message.append( "  Line Number: " + methodCall.getLineNumber() );
-					LOGGER.trace( message.toString() );
+					final String header = "Method is not a diffusive method.";
+					final String message = createMessage( header, className, methodName, methodCall );
+					LOGGER.trace( message );
 				}
 			}
 		}
 		catch( ClassNotFoundException exception )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "The annotation class could not be found:" + Constants.NEW_LINE );
-			message.append( "  Annotation Class Name: " + Diffusive.class.getName() + Constants.NEW_LINE );
-			message.append( "  Class Name: " + className + Constants.NEW_LINE );
-			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-			message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
-			message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
-			message.append( "  Line Number: " + methodCall.getLineNumber() );
-			LOGGER.debug( message.toString() );
-			
-			throw new IllegalArgumentException( message.toString(), exception );
+			final String header = "The annotation class could not be found.";
+			final String message = createMessage( header, Diffusive.class, className, methodName, methodCall );
+			LOGGER.error( message, exception );
+			throw new IllegalArgumentException( message, exception );
 		}
 		catch( NotFoundException exception )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "The method associated with the diffusive method call, or its parameter types, could not be found:" + Constants.NEW_LINE );
-			message.append( "  Class Name: " + className + Constants.NEW_LINE );
-			message.append( "  Method Name: " + className + Constants.NEW_LINE );
-			message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
-			message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
-			message.append( "  Line Number: " + methodCall.getLineNumber() );
-			LOGGER.debug( message.toString() );
-			
-			throw new IllegalArgumentException( message.toString(), exception );
+			final String header = "The method associated with the diffusive method call, or its parameter types, could not be found.";
+			final String message = createMessage( header, className, methodName, methodCall );
+			LOGGER.error( message, exception );
+			throw new IllegalArgumentException( message, exception );
 		}
 		catch( CannotCompileException exception )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "The source code that is to replace the byte code of the diffusive method call did not compile:" + Constants.NEW_LINE );
-			message.append( "  Class Name: " + className + Constants.NEW_LINE );
-			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-			message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
-			message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
-			message.append( "  Line Number: " + methodCall.getLineNumber() + Constants.NEW_LINE );
-			message.append( "  Replacement Code: " + Constants.NEW_LINE );
-			message.append( code.toString() );
-			LOGGER.debug( message.toString(), exception );
-			
-			throw new IllegalArgumentException( message.toString(), exception );
+			final String header = "The source code that is to replace the byte code of the diffusive method call did not compile.";
+			final String message = createMessage( header, className, methodName, methodCall, code.toString() );
+			LOGGER.error( message, exception );
+			throw new IllegalArgumentException( message, exception );
 		}
+	}
+	
+	/**
+	 * Creates a message for the process of instrumenting the method call.
+	 * @param header The explanation of the message
+	 * @param className The name of the {@link Class} containing the method to which calls are instrumented 
+	 * @param methodName The name of the method to be instrumented
+	 * @param methodCall The javassist {@link MethodCall} containing information about the method call
+	 * @return the message
+	 */
+	private static String createMessage( final String header, final String className, final String methodName, final MethodCall methodCall )
+	{
+		final StringBuffer message = new StringBuffer();
+		message.append( header + Constants.NEW_LINE );
+		message.append( "  Class Name: " + className + Constants.NEW_LINE );
+		message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+		message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
+		message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
+		message.append( "  Line Number: " + methodCall.getLineNumber() );
+		return message.toString();
+	}
+	
+	/**
+	 * Creates a message for the process of instrumenting the method call.
+	 * @param header The explanation of the message
+	 * @param annotation The annotation identifying the method as a diffusive method (should be {@link Diffusive}
+	 * @param className The name of the {@link Class} containing the method to which calls are instrumented 
+	 * @param methodName The name of the method to be instrumented
+	 * @param methodCall The javassist {@link MethodCall} containing information about the method call
+	 * @return the message
+	 */
+	private static String createMessage( final String header, final Class< ? > annotation, final String className, final String methodName, final MethodCall methodCall )
+	{
+		final StringBuffer message = new StringBuffer();
+		message.append( header + Constants.NEW_LINE );
+		message.append( "  Annotation Class Name: " + annotation.getName() + Constants.NEW_LINE );
+		message.append( "  Class Name: " + className + Constants.NEW_LINE );
+		message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+		message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
+		message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
+		message.append( "  Line Number: " + methodCall.getLineNumber() );
+		return message.toString();
+	}
+
+	/**
+	 * Creates a message for the process of instrumenting the method call.
+	 * @param header The explanation of the message
+	 * @param className The name of the {@link Class} containing the method to which calls are instrumented 
+	 * @param methodName The name of the method to be instrumented
+	 * @param methodCall The javassist {@link MethodCall} containing information about the method call
+	 * @param code The code that will replace the method call to the diffusive method
+	 * @return the message
+	 */
+	private static String createMessage( final String header, final String className, final String methodName, final MethodCall methodCall, final String code )
+	{
+		final StringBuffer message = new StringBuffer();
+		message.append( header + Constants.NEW_LINE );
+		message.append( "  Class Name: " + className + Constants.NEW_LINE );
+		message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+		message.append( "  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE );
+		message.append( "  Source File: " + methodCall.getFileName() + Constants.NEW_LINE );
+		message.append( "  Line Number: " + methodCall.getLineNumber() );
+		message.append( "  Replacement Code: " + Constants.NEW_LINE + code );
+		return message.toString();
 	}
 }

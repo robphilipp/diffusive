@@ -148,13 +148,10 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 			}
 			catch( IOException e )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Failed to add Class-object bytes to the class pool for modification." + Constants.NEW_LINE );
-				message.append( "  Class Name: " + className + Constants.NEW_LINE );
-				message.append( "  Class Pool: " + classPool.toString() + Constants.NEW_LINE );
-				message.append( "  Bytes Read: " + bytes );
-				LOGGER.error( message.toString(), e );
-				throw new IllegalStateException( message.toString(), e );
+				final String header = "Failed to add Class-object bytes to the class pool for modification.";
+				final String message = createMessage( header, className, classPool, bytes );
+				LOGGER.error( message, e );
+				throw new IllegalStateException( message, e );
 			}
 			
 			try
@@ -170,41 +167,66 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 			}
 			catch( CannotCompileException e )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Failed to instrument diffusive method call." + Constants.NEW_LINE );
-				message.append( "  Class Name: " + className + Constants.NEW_LINE );
-				message.append( "  Class Pool: " + classPool.toString() + Constants.NEW_LINE );
-				message.append( "  Bytes Read: " + bytes );
-				LOGGER.error( message.toString(), e );
-				throw new IllegalStateException( message.toString(), e );
+				final String header = "Failed to instrument diffusive method call.";
+				final String message = createMessage( header, className, classPool, bytes );
+				LOGGER.error( message, e );
+				throw new IllegalStateException( message, e );
 			}
 			catch( NotFoundException | IOException e )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Class not found in the class pool. This shouldn't happen." + Constants.NEW_LINE );
-				message.append( "  Class Name: " + className + Constants.NEW_LINE );
-				message.append( "  Class Pool: " + classPool.toString() + Constants.NEW_LINE );
-				message.append( "  Bytes Read: " + bytes );
-				LOGGER.error( message.toString(), e );
-				throw new ClassNotFoundException( message.toString(), e );
+				final String header = "Class not found in the class pool. This shouldn't happen.";
+				final String message = createMessage( header, className, classPool, bytes );
+				LOGGER.error( message, e );
+				throw new ClassNotFoundException( message, e );
 			}
 		}
 		
 		if( LOGGER.isInfoEnabled() )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Loaded class from remote source." + Constants.NEW_LINE );
-			message.append( "  Class Name: " + className + Constants.NEW_LINE );
-			message.append( "  Class Pool: " + classPool.toString() + Constants.NEW_LINE );
-			message.append( "  Bytes Read: " + bytes );
-			message.append( "  Class Paths: " );
-			for( URI uri : classPaths )
-			{
-				message.append( Constants.NEW_LINE + uri.toString() );
-			}
-			LOGGER.info( message.toString() );
+			final String header = "Loaded class from remote source.";
+			LOGGER.info( createMessage( header, className, classPool, bytes, classPaths ) );
 		}
 		
 		return clazz;
 	}
+	
+	/**
+	 * Constructs a message that contains the information about the class to be loaded.
+	 * @param header The explanation of the message 
+	 * @param className The name of the class being loaded
+	 * @param pool The {@link ClassPool} that acts as the source of the class files
+	 * @param bytesRead The bytes read from the remote location
+	 * @return The message
+	 */
+	private static String createMessage( final String header, final String className, final ClassPool pool, final byte[] bytesRead )
+	{
+		final StringBuffer message = new StringBuffer();
+		message.append( header + Constants.NEW_LINE );
+		message.append( "  Class Name: " + className + Constants.NEW_LINE );
+		message.append( "  Class Pool: " + pool.toString() + Constants.NEW_LINE );
+		message.append( "  Bytes Read: " + bytesRead );
+		return message.toString();
+	}
+	
+	/**
+	 * Constructs a message that contains the information about the class to be loaded, and the class path
+	 * from where it was loaded.
+	 * @param header The explanation of the message 
+	 * @param className The name of the class being loaded
+	 * @param pool The {@link ClassPool} that acts as the source of the class files
+	 * @param bytesRead The bytes read from the remote location
+	 * @param classPaths The {@link URI} of the locations from which to load the class objects
+	 * @return The message
+	 */
+	private static String createMessage( final String header, final String className, final ClassPool pool, final byte[] bytesRead, final List< URI > classPaths )
+	{
+		final StringBuffer message = new StringBuffer( createMessage( header, className, pool, bytesRead ) );
+		message.append( "  Class Paths: " );
+		for( URI uri : classPaths )
+		{
+			message.append( Constants.NEW_LINE + "    " + uri.toString() );
+		}
+		return message.toString();
+	}
+
 }

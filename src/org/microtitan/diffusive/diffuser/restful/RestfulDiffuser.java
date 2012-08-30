@@ -114,6 +114,22 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				{
 					message.append( "the RESTful diffuser was not assigned any client end-points." );
 				}
+				message.append( Constants.NEW_LINE );
+				message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
+				message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+				message.append( "  Argument Types: " );
+				if( arguments.length > 0 )
+				{
+					for( final Object argument : arguments )
+					{
+						message.append( Constants.NEW_LINE + "    " + argument.getClass().getName() );
+					}
+				}
+				else
+				{
+					message.append( "[none]" );
+				}
+
 				LOGGER.info( message.toString() );
 			}
 			
@@ -129,7 +145,22 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			{
 				final StringBuffer message = new StringBuffer();
 				message.append( RestfulDiffuser.class.getName() + " will call the runObject(...) method on the remote diffusers: " + Constants.NEW_LINE );
-				message.append( "  End-points: " );
+				message.append( Constants.NEW_LINE );
+				message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
+				message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+				message.append( "  Argument Types: " );
+				if( arguments.length > 0 )
+				{
+					for( final Object argument : arguments )
+					{
+						message.append( Constants.NEW_LINE + "    " + argument.getClass().getName() );
+					}
+				}
+				else
+				{
+					message.append( "[none]" );
+				}
+				message.append( Constants.NEW_LINE + "  End-points: " );
 				if( endpoints.size() > 1 )
 				{
 					message.append( "[redundant calls to diffusers]" );
@@ -139,6 +170,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 					message.append( Constants.NEW_LINE + "    " + endpoint.toString() );
 				}
 				message.append( "Multiple end-points means that the diffusers are making redundant calls" );
+
 				LOGGER.info( message.toString() );
 			}
 			

@@ -32,7 +32,7 @@ public class RestfulDiffuserConfig {
 	// holds the list of client endpoints to which diffused methods are sent. the end-point must
 	// have a restful diffusive server running that can accept requests.
 //	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
-	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.5:8182" );//, "http://192.168.1.8:8182" );
+	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.5:8182" );//, "http://192.168.1.4:8182" );
 	
 	// holds the base URI of the class path that gets passed to the remote diffuser manager when
 	// creating a diffuser. this allows the remote code to load classes from a remote server. This

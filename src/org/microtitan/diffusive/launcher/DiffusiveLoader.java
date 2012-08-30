@@ -194,6 +194,7 @@ public class DiffusiveLoader extends Loader {
 		prefixes.add( "org.apache.log4j." );
 		prefixes.add( "org.apache.commons.logging." );
 		prefixes.add( "org.apache.abdera." );
+		prefixes.add( "org.microtitan.diffusive." );
 		
 		// we want to make sure that the DiffusiveConfiguration annotation is loaded
 		// by the default app class loader, and NOT this one.
