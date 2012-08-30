@@ -146,10 +146,15 @@ public class MethodIntercepterEditor extends ExprEditor {
 	
 					// create the signature of the method call
 					final String signature = DiffuserId.createId( returnType, className, methodName, argumentTypes );
-				
+					
+					// spit out the signature and the base method associated with the diffuser
+					code.append( "    System.out.println( \"  Diffused Signature: " + signature + "\" );\n" );
+					code.append( "    System.out.println( \"  Base Signature Used in Repository: " + diffuserId.getId() + "\" );\n" );
+
 					// the actual Diffusive call
 					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance );
-					code.append( ".getDiffuser( \"" + signature + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
+//					code.append( ".getDiffuser( \"" + signature + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
+					code.append( ".getDiffuser( \"" + diffuserId.getId() + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
 				}
 				else
 				{

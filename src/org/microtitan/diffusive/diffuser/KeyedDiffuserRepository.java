@@ -253,7 +253,20 @@ public class KeyedDiffuserRepository {
 	 */
 	public final synchronized Diffuser getDiffuser( final String key )
 	{
-		return diffusers.get( key );
+		final Diffuser diffuser = diffusers.get( key );
+		if( diffuser == null )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Diffuser with specified key not found." + Constants.NEW_LINE );
+			message.append( "  Specified Key: " + key + Constants.NEW_LINE );
+			message.append( "  Available Keys:" );
+			for( String diffKey : diffusers.keySet() )
+			{
+				message.append( Constants.NEW_LINE + "    " + diffKey );
+			}
+			LOGGER.warn( message.toString() );
+		}
+		return diffuser;
 	}
 	
 	/**
