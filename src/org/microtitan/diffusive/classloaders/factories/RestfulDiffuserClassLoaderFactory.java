@@ -32,7 +32,6 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	private List< String > delegationPrefixes;
 	private ClassLoader parentLoader;
 	private ClassPool classPool;
-//	private DiffusiveTranslator translator;
     
 	/**
 	 * Default no-arg constructor. Sets a few default values for the
@@ -41,10 +40,6 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 */
 	private RestfulDiffuserClassLoaderFactory()
 	{
-//		// creates the default translator for translating the diffusive method
-//		// calls
-//		this.translator = createDefaultTranslator( createDefaultMethodIntercepter() );
-
 		// sets the default parent class loader should be the class loader that
 		// loaded the RestfulDiffuserClassLoader
 		this.parentLoader = RestfulDiffuserClassLoaderFactory.class.getClassLoader();
@@ -69,16 +64,6 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 			return instance;
 		}
 	}
-	
-//	/**
-//	 * Sets the Javassist (byte code engineering) translator used for translating diffusive method calls through
-//	 * the {@link ExprEditor}
-//	 * @param translator The {@link DiffusiveTranslator} used for translating method calls
-//	 */
-//	public void set( final DiffusiveTranslator translator )
-//	{
-//		this.translator = translator;
-//	}
 	
 	/**
 	 * Sets the specified parameters. None of the parameter objects should be null, and none of the lists should be empty. 
@@ -167,7 +152,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 */
 	private static MethodIntercepterEditor createDefaultMethodIntercepter( final String signature )
 	{
-		return new MethodIntercepterEditor( signature );//, true );
+		return new MethodIntercepterEditor( signature );
 	}
 
 	/*

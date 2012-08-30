@@ -45,8 +45,10 @@ public class MethodIntercepterEditor extends ExprEditor {
 	 * diffuser. However, for the diffusers attached to the restful diffuser manager resource, 
 	 * there is one diffuser per diffuser method signature, and so we want to use the signature.
 	 * 
-	 * <p>Effectively, the rule-of-thumb is that for application-attached diffusers set to false;
-	 * and for diffusers managed by the {@link RestfulDiffuserManagerResource} set to true.
+	 * <p>Effectively, the rule-of-thumb is that for application-attached diffusers use the other constructor,
+	 * the one with no arguments; and for diffusers managed by the {@link RestfulDiffuserManagerResource} set
+	 * the base signature to the signature associated with the diffuser that uses this method intercepter
+	 * to instrument method calls.
 	 * 
 	 * @param baseSignature The base signature is the signature associated with the specified diffuser.
 	 * If the base signature is specified, and the method call is to a method that has the same signature,
@@ -54,14 +56,17 @@ public class MethodIntercepterEditor extends ExprEditor {
 	 */
 	public MethodIntercepterEditor( final String baseSignature )
 	{
-		this.isUseSignature = ( baseSignature != null && !baseSignature.isEmpty() );
-		if( isUseSignature )
+//		this.isUseSignature = ( baseSignature != null && !baseSignature.isEmpty() );
+//		if( isUseSignature )
+		if( DiffuserId.isValid( baseSignature ) )
 		{
 			diffuserId = DiffuserId.parse( baseSignature );
+			isUseSignature = true;
 		}
 		else
 		{
 			diffuserId = null;
+			isUseSignature = false;
 		}
 	}
 	

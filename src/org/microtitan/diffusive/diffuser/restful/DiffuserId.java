@@ -349,6 +349,38 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	}
 	
 	/**
+	 * Returns true if the specified signature is a valid signature; false otherwise. The {@link Diffuser} ID 
+	 * is constructed as follows:<p>
+	 * {@code class:method(argument1,argument2,argument3,...,argumentN)-returnType}<p> 
+	 * where the "{@code class}" is the fully qualified class name; the method is the name of the method;
+	 * the arguments are all the fully qualified class names of the argument; and the {@code returnType}
+	 * is the fully qualified class name of the return type (which could be {@code void.class}.
+	 * @param signature The signature
+	 * @return true if the specified signature is a valid signature; false otherwise
+	 */
+	public static boolean isValid( final String signature )
+	{
+		final String validName = "[a-zA-Z]+[\\w]*";
+		final String validClassName = validName + "(\\." + validName + ")*";
+		final String validMethodName = validName;
+		final String argumentTypeList = "(" + validClassName + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + validClassName +")*)*";
+		final String returnTypeClassName = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + validClassName + ")?";
+		final String regex = "^" + 
+								validClassName + 
+								Pattern.quote( CLASS_METHOD_SEPARATOR )+ 
+								validMethodName + 
+								Pattern.quote( ARGUMENT_OPEN ) +
+									argumentTypeList +
+								Pattern.quote( ARGUMENT_CLOSE ) + 
+								returnTypeClassName +
+							 "$";
+		
+		final Pattern pattern = Pattern.compile( regex );
+		Matcher matcher = pattern.matcher( signature );
+		return matcher.find();
+	}
+	
+	/**
 	 * Parses the specified diffuser ID string into a {@link DiffuserId} object. The {@link Diffuser} ID 
 	 * is constructed as follows:<p>
 	 * {@code class:method(argument1,argument2,argument3,...,argumentN)-returnType}<p> 
