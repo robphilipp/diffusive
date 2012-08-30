@@ -31,7 +31,7 @@ public class Task implements Callable< Result > {
 		return new Result( result, numInnerLoops, id );
 	}
 	
-	@Diffusive
+//	@Diffusive
 //	public double loop( final int numLoops, final int currentLoop )
 	public double loop( final int numLoops[] )
 	{
