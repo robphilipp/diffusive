@@ -127,66 +127,73 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	@Override
 	public Class< ? > findClass( String className ) throws ClassNotFoundException
 	{
-		// read the bytes from the network
-		final byte[] bytes = classReader.readClassData( className, classPaths );
-		if( bytes == null || bytes.length == 0 )
-		{
-			throw new ClassNotFoundException( className );
-		}
-		
-		// the act of calling makeClass(...) on the class pool creates the CtClass object in the
-		// class pool, and this allows the the parent Loader to pull out the class bytes the way
-		// it normally does...
 		Class< ? > clazz = null;
-		final ClassPool classPool = getClassPool();
-		final Translator translator = getTranslator();
-		if( classPool != null )
+		try
 		{
-			try( final ByteArrayInputStream input = new ByteArrayInputStream( bytes ) )
+			clazz = super.findClass( className );
+		}
+		catch( ClassNotFoundException local )
+		{
+			// read the bytes from the network
+			final byte[] bytes = classReader.readClassData( className, classPaths );
+			if( bytes == null || bytes.length == 0 )
 			{
-				classPool.makeClass( input );
-			}
-			catch( IOException e )
-			{
-				final String header = "Failed to add Class-object bytes to the class pool for modification.";
-				final String message = createMessage( header, className, classPool, bytes );
-				LOGGER.error( message, e );
-				throw new IllegalStateException( message, e );
+				throw new ClassNotFoundException( className );
 			}
 			
-			try
+			// the act of calling makeClass(...) on the class pool creates the CtClass object in the
+			// class pool, and this allows the the parent Loader to pull out the class bytes the way
+			// it normally does...
+	//		Class< ? > clazz = null;
+			final ClassPool classPool = getClassPool();
+			final Translator translator = getTranslator();
+			if( classPool != null )
 			{
-				// modify the class file as it is loaded
-				translator.onLoad( classPool, className );
-
-				// grab the modified class from the class pool
-				final byte[] classfile = classPool.get( className ).toBytecode();
+				try( final ByteArrayInputStream input = new ByteArrayInputStream( bytes ) )
+				{
+					classPool.makeClass( input );
+				}
+				catch( IOException e )
+				{
+					final String header = "Failed to add Class-object bytes to the class pool for modification.";
+					final String message = createMessage( header, className, classPool, bytes );
+					LOGGER.error( message, e );
+					throw new IllegalStateException( message, e );
+				}
 				
-				// define the class (actually load it into the JVM
-				clazz = defineClass( className, classfile, 0, classfile.length );
+				try
+				{
+					// modify the class file as it is loaded
+					translator.onLoad( classPool, className );
+	
+					// grab the modified class from the class pool
+					final byte[] classfile = classPool.get( className ).toBytecode();
+					
+					// define the class (actually load it into the JVM
+					clazz = defineClass( className, classfile, 0, classfile.length );
+				}
+				catch( CannotCompileException e )
+				{
+					final String header = "Failed to instrument diffusive method call.";
+					final String message = createMessage( header, className, classPool, bytes );
+					LOGGER.error( message, e );
+					throw new IllegalStateException( message, e );
+				}
+				catch( NotFoundException | IOException e )
+				{
+					final String header = "Class not found in the class pool. This shouldn't happen.";
+					final String message = createMessage( header, className, classPool, bytes );
+					LOGGER.error( message, e );
+					throw new ClassNotFoundException( message, e );
+				}
 			}
-			catch( CannotCompileException e )
+			
+			if( LOGGER.isInfoEnabled() )
 			{
-				final String header = "Failed to instrument diffusive method call.";
-				final String message = createMessage( header, className, classPool, bytes );
-				LOGGER.error( message, e );
-				throw new IllegalStateException( message, e );
-			}
-			catch( NotFoundException | IOException e )
-			{
-				final String header = "Class not found in the class pool. This shouldn't happen.";
-				final String message = createMessage( header, className, classPool, bytes );
-				LOGGER.error( message, e );
-				throw new ClassNotFoundException( message, e );
+				final String header = "Loaded class from remote source.";
+				LOGGER.info( createMessage( header, className, classPool, bytes, classPaths ) );
 			}
 		}
-		
-		if( LOGGER.isInfoEnabled() )
-		{
-			final String header = "Loaded class from remote source.";
-			LOGGER.info( createMessage( header, className, classPool, bytes, classPaths ) );
-		}
-		
 		return clazz;
 	}
 	
