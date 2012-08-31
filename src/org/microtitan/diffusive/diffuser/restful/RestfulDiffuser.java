@@ -336,7 +336,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		final StringBuffer buffer = new StringBuffer();
 		buffer.append( "Serializer: " + serializer.toString() + Constants.NEW_LINE );
 		buffer.append( "Strategy: " + strategy.getClass().getName() + Constants.NEW_LINE );
-		buffer.append( strategy.toString() );
+		buffer.append( "  " + strategy.toString() );
 		return buffer.toString();
 	}
 }

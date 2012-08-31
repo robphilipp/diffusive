@@ -14,7 +14,6 @@ import javassist.Translator;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
-import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.client.RestfulClientFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLoader;
@@ -22,6 +21,8 @@ import org.microtitan.diffusive.launcher.DiffusiveLoader;
 public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	
 	private static Logger LOGGER = Logger.getLogger( RestfulDiffuserClassLoader.class );
+	
+	private static final String DELEGATION_PREFIX = "org.microtitan.diffusive.";
 
 	private List< URI > classPaths;
 	private final RestfulClassReader classReader;
@@ -47,11 +48,10 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 									   final ClassPool classPool )
 	{
 		super( configClasses, delegationPrefixes, parentLoader, classPool );
-		
-		// the keyed diffuser repository must have its loading delegated (i.e. we want to use the
-		// one loaded by the application class loader to which the rest of the application has access)
-//		super.addDelegationPrefix( "org.microtitan.diffusive.diffuser.KeyedDiffuserRepository" );
-		addDelegationPrefix( KeyedDiffuserRepository.class.getName() );
+
+		// we want all classes in the diffusive package to be loaded by the application (parent)
+		// class loader and not by the javassist version
+		addDelegationPrefix( DELEGATION_PREFIX );
 
 		// the base URI of the resource
 		this.classPaths = classPaths;

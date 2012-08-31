@@ -156,21 +156,27 @@ public class MethodIntercepterEditor extends ExprEditor {
 					code.append( "    System.out.println( \"  Diffused Signature: " + signature + "\" );\n" );
 					code.append( "    System.out.println( \"  Base Signature Used in Repository: " + diffuserId.getId() + "\" );\n" );
 
-					// the actual Diffusive call
+					// make the call to grab the diffuser to ensure that it is actually returning a diffuser.
+					// we do this because if the class loader for the diffusion is different from the class loader of the
+					// restful diffuser resource manager, then it returns null, and we want to see this.
 					final String getDiffuser = repoClassName + "." + getInstance + ".getDiffuser( \"" + diffuserId.getId() + "\" )";
-//					code.append( "    final Diffuser diffuser = " + getDiffuser + ";" );
 					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " + getDiffuser + " );\n" );
 					
+					// the actual Diffusive call
 					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );";
 					code.append( "    $_ = ($r)" + diffusiveCall );
-//					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance );
-//					code.append( ".getDiffuser( \"" + diffuserId.getId() + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
 				}
 				else
 				{
+					// make the call to grab the diffuser to ensure that it is actually returning a diffuser.
+					// we do this because if the class loader for the diffusion is different from the class loader of the
+					// restful diffuser resource manager, then it returns null, and we want to see this.
+					final String getDiffuser = repoClassName + "." + getInstance + ".getDiffuser()";
+					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " + getDiffuser + " );\n" );
+					
 					// the actual Diffusive call
-					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance ); 
-					code.append( ".getDiffuser().runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
+					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );";
+					code.append( "    $_ = ($r)" + diffusiveCall );
 				}
 				
 				// make the call to replace the code in the method call
