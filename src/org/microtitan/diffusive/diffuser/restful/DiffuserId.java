@@ -360,24 +360,29 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	 */
 	public static boolean isValid( final String signature )
 	{
-		final String validName = "[a-zA-Z]+[\\w]*";
-		final String validClassName = validName + "(\\." + validName + ")*";
-		final String validMethodName = validName;
-		final String argumentTypeList = "(" + validClassName + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + validClassName +")*)*";
-		final String returnTypeClassName = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + validClassName + ")?";
-		final String regex = "^" + 
-								validClassName + 
-								Pattern.quote( CLASS_METHOD_SEPARATOR )+ 
-								validMethodName + 
-								Pattern.quote( ARGUMENT_OPEN ) +
-									argumentTypeList +
-								Pattern.quote( ARGUMENT_CLOSE ) + 
-								returnTypeClassName +
-							 "$";
-		
-		final Pattern pattern = Pattern.compile( regex );
-		Matcher matcher = pattern.matcher( signature );
-		return matcher.find();
+		boolean isValid = false;
+		if( signature != null && !signature.isEmpty() )
+		{
+			final String validName = "[a-zA-Z]+[\\w]*";
+			final String validClassName = validName + "(\\." + validName + ")*";
+			final String validMethodName = validName;
+			final String argumentTypeList = "(" + validClassName + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + validClassName +")*)*";
+			final String returnTypeClassName = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + validClassName + ")?";
+			final String regex = "^" + 
+									validClassName + 
+									Pattern.quote( CLASS_METHOD_SEPARATOR )+ 
+									validMethodName + 
+									Pattern.quote( ARGUMENT_OPEN ) +
+										argumentTypeList +
+									Pattern.quote( ARGUMENT_CLOSE ) + 
+									returnTypeClassName +
+								 "$";
+			
+			final Pattern pattern = Pattern.compile( regex );
+			Matcher matcher = pattern.matcher( signature );
+			isValid = matcher.find();
+		}
+		return isValid;
 	}
 	
 	/**
