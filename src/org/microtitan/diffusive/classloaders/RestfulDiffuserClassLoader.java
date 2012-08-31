@@ -14,6 +14,7 @@ import javassist.Translator;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
+import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.client.RestfulClientFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLoader;
@@ -46,6 +47,11 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 									   final ClassPool classPool )
 	{
 		super( configClasses, delegationPrefixes, parentLoader, classPool );
+		
+		// the keyed diffuser repository must have its loading delegated (i.e. we want to use the
+		// one loaded by the application class loader to which the rest of the application has access)
+//		super.addDelegationPrefix( "org.microtitan.diffusive.diffuser.KeyedDiffuserRepository" );
+		addDelegationPrefix( KeyedDiffuserRepository.class.getName() );
 
 		// the base URI of the resource
 		this.classPaths = classPaths;
@@ -111,13 +117,7 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	 */
 	public RestfulDiffuserClassLoader( final List< URI > classPaths )
 	{
-		super();
-
-		// the base URI of the resource
-		this.classPaths = classPaths;
-
-		// create the RESTful class data reader
-		this.classReader = new RestfulClassReader( AbderaFactory.getInstance(), RestfulClientFactory.getInstance() );
+		this( classPaths, ClassPool.getDefault() );
 	}
 		
 	/*
@@ -144,7 +144,6 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 			// the act of calling makeClass(...) on the class pool creates the CtClass object in the
 			// class pool, and this allows the the parent Loader to pull out the class bytes the way
 			// it normally does...
-	//		Class< ? > clazz = null;
 			final ClassPool classPool = getClassPool();
 			final Translator translator = getTranslator();
 			if( classPool != null )

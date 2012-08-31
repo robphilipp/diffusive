@@ -157,9 +157,14 @@ public class MethodIntercepterEditor extends ExprEditor {
 					code.append( "    System.out.println( \"  Base Signature Used in Repository: " + diffuserId.getId() + "\" );\n" );
 
 					// the actual Diffusive call
-					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance );
-//					code.append( ".getDiffuser( \"" + signature + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
-					code.append( ".getDiffuser( \"" + diffuserId.getId() + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
+					final String getDiffuser = repoClassName + "." + getInstance + ".getDiffuser( \"" + diffuserId.getId() + "\" )";
+//					code.append( "    final Diffuser diffuser = " + getDiffuser + ";" );
+					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " + getDiffuser + " );\n" );
+					
+					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );";
+					code.append( "    $_ = ($r)" + diffusiveCall );
+//					code.append( "    $_ = ($r)" + repoClassName + "." + getInstance );
+//					code.append( ".getDiffuser( \"" + diffuserId.getId() + "\" ).runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );" );
 				}
 				else
 				{

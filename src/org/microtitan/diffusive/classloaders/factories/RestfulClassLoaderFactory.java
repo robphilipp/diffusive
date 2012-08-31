@@ -37,6 +37,7 @@ public class RestfulClassLoaderFactory implements ClassLoaderFactory {
 			return instance;
 		}
 	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory#create(java.util.List)
@@ -45,6 +46,16 @@ public class RestfulClassLoaderFactory implements ClassLoaderFactory {
 	public RestfulClassLoader create( final String baseSignature, final List< URI > classPaths )
 	{
 		return new RestfulClassLoader( classPaths );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory#create(java.lang.ClassLoader, java.lang.String, java.util.List)
+	 */
+	@Override
+	public RestfulClassLoader create( final ClassLoader parentLoader, final String baseSignature, final List< URI > classPaths )
+	{
+		return new RestfulClassLoader( classPaths, parentLoader );
 	}
 
 }

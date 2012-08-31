@@ -30,7 +30,6 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	
 	private List< String > configClasses;
 	private List< String > delegationPrefixes;
-	private ClassLoader parentLoader;
 	private ClassPool classPool;
     
 	/**
@@ -40,10 +39,6 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 */
 	private RestfulDiffuserClassLoaderFactory()
 	{
-		// sets the default parent class loader should be the class loader that
-		// loaded the RestfulDiffuserClassLoader
-		this.parentLoader = RestfulDiffuserClassLoaderFactory.class.getClassLoader();
-
 		// gets the default class pool
 		this.classPool = ClassPool.getDefault();
 	}
@@ -76,38 +71,10 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 * @param parentLoader the parent class loader of this class loader
 	 * @param classPool the source of the class files
 	 */
-	public void set( final List< String > configClasses, final List< String > delegationPrefixes, final ClassLoader parent, final ClassPool pool )
+	public void set( final List< String > configClasses, final List< String > delegationPrefixes, final ClassPool pool )
 	{
 		this.configClasses = new ArrayList<>( configClasses );
 		this.delegationPrefixes = new ArrayList<>( delegationPrefixes );
-		this.parentLoader = parent;
-		this.classPool = pool;
-	}
-	
-	/**
-	 * Sets the specified parameters. None of the parameter objects should be null, and none of the lists should be empty. 
-	 * @param configClasses A {@link List} containing the names of configuration classes that are 
-	 * used for configuration. Because these need to be loaded by this class loader, they must all 
-	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
-	 * @param parentLoader the parent class loader of this class loader
-	 * @param classPool the source of the class files
-	 */
-	public void set( final List< String > configClasses, final ClassLoader parent, final ClassPool pool )
-	{
-		this.configClasses = new ArrayList<>( configClasses );
-		this.parentLoader = parent;
-		this.classPool = pool;
-	}
-	
-	/**
-	 * Sets the specified parameters. None of the parameter objects should be null, and none of the lists should be empty. 
-	 * @param parentLoader the parent class loader of this class loader
-	 * @param classPool the source of the class files
-	 */
-	public void set( final ClassLoader parent, final ClassPool pool )
-	{
-		this.parentLoader = parent;
 		this.classPool = pool;
 	}
 	
@@ -155,12 +122,8 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 		return new MethodIntercepterEditor( signature );
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory#create(java.util.List)
-	 */
 	@Override
-	public RestfulDiffuserClassLoader create( final String signature, final List< URI > classPaths )
+	public RestfulDiffuserClassLoader create( final ClassLoader parentLoader, final String signature, final List< URI > classPaths )
 	{
 		RestfulDiffuserClassLoader loader = null;
 		// everything is set
@@ -203,7 +166,16 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 			throw new IllegalArgumentException( message.toString(), exception );
 		}
 
-		
 		return loader;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory#create(java.util.List)
+	 */
+	@Override
+	public RestfulDiffuserClassLoader create( final String signature, final List< URI > classPaths )
+	{
+		return create( RestfulDiffuserClassLoader.class.getClassLoader(), signature, classPaths );
 	}
 }
