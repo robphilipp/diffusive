@@ -83,22 +83,18 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		}
 		this.loadThreshold = loadThreshold;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(boolean, java.lang.Object, java.lang.String, java.lang.Object[])
+	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(double, java.lang.Class, java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-	public < T > T runObject( final double load, 
-							  final Class< T > returnType, 
-							  final Object object, 
-							  final String methodName, 
-							  final Object... arguments )
+	public Object runObject( final double load, final Class< ? > returnType, final Object object, final String methodName, final Object... arguments )
 	{
 		// if the load is less than the threshold, then we can compute this task locally, or if there are no
 		// end-points to which to diffuse the task further. Otherwise, the task is diffused to an end-point
 		// based on the strategy that selects the end-point
-		T result = null;
+		Object result = null;
 		if( load < loadThreshold || strategy.isEmpty() )
 		{
 			if( LOGGER.isInfoEnabled() )
@@ -176,7 +172,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			
 			// create the list of futures that are waiting for the task to return from 
 			// the first end point
-			final List< Future< T > > futures = new ArrayList<>( endpoints.size() );
+			final List< Future< ? > > futures = new ArrayList<>( endpoints.size() );
 			
 			// create the executor service for running the tasks.
 			final ExecutorService executor = Executors.newFixedThreadPool( maxRedundancy );
@@ -280,10 +276,10 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				// create a task that makes a blocking call to get the result of the calc, and then
 				// submit that task to the executor service to run it
 				final ExecuteDiffuserResponse executeResponseCopy = executeResponse;
-				final Callable< T > task = new Callable< T >() {
+				final Callable< ? > task = new Callable< Object >() {
 
 					@Override
-					public T call() throws Exception
+					public Object call() throws Exception
 					{
 						final DiffuserId diffuserId = DiffuserId.parse( executeResponseCopy.getSignature() );
 						final Class< ? > clazz = diffuserId.getClazz();
@@ -301,7 +297,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			do
 			{
 				final int index = i % futures.size();
-				final Future< T > future = futures.get( index );
+				final Future< ? > future = futures.get( index );
 				try
 				{
 					result = future.get( pollingTimeout, pollingTimeUnit );

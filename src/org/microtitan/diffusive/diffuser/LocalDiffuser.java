@@ -18,10 +18,10 @@ public class LocalDiffuser extends AbstractDiffuser {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(java.lang.Object, java.lang.String, java.lang.Object[])
+	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(double, java.lang.Class, java.lang.Object, java.lang.String, java.lang.Object[])
 	 */
 	@Override
-	public < T > T runObject( final double laod, final Class< T > returnType, final Object object, final String methodName, final Object...arguments )
+	public Object runObject( final double laod, final Class< ? > returnType, final Object object, final String methodName, final Object...arguments )
 	{
 		final Class< ? > clazz = object.getClass();
 		
@@ -38,14 +38,21 @@ public class LocalDiffuser extends AbstractDiffuser {
 		}
 		
 		// attempt to call the method
-		T returnResult = null;
+		Object returnResult = null;
 		Object returnValue = null;
 		try
 		{
 			// grab the method and invoke it, if the method doesn't exist, then an exception is thrown
-//			returnResult = returnType.cast( clazz.getMethod( methodName, params ).invoke( object, arguments ) );
 			returnValue = clazz.getMethod( methodName, params ).invoke( object, arguments );
-			returnResult = returnType.cast( returnValue );
+			if( returnType.isPrimitive() )
+			{
+				returnResult = returnValue;
+			}
+			else
+			{
+				// ensure that the return type and the return value are of the same type
+				returnResult = returnType.cast( returnValue );
+			}
 
 			if( LOGGER.isDebugEnabled() )
 			{
