@@ -26,4 +26,9 @@ public class Constants {
 	//
 	public static final String NEW_LINE = System.getProperty( "line.separator" );
 	
+	//
+	// URL encoding format
+	//
+	public static final String URL_ENCODING = "UTF-8";
+	
 }

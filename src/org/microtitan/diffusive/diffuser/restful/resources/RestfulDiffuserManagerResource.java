@@ -213,7 +213,6 @@ public class RestfulDiffuserManagerResource {
 			final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
 			
 			// add the diffuser to the map of diffusers
-//			final ClassLoader classLoader = classLoaderFactory.create( signature, classPaths );
 			final ClassLoader classLoader = classLoaderFactory.create( RestfulDiffuserManagerResource.class.getClassLoader(), signature, classPaths );
 			diffusers.put( signature, new DiffuserEntry( diffuser, classLoader ) );
 			

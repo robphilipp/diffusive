@@ -1,5 +1,8 @@
 package org.microtitan.diffusive.diffuser.restful;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -270,7 +273,17 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		buffer.append( ARGUMENT_CLOSE );
 		buffer.append( RETURN_TYPE_SEPARATOR + returnType );
 		
-		return buffer.toString();
+//		return buffer.toString();
+		// attempt to URL encode the signature
+		String signature = buffer.toString();
+		try
+		{
+			signature = URLEncoder.encode( signature, Constants.URL_ENCODING );
+		}
+		catch( UnsupportedEncodingException e )
+		{
+		}
+		return signature;
 	}
 	
 	/**
@@ -363,6 +376,20 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		boolean isValid = false;
 		if( signature != null && !signature.isEmpty() )
 		{
+			// attempt to decode the signature
+			String decodedSignature = signature;
+			try
+			{
+				decodedSignature = URLDecoder.decode( signature, Constants.URL_ENCODING );
+			}
+			catch( UnsupportedEncodingException e )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Failded to URL decode the signature. Using raw signature specified." + Constants.NEW_LINE );
+				message.append( "  Signature: " + decodedSignature );
+				LOGGER.warn( message.toString(), e );
+			}
+			
 			final String validName = "[a-zA-Z]+[\\w]*";
 			final String validClassName = validName + "(\\." + validName + ")*";
 			final String validMethodName = validName;
@@ -379,7 +406,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 								 "$";
 			
 			final Pattern pattern = Pattern.compile( regex );
-			Matcher matcher = pattern.matcher( signature );
+			Matcher matcher = pattern.matcher( decodedSignature );
 			isValid = matcher.find();
 		}
 		return isValid;
@@ -397,6 +424,20 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	 */
 	public static final synchronized DiffuserId parse( final String signature )
 	{
+		// attempt to decode the signature
+		String decodedSignature = signature;
+		try
+		{
+			decodedSignature = URLDecoder.decode( signature, Constants.URL_ENCODING );
+		}
+		catch( UnsupportedEncodingException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Failded to URL decode the signature. Using raw signature specified." + Constants.NEW_LINE );
+			message.append( "  Signature: " + decodedSignature );
+			LOGGER.warn( message.toString(), e );
+		}
+		
 		String className = null;
 		String methodName = null;
 		String returnClassName = null;
@@ -419,22 +460,22 @@ public class DiffuserId implements Copyable< DiffuserId > {
 							 "$";
 		
 		final Pattern pattern = Pattern.compile( regex );
-		Matcher matcher = pattern.matcher( signature );
+		Matcher matcher = pattern.matcher( decodedSignature );
 		if( matcher.find() )
 		{
 			// grab the class name
-			matcher = Pattern.compile( "^" + validClassName ).matcher( signature );
+			matcher = Pattern.compile( "^" + validClassName ).matcher( decodedSignature );
 			matcher.find();
 			className = matcher.group();
 			
 			// grab the method name (we know at this point that we have at least "class:method"
-			matcher = Pattern.compile( "^" + validMethodName ).matcher( signature.split( Pattern.quote( CLASS_METHOD_SEPARATOR ) )[ 1 ] );
+			matcher = Pattern.compile( "^" + validMethodName ).matcher( decodedSignature.split( Pattern.quote( CLASS_METHOD_SEPARATOR ) )[ 1 ] );
 			matcher.find();
 			methodName = matcher.group();
 			
 			// now parse out the argument types
 			final String argString = "^" + argumentTypeList + Pattern.quote( ARGUMENT_CLOSE );// + "$";
-			matcher = Pattern.compile( argString ).matcher( signature.split( Pattern.quote( ARGUMENT_OPEN ) )[ 1 ] );
+			matcher = Pattern.compile( argString ).matcher( decodedSignature.split( Pattern.quote( ARGUMENT_OPEN ) )[ 1 ] );
 			matcher.find();
 			final String endString = matcher.group();
 			if( endString.equals( ARGUMENT_CLOSE ) )
@@ -447,7 +488,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 			}
 			
 			// now parse out the return type
-			final String[] returnTypes = signature.split( Pattern.quote( RETURN_TYPE_SEPARATOR ) );
+			final String[] returnTypes = decodedSignature.split( Pattern.quote( RETURN_TYPE_SEPARATOR ) );
 			if( returnTypes != null && returnTypes.length > 1 )
 			{
 				final String returnTypeString = "^" + validClassName + "$";
@@ -460,10 +501,10 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Failed to parse signature: Invalid DiffuserId" + Constants.NEW_LINE );
-			message.append( "  Specified DiffuserId: " + signature );
+			message.append( "  Specified DiffuserId: " + decodedSignature );
 			try
 			{
-				final DiffuserId sig = DiffuserId.parse( signature.replaceAll( "\\s", "" ) );
+				final DiffuserId sig = DiffuserId.parse( decodedSignature.replaceAll( "\\s", "" ) );
 				message.append( Constants.NEW_LINE + "  Hint: try removing spaces from signature" + Constants.NEW_LINE );
 				message.append( "  Recommended DiffuserId: " + sig.getId() );
 			}
