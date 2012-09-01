@@ -1,8 +1,5 @@
 package org.microtitan.diffusive.diffuser.restful;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -273,17 +270,21 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		buffer.append( ARGUMENT_CLOSE );
 		buffer.append( RETURN_TYPE_SEPARATOR + returnType );
 		
-//		return buffer.toString();
 		// attempt to URL encode the signature
-		String signature = buffer.toString();
-		try
-		{
-			signature = URLEncoder.encode( signature, Constants.URL_ENCODING );
-		}
-		catch( UnsupportedEncodingException e )
-		{
-		}
-		return signature;
+		return buffer.toString();
+//		String signature = buffer.toString();
+//		try
+//		{
+//			signature = URLEncoder.encode( signature, Constants.URL_ENCODING );
+//		}
+//		catch( UnsupportedEncodingException e )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Failded to URL encode the signature. Using raw signature specified." + Constants.NEW_LINE );
+//			message.append( "  Signature: " + signature );
+//			LOGGER.warn( message.toString(), e );
+//		}
+//		return signature;
 	}
 	
 	/**
@@ -378,17 +379,17 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		{
 			// attempt to decode the signature
 			String decodedSignature = signature;
-			try
-			{
-				decodedSignature = URLDecoder.decode( signature, Constants.URL_ENCODING );
-			}
-			catch( UnsupportedEncodingException e )
-			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Failded to URL decode the signature. Using raw signature specified." + Constants.NEW_LINE );
-				message.append( "  Signature: " + decodedSignature );
-				LOGGER.warn( message.toString(), e );
-			}
+//			try
+//			{
+//				decodedSignature = URLDecoder.decode( signature, Constants.URL_ENCODING );
+//			}
+//			catch( UnsupportedEncodingException e )
+//			{
+//				final StringBuffer message = new StringBuffer();
+//				message.append( "Failded to URL decode the signature. Using raw signature specified." + Constants.NEW_LINE );
+//				message.append( "  Signature: " + decodedSignature );
+//				LOGGER.warn( message.toString(), e );
+//			}
 			
 			final String validName = "[a-zA-Z]+[\\w]*";
 			final String validClassName = validName + "(\\." + validName + ")*";
@@ -426,17 +427,17 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	{
 		// attempt to decode the signature
 		String decodedSignature = signature;
-		try
-		{
-			decodedSignature = URLDecoder.decode( signature, Constants.URL_ENCODING );
-		}
-		catch( UnsupportedEncodingException e )
-		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failded to URL decode the signature. Using raw signature specified." + Constants.NEW_LINE );
-			message.append( "  Signature: " + decodedSignature );
-			LOGGER.warn( message.toString(), e );
-		}
+//		try
+//		{
+//			decodedSignature = URLDecoder.decode( signature, Constants.URL_ENCODING );
+//		}
+//		catch( UnsupportedEncodingException e )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Failded to URL decode the signature. Using raw signature specified." + Constants.NEW_LINE );
+//			message.append( "  Signature: " + decodedSignature );
+//			LOGGER.warn( message.toString(), e );
+//		}
 		
 		String className = null;
 		String methodName = null;

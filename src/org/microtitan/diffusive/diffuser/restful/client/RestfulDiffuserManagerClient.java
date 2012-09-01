@@ -126,7 +126,7 @@ public class RestfulDiffuserManagerClient {
 		final CreateDiffuserRequest request = CreateDiffuserRequest.create( classPaths, clazz.getName(), methodName, returnTypeClazz.getName(), argumentTypeNames );
 		
 		// create the web resource for making the call, make the call to PUT the create-request to the server
-		final WebResource resource = client.resource( baseUri.toString() );
+		final WebResource resource = client.resource( baseUri );
 		final ClientResponse createDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( ClientResponse.class, request );
 		
 		// parse the response into an Atom feed object and return it
@@ -176,7 +176,7 @@ public class RestfulDiffuserManagerClient {
 	public ListDiffuserResponse getDiffuserList()
 	{
 		// create the web resource for making the call
-		final WebResource resource = client.resource( baseUri.toString() );
+		final WebResource resource = client.resource( baseUri );
 
 		final ClientResponse clientResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
 
@@ -240,10 +240,10 @@ public class RestfulDiffuserManagerClient {
 	public DeleteDiffuserResponse deleteDiffuser( final String signature )
 	{
 		// create the URI to the diffuser with the specified signature
-		final URI diffuserUri = UriBuilder.fromUri( baseUri.toString() ).path( signature ).build();
+		final URI diffuserUri = UriBuilder.fromUri( baseUri ).path( signature ).build();
 		
 		// create the web resource for making the call
-		final WebResource resource = client.resource( diffuserUri.toString() );
+		final WebResource resource = client.resource( diffuserUri );
 		
 		// make the call to delete the resource
 		final ClientResponse clientResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).delete( ClientResponse.class );
@@ -350,7 +350,7 @@ public class RestfulDiffuserManagerClient {
 	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
 	 * underlying Atom feed.
 	 */
-	public ExecuteDiffuserResponse executeMethod( final String signature, 
+	private ExecuteDiffuserResponse executeMethod( final String signature, 
 							   					  final byte[] serializedObject,
 							   					  final Class< ? > serializedObjectType,
 							   					  final String serializerType )
@@ -408,7 +408,7 @@ public class RestfulDiffuserManagerClient {
 	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
 	 * underlying Atom feed.
 	 */
-	public ExecuteDiffuserResponse executeMethod( final String signature, 
+	private ExecuteDiffuserResponse executeMethod( final String signature, 
 							   					  final List< Class< ? > > argumentTypes, 
 							   					  final List< byte[] > argumentValues, 
 							   					  final byte[] serializedObject,
@@ -441,10 +441,10 @@ public class RestfulDiffuserManagerClient {
 	private ExecuteDiffuserResponse executeMethod( final String signature, final ExecuteDiffuserRequest request )
 	{
 		// create the URI to the diffuser with the specified signature
-		final URI diffuserUri = UriBuilder.fromUri( baseUri.toString() ).path( signature ).build();
+		final URI diffuserUri = UriBuilder.fromUri( baseUri ).path( signature ).build();
 		
 		// create the web resource for making the call, make the call to POST the create-request to the server
-		final WebResource resource = client.resource( diffuserUri.toString() );
+		final WebResource resource = client.resource( diffuserUri );
 		final ClientResponse executeDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).post( ClientResponse.class, request );
 		
 		// parse the response into an Atom feed object and return it
@@ -531,10 +531,10 @@ public class RestfulDiffuserManagerClient {
 		final DiffuserSignature id = DiffuserSignature.parse( signature );
 		
 		// create the URI to the diffuser with the specified signature
-		final URI diffuserUri = UriBuilder.fromUri( baseUri.toString() ).path( signature ).path( requestId ).build();
+		final URI diffuserUri = UriBuilder.fromUri( baseUri ).path( signature ).path( requestId ).build();
 		
 		// create the web resource for making the call, make the call to GET the result from the server
-		final WebResource resource = client.resource( diffuserUri.toString() );
+		final WebResource resource = client.resource( diffuserUri );
 		final ClientResponse resultResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
 
 		if( resultResponse.getStatus() == Status.NO_CONTENT.getStatusCode() )
@@ -613,10 +613,10 @@ public class RestfulDiffuserManagerClient {
 	public boolean isComplete( final String resultId )
 	{
 		// create the URI to the diffuser with the specified signature
-		final URI resultUri = UriBuilder.fromUri( baseUri.toString() ).path( resultId ).build();
+		final URI resultUri = UriBuilder.fromUri( baseUri ).path( resultId ).build();
 		
 		// create the web resource for making the call, make the call to GET the result from the server
-		final WebResource resource = client.resource( resultUri.toString() );
+		final WebResource resource = client.resource( resultUri );
 		final ClientResponse resultResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
 
 		boolean isComplete = false;
