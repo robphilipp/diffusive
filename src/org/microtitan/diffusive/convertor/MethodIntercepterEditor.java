@@ -14,7 +14,7 @@ import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.Diffusive;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
-import org.microtitan.diffusive.diffuser.restful.DiffuserId;
+import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 
 /**
@@ -30,7 +30,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 	
 	private static final Logger LOGGER = Logger.getLogger( MethodIntercepterEditor.class );
 
-	private final DiffuserId diffuserId;
+	private final DiffuserSignature diffuserId;
 	private final boolean isUseSignature;
 	
 	/**
@@ -58,9 +58,9 @@ public class MethodIntercepterEditor extends ExprEditor {
 	{
 //		this.isUseSignature = ( baseSignature != null && !baseSignature.isEmpty() );
 //		if( isUseSignature )
-		if( DiffuserId.isValid( baseSignature ) )
+		if( DiffuserSignature.isValid( baseSignature ) )
 		{
-			diffuserId = DiffuserId.parse( baseSignature );
+			diffuserId = DiffuserSignature.parse( baseSignature );
 			isUseSignature = true;
 		}
 		else
@@ -150,7 +150,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 					final String returnType = methodCall.getMethod().getReturnType().getName();
 	
 					// create the signature of the method call
-					final String signature = DiffuserId.createId( returnType, className, methodName, argumentTypes );
+					final String signature = DiffuserSignature.createId( returnType, className, methodName, argumentTypes );
 					
 					// spit out the signature and the base method associated with the diffuser
 					code.append( "    System.out.println( \"  Diffused Signature: " + signature + "\" );\n" );

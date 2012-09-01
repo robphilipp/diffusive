@@ -3,11 +3,11 @@ package org.microtitan.diffusive.diffuser.restful.resources;
 import java.util.regex.Pattern;
 
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.diffuser.restful.DiffuserId;
+import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
 
 /**
  * Represents the components that make up the execute result ID used to retrieve results. The result ID
- * is composed of the signature ({@link DiffuserId}) and the request ID generated and returned by the execute
+ * is composed of the signature ({@link DiffuserSignature}) and the request ID generated and returned by the execute
  * method. This class can be used to create and parse result IDs and get their component parts.
  * 
  * @author Robert Philipp
@@ -24,7 +24,7 @@ public class ResultId {
 	
 	/**
 	 * Constructs the {@link ResultId} object holding the component parts of the ID
-	 * @param signature The signature ({@link DiffuserId})
+	 * @param signature The signature ({@link DiffuserSignature})
 	 * @param requestId The request ID generated and returned by the execute method
 	 */
 	public ResultId( final String signature, final String requestId )
@@ -61,7 +61,7 @@ public class ResultId {
 
 	/**
 	 * Creates a string representation of the result ID using the specified signature and request ID
-	 * @param signature The signature ({@link DiffuserId})
+	 * @param signature The signature ({@link DiffuserSignature})
 	 * @param requestId The request ID generated and returned by the execute method
 	 * @return a string representation of the result ID
 	 */

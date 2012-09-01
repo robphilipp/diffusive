@@ -281,7 +281,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 					@Override
 					public Object call() throws Exception
 					{
-						final DiffuserId diffuserId = DiffuserId.parse( executeResponseCopy.getSignature() );
+						final DiffuserSignature diffuserId = DiffuserSignature.parse( executeResponseCopy.getSignature() );
 						final Class< ? > clazz = diffuserId.getClazz();
 						return client.getResult( returnType, clazz, methodName, executeResponseCopy.getRequestId(), serializer );
 					}

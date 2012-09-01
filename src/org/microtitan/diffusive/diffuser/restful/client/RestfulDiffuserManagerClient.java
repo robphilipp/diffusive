@@ -17,7 +17,7 @@ import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.diffuser.restful.DiffuserId;
+import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
@@ -228,12 +228,12 @@ public class RestfulDiffuserManagerClient {
 	 */
 	public DeleteDiffuserResponse deleteDiffuser( final Class< ? > returnType, final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
 	{
-		return deleteDiffuser( DiffuserId.createId( returnType, clazz, methodName, argumentTypes ) );
+		return deleteDiffuser( DiffuserSignature.createId( returnType, clazz, methodName, argumentTypes ) );
 	}
 	
 	/**
 	 * Deletes the diffuser with a signature and return type that matches the specified information
-	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to delete
 	 * @return An Atom feed containing the information about the deleted diffuser
 	 */
@@ -308,7 +308,7 @@ public class RestfulDiffuserManagerClient {
 		}
 
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName );
+		final String signature = DiffuserSignature.createId( returnTypeClazz, clazz, methodName );
 		
 		// call the execute method
 		return executeMethod( signature, serializedObject, clazz, serializerType );
@@ -333,7 +333,7 @@ public class RestfulDiffuserManagerClient {
 												  final String serializerType )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName );
+		final String signature = DiffuserSignature.createId( returnTypeClazz, clazz, methodName );
 		
 		// call the execute method
 		return executeMethod( signature, serializedObject, clazz, serializerType );
@@ -341,7 +341,7 @@ public class RestfulDiffuserManagerClient {
 	
 	/**
 	 * Executes the specified method 
-	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to use to execute the method
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
@@ -356,7 +356,7 @@ public class RestfulDiffuserManagerClient {
 							   					  final String serializerType )
 	{
 		// grab the return type from the signature
-		final String returnType = DiffuserId.parse( signature ).getReturnTypeClassName();
+		final String returnType = DiffuserSignature.parse( signature ).getReturnTypeClassName();
 		
 		// create the diffeser-execute request
 		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( returnType,
@@ -389,7 +389,7 @@ public class RestfulDiffuserManagerClient {
 							   					  final String serializerType )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		final String signature = DiffuserSignature.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
 		// call the execute method
 		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, clazz, serializerType );
@@ -397,7 +397,7 @@ public class RestfulDiffuserManagerClient {
 
 	/**
 	 * Executes the specified method 
-	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to use to execute the method
 	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
 	 * @param argumentValues The serialized value of each of the arguments passed to the diffusive method
@@ -418,7 +418,7 @@ public class RestfulDiffuserManagerClient {
 		// convert the argument types to argument type names
 		final List< String > argumentTypeNames = convertArgumentTypes( argumentTypes );
 		
-		final String returnTypeClassName = DiffuserId.parse( signature ).getReturnTypeClassName();
+		final String returnTypeClassName = DiffuserSignature.parse( signature ).getReturnTypeClassName();
 		
 		// create the diffeser-execute request
 		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( returnTypeClassName,
@@ -433,7 +433,7 @@ public class RestfulDiffuserManagerClient {
 	
 	/**
 	 * Executes the specified method 
-	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to use to execute the method
 	 * @param request The {@link ExecuteDiffuserRequest} object containing the information needed to execute a diffusive method
 	 * @return An Atom feed that contains a URI from which to obtain the result. 
@@ -460,7 +460,7 @@ public class RestfulDiffuserManagerClient {
 			message.append( "Failed to parse the execute-diffuser response into an Atom feed" + Constants.NEW_LINE );
 			message.append( "  Signature: " + signature + Constants.NEW_LINE );
 			message.append( "  Request ID: " + request.getRequestId() + Constants.NEW_LINE );
-			final DiffuserId diffuserId = DiffuserId.parse( signature );
+			final DiffuserSignature diffuserId = DiffuserSignature.parse( signature );
 			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
 			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
 			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
@@ -490,7 +490,7 @@ public class RestfulDiffuserManagerClient {
 							  final Serializer serializer )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName );
+		final String signature = DiffuserSignature.createId( returnTypeClazz, clazz, methodName );
 
 		return returnTypeClazz.cast( getResult( signature, requestId, serializer ) );
 	}
@@ -513,14 +513,14 @@ public class RestfulDiffuserManagerClient {
 							  final Serializer serializer )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserId.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		final String signature = DiffuserSignature.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
 		return returnTypeClazz.cast( getResult( signature, requestId, serializer ) );
 	}
 
 	/**
 	 * Requests the result of the {@code executeMethod(...)} request
-	 * @param signature a {@link DiffuserId} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to use to execute the method
 	 * @param requestId The request ID generated and returned after the method was executed
 	 * @param serializer The {@link Serializer} used to serialize and deserialize the object
@@ -528,7 +528,7 @@ public class RestfulDiffuserManagerClient {
 	 */
 	public Object getResult( final String signature, final String requestId, final Serializer serializer )
 	{
-		final DiffuserId id = DiffuserId.parse( signature );
+		final DiffuserSignature id = DiffuserSignature.parse( signature );
 		
 		// create the URI to the diffuser with the specified signature
 		final URI diffuserUri = UriBuilder.fromUri( baseUri.toString() ).path( signature ).path( requestId ).build();
@@ -568,7 +568,7 @@ public class RestfulDiffuserManagerClient {
 			message.append( "Failed to parse the get-result response into an Atom feed" + Constants.NEW_LINE );
 			message.append( "  Signature: " + signature + Constants.NEW_LINE );
 			message.append( "  Request ID: " + requestId + Constants.NEW_LINE );
-			final DiffuserId diffuserId = DiffuserId.parse( signature );
+			final DiffuserSignature diffuserId = DiffuserSignature.parse( signature );
 			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
 			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
 			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
@@ -585,7 +585,7 @@ public class RestfulDiffuserManagerClient {
 			message.append( "Failed to deserialize the get-result response." + Constants.NEW_LINE );
 			message.append( "  Signature: " + signature + Constants.NEW_LINE );
 			message.append( "  Request ID: " + requestId + Constants.NEW_LINE );
-			final DiffuserId diffuserId = DiffuserId.parse( signature );
+			final DiffuserSignature diffuserId = DiffuserSignature.parse( signature );
 			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
 			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
 			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
@@ -732,7 +732,7 @@ public class RestfulDiffuserManagerClient {
 		}
 
 		// grab the result of the call
-		final DiffuserId diffuserId = DiffuserId.parse( executeResponse.getSignature() );
+		final DiffuserSignature diffuserId = DiffuserSignature.parse( executeResponse.getSignature() );
 		final String methodName = diffuserId.getMethodName();
 		final Class< ? > clazz = diffuserId.getClazz();
 		String result = null;

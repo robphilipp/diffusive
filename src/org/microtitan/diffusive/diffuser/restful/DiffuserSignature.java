@@ -32,16 +32,16 @@ import org.microtitan.diffusive.utils.ReflectionUtils;
  * the arguments are all the fully qualified class names of the argument; and the {@code returnType}
  * is the fully qualified class name of the return type (which could be {@code void.class}.
  * 
- * The {@link DiffuserId} can be instantiated through the constructors, or preferably, through one of the
+ * The {@link DiffuserSignature} can be instantiated through the constructors, or preferably, through one of the
  * four {@code create(...)} methods, or the {@link #parse(String)} method.
  * 
- * The {@link DiffuserId} objects are immutable.
+ * The {@link DiffuserSignature} objects are immutable.
  * 
  * @author Robert Philipp
  */
-public class DiffuserId implements Copyable< DiffuserId > {
+public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	
-	private static final Logger LOGGER = Logger.getLogger( DiffuserId.class );
+	private static final Logger LOGGER = Logger.getLogger( DiffuserSignature.class );
 	
 	// signature punctuation
 	public static final String CLASS_METHOD_SEPARATOR = ":";
@@ -61,14 +61,14 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	private final String signature;
 	
 	/**
-	 * Constructs a {@link DiffuserId} based on the specified return type name, the name of the class containing the
+	 * Constructs a {@link DiffuserSignature} based on the specified return type name, the name of the class containing the
 	 * diffusive method, the method to diffuse, and the list of argument type names. 
 	 * @param returnTypeClassName The name of the return type
 	 * @param className The name of the class that contains the method to diffuse
 	 * @param methodName The name of the method to diffuse
 	 * @param argumentTypes The class names of the arguments passed to the method
 	 */
-	public DiffuserId( final String returnTypeClassName, final String className, final String methodName, final List< String > argumentTypes )
+	public DiffuserSignature( final String returnTypeClassName, final String className, final String methodName, final List< String > argumentTypes )
 	{
 		this.className = className;
 		this.methodName = methodName;
@@ -82,19 +82,19 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	}
 	
 	/**
-	 * Constructs a {@link DiffuserId} for a method that does not return a value, the name of the class containing the
+	 * Constructs a {@link DiffuserSignature} for a method that does not return a value, the name of the class containing the
 	 * diffusive method, the method to diffuse, and the list of argument type names. 
 	 * @param className The name of the class that contains the method to diffuse
 	 * @param methodName The name of the method to diffuse
 	 * @param argumentTypes The class names of the arguments passed to the method
 	 */
-	public DiffuserId( final String className, final String methodName, final List< String > argumentTypes )
+	public DiffuserSignature( final String className, final String methodName, final List< String > argumentTypes )
 	{
 		this( void.class.getName(), className, methodName, argumentTypes );
 	}
 	
 	/**
-	 * Constructs a {@link DiffuserId} by parsing an existing diffuser ID string. The {@link Diffuser} ID 
+	 * Constructs a {@link DiffuserSignature} by parsing an existing diffuser ID string. The {@link Diffuser} ID 
 	 * is constructed as follows:<p>
 	 * {@code class:method(argument1,argument2,argument3,...,argumentN)-returnType}<p> 
 	 * where the "{@code class}" is the fully qualified class name; the method is the name of the method;
@@ -102,17 +102,17 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	 * is the fully qualified class name of the return type (which could be {@code void.class}.
 	 * @param id The diffuser ID string
 	 */
-	public DiffuserId( final String id )
+	public DiffuserSignature( final String id )
 	{
 		this( parse( id ) );
 	}
 	
 	/**
-	 * Copy constructor that creates a copy of the specified diffuser ID. {@link DiffuserId} objects are
+	 * Copy constructor that creates a copy of the specified diffuser ID. {@link DiffuserSignature} objects are
 	 * immutable, so this isn't terribly necessary. 
-	 * @param id The {@link DiffuserId} to copy
+	 * @param id The {@link DiffuserSignature} to copy
 	 */
-	public DiffuserId( final DiffuserId id )
+	public DiffuserSignature( final DiffuserSignature id )
 	{
 		this( id.returnTypeClassName, id.className, id.methodName, new ArrayList<>( id.argumentTypes ) );
 	}
@@ -295,13 +295,13 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	}
 
 	/**
-	 * Constructs a {@link DiffuserId} for a method that doesn't have a return value
+	 * Constructs a {@link DiffuserSignature} for a method that doesn't have a return value
 	 * @param clazz The {@link Class} that contains the diffused method
 	 * @param methodName The name of the diffused method
 	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
-	 * @return a {@link DiffuserId} for a method that doesn't have a return value
+	 * @return a {@link DiffuserSignature} for a method that doesn't have a return value
 	 */
-	public static final synchronized DiffuserId create( final Class< ? > clazz, 
+	public static final synchronized DiffuserSignature create( final Class< ? > clazz, 
 														final String methodName, 
 														final Class< ? >...argumentTypes )
 	{
@@ -309,14 +309,14 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	}
 	
 	/**
-	 * Constructs a {@link DiffuserId}
+	 * Constructs a {@link DiffuserSignature}
 	 * @param returnType The {@link Class} object representing the method's return type
 	 * @param clazz The {@link Class} that contains the diffused method
 	 * @param methodName The name of the diffused method
 	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
-	 * @return a {@link DiffuserId}
+	 * @return a {@link DiffuserSignature}
 	 */
-	public static final synchronized DiffuserId create( final Class< ? > returnType, 
+	public static final synchronized DiffuserSignature create( final Class< ? > returnType, 
 														final Class< ? > clazz, 
 														final String methodName, 
 														final Class< ? >...argumentTypes )
@@ -331,14 +331,14 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	}
 
 	/**
-	 * Constructs the {@link DiffuserId}, for a method that does not return a value, based on 
+	 * Constructs the {@link DiffuserSignature}, for a method that does not return a value, based on 
 	 * the specified values
 	 * @param containingClassName The name of the class that contains the method to diffuse
 	 * @param methodName The name of the method to diffuse
 	 * @param argumentTypes The class names of the arguments passed to the method
-	 * @return the {@link DiffuserId} based on the specified values
+	 * @return the {@link DiffuserSignature} based on the specified values
 	 */
-	public static final synchronized DiffuserId create( final String containingClassName, 
+	public static final synchronized DiffuserSignature create( final String containingClassName, 
 														final String methodName, 
 														final List< String > argumentTypes )
 	{
@@ -346,19 +346,19 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	}
 	
 	/**
-	 * Constructs the {@link DiffuserId} based on the specified values
+	 * Constructs the {@link DiffuserSignature} based on the specified values
 	 * @param returnType The name of the return type
 	 * @param containingClassName The name of the class that contains the method to diffuse
 	 * @param methodName The name of the method to diffuse
 	 * @param argumentTypes The class names of the arguments passed to the method
-	 * @return the {@link DiffuserId} based on the specified values
+	 * @return the {@link DiffuserSignature} based on the specified values
 	 */
-	public static final synchronized DiffuserId create( final String returnType, 
+	public static final synchronized DiffuserSignature create( final String returnType, 
 														final String containingClassName, 
 														final String methodName, 
 														final List< String > argumentTypes )
 	{
-		return new DiffuserId( returnType, containingClassName, methodName, argumentTypes );
+		return new DiffuserSignature( returnType, containingClassName, methodName, argumentTypes );
 	}
 	
 	/**
@@ -413,16 +413,16 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	}
 	
 	/**
-	 * Parses the specified diffuser ID string into a {@link DiffuserId} object. The {@link Diffuser} ID 
+	 * Parses the specified diffuser ID string into a {@link DiffuserSignature} object. The {@link Diffuser} ID 
 	 * is constructed as follows:<p>
 	 * {@code class:method(argument1,argument2,argument3,...,argumentN)-returnType}<p> 
 	 * where the "{@code class}" is the fully qualified class name; the method is the name of the method;
 	 * the arguments are all the fully qualified class names of the argument; and the {@code returnType}
 	 * is the fully qualified class name of the return type (which could be {@code void.class}.
 	 * @param signature The diffuser ID string representing the signature
-	 * @return a {@link DiffuserId} object based on the specified diffuser ID string
+	 * @return a {@link DiffuserSignature} object based on the specified diffuser ID string
 	 */
-	public static final synchronized DiffuserId parse( final String signature )
+	public static final synchronized DiffuserSignature parse( final String signature )
 	{
 		// attempt to decode the signature
 		String decodedSignature = signature;
@@ -504,7 +504,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 			message.append( "  Specified DiffuserId: " + decodedSignature );
 			try
 			{
-				final DiffuserId sig = DiffuserId.parse( decodedSignature.replaceAll( "\\s", "" ) );
+				final DiffuserSignature sig = DiffuserSignature.parse( decodedSignature.replaceAll( "\\s", "" ) );
 				message.append( Constants.NEW_LINE + "  Hint: try removing spaces from signature" + Constants.NEW_LINE );
 				message.append( "  Recommended DiffuserId: " + sig.getId() );
 			}
@@ -515,7 +515,7 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		}
 		
 		// return
-		return new DiffuserId( returnClassName, className, methodName, argumentTypes );
+		return new DiffuserSignature( returnClassName, className, methodName, argumentTypes );
 	}
 	
 	/*
@@ -523,9 +523,9 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	 * @see org.freezedry.persistence.copyable.Copyable#getCopy()
 	 */
 	@Override
-	public DiffuserId getCopy()
+	public DiffuserSignature getCopy()
 	{
-		return new DiffuserId( this );
+		return new DiffuserSignature( this );
 	}
 
 	/*
@@ -535,12 +535,12 @@ public class DiffuserId implements Copyable< DiffuserId > {
 	@Override
 	public boolean equals( final Object object )
 	{
-		if( !(object instanceof DiffuserId) )
+		if( !(object instanceof DiffuserSignature) )
 		{
 			return false;
 		}
 		
-		final DiffuserId id = (DiffuserId)object;
+		final DiffuserSignature id = (DiffuserSignature)object;
 		if( signature.equals( id.signature ) )
 		{
 			return true;
@@ -599,11 +599,11 @@ public class DiffuserId implements Copyable< DiffuserId > {
 		DOMConfigurator.configure( "log4j.xml" );
 		Logger.getRootLogger().setLevel( Level.DEBUG );
 
-		System.out.println( "1   " + DiffuserId.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
-		System.out.println( "2   " + DiffuserId.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
-		System.out.println( "3   " + DiffuserId.parse( "java.lang.String:concat()" ).toString() );
-		System.out.println( "3a  " + DiffuserId.parse( "java.lang.String:concat();java.lang.Double" ).toString() );
-		System.out.println( "4   " + DiffuserId.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
-		System.out.println( "5   " + DiffuserId.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
+		System.out.println( "1   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
+		System.out.println( "2   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
+		System.out.println( "3   " + DiffuserSignature.parse( "java.lang.String:concat()" ).toString() );
+		System.out.println( "3a  " + DiffuserSignature.parse( "java.lang.String:concat();java.lang.Double" ).toString() );
+		System.out.println( "4   " + DiffuserSignature.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
+		System.out.println( "5   " + DiffuserSignature.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
 	}
 }
