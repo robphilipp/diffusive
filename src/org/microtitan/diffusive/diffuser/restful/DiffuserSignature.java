@@ -1,17 +1,21 @@
 package org.microtitan.diffusive.diffuser.restful;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.abdera.model.Feed;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.copyable.Copyable;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.utils.ReflectionUtils;
 
 /**
@@ -46,13 +50,14 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	public static final String ARGUMENT_OPEN = "(";
 	public static final String ARGUMENT_CLOSE = ")";
 	public static final String RETURN_TYPE_SEPARATOR = "-";
+	public static final String ENCODED_ARRAY_IDENTIFIER = ";";
 	public static final String ARRAY_IDENTIFIER = "[";
 	
 	// regular expression for matching a parsing the diffusive signature
 	private static final String VALID_NAME = "[a-zA-Z]+[\\w]*";
-	private static final String PRIMITIVE_ARRAY = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[ZBCDFIJS]";
-	private static final String OBJECT_ARRAY = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[L]";
-	private static final String VALID_CLASS_NAME = "((" + PRIMITIVE_ARRAY + ")|((" + OBJECT_ARRAY + ")?(" + VALID_NAME + "(\\." + VALID_NAME + ")*)+))";
+	private static final String PRIMITIVE_ARRAY = createPrimitiveArray( ENCODED_ARRAY_IDENTIFIER );
+	private static final String OBJECT_ARRAY = createObjectArray( ENCODED_ARRAY_IDENTIFIER, VALID_NAME );
+	private static final String VALID_CLASS_NAME = createValidClassName( PRIMITIVE_ARRAY, OBJECT_ARRAY );
 	private static final String VALID_METHOD_NAME = VALID_NAME;
 	private static final String ARGUMENT_TYPE_LIST = "(" + VALID_CLASS_NAME + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + VALID_CLASS_NAME +")*)?";
 	private static final String RETURN_TYPE_CLASS_NAME = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + VALID_CLASS_NAME + ")?";
@@ -66,6 +71,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 											RETURN_TYPE_CLASS_NAME +
 										 "$";
 	private static final Pattern REGEX_PATTERN = Pattern.compile( REGEX );
+	private static final Pattern VALID_CLASS_NAME_PATTERN = Pattern.compile( "^" + VALID_CLASS_NAME + "$" );
 
 	// for the hashCode method
 	private volatile int hashCode;
@@ -293,6 +299,74 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		// attempt to URL encode the signature
 		return buffer.toString();
 	}
+
+	/**
+	 * Encodes the array type identifier from {@link #ARRAY_IDENTIFIER} (={@value #ARRAY_IDENTIFIER}) to
+	 * {@link #ENCODED_ARRAY_IDENTIFIER} (={@value #ENCODED_ARRAY_IDENTIFIER}). For example, an {@code int[]}
+	 * is translated from "{@code [I}" to "{@code ;I}", and a {@code String[]} is translated from 
+	 * "{@code [Ljava.lang.String}" to "{@code ;Ljava.lang.String}".
+	 * @param className The name of the array class
+	 * @return The encode class name
+	 */
+	public static final String encodeArrayType( final String className )
+	{
+		return encodeArrayType( className, true );
+	}
+	
+	/**
+	 * Encodes the array type identifier from {@link #ENCODED_ARRAY_IDENTIFIER} (={@value #ENCODED_ARRAY_IDENTIFIER}) to
+	 * {@link #ARRAY_IDENTIFIER} (={@value #ARRAY_IDENTIFIER}). For example, an {@code int[]}
+	 * is translated from "{@code ;I}" to "{@code [I}", and a {@code String[]} is translated from 
+	 * "{@code ;Ljava.lang.String}" to "{@code [Ljava.lang.String}".
+	 * @param className The name of the array class
+	 * @return The encode class name
+	 */
+	public static final String decodeArrayType( final String className )
+	{
+		return encodeArrayType( className, false );
+	}
+	
+	/**
+	 * Converts array class names from their encoded and decoded forms.
+	 * @param className The name of the array class
+	 * @param encode set to true to encode from {@link #ARRAY_IDENTIFIER} (={@value #ARRAY_IDENTIFIER}); to
+	 * {@link #ENCODED_ARRAY_IDENTIFIER} (={@value #ENCODED_ARRAY_IDENTIFIER}) and set to false to decode from
+	 * from {@link #ENCODED_ARRAY_IDENTIFIER} (={@value #ENCODED_ARRAY_IDENTIFIER}) to
+	 * {@link #ARRAY_IDENTIFIER} (={@value #ARRAY_IDENTIFIER})
+	 * @return
+	 */
+	private static String encodeArrayType( final String className, final boolean encode )
+	{
+		final String arrayIdentifier = ( encode ? ARRAY_IDENTIFIER : ENCODED_ARRAY_IDENTIFIER );
+		final String encodedArrayIdentifier = ( encode ? ENCODED_ARRAY_IDENTIFIER : ARRAY_IDENTIFIER );
+		
+		final StringBuffer buffer = new StringBuffer();
+		
+		// if this is a primitive array, then we strip off the letter code at the end and encode
+		if( Pattern.matches( "^" + createPrimitiveArray( arrayIdentifier ) + "$", className ) )
+		{
+			final String primitiveType = className.substring( className.length()-1 );
+			final int arrayDimension = className.length()-1;
+			for( int i = 0; i < arrayDimension; ++i )
+			{
+				buffer.append( encodedArrayIdentifier );
+			}
+			buffer.append( primitiveType );
+			
+		}
+		else if( Pattern.matches( "^" + createObjectArray( arrayIdentifier, VALID_NAME ) + "$", className ) )
+		{
+			final int arrayDimension = className.indexOf( "L" );
+			final String objectType = className.substring( arrayDimension );
+			for( int i = 0; i < arrayDimension; ++i )
+			{
+				buffer.append( encodedArrayIdentifier );
+			}
+			buffer.append( objectType );
+		}
+		return buffer.toString();
+	}
+
 	
 	/**
 	 * @return The diffuser ID string
@@ -563,10 +637,26 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		}
 		return buffer.toString();
 	}
+
+	private static String createPrimitiveArray( final String arrayIdentifier )
+	{
+		return "((" + Pattern.quote( arrayIdentifier ) + ")+[ZBCDFIJS])";
+	}
+	
+	private static String createObjectArray( final String arrayIdentifier, final String validName )
+	{
+		return "((" + Pattern.quote( arrayIdentifier ) + ")+[L])?(" + validName + "(\\." + validName + ")*)+";
+	}
+	
+	private static String createValidClassName( final String primitiveArray, final String objectArray )
+	{
+		return "(" + primitiveArray + "|" + objectArray + ")";
+	}
+
 	
 	public static void main( String[] args ) throws IllegalArgumentException
 	{
-		// parse
+//		// parse
 //		final String validName = "[a-zA-Z]+[\\w]*";
 //		final String primitiveArray = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[ZBCDFIJS]";
 //		final String objectArray = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[L]";
@@ -586,7 +676,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 //		
 ////		final Pattern pattern = Pattern.compile( "^" + argumentTypeList + "$" );
 //		final Pattern pattern = Pattern.compile( regex );
-//		Matcher matcher = pattern.matcher( "java.lang.String:concat([[[I,[[Ljava.lang.String)" );
+//		Matcher matcher = pattern.matcher( "java.lang.String:concat([I,[Ljava.lang.String,[I,[Zd)" );
 ////		Matcher matcher = pattern.matcher( "[[[I,[Ljava[I" );
 //		if( matcher.find() )
 //		{
@@ -611,8 +701,17 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 ////		System.out.println( "3a  " + DiffuserSignature.parse( "java.lang.String:concat();java.lang.Double" ).toString() );
 ////		System.out.println( "4   " + DiffuserSignature.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
 ////		System.out.println( "5   " + DiffuserSignature.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
-		System.out.println( "6   " + DiffuserSignature.parse( "java.lang.String:concat([I)" ).toString() );
-		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat([[Ljava.lang.String,[I)" ).toString() );
-		System.out.println( "8   " + DiffuserSignature.parse( "java.lang.String:concat([[Ljava.lang.String,[Idd)" ).toString() );
+		System.out.println( "6   " + DiffuserSignature.parse( "java.lang.String:concat(;I)" ).toString() );
+		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(;;Ljava.lang.String,;I)" ).toString() );
+		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(;I,;Z)" ).toString() );
+//		System.out.println( "8   " + DiffuserSignature.parse( "java.lang.String:concat([I,[[Ljava.lang.String,[I,[Z,[L)" ).toString() );
+		
+		Feed feed = Atom.createFeed( URI.create( "http://microtitan.org/diffusers/java.lang.String:concat(;;Ljava.lang.String,;I)-void" ), "test", Calendar.getInstance().getTime() );
+		System.out.println( feed.toString() );
+		
+		System.out.println( encodeArrayType( "[[[Ljava.lang.Double" ) + ", " + decodeArrayType( encodeArrayType( "[[[Ljava.lang.Double" ) ) );
+		System.out.println( encodeArrayType( "[Ljava.lang.Double" ) + ", " + decodeArrayType( encodeArrayType( "[Ljava.lang.Double" ) ) );
+		System.out.println( encodeArrayType( "[I" ) + ", " + decodeArrayType( encodeArrayType( "[I" ) ) );
+		System.out.println( encodeArrayType( "[Z" ) + ", " + decodeArrayType( encodeArrayType( "[Z" ) ) );
 	}
 }
