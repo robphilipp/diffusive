@@ -265,7 +265,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		buffer.append( methodName + ARGUMENT_OPEN );
 		for( int i = 0; i < argumentTypes.size(); ++i )
 		{
-			buffer.append( argumentTypes.get( i ) );
+			buffer.append( encodeType( argumentTypes.get( i ) ) );
 			if( i < argumentTypes.size()-1 )
 			{
 				buffer.append( ARGUMENT_SEPARATOR );

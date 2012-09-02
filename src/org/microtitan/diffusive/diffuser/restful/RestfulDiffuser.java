@@ -165,7 +165,6 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				{
 					message.append( Constants.NEW_LINE + "    " + endpoint.toString() );
 				}
-				message.append( "Multiple end-points means that the diffusers are making redundant calls" );
 
 				LOGGER.info( message.toString() );
 			}
