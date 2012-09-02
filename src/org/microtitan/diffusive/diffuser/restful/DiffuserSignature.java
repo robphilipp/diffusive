@@ -50,7 +50,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	public static final String ARGUMENT_OPEN = "(";
 	public static final String ARGUMENT_CLOSE = ")";
 	public static final String RETURN_TYPE_SEPARATOR = "-";
-	public static final String ENCODED_ARRAY_IDENTIFIER = "*";
+	public static final String ENCODED_ARRAY_IDENTIFIER = "!";
 	public static final String ARRAY_IDENTIFIER = "[";
 	
 	// regular expression for matching a parsing the diffusive signature
@@ -695,12 +695,12 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 ////		System.out.println( "3a  " + DiffuserSignature.parse( "java.lang.String:concat();java.lang.Double" ).toString() );
 ////		System.out.println( "4   " + DiffuserSignature.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
 ////		System.out.println( "5   " + DiffuserSignature.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
-		System.out.println( "6   " + DiffuserSignature.parse( "java.lang.String:concat(*I)" ).toString() );
-		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(**Ljava.lang.String,*I)" ).toString() );
-		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(*I,*Z)" ).toString() );
+		System.out.println( "6   " + DiffuserSignature.parse( "java.lang.String:concat(!I)" ).toString() );
+		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(!!Ljava.lang.String,!I)" ).toString() );
+		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(!I,!Z)" ).toString() );
 //		System.out.println( "8   " + DiffuserSignature.parse( "java.lang.String:concat([I,[[Ljava.lang.String,[I,[Z,[L)" ).toString() );
 		
-		Feed feed = Atom.createFeed( URI.create( "http://microtitan.org/diffusers/java.lang.String:concat(*Ljava.lang.String,*I)-void" ), "test", Calendar.getInstance().getTime() );
+		Feed feed = Atom.createFeed( URI.create( "http://microtitan.org/diffusers/java.lang.String:concat(!Ljava.lang.String,!I)-void" ), "test", Calendar.getInstance().getTime() );
 		System.out.println( feed.toString() );
 		
 		System.out.println( encodeType( "[[[Ljava.lang.Double" ) + ", " + decodeType( encodeType( "[[[Ljava.lang.Double" ) ) );
@@ -708,7 +708,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		System.out.println( encodeType( "[I" ) + ", " + decodeType( encodeType( "[I" ) ) );
 		System.out.println( encodeType( "[Z" ) + ", " + decodeType( encodeType( "[Z" ) ) );
 		
-		DiffuserSignature sig = DiffuserSignature.parse( "*Ljava.lang.String:concat(**Ljava.lang.String,*I,int,*Z)-*I" );
+		DiffuserSignature sig = DiffuserSignature.parse( "!Ljava.lang.String:concat(!!Ljava.lang.String,!I,int,!Z)-!I" );
 		System.out.println( sig.toString() );
 		System.out.println( sig.getArgumentTypes() );
 		System.out.println( sig.getClazz() + ", " + sig.getClassName() );
