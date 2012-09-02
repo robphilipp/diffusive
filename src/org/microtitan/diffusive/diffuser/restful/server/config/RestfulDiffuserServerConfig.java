@@ -24,7 +24,8 @@ public class RestfulDiffuserServerConfig {
 	// list of end-points that newly created diffuser will look to send their requests, if
 	// the list is empty, then the newly created diffusers will execute ALL requests locally,
 	// and not be able to diffuse them to other end-points if they are currently busy.
-	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList();
+	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.4:8182" );
+//	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList();
 	
 	// for diffusers created through calls to the server, this is the load threshold value.
 	// the threshold for CPU loads, above which the diffuser will send the tasks to a remote diffuser,
