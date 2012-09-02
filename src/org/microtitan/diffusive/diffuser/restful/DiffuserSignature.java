@@ -46,7 +46,27 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	public static final String ARGUMENT_OPEN = "(";
 	public static final String ARGUMENT_CLOSE = ")";
 	public static final String RETURN_TYPE_SEPARATOR = "-";
+	public static final String ARRAY_IDENTIFIER = "[";
 	
+	// regular expression for matching a parsing the diffusive signature
+	private static final String VALID_NAME = "[a-zA-Z]+[\\w]*";
+	private static final String PRIMITIVE_ARRAY = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[ZBCDFIJS]";
+	private static final String OBJECT_ARRAY = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[L]";
+	private static final String VALID_CLASS_NAME = "((" + PRIMITIVE_ARRAY + ")|((" + OBJECT_ARRAY + ")?(" + VALID_NAME + "(\\." + VALID_NAME + ")*)+))";
+	private static final String VALID_METHOD_NAME = VALID_NAME;
+	private static final String ARGUMENT_TYPE_LIST = "(" + VALID_CLASS_NAME + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + VALID_CLASS_NAME +")*)?";
+	private static final String RETURN_TYPE_CLASS_NAME = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + VALID_CLASS_NAME + ")?";
+	private static final String REGEX = "^" + 
+											VALID_CLASS_NAME + 
+											Pattern.quote( CLASS_METHOD_SEPARATOR )+ 
+											VALID_METHOD_NAME + 
+											Pattern.quote( ARGUMENT_OPEN ) +
+												ARGUMENT_TYPE_LIST +
+											Pattern.quote( ARGUMENT_CLOSE ) + 
+											RETURN_TYPE_CLASS_NAME +
+										 "$";
+	private static final Pattern REGEX_PATTERN = Pattern.compile( REGEX );
+
 	// for the hashCode method
 	private volatile int hashCode;
 
@@ -272,19 +292,6 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		
 		// attempt to URL encode the signature
 		return buffer.toString();
-//		String signature = buffer.toString();
-//		try
-//		{
-//			signature = URLEncoder.encode( signature, Constants.URL_ENCODING );
-//		}
-//		catch( UnsupportedEncodingException e )
-//		{
-//			final StringBuffer message = new StringBuffer();
-//			message.append( "Failded to URL encode the signature. Using raw signature specified." + Constants.NEW_LINE );
-//			message.append( "  Signature: " + signature );
-//			LOGGER.warn( message.toString(), e );
-//		}
-//		return signature;
 	}
 	
 	/**
@@ -369,7 +376,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * where the "{@code class}" is the fully qualified class name; the method is the name of the method;
 	 * the arguments are all the fully qualified class names of the argument; and the {@code returnType}
 	 * is the fully qualified class name of the return type (which could be {@code void.class}.
-	 * @param signature The signature
+	 * @param signature2 The signature
 	 * @return true if the specified signature is a valid signature; false otherwise
 	 */
 	public static boolean isValid( final String signature )
@@ -377,38 +384,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		boolean isValid = false;
 		if( signature != null && !signature.isEmpty() )
 		{
-			// attempt to decode the signature
-			String decodedSignature = signature;
-//			try
-//			{
-//				decodedSignature = URLDecoder.decode( signature, Constants.URL_ENCODING );
-//			}
-//			catch( UnsupportedEncodingException e )
-//			{
-//				final StringBuffer message = new StringBuffer();
-//				message.append( "Failded to URL decode the signature. Using raw signature specified." + Constants.NEW_LINE );
-//				message.append( "  Signature: " + decodedSignature );
-//				LOGGER.warn( message.toString(), e );
-//			}
-			
-			final String validName = "[a-zA-Z]+[\\w]*";
-			final String validClassName = validName + "(\\." + validName + ")*";
-			final String validMethodName = validName;
-			final String argumentTypeList = "(" + validClassName + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + validClassName +")*)*";
-			final String returnTypeClassName = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + validClassName + ")?";
-			final String regex = "^" + 
-									validClassName + 
-									Pattern.quote( CLASS_METHOD_SEPARATOR )+ 
-									validMethodName + 
-									Pattern.quote( ARGUMENT_OPEN ) +
-										argumentTypeList +
-									Pattern.quote( ARGUMENT_CLOSE ) + 
-									returnTypeClassName +
-								 "$";
-			
-			final Pattern pattern = Pattern.compile( regex );
-			Matcher matcher = pattern.matcher( decodedSignature );
-			isValid = matcher.find();
+			isValid = REGEX_PATTERN.matcher( signature ).matches();
 		}
 		return isValid;
 	}
@@ -425,58 +401,44 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 */
 	public static final synchronized DiffuserSignature parse( final String signature )
 	{
-		// attempt to decode the signature
-		String decodedSignature = signature;
-//		try
-//		{
-//			decodedSignature = URLDecoder.decode( signature, Constants.URL_ENCODING );
-//		}
-//		catch( UnsupportedEncodingException e )
-//		{
-//			final StringBuffer message = new StringBuffer();
-//			message.append( "Failded to URL decode the signature. Using raw signature specified." + Constants.NEW_LINE );
-//			message.append( "  Signature: " + decodedSignature );
-//			LOGGER.warn( message.toString(), e );
-//		}
-		
+		return parse( signature, true );
+	}
+	
+	/**
+	 * Parses the specified diffuser ID string into a {@link DiffuserSignature} object. The {@link Diffuser} ID 
+	 * is constructed as follows:<p>
+	 * {@code class:method(argument1,argument2,argument3,...,argumentN)-returnType}<p> 
+	 * where the "{@code class}" is the fully qualified class name; the method is the name of the method;
+	 * the arguments are all the fully qualified class names of the argument; and the {@code returnType}
+	 * is the fully qualified class name of the return type (which could be {@code void.class}.
+	 * @param signature The diffuser ID string representing the signature
+	 * @param isFirstPass true if this is first pass, which if fails, strips out the spaces and tries again
+	 * @return a {@link DiffuserSignature} object based on the specified diffuser ID string
+	 */
+	private static final synchronized DiffuserSignature parse( final String signature, boolean isFirstPass )
+	{
 		String className = null;
 		String methodName = null;
 		String returnClassName = null;
 		List< String > argumentTypes = null;
 		
 		// parse
-		final String validName = "[a-zA-Z]+[\\w]*";
-		final String validClassName = validName + "(\\." + validName + ")*";
-		final String validMethodName = validName;
-		final String argumentTypeList = "(" + validClassName + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + validClassName +")*)*";
-		final String returnTypeClassName = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + validClassName + ")?";
-		final String regex = "^" + 
-								validClassName + 
-								Pattern.quote( CLASS_METHOD_SEPARATOR )+ 
-								validMethodName + 
-								Pattern.quote( ARGUMENT_OPEN ) +
-									argumentTypeList +
-								Pattern.quote( ARGUMENT_CLOSE ) + 
-								returnTypeClassName +
-							 "$";
-		
-		final Pattern pattern = Pattern.compile( regex );
-		Matcher matcher = pattern.matcher( decodedSignature );
-		if( matcher.find() )
+		Matcher matcher = REGEX_PATTERN.matcher( signature );
+		if( matcher.matches() )
 		{
 			// grab the class name
-			matcher = Pattern.compile( "^" + validClassName ).matcher( decodedSignature );
+			matcher = Pattern.compile( "^" + VALID_CLASS_NAME ).matcher( signature );
 			matcher.find();
 			className = matcher.group();
 			
 			// grab the method name (we know at this point that we have at least "class:method"
-			matcher = Pattern.compile( "^" + validMethodName ).matcher( decodedSignature.split( Pattern.quote( CLASS_METHOD_SEPARATOR ) )[ 1 ] );
+			matcher = Pattern.compile( "^" + VALID_METHOD_NAME ).matcher( signature.split( Pattern.quote( CLASS_METHOD_SEPARATOR ) )[ 1 ] );
 			matcher.find();
 			methodName = matcher.group();
 			
 			// now parse out the argument types
-			final String argString = "^" + argumentTypeList + Pattern.quote( ARGUMENT_CLOSE );// + "$";
-			matcher = Pattern.compile( argString ).matcher( decodedSignature.split( Pattern.quote( ARGUMENT_OPEN ) )[ 1 ] );
+			final String argString = "^" + ARGUMENT_TYPE_LIST + Pattern.quote( ARGUMENT_CLOSE );
+			matcher = Pattern.compile( argString ).matcher( signature.split( Pattern.quote( ARGUMENT_OPEN ) )[ 1 ] );
 			matcher.find();
 			final String endString = matcher.group();
 			if( endString.equals( ARGUMENT_CLOSE ) )
@@ -489,28 +451,35 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 			}
 			
 			// now parse out the return type
-			final String[] returnTypes = decodedSignature.split( Pattern.quote( RETURN_TYPE_SEPARATOR ) );
+			final String[] returnTypes = signature.split( Pattern.quote( RETURN_TYPE_SEPARATOR ) );
 			if( returnTypes != null && returnTypes.length > 1 )
 			{
-				final String returnTypeString = "^" + validClassName + "$";
+				final String returnTypeString = "^" + VALID_CLASS_NAME + "$";
 				matcher = Pattern.compile( returnTypeString ).matcher( returnTypes[ 1 ] );
 				matcher.find();
 				returnClassName = matcher.group();
+			}
+			else
+			{
+				returnClassName = void.class.getName();
 			}
 		}
 		else
 		{
 			final StringBuffer message = new StringBuffer();
 			message.append( "Failed to parse signature: Invalid DiffuserId" + Constants.NEW_LINE );
-			message.append( "  Specified DiffuserId: " + decodedSignature );
-			try
+			message.append( "  Specified DiffuserId: " + signature + Constants.NEW_LINE );
+			message.append( "  Regex: " + REGEX + Constants.NEW_LINE );
+			if( isFirstPass )
 			{
-				final DiffuserSignature sig = DiffuserSignature.parse( decodedSignature.replaceAll( "\\s", "" ) );
-				message.append( Constants.NEW_LINE + "  Hint: try removing spaces from signature" + Constants.NEW_LINE );
-				message.append( "  Recommended DiffuserId: " + sig.getId() );
+				try
+				{
+					final DiffuserSignature sig = DiffuserSignature.parse( signature.replaceAll( "\\s", "" ), false );
+					message.append( Constants.NEW_LINE + "  Hint: try removing spaces from signature" + Constants.NEW_LINE );
+					message.append( "  Recommended DiffuserId: " + sig.getId() );
+				}
+				catch( IllegalArgumentException e ) {}
 			}
-			catch( IllegalArgumentException e ) {}
-			
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
@@ -595,16 +564,55 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		return buffer.toString();
 	}
 	
-	public static void main( String[] args )
+	public static void main( String[] args ) throws IllegalArgumentException
 	{
+		// parse
+//		final String validName = "[a-zA-Z]+[\\w]*";
+//		final String primitiveArray = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[ZBCDFIJS]";
+//		final String objectArray = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[L]";
+//		final String validClassName = "((" + primitiveArray + ")|((" + objectArray + ")?(" + validName + "(\\." + validName + ")*)+))";
+//		final String validMethodName = validName;
+//		final String argumentTypeList = "(" + validClassName + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + validClassName +")*)?";
+//		final String returnTypeClassName = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + validClassName + ")?";
+//		final String regex = "^" + 
+//								validClassName + 
+//								Pattern.quote( CLASS_METHOD_SEPARATOR )+ 
+//								validMethodName + 
+//								Pattern.quote( ARGUMENT_OPEN ) +
+//									argumentTypeList +
+//								Pattern.quote( ARGUMENT_CLOSE ) + 
+//								returnTypeClassName +
+//							 "$";
+//		
+////		final Pattern pattern = Pattern.compile( "^" + argumentTypeList + "$" );
+//		final Pattern pattern = Pattern.compile( regex );
+//		Matcher matcher = pattern.matcher( "java.lang.String:concat([[[I,[[Ljava.lang.String)" );
+////		Matcher matcher = pattern.matcher( "[[[I,[Ljava[I" );
+//		if( matcher.find() )
+//		{
+//			System.out.println( matcher.group() );
+//		}
+//		else
+//		{
+//			System.out.println( "not found" );
+//		}
+//		System.exit( 0 );
+		
+//		System.out.println( int[].class.getName() );
+//		System.out.println( int.class.getName() );
+//		System.out.println( String[].class.getName() );
 		DOMConfigurator.configure( "log4j.xml" );
 		Logger.getRootLogger().setLevel( Level.DEBUG );
-
-		System.out.println( "1   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
-		System.out.println( "2   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
-		System.out.println( "3   " + DiffuserSignature.parse( "java.lang.String:concat()" ).toString() );
-		System.out.println( "3a  " + DiffuserSignature.parse( "java.lang.String:concat();java.lang.Double" ).toString() );
-		System.out.println( "4   " + DiffuserSignature.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
-		System.out.println( "5   " + DiffuserSignature.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
+//
+//		System.out.println( "1   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
+//		System.out.println( "2   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
+//		System.out.println( "2a  " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String)-java.lang.Double" ).toString() );
+//		System.out.println( "3   " + DiffuserSignature.parse( "java.lang.String:concat()" ).toString() );
+////		System.out.println( "3a  " + DiffuserSignature.parse( "java.lang.String:concat();java.lang.Double" ).toString() );
+////		System.out.println( "4   " + DiffuserSignature.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
+////		System.out.println( "5   " + DiffuserSignature.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
+		System.out.println( "6   " + DiffuserSignature.parse( "java.lang.String:concat([I)" ).toString() );
+		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat([[Ljava.lang.String,[I)" ).toString() );
+		System.out.println( "8   " + DiffuserSignature.parse( "java.lang.String:concat([[Ljava.lang.String,[Idd)" ).toString() );
 	}
 }

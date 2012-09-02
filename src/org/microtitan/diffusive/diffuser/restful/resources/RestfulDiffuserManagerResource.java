@@ -34,8 +34,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
-import org.apache.abdera.model.Link;
-import org.apache.abdera.model.Text;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
@@ -266,8 +264,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 		
 		// create the atom feed
-//		final Feed feed = Atom.createFeed( diffuserUri, key, date, uriInfo.getBaseUri() );
-		final Feed feed = createAtomFeed( diffuserUri, key, date, uriInfo.getBaseUri() );
+		final Feed feed = Atom.createFeed( diffuserUri, key, date, uriInfo.getBaseUri() );
 
 		// create the response
 		final Response response = Response.created( diffuserUri )
@@ -302,8 +299,7 @@ public class RestfulDiffuserManagerResource {
 		if( diffusers.containsKey( signature ) )
 		{
 			// create the atom feed
-//			final Feed feed = Atom.createFeed( diffuserUri, signature, date, uriInfo.getBaseUri() );
-			final Feed feed = createAtomFeed( diffuserUri, signature, date, uriInfo.getBaseUri() );
+			final Feed feed = Atom.createFeed( diffuserUri, signature, date, uriInfo.getBaseUri() );
 			
 			// create the response
 			response = Response.created( diffuserUri )
@@ -315,8 +311,7 @@ public class RestfulDiffuserManagerResource {
 		}
 		else
 		{
-//			final Feed feed = Atom.createFeed( diffuserUri, signature, date, uriInfo.getBaseUri() );
-			final Feed feed = createAtomFeed( diffuserUri, signature, date, uriInfo.getBaseUri() );
+			final Feed feed = Atom.createFeed( diffuserUri, signature, date, uriInfo.getBaseUri() );
 
 			response = Response.created( diffuserUri )
 							   .status( Status.BAD_REQUEST )
@@ -487,8 +482,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 		
 		// create the atom feed and add an entry that holds the result ID and the request ID
-//		final Feed feed = Atom.createFeed( resultUri, resultId.getResultId(), date, uriInfo.getBaseUri() );
-		final Feed feed = createAtomFeed( resultUri, resultId.getResultId(), date, uriInfo.getBaseUri() );
+		final Feed feed = Atom.createFeed( resultUri, resultId.getResultId(), date, uriInfo.getBaseUri() );
 		
 		final Entry resultIdEntry = Atom.createEntry( resultUri, RESULT_ID, date );
 		resultIdEntry.setContent( resultId.getResultId() );
@@ -678,8 +672,7 @@ public class RestfulDiffuserManagerResource {
 				serializer.serialize( object, output );
 				
 				// create the atom feed
-//				final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
-				final Feed feed = createAtomFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
+				final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
 				
 				// create an entry for the feed and set the results as the content
 				final Entry entry = Atom.createEntry();
@@ -712,8 +705,7 @@ public class RestfulDiffuserManagerResource {
 		// not in cache
 		else
 		{
-//			final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
-			final Feed feed = createAtomFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
+			final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
 
 			final Entry entry = Atom.createEntry();
 			entry.setId( requestId );
@@ -745,8 +737,7 @@ public class RestfulDiffuserManagerResource {
 		final Date date = new Date();
 		
 		// create the atom feed
-//		final Feed feed = Atom.createFeed( baseUri, "get-diffuser-list", date, baseUri );
-		final Feed feed = createAtomFeed( baseUri, "get-diffuser-list", date, baseUri );
+		final Feed feed = Atom.createFeed( baseUri, "get-diffuser-list", date, baseUri );
 
 		// add an entry for each diffuser
 		for( String key : diffusers.keySet() )
@@ -795,8 +786,7 @@ public class RestfulDiffuserManagerResource {
 			KeyedDiffuserRepository.getInstance().removeDiffuser( signature );
 			
 			// create the atom feed
-//			final Feed feed = Atom.createFeed( diffuserUri, "delete-diffuser", date );
-			final Feed feed = createAtomFeed( diffuserUri, "delete-diffuser", date );
+			final Feed feed = Atom.createFeed( diffuserUri, "delete-diffuser", date );
 			
 			// create the response
 			response = Response.created( diffuserUri )
@@ -809,8 +799,7 @@ public class RestfulDiffuserManagerResource {
 		else
 		{
 			// create the atom feed
-//			final Feed feed = Atom.createFeed( diffuserUri, "error-delete-diffuser", date );
-			final Feed feed = createAtomFeed( diffuserUri, "error-delete-diffuser", date );
+			final Feed feed = Atom.createFeed( diffuserUri, "error-delete-diffuser", date );
 
 			// create the error response
 			response = Response.created( diffuserUri )
@@ -904,42 +893,6 @@ public class RestfulDiffuserManagerResource {
 		}
 	}
 	
-	/**
-	 * Creates an Atom feed based on the specified information. Use this instead of {@link Atom#createFeed(URI, String, Date, URI)}
-	 * because the {@link Atom} version decodes the URI and then there are illegal characters.
-	 * @param resourceUri The URI of the resource
-	 * @param signature The signature (or key) of the resource
-	 * @param date The creation date
-	 * @return A newly generator feed.
-	 */
-	private static Feed createAtomFeed( final URI resourceUri, final String signature, final Date date )
-	{
-		return createAtomFeed( resourceUri, signature, date, null );
-	}
-	
-	/**
-	 * Creates an Atom feed based on the specified information. Use this instead of {@link Atom#createFeed(URI, String, Date, URI)}
-	 * because the {@link Atom} version decodes the URI and then there are illegal characters.
-	 * @param resourceUri The URI of the resource
-	 * @param signature The signature (or key) of the resource
-	 * @param date The creation date
-	 * @param generatorUri The URI of the generator of this feed
-	 * @return A newly generator feed.
-	 */
-	private static Feed createAtomFeed( final URI resourceUri, final String signature, final Date date, final URI generatorUri )
-	{
-		final Feed feed = Atom.createFeed();
-		feed.addLink( resourceUri.toASCIIString(), Link.REL_SELF );
-		feed.setId( signature );
-		feed.setTitle( signature, Text.Type.TEXT );
-		feed.setUpdated( date );
-		if( generatorUri != null )
-		{
-			feed.setGenerator( generatorUri.toASCIIString(), Atom.VERSION, Atom.GENERATOR_NAME );
-		}
-		return feed;
-	}
-
 	/**
 	 * An entry used by the map of diffusers that contains the {@link Diffuser} and the list of class path end-points.
 	 *  
