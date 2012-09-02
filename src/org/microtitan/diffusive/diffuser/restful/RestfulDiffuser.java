@@ -242,8 +242,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 								message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
 								message.append( "  Serializer: " + serializer.getClass().getName() + Constants.NEW_LINE );
 								
-								LOGGER.error( message.toString() );
-								throw new IllegalArgumentException( message.toString() );
+								LOGGER.error( message.toString(), e );
+								throw new IllegalArgumentException( message.toString(), e );
 							}
 						}
 						

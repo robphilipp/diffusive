@@ -92,7 +92,29 @@ public class LocalDiffuser extends AbstractDiffuser {
 			message.append( "Diffuser is unable to invoke the method on the object:" + Constants.NEW_LINE );
 			message.append( "  Diffuser: " + LocalDiffuser.class.getName() + Constants.NEW_LINE );
 			message.append( "  Class of Object to Run: " + object.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Name of Method to Run: " + methodName );
+			message.append( "  Name of Method to Run: " + methodName + Constants.NEW_LINE );
+			message.append( "  Method Arguments: " );
+			if( params != null )
+			{
+				for( Class< ? > param : params )
+				{
+					message.append( Constants.NEW_LINE + "    " + param.getName() );
+				}
+			}
+			else
+			{
+				message.append( "[none]" );
+			}
+			message.append( Constants.NEW_LINE + "  Return Type: " );
+			if( returnType != null )
+			{
+				message.append( returnType.getName() );
+			}
+			else
+			{
+				message.append( "void" );
+			}
+			message.append( Constants.NEW_LINE + "  Containing Object: " + object.toString() );
 			LOGGER.error( message.toString(), e );
 			
 			throw new IllegalArgumentException( message.toString(), e );
