@@ -145,6 +145,7 @@ Finally, it is important to emphasize that it is the \emph{marking} principle an
 \subsection{Layered}
 The layered topology is the simplest, and most similar to many distributed middleware solutions. In this topology, the diffuser collocated with the application, which we will call the \emph{application-attached diffuser}, is connected to a set of end-points, which we call the \emph{remote diffusers}. The application-attached diffuser, depending on the specifics of its configuration, is responsible for distributing the tasks to the the remote diffusers. The remote diffusers execute the task and return the results to the application-attached diffuser, which returns the results to the application\footnote{In the discussion about the reference implementation, \emph{Diffusive}, I'll provide details on how these steps can be implemented.}. 
 
+\subsubsection{Single Layered}
 Figure \ref{fig:topology_single_layer} shows the simplest topology---a single layered diffuser network. In this figure, the circles label with \textbf{D} are \emph{diffusers}, the square at the bottom label with \textbf{A} is the application containing the methods to be diffused. In this topology, the application-attached diffuser is responsible for distributing the tasks to the remote diffusers. The remote diffusers execute their assigned task and return the result to the application-attached diffuser, which then returns it to the application.
 
 \begin{figure}[htbp]
@@ -154,9 +155,10 @@ Figure \ref{fig:topology_single_layer} shows the simplest topology---a single la
 \end{center}
 \end{figure}
 
-Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at this point that any implementation must address the strategy used to distribute the tasks amongst the diffusers---local and remote. The reference implementation \emph{Diffusive} provides a \textsf{Strategy} interface that can be implemented to provide a specific strategy based on load, number of executing threads, weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance characteristics of the diffusive network.
+Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at this point that any implementation must address the strategy used to distribute the tasks amongst the diffusers---local and remote. The reference implementation \emph{Diffusive} provides a \textsf{Strategy} interface that can be implemented to provide a specific strategy based on CPU load, number of executing threads, weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance characteristics of the diffusive network.
 
-A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is  shown in figure \ref{fig:topology_multi_layer}. If the implementation of the diffusive principles allows nested method \emph{marking}, this topology allows tasks to be diffused that, themselves, contain subtasks. One example where such a network topology would be far more suitable than a single layered topology is when the task, itself, is composed of multiple independent subtasks that each produce a large amount of data which the task combines. Allowing the diffusers in the first layer to perform the combining (averaging, summation, etc) before returning the result to the application-attached diffuser alleviates the application-attached diffuser from become overloaded with the tasks of combining a many large sets of data. 
+\subsubsection{Multi-Layered}
+A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is  shown in figure \ref{fig:topology_multi_layer}. Implementations of the diffusive principles that allow nested method \emph{marking} allow tasks to be diffused that, themselves, contain subtasks that are to be diffused. This type of topology can dramatically improve the performance of calculations that can be represented as tasks of subtasks. An illustrative example is a calculation that is composed of a set of independent calculations, where each of these independent calculations are themselves composed of a set of independent calculations. 
 
 \begin{figure}[htbp]
 \begin{center}
@@ -165,7 +167,13 @@ A natural extension of the single-layered diffuser pattern is a multi-layered di
 \end{center}
 \end{figure}
 
-This type of topology can dramatically improve the performance such calculations. However, this network topology is only an improvement \textit{if} nested method marking is supported\footnote{The reference implementation, \emph{Diffusive}, does not yet support nested diffusion. However, it is on the list of future work, and will be implemented.}. 
+As more concrete example, suppose that we want to calculate the expected losses due to borrower default for a large mortgage portfolio using a Monte Carlo simulation. The calculation of expected loss for each mortgage is independent, and therefore the expected loss for each mortgage can be easily distributed. Additionally, for each mortgage we want to calculate the loss over a large number of scenarios from which we calculate the expected loss\footnote{Assume that the scenarios are generated according to some distribution, and so the expectation value is the weighted-average of the loss along each scenario in the distribution.}. The loss for each scenario can be calculated independently, and se we can distribute the scenario calculations as well. 
+
+We can think of this as \emph{nested} distribution. The loss calculation for each mortgage can be thought of as a task. And each task is distributed to a remote location for execution. Each task, however, is composed of subtasks--the calculation of loss for each scenario--and these subtasks are further distributed to remote locations for execution. This approach is illustrated in figure \ref{fig:topology_multi_layer}.
+
+In diffusive programming, we would \emph{mark} the methods representing the tasks, and we would also \emph{mark} the methods representing the subtasks. Because the tasks are marked, they are diffused to a remote diffuser. When the remote diffuser executes the task, it comes across the \emph{marked} subtasks, and therefore diffuses the subtasks further.
+
+%In this example, we would mark the expected loss calculation so that this calculation for each mortgage is diffused (which represents the first layer in figure \ref{fig:topology_multi_layer}). Each of these diffused tasks would also contain a marked method for calculating the loss for a given scenario, which would cause the individual scenarios to be diffused. The results from the scenarios would then be averaged, which would complete the expected loss calculation for a mortgage and returned.
 
 %The topology depicted on the left-hand side of the figure simply provides the diffusers in the first layer additional diffusers to which to diffuse tasks in the event that their load is too high. The utility of such a network is questionable because it would usually be more efficient to simply add the second-layer diffusers to the first layer. However, if the implementation of the diffusive principle allowed nested method \emph{marking} then such a network design could be used to distribute tasks that contained subtasks requiring post processing. However, in practice this is difficult to implement in a generic manner, and therefore, is not part of the reference implementation.
 
@@ -252,6 +260,7 @@ The \textsf{PersistenceSerializer} wraps the \href{http://freezedried.sourceforg
 
 % best-efforts failure resolution
 \subsection{Best-Efforts Failure Resolution\label{sec:best_efforts_failure_resolution_ref_impl}}
+The \emph{Diffusive} reference implementation uses the concept of a \textsf{Strategy} to determine to which diffuser a method is diffused. The current \textsf{Strategy} interface requires that a \textsf{Strategy} return a list of end-points to which the method can be diffused. An implementation of best-efforts failure resolution can be achieved by creating a RESTful diffuser that diffuses its method to the first end-point in the list, and if that fails to the next end-point, until the task completes, or until the diffuser runs out of end-points.
 
 % generic computation
 \subsection{Generic Computation\label{sec:generic_computation}}
@@ -315,12 +324,13 @@ Each diffuser contains a list of end-points to which it can diffuse code, a list
 % Future work
 %
 \section{Future Work\label{sec:future_work}}
+The current reference implementation is a work in progress. The main goal for creating a reference implementation was to prove that the concepts of \emph{diffusive programming} could be implemented, with an eye toward building a robust, secure, and accessible implementation. Given that, there are a number of items that need further exploration and development.
+
 \begin{enumerate}
-\item Nested diffusion
-\item Deployment options: into servlet container, etc
-\item RMI diffusers
-\item Deployment and management tools (because RESTful, can build javascript UI to interact, map, and manage diffusers).
-\item Tools to start/stop the resources (this may be taken care of by deploying into Tomcat?)
+\item Add best-efforts failure resolution to the RESTful diffuser.
+\item Provide additional deployment options (for example, into a servlet container).
+\item Create additional diffusers beside RESTful diffusers (for example, RMI diffusers).
+\item Create deployment and management tools that allow easy deployment of diffusive servers and allows starting and stopping the diffusive server. Also, allows the management of the diffusers.
 \end{enumerate}
 
 
