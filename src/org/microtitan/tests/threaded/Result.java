@@ -1,6 +1,10 @@
 package org.microtitan.tests.threaded;
 
-public class Result {
+import java.io.Serializable;
+
+public class Result implements Serializable {
+
+	private static final long serialVersionUID = -2534181021265355337L;
 
 	private final int id;
 	private final int numLoops;

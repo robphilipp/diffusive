@@ -1,11 +1,14 @@
 package org.microtitan.tests.threaded;
 
+import java.io.Serializable;
 import java.util.concurrent.Callable;
 
 import org.microtitan.diffusive.annotations.Diffusive;
 
-public class Task implements Callable< Result > {
+public class Task implements Callable< Result >, Serializable {
 	
+	private static final long serialVersionUID = 9046316268426010492L;
+
 	private final int id;
 	private final int numInnerLoops;
 	
