@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+	<meta charset=utf-8>
+	<link rel="stylesheet" type="text/css" href="diffusive.css"/>
+
+	<!-- Code Syntax Highlighting -->
+	<script type="text/javascript" src="scripts/syntax_highlight/shCore.js"></script>
+	<script type="text/javascript" src="scripts/syntax_highlight/shBrushJava.js"></script>
+	<script type="text/javascript" src="scripts/syntax_highlight/shBrushXml.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shCore.css" />
+	<link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shThemeEclipse.css" />
+
+	<title>Diffusive</title>
+</head>
+
+<body>
+<body>
+
+<header>
+	<img src="images/web_banner.png">
+</header>
+
+<nav>
+	<a href="overview_guide.html">Overview</a> | 
+	<a href="quick_start.html">Quick Start</a> |
+	<a href="javadocs/index.html" target="tab">Java Docs</a> |
+	<a href="https://sourceforge.net/p/freezedried/code/" target="tab">Code (hg)</a> |
+	<a href="https://sourceforge.net/projects/freezedried/files/" target="tab">Downloads</a> |
+	<a href="https://sourceforge.net/p/freezedried/wiki/Home/" target="tab">Wiki</a> |
+	<a href="https://sourceforge.net/p/freezedried/tickets/" target="tab">Tickets</a> |
+	<a href="https://sourceforge.net/p/freezedried/discussion/" target="tab">Discussion</a>
+</nav>
+
+<div id="toc">
+<p class="overview_toc">Contents</p>
+	<ul class="overview_toc_list">
+		<li><a href="#overview">Overview</a></li>
+		<li><a href="#introduction">Introduction</a></li>
+		<li><a href="#principles_of_diffusive_programming">Diffusive Principles</a>
+			<ul class="overview_toc_list">
+				<li><a href="#the_principles">The Principles</a></li>
+				<li><a href="#marking">Marking</a></li>
+				<li><a href="#location_hiding">Location Hiding</a></li>
+				<li><a href="#failure_resolution">Failure Resolution</a></li>
+				<li><a href="#generic_computation">Generic Computation</a></li>
+				<li><a href="#indistinguishability">Indistinguishability</a></li>
+				<li><a href="#open_topology">Open Topology</a></li>
+			</ul>
+		</li>
+		<li><a href="#diffusion_patterns">Diffusion Patterns</a>
+			<ul class="overview_toc_list">
+				<li><a href="#layered">Layered</a></li>
+			</ul>
+		</li>
+	</ul>
+</div>
+
+<article>
+<h2 id="overview"><a href="#overview">Overview</a></h2>
+<p>The goal of <b>Diffusive Programming</b> is to make task-oriented distributed computing easier by separating 
+the execution logic from the distribution logic. <em>Diffusive programming</em>, defined by a set of six principles, 
+is an approach for performing method-level, task-oriented distributed computing. In <em>diffusive programming</em>, 
+any method can be <em>marked</em> for distribution, regardless of its signature. And <em>marking</em> a method is 
+necessary and sufficient for its execution to be distributed. Distribution of tasks occurs through a network of nodes 
+that can accept tasks and execute them, or forward them on. Nodes executing a task, load the required resources as needed, 
+and cache them. The topology of the network of nodes can be anything that can be represented as a directed graph. 
+Topologies can be tailored to solve specific problems. <em>Diffusive</em> is a Java reference implementation of the 
+six principles that define <em>diffusive programming</em>.</p>
+
+<h2 id="introduction"><a href="#overview">Introduction</a></h2>
+<p>Task-oriented distributed computing allows independent computational tasks to be distributed to multiple computing nodes, 
+presumably to execute in parallel. This approach can reduce the overall compute time of a set of independent tasks. For 
+example, in quantitative finance, one may desire to calculate risk metrics for each financial instrument contained in a 
+large portfolio. When the calculation of the desired risk metrics for each instrument is independent of the calculation 
+for all other instruments, the risk metrics of each instrument can be calculated independently. In this case, we can speed 
+up the risk metrics calculation for the portfolio by spreading these independent tasks over many compute nodes at once, 
+and then collecting the results.</p>
+
+<p>Typically this type of distribution is performed by a distribution middleware. In many cases, the application makes calls to 
+the middleware's application programming interface (API). The computational task may be represented by an object whose class 
+implements an interface that represents a <em>compute task</em> as defined by the middleware. Including middleware API calls in the 
+application code couples the application to the middleware. And more concerning, the application is now polluted with code used to 
+distribute execution to remote compute nodes. Clearly, with careful design, much of that distribution logic can be hidden behind 
+wrappers that allow the application logic to interact with an abstract compute engine, instead. And, the compute engine could be 
+implemented to execute locally or remotely. But even this approach doesn't overcome the constraints imposed by the requirement 
+that computational tasks implement a specific interface.</p>
+
+<p>Distribution middleware may also require deployment of certain resources (dynamic libraries, class files, etc) to the 
+compute nodes <em>before</em> they can execute remote requests. This requires careful synchronization of versioned resources. 
+And this renders the compute nodes generic, only insofar as the required resources have been deployed to that node.</p>
+
+<p><em>Diffusive programming</em> is based on a set of six principles intended to facilitate the development of task-oriented 
+distributed applications. it is an approach for performing task-oriented distributed computing that allows the execution of 
+individual methods to be distributed. Any method can be distributed, regardless of its signature. And aside from specifying 
+that a method is to be distributed, no further code changes are required. Furthermore, <em>Diffusive programming</em> allows 
+the application code to define the execution logic (i.e. the order and concurrency of the execution threads) without having 
+to explicitly implement how tasks are distributed---the implementation of the <em>diffusive programming</em> principles 
+manages the distribution of <em>marked</em> methods.
+
+<p>The next section, <a href="#principles_of_diffusive_programming">Principles of Diffusive Programming</a>, provides a 
+concise version of the principles and defines additional terms used throughout the rest of the paper. The subsections that 
+follow the list of principles describe each principle in more detail. With the principles defined 
+and explained, section <a href="#diffusion_patterns">Diffusion Patterns</a>, puts forth a few network 
+topologies, or patterns, that are possible through diffusive programming. And section 
+<a href="#reference_implementation">Reference Implementation</a>,  describes <em>Diffusive</em>, the Java reference 
+implementation of the <em>diffusive programming principles</em>. Finally, section <a href="#future_work">Future Work</a>, 
+presents future work to be done on diffusive.</p>
+
+<!-- 
+
+	Principles of Diffusive Programming
+
+ -->
+<h2 id="principles_of_diffusive_programming"><a href="#overview">Principles of Diffusive Programming</a></h2>
+<em>Diffusive programming</em> is based on six principles that define a framework for performing task-oriented 
+distributed computing. The six principles are ordered. They build on each other, progressing from the action of 
+distributing the code to the deployment and configuration of the computation nodes.
+
+<!-- 
+	The Principles
+ -->
+<h3 id="the_principles"><a href="#overview">The Principles</a></h3>
+<dl>
+	<!-- marking, diffusive -->
+	<dt>Marking</dt>
+	<dd>
+		A method can be marked for remote execution. The act of <em>marking</em>, alone, is 
+		sufficient and necessary for a method to be executed on a remote location and have the results returned.
+		
+		<p class="definition"><em>Definition</em>: A <b>diffusive method</b> is a method that has been <em>marked</em>.</p>
+	</dd>
+	
+
+	<!-- location opaquenes -->
+	<dt>Location Hiding</dt>
+	<dd>
+		Code calling a <em>diffusive</em> method does not, and can not, know on which 
+		resource that method was executed. This helps keep code <em>cohesive</em> by removing distribution logic 
+		from the application. 
+	
+		<p class="definition"><em>Definition</em>: A <b>diffuser</b> is what executes a <em>diffusive</em> method.</p>
+	
+		<p class="definition"><em>Definition</em>: A <b>diffused method</b> is a <em>diffusive</em> method that was 
+		executed by a <em>diffuser</em>.</p>
+	</dd> 
+	
+	<!-- failure hiding -->
+	<dt>Best-Efforts Failure Resolution</dt>
+	<dd>
+		A <em>diffuser</em> will attempt to recover from a 
+		<em>diffusive failure</em>. If the <em>diffuser</em> is unable to recover, it will transfer error 
+		handling to a specified handler or report the error as a local error.
+	
+		<p class="definition"><em>Definition</em>: A <b>diffusive failure</b> is a the failure of a remote 
+		<em>diffuser</em> to execute a <em>diffusive</em> method, or the loss of connectivity to a remote 
+		<em>diffuser</em>.</p>
+		
+	</dd>
+	
+	<!-- generic computation engine -->
+	<dt>Generic Computation</dt>
+	<dd>
+		Any <em>diffusive</em> method can be executed by any <em>diffuser</em>. A <em>diffuser</em> need not 
+		be configured with resources prior to the request to execute a method.
+	</dd>
+	
+	<!-- indistinguishablity -->
+	<dt>Indistinguishability</dt>
+	<dd>
+		A <em>diffuser</em> is responsible for executing any <em>diffusive</em> method, and it is also responsible 
+		for <em>diffusing</em> methods to other <em>diffusers</em>. This implies that a <em>diffuser</em> must be 
+		able to act both as a client and and as a server.
+	</dd>
+	
+	<!-- open topology -->
+	<dt>Open Topology</dt>
+	<dd>
+		<em>Diffusers</em> can be connected in any topology that can represented as a directed graph. Each node 
+		in the directed graph represents a <em>diffuser</em>. Each directed edge represents a connection from one 
+		<em>diffuser</em> to another. The direction of the edge represents the direction of the <em>diffusion</em>. 
+		And, each <em>diffuser</em> may contains connections to a set of other <em>diffusers</em>. 
+	
+		<p class="definition"><em>Definition</em>: A <b>diffuser network</b> is a set of connected <em>diffusers</em>.</p>
+	
+		<p class="definition"><em>Definition</em>: Suppose we have two <em>diffusers</em>, <b><em>A</em></b> and <b><em>B</em></b>. We say 
+		that <b><em>B</em></b> is an <b>end-point</b> of <b><em>A</em></b>, if <b><em>A</em></b> <em>diffuses</em> methods to 
+		<b><em>B</em></b>.</p>
+	</dd>
+</dl>
+
+The following subsections describe each principle in more detail, and where applicable, how that principle 
+differs from more typical or traditional methods of distributed computing.
+
+<!-- 
+	Marking
+ -->
+<h3 id="marking"><a href="#overview">Marking</a></h3>
+<p><em>Diffusive programming</em> allows the execution of individual methods to be distributed. <em>Marking</em> a 
+method is the act of specifying that a specific method is to be distributed. How a method is <em>marked</em> is 
+up to the implementation of this principle. However, this principle does state that the act of <em>marking</em> a 
+method is necessary and sufficient for the method to be distributed. This means that <em>any</em> method can be 
+marked, and, therefore, executed, regardless of its name, parameters, or return type. This is a departure from 
+many typical task-orient approaches that require the implementation of task interfaces, where the method to be 
+executed has a defined signature (and return type).</p>
+
+<p>The way a method is marked, to become a <em>diffusive</em> method, depends on the implementation of this principle. 
+For example, the reference implementation written in Java currently uses annotations to mark methods. However, it 
+could just as easily allow the fully qualified method names to be specified in a configuration file instead.</p>
+
+<p>The act of marking a method decouples the distribution logic from the application logic. And this leads us to the 
+next principle: location hiding.</p>
+
+<!-- 
+	Location Hiding
+ -->
+<h3 id="location_hiding"><a href="#overview">Location Hiding</a></h3>
+<p><em>Marking</em> a method tells the diffusive framework that that method is to be executed in a distributed manner. 
+But it is the principle of <em>location hiding</em> that places the requirement that any code calling a diffusive method 
+does not know, or need to know, where that method is executed. Removing the responsibility of knowing or having to deal 
+with the consequences of where the method is executed relieves the calling code of any responsibility regarding 
+distribution. And this allows the application code to remain cohesive. It also means that the same code can be called 
+in a distributed manner, or to run completely locally with any change to the application logic.</p>
+
+<p>In typical distributed systems, the distribution logic must be called directly from the application code. This may 
+occur by calling low level application programming interfaces (API) such as in MPI, or writing task classes that implement 
+interfaces defined by the distribution framework, and then modifying application code to deliver these tasks to the 
+middleware.</p>
+
+<p>Location hiding allows code to be endowed with its execution logic, and that execution logic is then automatically 
+mirrored, but in a distributed manner, simply by marking the method(s). When this is coupled with the next principle, 
+<em>generic computation</em>, we have a powerful and simple mechanism to distribute computation.</p>
+
+<!-- 
+	Best-Efforts Failure Resolution
+ -->
+<h3 id="failure_resolution"><a href="#overview">Best-Efforts Failure Resolution</a></h3>
+<p>A task that is called and executed completely within a local address space (for example, code running 
+entirely in one process). may fail to return a result. The failure may occur because an input or logic error, and 
+in this case, it may be possible to trap and handle the error condition. In other cases, the failure may occur 
+because of an unanticipated bug\footnote{As opposed to the anticipated bug.} or because the server crashed. Under 
+these conditions it may not be possible to trap and handle the error condition, and the entire application may 
+crash or become unresponsive. In both scenarios, however, the fact that there was a failure is known because it due to
+either the code trapping the error, or the user because the application crashed.</p>
+
+<p>The situation may be quite different when a task is called from one address space and executed in another. 
+For example, suppose the application-attached diffuser diffuses a method to a remote diffuser. Now suppose further 
+that the task fails to execute because of an input or logic error. If the remote diffuser traps the error, it could 
+return an error condition which is return, and again trapped by the application-attached diffuser, and handled as in 
+the non-distributed case. However, suppose instead that the input or logic error isn't trapped, or if there is a 
+bug that causes the task to crash, or if the server crashes, or if the network connection goes down. In this case, 
+the application-attached diffuser waits for the result, but doesn't receive one. Yet, the application-attached diffuser 
+doesn't know if the task is still executing, or if there was a failure.</p>
+
+<p>The <em>best efforts failure resolution</em> principle requires that the application doesn't see a difference between 
+a purely local and a distributed failure. The diffuser making the request is expected to perform its best to recover 
+from a <em>diffusive failure</em>, and if it can't, then it reports the error. For example, diffusers could provide a 
+status service that responds if the diffuser is running and accessible. If the requesting diffuser finds that the status 
+of the remote server is down, then it diffuses the method to a different diffuser. It may attempt to send the task to a 
+different diffuser a configured-number of times before giving up and reporting an error.</p>
+
+<!-- 
+	Generic Computation
+ -->
+<h3 id="generic_computation"><a href="#overview">Generic Computation</a></h3>
+<p>The principle of <em>generic computation</em> provides that any method can be executed on a <em>diffuser</em> 
+without out the need to deploy the resource needed to execute that diffused method. Simply put, the shared object 
+libraries or classes don't need to be deployed to the remote server prior to making the request. Each <em>diffuser</em> 
+must contain a mechanism for providing resources to remote locations and for loading resources from a remote location.</p>
+
+<p>In typical distributed computing, required resources must be deployed to the remote servers prior to requesting remote 
+execution of a specific task. Diffusive programming removes this restriction by requiring that the mechanism which 
+distributes the method execution also provides a capability to deliver the required resources to execute the method.</p>
+
+<p>Note that, however, this does not prevent users from deploying resources to a common location from which they can be 
+obtained at run-time. Under certain deployment scenarios, it may be desirable to have such a common location to provide a 
+centralized control over the versions. But even in this case, the resources need only be deployed to the one common area.</p>
+
+<!-- 
+	Indistinguishability
+ -->
+<h3 id="indistinguishability"><a href="#overview">Indistinguishability</a></h3>
+<p>The principle of <em>indistinguishability</em> means that a <em>diffuser</em> must be able to receive requests to 
+execute, and at the same time be able to <em>diffuse</em> (forward) those requests to another <em>diffuser</em>. In other 
+words, there isn't such a thing as a client diffuser and a server diffuser: they are one and the same.</p>
+
+<p>The <em>generic computation</em> principle alluded to this principle of <em>indistinguishability</em>. The generic 
+computation principle states that a diffuser must be able to load resources from a remote diffusers, <b>and</b> at the 
+same time must be able to provide resources to a remote diffuser.</p>
+
+<!-- 
+	Open Topology
+ -->
+<h3 id="open_topology"><a href="#overview">Open Topology</a></h3>
+<p>The <em>open topology</em> principle, coupled with the <em>indistinguishability</em> principle, requires that it is 
+possible to create networks of <em>diffusers</em>, called <em>diffuser networks</em>, in any topology that can be 
+represented as a directed graph. Each node in the directed graph represents a <em>diffuser</em>, and each (directed) 
+edge connects that <em>diffuser</em> to an <em>end-point</em>, which is another <em>diffuser</em>. Any network that 
+can be represented by a directed graph can be constructed.</p>
+
+<p>This principle allows the construction of networks tailored to solve specific or general problems, networks that 
+can naturally learn/discover an optimal configuration for performing certain types of tasks, or networks that contain 
+sufficient redundancy to provide execution within required timelines. Section \ref{sec:diffusion_patterns}, 
+<em>\nameref{sec:diffusion_patterns}</em>, describes a few possible network topologies (patterns) that are designed 
+to solve specific problems.</p>
+
+
+<!-- 
+
+	Diffusion Patterns
+
+ -->
+<h2 id="diffusion_patterns"><a href="#overview">Diffusion Patterns</a></h2>
+<p><em>Diffusion patterns</em> are made possible by the last three diffusive programming principles: generic computing; 
+indistinguishability, and open topology. Together, these three principles make the statement that <em>diffusers</em> 
+form building blocks that can be connected as directed graphs. The principle of <em>open topology</em> requires that 
+a diffuser be connected to zero or more end-points to which it can diffuse execution of a method. The principle of 
+<em>indistinguishability</em> states that each end-point, itself, must be a diffuser. This means that that diffuser 
+itself is connected to zero or more other end-points. And, therefore, it can receive tasks as well as diffuse them. 
+Finally, the principle of <em>generic computing</em> requires that a diffuser be able to receive (and send) resources 
+needed to execute a task, allowing tasks to be diffused to other nodes dynamically and executed.</p>
+
+<p>Because any diffuser network that can be represented as a directed graph is possible to construct, there are an 
+infinite number of patters in which these networks can be constructed. And furthermore, their dynamic nature also 
+allows the networks to evolve over time. In the next subsections I describe three illustrative patterns that solve 
+specific problems.</p>
+
+<p>Finally, it is important to emphasize that it is the <em>marking</em> principle and the <em>location hiding</em> 
+principle that require the diffusive framework to provide a mechism for intercepting <em>marked</em> method calls and 
+handing them to the (local) diffuser assigned to the application. It is that (local) diffuser that then takes care of 
+diffusing the execution of the <em>marked</em> method to other remote diffusers for execution. Therefore, all the 
+topologies have this characteristic in common.</p>
+
+<!-- 
+	Layered
+ -->
+<h3 id="layered"><a href="#overview">Layered</a></h3>
+<p>The layered topology is the simplest, and most similar to many distributed middleware solutions. In this topology, 
+the diffuser collocated with the application, which we will call the <em>application-attached diffuser</em>, is connected 
+to a set of end-points, which we call the <em>remote diffusers</em>. The application-attached diffuser, depending on 
+the specifics of its configuration, is responsible for distributing the tasks to the the remote diffusers. The remote 
+diffusers execute the task and return the results to the application-attached diffuser, which returns the results to 
+the application\footnote{In the discussion about the reference implementation, <em>Diffusive</em>, I'll provide details 
+on how these steps can be implemented.}.</p> 
+
+<h4 id="single_layered"><a href="#overview">Single Layered</a></h4>
+<p>The figure below shows the simplest topology---a single layered diffuser network. In this figure, the circles label with 
+<b><em>D</em></b> are <em>diffusers</em>, the square at the bottom label with <b><em>A</em></b> is the application containing 
+the methods to be diffused. In this topology, the application-attached diffuser is responsible for distributing the tasks 
+to the remote diffusers. The remote diffusers execute their assigned task and return the result to the application-attached 
+diffuser, which then returns it to the application.</p>
+
+<p class="image">
+	<img src="images/topology_single_layer.png" title="Single Layer Diffuser Network Topology"/>
+</p>
+
+Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at this point that any implementation must address the strategy used to distribute the tasks amongst the diffusers---local and remote. The reference implementation <em>Diffusive</em> provides a \textsf{Strategy} interface that can be implemented to provide a specific strategy based on CPU load, number of executing threads, weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance characteristics of the diffusive network.
+
+<h4 id="multi_layered"><a href="#overview">Multi-Layered</a></h4>
+\subsubsection{Multi-Layered}
+A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is  shown in figure \ref{fig:topology_multi_layer}. Implementations of the diffusive principles that allow nested method <em>marking</em> allow tasks to be diffused that, themselves, contain subtasks that are to be diffused. This type of topology can dramatically improve the performance of calculations that can be represented as tasks of subtasks. An illustrative example is a calculation that is composed of a set of independent calculations, where each of these independent calculations are themselves composed of a set of independent calculations. 
+
+<p class="image">
+	<img src="images/topology_multi_layer.png" title="Multi-Layer Diffuser Network Topologies"/>
+</p>
+
+As more concrete example, suppose that we want to calculate the expected losses due to borrower default for a large mortgage portfolio using a Monte Carlo simulation. The calculation of expected loss for each mortgage is independent, and therefore the expected loss for each mortgage can be easily distributed. Additionally, for each mortgage we want to calculate the loss over a large number of scenarios from which we calculate the expected loss\footnote{Assume that the scenarios are generated according to some distribution, and so the expectation value is the weighted-average of the loss along each scenario in the distribution.}. The loss for each scenario can be calculated independently, and se we can distribute the scenario calculations as well. 
+
+We can think of this as <em>nested</em> distribution. The loss calculation for each mortgage can be thought of as a task. And each task is distributed to a remote location for execution. Each task, however, is composed of subtasks--the calculation of loss for each scenario--and these subtasks are further distributed to remote locations for execution. This approach is illustrated in figure \ref{fig:topology_multi_layer}.
+
+In diffusive programming, we would <em>mark</em> the methods representing the tasks, and we would also <em>mark</em> the methods representing the subtasks. Because the tasks are marked, they are diffused to a remote diffuser. When the remote diffuser executes the task, it comes across the <em>marked</em> subtasks, and therefore diffuses the subtasks further.
+
+</article>
+ 
+</body>
+</html> 
+
+                                                                                  
+
+
