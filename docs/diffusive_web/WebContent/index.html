@@ -41,17 +41,27 @@
 		<li><a href="#principles_of_diffusive_programming">Diffusive Principles</a>
 			<ul class="overview_toc_list">
 				<li><a href="#the_principles">The Principles</a></li>
-				<li><a href="#marking">Marking</a></li>
-				<li><a href="#location_hiding">Location Hiding</a></li>
-				<li><a href="#failure_resolution">Failure Resolution</a></li>
-				<li><a href="#generic_computation">Generic Computation</a></li>
-				<li><a href="#indistinguishability">Indistinguishability</a></li>
-				<li><a href="#open_topology">Open Topology</a></li>
+				<li><a href="#marking_principle">Marking</a></li>
+				<li><a href="#location_hiding_principle">Location Hiding</a></li>
+				<li><a href="#failure_resolution_principle">Failure Resolution</a></li>
+				<li><a href="#generic_computation_principle">Generic Computation</a></li>
+				<li><a href="#indistinguishability_principle">Indistinguishability</a></li>
+				<li><a href="#open_topology_principle">Open Topology</a></li>
 			</ul>
 		</li>
 		<li><a href="#diffusion_patterns">Diffusion Patterns</a>
 			<ul class="overview_toc_list">
 				<li><a href="#layered">Layered</a></li>
+				<li><a href="#redundant">Redundant</a></li>
+				<li><a href="#learning">Learning</a></li>
+			</ul>
+		</li>
+		<li><a href="#reference_implementation">Reference Implementation</a>
+			<ul class="overview_toc_list">
+				<li><a href="#marking_and_diffusing">Marking and Diffusing</a></li>
+				<li><a href="#best_efforts_failure_resolution">Failure Resolution</a></li>
+				<li><a href="#generic_computation">Generic Computation</a></li>
+				<li><a href="#indistinguishability_and_open_topology">Indistinguishability and Open Topology</a></li>
 			</ul>
 		</li>
 	</ul>
@@ -196,7 +206,7 @@ differs from more typical or traditional methods of distributed computing.
 <!-- 
 	Marking
  -->
-<h3 id="marking"><a href="#overview">Marking</a></h3>
+<h3 id="marking_principle"><a href="#overview">Marking</a></h3>
 <p><em>Diffusive programming</em> allows the execution of individual methods to be distributed. <em>Marking</em> a 
 method is the act of specifying that a specific method is to be distributed. How a method is <em>marked</em> is 
 up to the implementation of this principle. However, this principle does state that the act of <em>marking</em> a 
@@ -215,7 +225,7 @@ next principle: location hiding.</p>
 <!-- 
 	Location Hiding
  -->
-<h3 id="location_hiding"><a href="#overview">Location Hiding</a></h3>
+<h3 id="location_hiding_principle"><a href="#overview">Location Hiding</a></h3>
 <p><em>Marking</em> a method tells the diffusive framework that that method is to be executed in a distributed manner. 
 But it is the principle of <em>location hiding</em> that places the requirement that any code calling a diffusive method 
 does not know, or need to know, where that method is executed. Removing the responsibility of knowing or having to deal 
@@ -235,7 +245,7 @@ mirrored, but in a distributed manner, simply by marking the method(s). When thi
 <!-- 
 	Best-Efforts Failure Resolution
  -->
-<h3 id="failure_resolution"><a href="#overview">Best-Efforts Failure Resolution</a></h3>
+<h3 id="failure_resolution_principle"><a href="#overview">Best-Efforts Failure Resolution</a></h3>
 <p>A task that is called and executed completely within a local address space (for example, code running 
 entirely in one process). may fail to return a result. The failure may occur because an input or logic error, and 
 in this case, it may be possible to trap and handle the error condition. In other cases, the failure may occur 
@@ -263,7 +273,7 @@ different diffuser a configured-number of times before giving up and reporting a
 <!-- 
 	Generic Computation
  -->
-<h3 id="generic_computation"><a href="#overview">Generic Computation</a></h3>
+<h3 id="generic_computation_principle"><a href="#overview">Generic Computation</a></h3>
 <p>The principle of <em>generic computation</em> provides that any method can be executed on a <em>diffuser</em> 
 without out the need to deploy the resource needed to execute that diffused method. Simply put, the shared object 
 libraries or classes don't need to be deployed to the remote server prior to making the request. Each <em>diffuser</em> 
@@ -280,7 +290,7 @@ centralized control over the versions. But even in this case, the resources need
 <!-- 
 	Indistinguishability
  -->
-<h3 id="indistinguishability"><a href="#overview">Indistinguishability</a></h3>
+<h3 id="indistinguishability_principle"><a href="#overview">Indistinguishability</a></h3>
 <p>The principle of <em>indistinguishability</em> means that a <em>diffuser</em> must be able to receive requests to 
 execute, and at the same time be able to <em>diffuse</em> (forward) those requests to another <em>diffuser</em>. In other 
 words, there isn't such a thing as a client diffuser and a server diffuser: they are one and the same.</p>
@@ -292,7 +302,7 @@ same time must be able to provide resources to a remote diffuser.</p>
 <!-- 
 	Open Topology
  -->
-<h3 id="open_topology"><a href="#overview">Open Topology</a></h3>
+<h3 id="open_topology_principle"><a href="#overview">Open Topology</a></h3>
 <p>The <em>open topology</em> principle, coupled with the <em>indistinguishability</em> principle, requires that it is 
 possible to create networks of <em>diffusers</em>, called <em>diffuser networks</em>, in any topology that can be 
 represented as a directed graph. Each node in the directed graph represents a <em>diffuser</em>, and each (directed) 
@@ -345,37 +355,280 @@ the application\footnote{In the discussion about the reference implementation, <
 on how these steps can be implemented.}.</p> 
 
 <h4 id="single_layered"><a href="#overview">Single Layered</a></h4>
-<p>The figure below shows the simplest topology---a single layered diffuser network. In this figure, the circles label with 
+<p>The <a href="#figure_single_layered">figure below</a> shows the simplest topology---a single layered diffuser network. In this figure, the circles label with 
 <b><em>D</em></b> are <em>diffusers</em>, the square at the bottom label with <b><em>A</em></b> is the application containing 
 the methods to be diffused. In this topology, the application-attached diffuser is responsible for distributing the tasks 
 to the remote diffusers. The remote diffusers execute their assigned task and return the result to the application-attached 
 diffuser, which then returns it to the application.</p>
 
-<p class="image">
+<p class="image" id="figure_single_layered">
 	<img src="images/topology_single_layer.png" title="Single Layer Diffuser Network Topology"/>
 </p>
 
-Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at this point that any implementation must address the strategy used to distribute the tasks amongst the diffusers---local and remote. The reference implementation <em>Diffusive</em> provides a \textsf{Strategy} interface that can be implemented to provide a specific strategy based on CPU load, number of executing threads, weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance characteristics of the diffusive network.
+<p>Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at 
+this point that any implementation must address the strategy used to distribute the tasks amongst the 
+diffusers---local and remote. The reference implementation <em>Diffusive</em> provides a <b class="class">Strategy</b> 
+interface that can be implemented to provide a specific strategy based on CPU load, number of executing threads, 
+weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance 
+characteristics of the diffusive network.</p>
 
 <h4 id="multi_layered"><a href="#overview">Multi-Layered</a></h4>
-\subsubsection{Multi-Layered}
-A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is  shown in figure \ref{fig:topology_multi_layer}. Implementations of the diffusive principles that allow nested method <em>marking</em> allow tasks to be diffused that, themselves, contain subtasks that are to be diffused. This type of topology can dramatically improve the performance of calculations that can be represented as tasks of subtasks. An illustrative example is a calculation that is composed of a set of independent calculations, where each of these independent calculations are themselves composed of a set of independent calculations. 
+<p>A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is 
+shown in the <a href="#figure_multi_layered">figure below</a>. Implementations of the diffusive principles that allow nested method 
+<em>marking</em> allow tasks to be diffused that, themselves, contain subtasks that are to be diffused. This type of 
+topology can dramatically improve the performance of calculations that can be represented as tasks of subtasks. An 
+illustrative example is a calculation that is composed of a set of independent calculations, where each of these 
+independent calculations are themselves composed of a set of independent calculations.</p> 
 
-<p class="image">
+<p class="image" id="figure_multi_layered">
 	<img src="images/topology_multi_layer.png" title="Multi-Layer Diffuser Network Topologies"/>
 </p>
 
-As more concrete example, suppose that we want to calculate the expected losses due to borrower default for a large mortgage portfolio using a Monte Carlo simulation. The calculation of expected loss for each mortgage is independent, and therefore the expected loss for each mortgage can be easily distributed. Additionally, for each mortgage we want to calculate the loss over a large number of scenarios from which we calculate the expected loss\footnote{Assume that the scenarios are generated according to some distribution, and so the expectation value is the weighted-average of the loss along each scenario in the distribution.}. The loss for each scenario can be calculated independently, and se we can distribute the scenario calculations as well. 
+<p>As more concrete example, suppose that we want to calculate the expected losses due to borrower default for a large 
+mortgage portfolio using a Monte Carlo simulation. The calculation of expected loss for each mortgage is independent, 
+and therefore the expected loss for each mortgage can be easily distributed. Additionally, for each mortgage we want 
+to calculate the loss over a large number of scenarios from which we calculate the expected loss. (Assume that 
+the scenarios are generated according to some distribution, and so the expectation value is the weighted-average of the 
+loss along each scenario in the distribution.) The loss for each scenario can be calculated independently, and se we 
+can distribute the scenario calculations as well.</p> 
 
-We can think of this as <em>nested</em> distribution. The loss calculation for each mortgage can be thought of as a task. And each task is distributed to a remote location for execution. Each task, however, is composed of subtasks--the calculation of loss for each scenario--and these subtasks are further distributed to remote locations for execution. This approach is illustrated in figure \ref{fig:topology_multi_layer}.
+<p>We can think of this as <em>nested</em> distribution. The loss calculation for each mortgage can be thought of as a 
+task. And each task is distributed to a remote location for execution. Each task, however, is composed of subtasks--the 
+calculation of loss for each scenario--and these subtasks are further distributed to remote locations for execution. 
+This approach is illustrated in the <a href="#figure_multi_layered">multi-layered topology figure</a>.</p>
 
-In diffusive programming, we would <em>mark</em> the methods representing the tasks, and we would also <em>mark</em> the methods representing the subtasks. Because the tasks are marked, they are diffused to a remote diffuser. When the remote diffuser executes the task, it comes across the <em>marked</em> subtasks, and therefore diffuses the subtasks further.
+<p>In diffusive programming, we would <em>mark</em> the methods representing the tasks, and we would also <em>mark</em> 
+the methods representing the subtasks. Because the tasks are marked, they are diffused to a remote diffuser. When the 
+remote diffuser executes the task, it comes across the <em>marked</em> subtasks, and therefore diffuses the subtasks 
+further.</p>
+
+<!-- 
+	Redundant
+ -->
+<h3 id="redundant"><a href="#overview">Redundant</a></h3>
+<p>In distributed computing it is not uncommon that a task fails to complete. A compute node may have crashed or 
+lost network connectivity with the collective. Or some mysterious set of events placed the execution of the task 
+in an unusual, never-to-be-repeated-until-a-demo state that prevented its completion. In cases where the completion 
+of each individual task is required to occur at least once in a given time period, we could send redundant tasks to 
+different compute nodes, and use the first result from each individual task to come back.</p>
+
+<p>The principles of <em>generic computation</em> and <em>location hiding</em> mean the the implementation of the 
+diffusive principles hides this from the application. The application configuration would be the only change to the 
+application's execution. Furthermore, it turns out that this redundancy is quite straight forward to implement 
+through the user of the <b class="class">Strategy</b> interface. By having the <b class="class">Strategy</b> return a 
+set of endpoints, rather than a single one, the same tasks can be sent to all the end-points in a set. The first 
+result to return is passed to the application, and the rest are either ignored, or cancelled.</p>
+
+<!-- 
+	Learning
+ -->
+<h3 id="learning"><a href="#overview">Learning</a></h3>
+<p>Not all servers are created equal. For purposes of distributed computing, I focus on three important differences:</p>
+<ul>
+	<li>Execution capacity</li>
+	<li>File input-output (I/O) capacity</li>
+	<li>Network I/O capacity</li>
+</ul>
+
+<p>Execution capacity describes the available processing capacity of the server. (I am referring to a physical 
+server in these examples. However, the arguments apply equally as well if the servers are virtualized, but roughly 
+guarantee a certain execution capacity.) All else equal, servers with a higher processor and core count will provide 
+higher execution capacity. Clearly there are many other factors that determine the execution capacity of a server. And, 
+therefore, when distributing execution tasks, having information about the execution capacity of a server helps determine 
+the optimal amount of work to distribute to that server relative to other servers.</p> 
+
+<p>As an oversimplified example, suppose that you have two servers available to which tasks can be sent: server <b><em>A</em></b> 
+and server <b><em>B</em></b>. If the server <b><em>A</em></b> has four processors and server <b><em>B</em></b> has only one 
+processor, then if the servers are otherwise the same, you would expect  that server <b><em>A</em></b> can process about 
+four times as much work as server <b><em>B</em></b>. If the tasks involve writing a large amount of data to a distributed 
+data base, then it may be necessary to consider differences in the servers' file I/O or network I/O capacity when 
+determining the optimal distribution of tasks.</p>
+
+<p>To account for the differences in the capacity of a server to perform tasks, one can use a <b class="class">Strategy</b> 
+that takes in to account weighting factors assigned to each server. These weighting factors would be configured to represent 
+the capacity of the node to perform specific sets of tasks. And the <b class="class">Strategy</b> would select servers for 
+tasks based on their weighting. For example, if server <b><em>A</em></b> had four processors and server <b><em>B</em></b> 
+has only one processor, we may configure server <b><em>A</em></b>'s weight to be four, and server <b><em>B</em></b>'s 
+weight to be 1. The <b classs="class">Strategy</b> would use these weights to send about for times as many tasks, on average, 
+to server <b><em>A</em></b> than to the server <b><em>B</em></b>.</p>
+
+<p>The assignment of these relative weights to each server can be automated in cases where the same type of processing is 
+performed repeatedly. This type of automation can be achieved through the use of a <b class="class">Strategy</b> that 
+adjusts the weights and the logs them. Once the overall execution of the process is complete, the application-attached 
+diffuser makes an associate of the overall execution time (possibly scaled to the number of similar tasks) with those 
+weights. The next time the process is run, <b class="class">Strategy</b> uses this information---weight-to-server 
+assignments and the execution time of that combination---to again adjust the weighting factors according to some 
+optimization algorithm.</p>
+
+
+<!-- 
+
+	Reference Implementation
+
+ -->
+<h2 id="reference_implementation"><a href="#overview">Reference Implementation</a></h2>
+<p>The <em>Diffusive</em> reference implementation is a Java-based framework that implements the <em>diffusive</em> 
+principles. Aspects of <em>Diffusive</em> are specific to its implementation, and could be implemented in other ways. 
+For example, in <em>Diffusive</em> methods are <em>marked</em> through the use of annotations. In particular, a 
+<em>diffusive</em> method is annotated with \textsf{@Diffusive}. However, it would have been possible to allow 
+methods to be marked through a configuration file that holds a list of <em>markers</em> represented by their 
+fully qualified method names\footnote{For example, the fully qualified method name could be represented by the 
+fully qualified class name with the method name appended with a &quot;.&quot;., such as 
+<b class="class">org.myapp.calc.PriceCalc.calculate</b>.}. These aspects only change the specifics of how a 
+<em>diffusive</em> framework implements the principles, but not how it behaves.</p>
+
+<p>In the next sections I discuss how <em>Diffusive</em> framework implements the five diffusive principles.</p>
+
+<!-- 
+	Marking and Diffusing
+ -->
+<h3 id="marking_and_diffusing"><a href="#overview">Marking and Diffusing</a></h3>
+<p>The diffusive principle, <em>marking</em>, requires that a method is somehow identified as a 
+<em>diffusive method</em>. It further requires that <em>marking</em> a method is both sufficient and necessary for 
+a method to be diffused. The <em>location hiding</em> principle takes it a step further by requiring that any 
+application method calling a diffusive (marked) method does not, and can not, know where that method is being executed.</p>
+
+<!-- 
+	Launching and Instrumentation
+ -->
+<h4 id="launching_and_instrumentation"><a href="#overview">Launching and Instrumenting</a></h4>
+<p><em>Diffusive</em> accomplishes this through a combination of annotations and load-time byte-code engineering. 
+The annotations are simple: any method that is to be diffused is annotated with \textsf{@Diffusive}. This signals 
+the class-loader that any calls to this method should be replaced with a call to a diffuser that has already been 
+configured to replace marked method calls with calls to the diffuser instead and hands the diffuser information 
+about the method call. (Particularly, and at a minimum, the diffuser needs to know the name of the method, it's parameter 
+types and values, its return type, and the name of the class that containing it.) To accomplish this <em>Diffusive</em> uses the byte-code 
+engineering framework <a href="http://www.jboss.org/javassist/">Javassist</a>. (Some have pointed out that another 
+approach would have been to use aspect-oriented programming frameworks such as AspectJ. However, the compact Javassist 
+framework provides everything <em>Diffusive</em> needs.)</p>
+
+<p>In order to replace marked methods during class-loading, the application classes must be loaded through the diffusive 
+class loader (<b class="class">DiffusiveLoader</b>). This is accomplished by using an application launcher, called the 
+diffusive launcher (<b class="class">DiffusiveLauncher</b>). The diffusive launcher accepts the name of the application's 
+Java class, creates a diffusive class loader, and asks it to run the application. The diffusive loader reads the 
+configuration items, sets up the application-attached diffuser to which marked method calls are diverted, and determines 
+whether a class is loaded by the application's class loader and which are passed to the Javassist <b class="class">Loader</b>.</p>
+
+<p class="image" id="figure_diffusive_launcher">
+	<img src="images/diffusive_launcher.png" title="Launching an application in Diffusive"/>
+</p>
+
+<p>The above <a href="#figure_diffusive_launcher">figure</a> illustrates launching an application in <em>Diffusive</em>. 
+At the top of the figure is a box labeled &quot;Application&quot; which represents the unadulterated application. The light 
+blue dot in that box represents a method call to the red dot. The red dot represents a <em>marked</em> method. The 
+application passes through the launcher and into the loader. The <b class="class">DiffusiveLoader</b> sets up the 
+repository holding the default diffuser, reads the configuration items, creates an \emph{application-attached} diffuser, 
+and hands the application to the Javassist <b class="class">Loader</b> to instrument the application. The tan box labeled 
+&quot;Application&quot; in the lower-right hand side of the figure represents the instrumented, or modified, application. 
+Notice that now, all the method calls to the <em>marked</em> method are diverted to the <em>application-attached</em> 
+diffuser, which contains the required mechanism to execute that method. It is the application-attached diffuser, the 
+green circle on the bottom left-hand side of the figure, that is responsible for distributing the method execution. 
+It is important to point out that the original application code is untouched.</p>
+
+<!-- 
+	Distributing
+ -->
+<h4 id="distributing"><a href="#overview">Distributing</a></h4>
+The <em>application-attached</em> diffuser is responsible for distributing method calls to other diffusers, or depending on its configuration and load, executing the method itself. By default <em>Diffusive</em> uses a <em>RESTful</em> diffuser (<b class="class">RestfulDiffuser</b>) that adheres to the \href{http://jsr311.java.net}{JSR-311} standard\footnote{\url{http://jsr311.java.net}}, and uses the \href{http://jersey.java.net}{Apache Jersey}\footnote{\url{http://jersey.java.net}} implementation. Although <em>Diffusive</em> uses a RESTful diffuser by default, any diffuser implementation can be used to provide the required functionality. In fact, <em>Diffusive</em> also comes with a local diffuser that runs the code locally\footnote{Using \emph{Diffusive's} local diffuser directly is inefficient. Unless you are using the local diffuser for testing the diffusive framework through a local debugger, using the local diffuser directly means that you aren't diffusing the code. In which case, it doesn't make sense to use <em>Diffusive</em> in the first place. The local diffuser only exists because it is used by the RESTful diffuser when it executes a method locally rather than distribute it.}.
+
+The RESTful diffuser must be configured with a set of <em>end-points</em> to which it can diffuse method execution. These end-points, themselves, must contain a RESTful diffuser. And the access to the diffuser must be accomplished through a some sort of a software server. <em>Diffusive</em> provides a RESTful diffuser server (<b class="class">RestfulDiffuserServer</b>) that contains an \href{http://grizzly.java.net}{Apache Grizzly}\footnote{\url{http://grizzly.java.net}} web server configured to interact with a \href{http://docs.oracle.com/javaee/6/tutorial/doc/giepu.html}{JAX-RS}\footnote{JAX-RS implements JSR-311, providing an implementation for developing RESTful web services in Java. For more information, visit \url{http://docs.oracle.com/javaee/6/tutorial/doc/giepu.html}.} web resource (<b class="class">RestfulDiffuserManagerResource</b>).
+
+Within the context of the RESTful diffuser server, there is one RESTful diffuser for each diffusive method. In other words, each unique diffusive method signature\footnote{A diffusive method signature contains the name of the containing class, the method name, the method's formal argument types, and the return type. This is different from a Java signature, which contains only the method name and the formal argument types.} has its own diffuser, accessible via the web resource (<b class="class">RestfulDiffuserManagerResource</b>) through its uniform resource identifier (URI). The web resource manages the creation, querying, calling, and deletion of its diffusers by responding to requests from the calling diffuser. And each diffuser is a resource with a unique address. For example, a new diffuser is created through an \texttt{HTTP POST} call containing the required information about the diffusive method signature. Obtaining information about a diffuser is accomplished through an \texttt{HTTP GET} call to its URI. To execute a method, an \texttt{HTTP POST} is called on the URI of the diffuser, passing along the information needed to execute the method. The execute method returns an ID (link) to the results resource\footnote{Hypermedia as the engine of application state (HATEOAS).}. The result can then be obtained through an \texttt{HTTP GET} call to the URI of that result, which blocks until the result is complete. Alternatively, the status of the result can be obtained through an \texttt{HTTP HEAD} call to the URI of the result, which is non-blocking, and returns an empty response if the result resource is not yet available. And, finally, a diffuser can be deleted through an \texttt{HTTP DELETE} call to its URI.
+
+To facilitate development, <em>Diffusive</em> provides a RESTful client (<b class="class">RestfulDiffuserManagerClient</b>) that takes care of the underlining communication, serializing/deserializing, creating requests, and parsing responses. This client allows developers to deal only with Java objects.
+
+<!-- 
+	Distribution Strategy
+ -->
+<h4 id="distribution_strategy"><a href="#overview">Distribution Strategy</a></h4>
+Diffusers decide how to distribute the method calls based on a strategy (<b class="class">Strategy</b>). A <b class="class">Strategy</b> simply returns a list of end-points when requested. In most cases, the list returned by the <b class="class">Strategy</b> contains only one element. However, to allow for redundant diffuser networks, the <b class="class">Strategy</b> interface allows the return of a list of end-points. <b class="class">Strategy</b> implementations can take into account various aspects that affect the optimal distribution of method calls. For example, a <b class="class">Strategy</b> implementation may take into account the load on its server, the number of diffusers executing, the number of threads available for execution, and weighting factors for individual end-points.
+
+<!-- 
+	Distribution Strategy
+ -->
+<h4 id="serialization"><a href="#overview">Serialization</a></h4>
+In order to execute a method remotely, the remote execution environment needs certain information. Specifically, the execution environment needs:
+\begin{enumerate}
+\item The state of the object against which the method call was made.
+\item All the arguments to the method.
+\end{enumerate}
+To transfer that information to the remote diffuser, across the network, they must be serialized. Likewise, once execution is completed, the return object must be serialized and returned to the original diffuser.
+
+When the remote execution environment receives these serialized objects, it must reconstruction them as Java objects. And to reconstruct serialized objects requires Java <b class="class">Class</b> objects corresponding each of the serialized objects. The <b class="class">Class</b> objects are effectively the templates used to reconstruct an object. In section \ref{sec:generic_computation} (\nameref{sec:generic_computation}), we discuss how the remote environment gets access to these <b class="class">Class</b> objects without the need to deploy them prior to execution.
+
+<em>Diffusive</em> provides an interface, <b class="class">Serializer</b>, that defines what a serializer must provide to <em>Diffusive</em>. Two key serialization implementations have been wrapped to conform to the <b class="class">Serializer</b> interface: <b class="class">ObjectSerializer</b> and <b class="class">PersistenceSerializer</b>. The <b class="class">ObjectSerializer</b> is Java's own serialization framework which requires that classes implement the <b class="class">Serializable</b> interface. Using this serialization framework requires altering existing classes, that are to be serialized, if they don't implement <b class="class">Serializable</b>. In some cases this may be acceptable. In other cases it may not be possible.
+
+The <b class="class">PersistenceSerializer</b> wraps the \href{http://freezedried.sourceforge.net}{FreezeDry} persistence framework\footnote{\url{http://freezedried.sourceforge.net}}. FreezeDry does not require any classes to implement a FreezeDry-specific interface. In fact, FreezeDry can take any existing class (even those without no-arg constructors) and serialize them into XML, JSON, or key-value pairs. However, if the class is too complex, it may require some coding.
+
+<!-- 
+	Best-Efforts Failure Resolution
+ -->
+<h3 id="best_efforts_failure_resolution"><a href="#overview">Best-Efforts Failure Resolution</a></h3>
+The <em>Diffusive</em> reference implementation uses the concept of a <b class="class">Strategy</b> to determine to which diffuser a method is diffused. The current <b class="class">Strategy</b> interface requires that a <b class="class">Strategy</b> return a list of end-points to which the method can be diffused. An implementation of best-efforts failure resolution can be achieved by creating a RESTful diffuser that diffuses its method to the first end-point in the list, and if that fails to the next end-point, until the task completes, or until the diffuser runs out of end-points.
+
+<!-- 
+	Best-Efforts Failure Resolution
+ -->
+<h3 id="generic_computation"><a href="#overview">Generic Computation</a></h3>
+The <em>Generic Computation</em> principle requires two that two conditions are met: that any method can be diffused; and, prior deployment of resources is not required. The first condition is met because of the <em>Marking</em> principle---any marked method can be diffused. The second condition is the focus of this section.
+
+As discussed in section \ref{sec:serialization}, \nameref{sec:serialization}, in order to transport objects across the network they must be serialized. This means that to execute a diffusive method remotely requires that the following objects must be serialized:
+\begin{enumerate}
+\item The object containing the diffusive method.
+\item All objects referenced by the object containing the diffusive method.
+\item The objects passed to the diffusive method as arguments.
+\item All objects referenced by the objects passed to the diffusive method as arguments.
+\end{enumerate}
+Once these serialized objects are received by the remote diffuser, it needs to deserialize them back into objects. To deserialize any object requires that the class loader has loaded a <b class="class">Class</b> object corresponding to that object (and any objects that object references). Usually, this is handled by deploying the class files (as jar or war files) to the remote servers executing the methods, and configuring their class paths to contain their location.
+
+The <em>Generic Computation</em> principle states that deployment of resources to the remote nodes does not need to occur <em>before</em> requesting the remote diffuser to execute a method. In practical terms, this principle requires that the remote diffuser contains a mechanism for loading classes from a remote source, and that a mechanism exists, preferably on the application-attached diffuser, that can provide serialized <b class="class">Class</b> objects to the remote diffuser. 
+
+<em>Diffusive</em> provides a RESTful class loader (<b class="class">RestfulClassLoader</b>) that can load classes from a corresponding RESTful web service. The <b class="class">RestfulClassPathResource</b> is a (JSR-311) web resource, attached to the web service, that provides serialized <b class="class">Class</b> objects to the requesting client (i.e. the <b class="class">RestfulClassLoader</b>). 
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[scale=1.1]{diffusing}
+\caption{Process of diffusing a method call}
+\label{fig:diffusing}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:diffusing} shows the process of creating, configuring, and executing a task using <em>Diffusive</em>. In this figure, the application requests that its <em>application-attached</em> diffuser\footnote{Recall that Javassist is used to redirect calls to methods that were annotated with \textsf{@Diffusive} to the application-aftached diffuser.}, which is labeled as \textsf{Diffuser 1} in the figure, execute the task labeled <b class="class">Task</b>. In this scenario, \textsf{Diffuser 1} decides to diffuse the task to one of its end-points, \textsf{Remote Server A}. If the remote server doesn't contain a diffuser that matches the diffusive method signature of <b class="class">Task</b>, then, as shown in step 1 of figure \ref{fig:diffusing}, \textsf{Diffuser 1} requests that \textsf{Remote Server A} create a diffuser with that signature, which is shown as \textsf{Diffuser 2}. In order to execute <b class="class">Task</b>, \textsf{Diffuser 2} needs to load the <b class="class">Class</b> objects associated with <b class="class">Task</b>. And because \textsf{Diffuser 1} has those <b class="class">Class</b> objects, it passes the URI corresponding to the web service that can provide those <b class="class">Class</b> objects, along with its request to create \textsf{Diffuser 2}.
+
+As shown in step 2 of figure \ref{fig:diffusing}, \textsf{Remote Server A} then creates \textsf{Diffuser 2} and configures it with the class path information and other configuration items, and returns URI to \textsf{Diffuser 2}, the newly created diffuser. \textsf{Diffuser 1} now requests that \textsf{Diffuser 2} execute <b class="class">Task</b> (step 3). As part of that request, \textsf{Diffuser 1} passes all the required serialized object along with the execute request. \textsf{Diffuser 2} receives that request, tries to deserialize the objects, but can't because it doesn't have access to the <b class="class">Class</b> objects associated with <b class="class">Task</b>. And so \textsf{Diffuser 2} initiates a call back to the class path URI requesting the <b class="class">Class</b> objects (step 4).
+
+\textsf{Diffuser 1} sends the serialized <b class="class">Class</b> objects requested back to \textsf{Diffuser 2} (step 5), and \textsf{Diffuser 2} loads the <b class="class">Class</b> objects, which enables it to deserialized the objects associated with <b class="class">Task</b>. Now \textsf{Diffuser 2} is set up to execute the <b class="class">Task</b>, which it does (step 6), and returns a result ID. The result ID is a URI to the result. When \textsf{Diffuser 1} receives the result ID, it requests the result (step 7), which is a blocking call, and waits for the result response (step 8). When \textsf{Diffuser 1} receives the results, it deserialized the result object and returns it the application (again, this is automatic through Javassist).
+
+There are a few noteworthy points. 
+\begin{enumerate}
+\item Once a diffuser is created, it can be reused, and it can be deleted.
+\item The remote class loading is managed through a RESTful class loader and web service, and is part of <em>Diffusive</em> by default.
+\item When creating a remote diffuser, the class path URI does <em>not</em> need to be the URI pointing back to the diffuser requesting the creating. In fact, it can be a common web service that contains a pre-deployed set of class files and can serve them up. However, this reduces the generic computation somewhat.
+\end{enumerate}
+
+<!-- 
+	Best-Efforts Failure Resolution
+ -->
+<h3 id="indistinguishability_and_open_topology"><a href="#overview">Indistinguishability and Open Topology</a></h3>
+In <em>Diffusive</em> all diffusers of a certain type are the same. And with the exception of the <em>application-attached</em> diffuser, all diffusers are managed the same way. The application-attached diffuser, as the name implies, is attached to the application through the diffusive launcher. Recall that the diffuser launcher is used to launch the application, and during the process of launching the application, the application is instrumented to divert calls to diffusive methods to the application-attached diffuser. It is the application-attached diffuser that diffuses (distributes) method calls to remote diffusers.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[scale=1.1]{restful_diffuser_server}
+\caption{RESTful Diffuser Server}
+\label{fig:restful_diffuser_server}
+\end{center}
+\end{figure}
+
+Recall that in <em>Diffusive</em>, a remote diffuser is managed by RESTful diffuser server. A RESTful diffuser servers (<b class="class">RestfulDiffuserServer</b>) act as servers to which methods can be diffused. The RESTful diffuser servers also act as clients when diffusing methods to other remote diffusers, or when other diffusers request <b class="class">Class</b> objects from their class path. And therefore, all remote diffusers look alike. Figure \ref{fig:restful_diffuser_server} shows the basic elements contained in a RESTful diffuser server and depicts a typical interaction. In this scenario, the <b class="class">RestfulDiffuserServer</b> receives a request to execute a method (task). The <b class="class">RestfulDiffuserServer</b>, a web server, forwards the request to the web resource\footnote{A JSR-311 web resource.} (<b class="class">RestfulDiffuserManagerResource</b>) which is bound to its \textsf{execute(...)} method. The execute method looks up the appropriate diffuser based on the diffuser method signature, which is part of the its URI, returns a response containing the result ID (a URI to the result resource) and then forwards the method to that diffuser. 
+
+Each RESTful diffuser contains a <b class="class">RestfulClassLoader</b> which loads a class using a RESTful web service. The <b class="class">RestfulClassLoader</b> acts as a client to the <b class="class">RestfulClassPathResource</b>, which serializes the request <b class="class">Class</b> object and returns it. The RESTful class loader then deserializes the <b class="class">Class</b> object and loads it. Notice that each <b class="class">RestfulDiffuserServer</b> contains the <b class="class">RestfulClassPathResource</b>.
+
+At this point, the diffuser can execute the method and return the result to the \textsf{Restful\-Diffuser\-Manager\-Resource}.
+
+Each diffuser contains a list of end-points to which it can diffuse code, a list of class paths from which it can load <b class="class">Class</b> objects, a <b class="class">Strategy</b> which determines how the end-points for executing the next task are selected, and a RESTful class loader to load class over the network. It is the fact that each diffuser server looks the same that makes each diffuser server a building block from which to construct arbitrary diffuser networks---as long as they can be represented by a directed graph.
 
 </article>
  
 </body>
 </html> 
-
-                                                                                  
-
-
