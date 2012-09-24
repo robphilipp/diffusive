@@ -26,11 +26,11 @@
 	<a href="overview_guide.html">Overview</a> | 
 	<a href="quick_start.html">Quick Start</a> |
 	<a href="javadocs/index.html" target="tab">Java Docs</a> |
-	<a href="https://sourceforge.net/p/freezedried/code/" target="tab">Code (hg)</a> |
-	<a href="https://sourceforge.net/projects/freezedried/files/" target="tab">Downloads</a> |
-	<a href="https://sourceforge.net/p/freezedried/wiki/Home/" target="tab">Wiki</a> |
-	<a href="https://sourceforge.net/p/freezedried/tickets/" target="tab">Tickets</a> |
-	<a href="https://sourceforge.net/p/freezedried/discussion/" target="tab">Discussion</a>
+	<a href="https://sourceforge.net/p/diffusive/code/" target="tab">Code (hg)</a> |
+	<a href="https://sourceforge.net/projects/diffusive/files/" target="tab">Downloads</a> |
+	<a href="https://sourceforge.net/p/diffusive/wiki/Home/" target="tab">Wiki</a> |
+	<a href="https://sourceforge.net/p/diffusive/tickets/" target="tab">Tickets</a> |
+	<a href="https://sourceforge.net/p/diffusive/discussion/" target="tab">Discussion</a>
 </nav>
 
 <div id="toc">
@@ -64,6 +64,7 @@
 				<li><a href="#indistinguishability_and_open_topology">Indistinguishability and Open Topology</a></li>
 			</ul>
 		</li>
+		<li><a href="#future_work">Future Work</a></li>
 	</ul>
 </div>
 
@@ -473,7 +474,7 @@ For example, in <em>Diffusive</em> methods are <em>marked</em> through the use o
 <em>diffusive</em> method is annotated with \textsf{@Diffusive}. However, it would have been possible to allow 
 methods to be marked through a configuration file that holds a list of <em>markers</em> represented by their 
 fully qualified method names\footnote{For example, the fully qualified method name could be represented by the 
-fully qualified class name with the method name appended with a &quot;.&quot;., such as 
+fully qualified class name with the method name appended with a &quot;.&quot;, such as 
 <b class="class">org.myapp.calc.PriceCalc.calculate</b>.}. These aspects only change the specifics of how a 
 <em>diffusive</em> framework implements the principles, but not how it behaves.</p>
 
@@ -493,21 +494,22 @@ application method calling a diffusive (marked) method does not, and can not, kn
  -->
 <h4 id="launching_and_instrumentation"><a href="#overview">Launching and Instrumenting</a></h4>
 <p><em>Diffusive</em> accomplishes this through a combination of annotations and load-time byte-code engineering. 
-The annotations are simple: any method that is to be diffused is annotated with \textsf{@Diffusive}. This signals 
+The annotations are simple: any method that is to be diffused is annotated with <b class="class">@Diffusive</b>. This signals 
 the class-loader that any calls to this method should be replaced with a call to a diffuser that has already been 
 configured to replace marked method calls with calls to the diffuser instead and hands the diffuser information 
 about the method call. (Particularly, and at a minimum, the diffuser needs to know the name of the method, it's parameter 
 types and values, its return type, and the name of the class that containing it.) To accomplish this <em>Diffusive</em> uses the byte-code 
 engineering framework <a href="http://www.jboss.org/javassist/">Javassist</a>. (Some have pointed out that another 
-approach would have been to use aspect-oriented programming frameworks such as AspectJ. However, the compact Javassist 
-framework provides everything <em>Diffusive</em> needs.)</p>
+approach would have been to use aspect-oriented programming frameworks such as AspectJ. However, the compact 
+<a href="http://www.jboss.org/javassist/">Javassist</a> framework provides everything <em>Diffusive</em> needs.)</p>
 
 <p>In order to replace marked methods during class-loading, the application classes must be loaded through the diffusive 
 class loader (<b class="class">DiffusiveLoader</b>). This is accomplished by using an application launcher, called the 
 diffusive launcher (<b class="class">DiffusiveLauncher</b>). The diffusive launcher accepts the name of the application's 
 Java class, creates a diffusive class loader, and asks it to run the application. The diffusive loader reads the 
 configuration items, sets up the application-attached diffuser to which marked method calls are diverted, and determines 
-whether a class is loaded by the application's class loader and which are passed to the Javassist <b class="class">Loader</b>.</p>
+whether a class is loaded by the application's class loader and which are passed to the <a href="http://www.jboss.org/javassist/">Javassist</a>
+<b class="class">Loader</b>.</p>
 
 <p class="image" id="figure_diffusive_launcher">
 	<img src="images/diffusive_launcher.png" title="Launching an application in Diffusive"/>
@@ -517,7 +519,7 @@ whether a class is loaded by the application's class loader and which are passed
 At the top of the figure is a box labeled &quot;Application&quot; which represents the unadulterated application. The light 
 blue dot in that box represents a method call to the red dot. The red dot represents a <em>marked</em> method. The 
 application passes through the launcher and into the loader. The <b class="class">DiffusiveLoader</b> sets up the 
-repository holding the default diffuser, reads the configuration items, creates an \emph{application-attached} diffuser, 
+repository holding the default diffuser, reads the configuration items, creates an <em>application-attached</em> diffuser, 
 and hands the application to the Javassist <b class="class">Loader</b> to instrument the application. The tan box labeled 
 &quot;Application&quot; in the lower-right hand side of the figure represents the instrumented, or modified, application. 
 Notice that now, all the method calls to the <em>marked</em> method are diverted to the <em>application-attached</em> 
@@ -529,104 +531,240 @@ It is important to point out that the original application code is untouched.</p
 	Distributing
  -->
 <h4 id="distributing"><a href="#overview">Distributing</a></h4>
-The <em>application-attached</em> diffuser is responsible for distributing method calls to other diffusers, or depending on its configuration and load, executing the method itself. By default <em>Diffusive</em> uses a <em>RESTful</em> diffuser (<b class="class">RestfulDiffuser</b>) that adheres to the \href{http://jsr311.java.net}{JSR-311} standard\footnote{\url{http://jsr311.java.net}}, and uses the \href{http://jersey.java.net}{Apache Jersey}\footnote{\url{http://jersey.java.net}} implementation. Although <em>Diffusive</em> uses a RESTful diffuser by default, any diffuser implementation can be used to provide the required functionality. In fact, <em>Diffusive</em> also comes with a local diffuser that runs the code locally\footnote{Using \emph{Diffusive's} local diffuser directly is inefficient. Unless you are using the local diffuser for testing the diffusive framework through a local debugger, using the local diffuser directly means that you aren't diffusing the code. In which case, it doesn't make sense to use <em>Diffusive</em> in the first place. The local diffuser only exists because it is used by the RESTful diffuser when it executes a method locally rather than distribute it.}.
+<p>The <em>application-attached</em> diffuser is responsible for distributing method calls to other diffusers, or 
+depending on its configuration and load, executing the method itself. By default <em>Diffusive</em> uses a 
+<em>RESTful</em> diffuser (<b class="class">RestfulDiffuser</b>) that adheres to the <a href="http://jsr311.java.net">JSR-311</a> 
+standard, and uses the <a href="http://jersey.java.net">Apache Jersey</a> implementation. Although <em>Diffusive</em> 
+uses a RESTful diffuser by default, any diffuser implementation can be used to provide the required functionality. 
+In fact, <em>Diffusive</em> also comes with a local diffuser that runs the code locally. (Using <em>Diffusive's</em> local 
+diffuser directly is inefficient. Unless you are using the local diffuser for testing the diffusive framework through a 
+local debugger, using the local diffuser directly means that you aren't diffusing the code. In which case, it doesn't 
+make sense to use <em>Diffusive</em> in the first place. The local diffuser only exists because it is used by the RESTful 
+diffuser when it executes a method locally rather than distribute it.)</p>
 
-The RESTful diffuser must be configured with a set of <em>end-points</em> to which it can diffuse method execution. These end-points, themselves, must contain a RESTful diffuser. And the access to the diffuser must be accomplished through a some sort of a software server. <em>Diffusive</em> provides a RESTful diffuser server (<b class="class">RestfulDiffuserServer</b>) that contains an \href{http://grizzly.java.net}{Apache Grizzly}\footnote{\url{http://grizzly.java.net}} web server configured to interact with a \href{http://docs.oracle.com/javaee/6/tutorial/doc/giepu.html}{JAX-RS}\footnote{JAX-RS implements JSR-311, providing an implementation for developing RESTful web services in Java. For more information, visit \url{http://docs.oracle.com/javaee/6/tutorial/doc/giepu.html}.} web resource (<b class="class">RestfulDiffuserManagerResource</b>).
+<p>The RESTful diffuser must be configured with a set of <em>end-points</em> to which it can diffuse method execution. 
+These end-points, themselves, must contain a RESTful diffuser. And the access to the diffuser must be accomplished 
+through a some sort of a software server. <em>Diffusive</em> provides a RESTful diffuser server 
+(<b class="class">RestfulDiffuserServer</b>) that contains an <a href="http://grizzly.java.net">Apache Grizzly</a>
+web server configured to interact with a <a href="http://docs.oracle.com/javaee/6/tutorial/doc/giepu.html">JAX-RS</a>. 
+web resource (<b class="class">RestfulDiffuserManagerResource</b>).</p>
 
-Within the context of the RESTful diffuser server, there is one RESTful diffuser for each diffusive method. In other words, each unique diffusive method signature\footnote{A diffusive method signature contains the name of the containing class, the method name, the method's formal argument types, and the return type. This is different from a Java signature, which contains only the method name and the formal argument types.} has its own diffuser, accessible via the web resource (<b class="class">RestfulDiffuserManagerResource</b>) through its uniform resource identifier (URI). The web resource manages the creation, querying, calling, and deletion of its diffusers by responding to requests from the calling diffuser. And each diffuser is a resource with a unique address. For example, a new diffuser is created through an \texttt{HTTP POST} call containing the required information about the diffusive method signature. Obtaining information about a diffuser is accomplished through an \texttt{HTTP GET} call to its URI. To execute a method, an \texttt{HTTP POST} is called on the URI of the diffuser, passing along the information needed to execute the method. The execute method returns an ID (link) to the results resource\footnote{Hypermedia as the engine of application state (HATEOAS).}. The result can then be obtained through an \texttt{HTTP GET} call to the URI of that result, which blocks until the result is complete. Alternatively, the status of the result can be obtained through an \texttt{HTTP HEAD} call to the URI of the result, which is non-blocking, and returns an empty response if the result resource is not yet available. And, finally, a diffuser can be deleted through an \texttt{HTTP DELETE} call to its URI.
+<p>Within the context of the RESTful diffuser server, there is one RESTful diffuser for each diffusive method. In other 
+words, each unique diffusive method signature has its own diffuser, accessible via the web resource 
+(<b class="class">RestfulDiffuserManagerResource</b>) through its uniform resource identifier (URI). Recall that a diffusive 
+method signature contains the name of the containing class, the method name, the method's formal argument types, and the 
+return type. This is different from a Java signature, which contains only the method name and the formal argument types.
+The web resource manages the creation, querying, calling, and deletion of its diffusers by responding to requests from the calling diffuser. And 
+each diffuser is a resource with a unique address. For example, a new diffuser is created through an <b class="tt">HTTP POST</b> 
+call containing the required information about the diffusive method signature. Obtaining information about a diffuser is 
+accomplished through an <b class="tt">HTTP GET</b> call to its URI. To execute a method, an <b class="tt">HTTP POST</b> is called on the URI 
+of the diffuser, passing along the information needed to execute the method. The execute method returns an ID (link) to 
+the results resource, in line with the approach of <em>hypermedia as the engine of application state</em> (HATEOAS). The result can then be obtained 
+through an <b class="tt">HTTP GET</b> call to the URI of that result, which blocks until the result is complete. Alternatively, 
+the status of the result can be obtained through an <b class="tt">HTTP HEAD</b> call to the URI of the result, which is non-blocking, 
+and returns an empty response if the result resource is not yet available. And, finally, a diffuser can be deleted through 
+an <b class="tt">HTTP DELETE</b> call to its URI.</p>
 
-To facilitate development, <em>Diffusive</em> provides a RESTful client (<b class="class">RestfulDiffuserManagerClient</b>) that takes care of the underlining communication, serializing/deserializing, creating requests, and parsing responses. This client allows developers to deal only with Java objects.
+<p>To facilitate development, <em>Diffusive</em> provides a RESTful client (<b class="class">RestfulDiffuserManagerClient</b>) 
+that takes care of the underlining communication, serializing/deserializing, creating requests, and parsing responses. This 
+client allows developers to deal only with Java objects.</p>
 
 <!-- 
 	Distribution Strategy
  -->
 <h4 id="distribution_strategy"><a href="#overview">Distribution Strategy</a></h4>
-Diffusers decide how to distribute the method calls based on a strategy (<b class="class">Strategy</b>). A <b class="class">Strategy</b> simply returns a list of end-points when requested. In most cases, the list returned by the <b class="class">Strategy</b> contains only one element. However, to allow for redundant diffuser networks, the <b class="class">Strategy</b> interface allows the return of a list of end-points. <b class="class">Strategy</b> implementations can take into account various aspects that affect the optimal distribution of method calls. For example, a <b class="class">Strategy</b> implementation may take into account the load on its server, the number of diffusers executing, the number of threads available for execution, and weighting factors for individual end-points.
+<p>Diffusers decide how to distribute the method calls based on a strategy (<b class="class">Strategy</b>). A 
+<b class="class">Strategy</b> simply returns a list of end-points when requested. In most cases, the list returned 
+by the <b class="class">Strategy</b> contains only one element. However, to allow for redundant diffuser networks, 
+the <b class="class">Strategy</b> interface allows the return of a list of end-points. <b class="class">Strategy</b> 
+implementations can take into account various aspects that affect the optimal distribution of method calls. For 
+example, a <b class="class">Strategy</b> implementation may take into account the load on its server, the number of 
+diffusers executing, the number of threads available for execution, and weighting factors for individual end-points.</p>
 
 <!-- 
-	Distribution Strategy
+	Serialization
  -->
 <h4 id="serialization"><a href="#overview">Serialization</a></h4>
-In order to execute a method remotely, the remote execution environment needs certain information. Specifically, the execution environment needs:
-\begin{enumerate}
-\item The state of the object against which the method call was made.
-\item All the arguments to the method.
-\end{enumerate}
-To transfer that information to the remote diffuser, across the network, they must be serialized. Likewise, once execution is completed, the return object must be serialized and returned to the original diffuser.
+<p>In order to execute a method remotely, the remote execution environment needs certain information. Specifically, 
+the execution environment needs:</p>
+<ul>
+	<li>The state of the object against which the method call was made.</li>
+	<li>All the arguments to the method.</li>
+</ul>
 
-When the remote execution environment receives these serialized objects, it must reconstruction them as Java objects. And to reconstruct serialized objects requires Java <b class="class">Class</b> objects corresponding each of the serialized objects. The <b class="class">Class</b> objects are effectively the templates used to reconstruct an object. In section \ref{sec:generic_computation} (\nameref{sec:generic_computation}), we discuss how the remote environment gets access to these <b class="class">Class</b> objects without the need to deploy them prior to execution.
+<p>To transfer that information to the remote diffuser, across the network, they must be serialized. Likewise, once 
+execution is completed, the return object must be serialized and returned to the original diffuser.</p>
 
-<em>Diffusive</em> provides an interface, <b class="class">Serializer</b>, that defines what a serializer must provide to <em>Diffusive</em>. Two key serialization implementations have been wrapped to conform to the <b class="class">Serializer</b> interface: <b class="class">ObjectSerializer</b> and <b class="class">PersistenceSerializer</b>. The <b class="class">ObjectSerializer</b> is Java's own serialization framework which requires that classes implement the <b class="class">Serializable</b> interface. Using this serialization framework requires altering existing classes, that are to be serialized, if they don't implement <b class="class">Serializable</b>. In some cases this may be acceptable. In other cases it may not be possible.
+<p>When the remote execution environment receives these serialized objects, it must reconstruction them as Java objects. 
+And to reconstruct serialized objects requires Java <b class="class">Class</b> objects corresponding each of the 
+serialized objects. The <b class="class">Class</b> objects are effectively the templates used to reconstruct an object. 
+In the section on <a href="#generic_computation">generic computation</a>, we discuss how the remote environment gets 
+access to these <b class="class">Class</b> objects without the need to deploy them prior to execution.</p>
 
-The <b class="class">PersistenceSerializer</b> wraps the \href{http://freezedried.sourceforge.net}{FreezeDry} persistence framework\footnote{\url{http://freezedried.sourceforge.net}}. FreezeDry does not require any classes to implement a FreezeDry-specific interface. In fact, FreezeDry can take any existing class (even those without no-arg constructors) and serialize them into XML, JSON, or key-value pairs. However, if the class is too complex, it may require some coding.
+<p><em>Diffusive</em> provides an interface, <b class="class">Serializer</b>, that defines what a serializer must 
+provide to <em>Diffusive</em>. Two key serialization implementations have been wrapped to conform to the 
+<b class="class">Serializer</b> interface: <b class="class">ObjectSerializer</b> and 
+<b class="class">PersistenceSerializer</b>. The <b class="class">ObjectSerializer</b> is Java's own serialization 
+framework which requires that classes implement the <b class="class">Serializable</b> interface. Using this 
+serialization framework requires altering existing classes, that are to be serialized, if they don't implement 
+<b class="class">Serializable</b>. In some cases this may be acceptable. In other cases it may not be possible.</p>
+
+<p>The <b class="class">PersistenceSerializer</b> wraps the <a href="http://freezedried.sourceforge.net">FreezeDry</a> 
+persistence framework. <b>FreezeDry</b> does not require any classes to implement a FreezeDry-specific interface. 
+In fact, FreezeDry can take any existing class (even those without no-arg constructors) and serialize them into XML, 
+JSON, or key-value pairs. However, if the class is too complex, it may require some coding.</p>
 
 <!-- 
 	Best-Efforts Failure Resolution
  -->
 <h3 id="best_efforts_failure_resolution"><a href="#overview">Best-Efforts Failure Resolution</a></h3>
-The <em>Diffusive</em> reference implementation uses the concept of a <b class="class">Strategy</b> to determine to which diffuser a method is diffused. The current <b class="class">Strategy</b> interface requires that a <b class="class">Strategy</b> return a list of end-points to which the method can be diffused. An implementation of best-efforts failure resolution can be achieved by creating a RESTful diffuser that diffuses its method to the first end-point in the list, and if that fails to the next end-point, until the task completes, or until the diffuser runs out of end-points.
+<p>The <em>Diffusive</em> reference implementation uses the concept of a <b class="class">Strategy</b> to determine 
+to which diffuser a method is diffused. The current <b class="class">Strategy</b> interface requires that a 
+<b class="class">Strategy</b> return a list of end-points to which the method can be diffused. An implementation of 
+best-efforts failure resolution can be achieved by creating a RESTful diffuser that diffuses its method to the first 
+end-point in the list, and if that fails to the next end-point, until the task completes, or until the diffuser runs 
+out of end-points.</p>
 
 <!-- 
 	Best-Efforts Failure Resolution
  -->
 <h3 id="generic_computation"><a href="#overview">Generic Computation</a></h3>
-The <em>Generic Computation</em> principle requires two that two conditions are met: that any method can be diffused; and, prior deployment of resources is not required. The first condition is met because of the <em>Marking</em> principle---any marked method can be diffused. The second condition is the focus of this section.
+<p>The <em>Generic Computation</em> principle requires two that two conditions are met: that any method can be diffused; 
+and, prior deployment of resources is not required. The first condition is met because of the <em>Marking</em> 
+principle---any marked method can be diffused. The second condition is the focus of this section.</p>
 
-As discussed in section \ref{sec:serialization}, \nameref{sec:serialization}, in order to transport objects across the network they must be serialized. This means that to execute a diffusive method remotely requires that the following objects must be serialized:
-\begin{enumerate}
-\item The object containing the diffusive method.
-\item All objects referenced by the object containing the diffusive method.
-\item The objects passed to the diffusive method as arguments.
-\item All objects referenced by the objects passed to the diffusive method as arguments.
-\end{enumerate}
-Once these serialized objects are received by the remote diffuser, it needs to deserialize them back into objects. To deserialize any object requires that the class loader has loaded a <b class="class">Class</b> object corresponding to that object (and any objects that object references). Usually, this is handled by deploying the class files (as jar or war files) to the remote servers executing the methods, and configuring their class paths to contain their location.
+<p>As discussed in <a href="#serialization">serialization section</a>, in order to transport objects across the network 
+they must be serialized. This means that to execute a diffusive method remotely requires that the following objects 
+must be serialized:</p>
+<ul>
+	<li>The object containing the diffusive method.</li>
+	<li>All objects referenced by the object containing the diffusive method.</li>
+	<li>The objects passed to the diffusive method as arguments.</li>
+	<li>All objects referenced by the objects passed to the diffusive method as arguments.</li>
+</ul>
 
-The <em>Generic Computation</em> principle states that deployment of resources to the remote nodes does not need to occur <em>before</em> requesting the remote diffuser to execute a method. In practical terms, this principle requires that the remote diffuser contains a mechanism for loading classes from a remote source, and that a mechanism exists, preferably on the application-attached diffuser, that can provide serialized <b class="class">Class</b> objects to the remote diffuser. 
+<p>Once these serialized objects are received by the remote diffuser, it needs to deserialize them back into objects. 
+To deserialize any object requires that the class loader has loaded a <b class="class">Class</b> object corresponding 
+to that object (and any objects that object references). Usually, this is handled by deploying the class files 
+(as jar or war files) to the remote servers executing the methods, and configuring their class paths to contain their 
+location.</p>
 
-<em>Diffusive</em> provides a RESTful class loader (<b class="class">RestfulClassLoader</b>) that can load classes from a corresponding RESTful web service. The <b class="class">RestfulClassPathResource</b> is a (JSR-311) web resource, attached to the web service, that provides serialized <b class="class">Class</b> objects to the requesting client (i.e. the <b class="class">RestfulClassLoader</b>). 
+<p>The <em>Generic Computation</em> principle states that deployment of resources to the remote nodes does not need 
+to occur <em>before</em> requesting the remote diffuser to execute a method. In practical terms, this principle 
+requires that the remote diffuser contains a mechanism for loading classes from a remote source, and that a mechanism 
+exists, preferably on the application-attached diffuser, that can provide serialized <b class="class">Class</b> objects 
+to the remote diffuser.</p> 
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[scale=1.1]{diffusing}
-\caption{Process of diffusing a method call}
-\label{fig:diffusing}
-\end{center}
-\end{figure}
+<p><em>Diffusive</em> provides a RESTful class loader (<b class="class">RestfulClassLoader</b>) that can load classes 
+from a corresponding RESTful web service. The <b class="class">RestfulClassPathResource</b> is a (JSR-311) web resource, 
+attached to the web service, that provides serialized <b class="class">Class</b> objects to the requesting client (i.e. the 
+<b class="class">RestfulClassLoader</b>).</p> 
 
-Figure \ref{fig:diffusing} shows the process of creating, configuring, and executing a task using <em>Diffusive</em>. In this figure, the application requests that its <em>application-attached</em> diffuser\footnote{Recall that Javassist is used to redirect calls to methods that were annotated with \textsf{@Diffusive} to the application-aftached diffuser.}, which is labeled as \textsf{Diffuser 1} in the figure, execute the task labeled <b class="class">Task</b>. In this scenario, \textsf{Diffuser 1} decides to diffuse the task to one of its end-points, \textsf{Remote Server A}. If the remote server doesn't contain a diffuser that matches the diffusive method signature of <b class="class">Task</b>, then, as shown in step 1 of figure \ref{fig:diffusing}, \textsf{Diffuser 1} requests that \textsf{Remote Server A} create a diffuser with that signature, which is shown as \textsf{Diffuser 2}. In order to execute <b class="class">Task</b>, \textsf{Diffuser 2} needs to load the <b class="class">Class</b> objects associated with <b class="class">Task</b>. And because \textsf{Diffuser 1} has those <b class="class">Class</b> objects, it passes the URI corresponding to the web service that can provide those <b class="class">Class</b> objects, along with its request to create \textsf{Diffuser 2}.
+<p class="image" id="figure_diffusing">
+	<img src="images/diffusing.png" title="Process of diffusing a method call"/>
+</p>
 
-As shown in step 2 of figure \ref{fig:diffusing}, \textsf{Remote Server A} then creates \textsf{Diffuser 2} and configures it with the class path information and other configuration items, and returns URI to \textsf{Diffuser 2}, the newly created diffuser. \textsf{Diffuser 1} now requests that \textsf{Diffuser 2} execute <b class="class">Task</b> (step 3). As part of that request, \textsf{Diffuser 1} passes all the required serialized object along with the execute request. \textsf{Diffuser 2} receives that request, tries to deserialize the objects, but can't because it doesn't have access to the <b class="class">Class</b> objects associated with <b class="class">Task</b>. And so \textsf{Diffuser 2} initiates a call back to the class path URI requesting the <b class="class">Class</b> objects (step 4).
+<p>The above <a href="#diffusing">figure</a> shows the process of creating, configuring, and executing a task using 
+<em>Diffusive</em>. In this figure, the application requests that its <em>application-attached</em> diffuser, which 
+is labeled as <b>Diffuser 1</b> in the figure, execute the task labeled <b class="class">Task</b>. In this scenario,
+<b>Diffuser 1</b> decides to diffuse the task to one of its end-points, <b>Remote Server A</b>. If the remote server 
+doesn't contain a diffuser that matches the diffusive method signature of <b class="class">Task</b>, then, as shown in 
+step 1 of figure \ref{fig:diffusing}, <b>Diffuser 1</b> requests that <b>Remote Server A</b> create a diffuser 
+with that signature, which is shown as <b>Diffuser 2</b>. In order to execute <b class="class">Task</b>, 
+<b>Diffuser 2</b> needs to load the <b class="class">Class</b> objects associated with <b class="class">Task</b>. 
+And because <b>Diffuser 1</b> has those <b class="class">Class</b> objects, it passes the URI corresponding to the 
+web service that can provide those <b class="class">Class</b> objects, along with its request to create 
+<b>Diffuser 2</b>.</p>
 
-\textsf{Diffuser 1} sends the serialized <b class="class">Class</b> objects requested back to \textsf{Diffuser 2} (step 5), and \textsf{Diffuser 2} loads the <b class="class">Class</b> objects, which enables it to deserialized the objects associated with <b class="class">Task</b>. Now \textsf{Diffuser 2} is set up to execute the <b class="class">Task</b>, which it does (step 6), and returns a result ID. The result ID is a URI to the result. When \textsf{Diffuser 1} receives the result ID, it requests the result (step 7), which is a blocking call, and waits for the result response (step 8). When \textsf{Diffuser 1} receives the results, it deserialized the result object and returns it the application (again, this is automatic through Javassist).
+<p>As shown in step 2 of the above <a href="#diffusing">figure</a>, <b>Remote Server A</b> then creates <b>Diffuser 2</b> 
+and configures it with the class path information and other configuration items, and returns URI to <b>Diffuser 2</b>, 
+the newly created diffuser. <b>Diffuser 1</b> now requests that <b>Diffuser 2</b> execute <b class="class">Task</b> 
+(step 3). As part of that request, <b>Diffuser 1</b> passes all the required serialized object along with the execute 
+request. <b>Diffuser 2</b> receives that request, tries to deserialize the objects, but can't because it doesn't have 
+access to the <b class="class">Class</b> objects associated with <b class="class">Task</b>. And so <b>Diffuser 2</b> 
+initiates a call back to the class path URI requesting the <b class="class">Class</b> objects (step 4).</p>
 
-There are a few noteworthy points. 
-\begin{enumerate}
-\item Once a diffuser is created, it can be reused, and it can be deleted.
-\item The remote class loading is managed through a RESTful class loader and web service, and is part of <em>Diffusive</em> by default.
-\item When creating a remote diffuser, the class path URI does <em>not</em> need to be the URI pointing back to the diffuser requesting the creating. In fact, it can be a common web service that contains a pre-deployed set of class files and can serve them up. However, this reduces the generic computation somewhat.
-\end{enumerate}
+<p><b>Diffuser 1</b> sends the serialized <b class="class">Class</b> objects requested back to <b>Diffuser 2</b> 
+(step 5), and <b>Diffuser 2</b> loads the <b class="class">Class</b> objects, which enables it to deserialized the 
+objects associated with <b class="class">Task</b>. Now <b>Diffuser 2</b> is set up to execute the <b class="class">Task</b>, w
+hich it does (step 6), and returns a result ID. The result ID is a URI to the result. When <b>Diffuser 1</b> receives 
+the result ID, it requests the result (step 7), which is a blocking call, and waits for the result response (step 8). 
+When <b>Diffuser 1</b> receives the results, it deserialized the result object and returns it the application (again, 
+this is automatic through Javassist).</p>
+
+<p>There are a few noteworthy points.</p>
+<ul>
+	<li>Once a diffuser is created, it can be reused, and it can be deleted.</li>
+	<li>The remote class loading is managed through a RESTful class loader and web service, and is part of
+		<em>Diffusive</em> by default.
+	</li>
+	<li>When creating a remote diffuser, the class path URI does <em>not</em> need to be the URI pointing 
+		back to the diffuser requesting the creating. In fact, it can be a common web service that contains a 
+		pre-deployed set of class files and can serve them up. However, this reduces the generic computation 
+		somewhat.
+	</li>
+</ul> 
 
 <!-- 
-	Best-Efforts Failure Resolution
+	Indistinguishability and Open Topology
  -->
 <h3 id="indistinguishability_and_open_topology"><a href="#overview">Indistinguishability and Open Topology</a></h3>
-In <em>Diffusive</em> all diffusers of a certain type are the same. And with the exception of the <em>application-attached</em> diffuser, all diffusers are managed the same way. The application-attached diffuser, as the name implies, is attached to the application through the diffusive launcher. Recall that the diffuser launcher is used to launch the application, and during the process of launching the application, the application is instrumented to divert calls to diffusive methods to the application-attached diffuser. It is the application-attached diffuser that diffuses (distributes) method calls to remote diffusers.
+<p>In <em>Diffusive</em> all diffusers of a certain type are the same. And with the exception of the 
+<em>application-attached</em> diffuser, all diffusers are managed the same way. The application-attached diffuser, 
+as the name implies, is attached to the application through the diffusive launcher. Recall that the diffuser launcher 
+is used to launch the application, and during the process of launching the application, the application is 
+instrumented to divert calls to diffusive methods to the application-attached diffuser. It is the application-attached 
+diffuser that diffuses (distributes) method calls to remote diffusers.</p>
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[scale=1.1]{restful_diffuser_server}
-\caption{RESTful Diffuser Server}
-\label{fig:restful_diffuser_server}
-\end{center}
-\end{figure}
+<p class="image" id="figure_restful_diffuser_server">
+	<img src="images/restful_diffuser_server.png" title="RESTful Diffuser Server"/>
+</p>
 
-Recall that in <em>Diffusive</em>, a remote diffuser is managed by RESTful diffuser server. A RESTful diffuser servers (<b class="class">RestfulDiffuserServer</b>) act as servers to which methods can be diffused. The RESTful diffuser servers also act as clients when diffusing methods to other remote diffusers, or when other diffusers request <b class="class">Class</b> objects from their class path. And therefore, all remote diffusers look alike. Figure \ref{fig:restful_diffuser_server} shows the basic elements contained in a RESTful diffuser server and depicts a typical interaction. In this scenario, the <b class="class">RestfulDiffuserServer</b> receives a request to execute a method (task). The <b class="class">RestfulDiffuserServer</b>, a web server, forwards the request to the web resource\footnote{A JSR-311 web resource.} (<b class="class">RestfulDiffuserManagerResource</b>) which is bound to its \textsf{execute(...)} method. The execute method looks up the appropriate diffuser based on the diffuser method signature, which is part of the its URI, returns a response containing the result ID (a URI to the result resource) and then forwards the method to that diffuser. 
+<p>Recall that in <em>Diffusive</em>, a remote diffuser is managed by RESTful diffuser server. A RESTful diffuser 
+servers (<b class="class">RestfulDiffuserServer</b>) act as servers to which methods can be diffused. The RESTful 
+diffuser servers also act as clients when diffusing methods to other remote diffusers, or when other diffusers 
+request <b class="class">Class</b> objects from their class path. And therefore, all remote diffusers look alike. 
+The above <a href="#restful_diffuser_server">figure</a> shows the basic elements contained in a RESTful diffuser 
+server and depicts a typical interaction. In this scenario, the <b class="class">RestfulDiffuserServer</b> receives 
+a request to execute a method (task). The <b class="class">RestfulDiffuserServer</b>, a web server, forwards the 
+request to the web resource, <b class="class">RestfulDiffuserManagerResource</b>, (A JSR-311 web resource)
+which is bound to its <b class="class">execute(...)</b> method. The execute method looks up the appropriate diffuser 
+based on the diffuser method signature, which is part of the its URI, returns a response containing the result ID 
+(a URI to the result resource) and then forwards the method to that diffuser.</p> 
 
-Each RESTful diffuser contains a <b class="class">RestfulClassLoader</b> which loads a class using a RESTful web service. The <b class="class">RestfulClassLoader</b> acts as a client to the <b class="class">RestfulClassPathResource</b>, which serializes the request <b class="class">Class</b> object and returns it. The RESTful class loader then deserializes the <b class="class">Class</b> object and loads it. Notice that each <b class="class">RestfulDiffuserServer</b> contains the <b class="class">RestfulClassPathResource</b>.
+<p>Each RESTful diffuser contains a <b class="class">RestfulClassLoader</b> which loads a class using a RESTful web 
+service. The <b class="class">RestfulClassLoader</b> acts as a client to the <b class="class">RestfulClassPathResource</b>, 
+which serializes the request <b class="class">Class</b> object and returns it. The RESTful class loader then 
+deserializes the <b class="class">Class</b> object and loads it. Notice that each <b class="class">RestfulDiffuserServer</b> 
+contains the <b class="class">RestfulClassPathResource</b>.</p>
 
-At this point, the diffuser can execute the method and return the result to the \textsf{Restful\-Diffuser\-Manager\-Resource}.
+<p>At this point, the diffuser can execute the method and return the result to the 
+<b class="class">RestfulDiffuserManagerResource</b>.</p>
 
-Each diffuser contains a list of end-points to which it can diffuse code, a list of class paths from which it can load <b class="class">Class</b> objects, a <b class="class">Strategy</b> which determines how the end-points for executing the next task are selected, and a RESTful class loader to load class over the network. It is the fact that each diffuser server looks the same that makes each diffuser server a building block from which to construct arbitrary diffuser networks---as long as they can be represented by a directed graph.
+<p>Each diffuser contains a list of end-points to which it can diffuse code, a list of class paths from which it can 
+load <b class="class">Class</b> objects, a <b class="class">Strategy</b> which determines how the end-points for 
+executing the next task are selected, and a RESTful class loader to load class over the network. It is the fact that 
+each diffuser server looks the same that makes each diffuser server a building block from which to construct arbitrary 
+diffuser networks---as long as they can be represented by a directed graph.</p>
+
+<!-- 
+
+	Future Work
+
+ -->
+<h2 id="future_work"><a href="#overview">Future Work</a></h2>
+<p>The current reference implementation is a work in progress. The main goal for creating a reference implementation 
+was to prove that the concepts of \emph{diffusive programming} could be implemented, with an eye toward building a 
+robust, secure, and accessible implementation. Given that, there are a number of items that need further exploration 
+and development.</p>
+
+<ul>
+	<li>Add best-efforts failure resolution to the RESTful diffuser.</li>
+	<li>Provide additional deployment options (for example, into a servlet container).</li>
+	<li>Create additional diffusers beside RESTful diffusers (for example, RMI diffusers).</li>
+	<li>Create deployment and management tools that allow easy deployment of diffusive servers and allows starting 
+		and stopping the diffusive server. Also, allows the management of the diffusers.</li>
+</ul>
 
 </article>
  
