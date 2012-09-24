@@ -7,25 +7,25 @@ body
 header
 {
 	margin-top: 20px;
-	margin-left: 165px;
+	margin-left: 210px;
 	margin-bottom: 15px;
 }
 nav 
 {
 	position: absolute;
-	left: 175px;
-	font-size: 1em;
-	font-family: calibri;
+	left: 210px;
+	font-size: 0.9em;
+	font-family: verdana;
 }
 article 
 {
 	position: absolute;
-	left: 170px;
+	left: 200px;
 	top: 125px;
 	width: 650px; 
 	background-color: #fff;
 	font-family: verdana;
-	font-size: 13px;
+	font-size: 0.8em;
 	line-height: 1.8em;
 	padding: 0px 15px 15px 15px;
 	border-color: #EBEBEB;
@@ -38,11 +38,13 @@ article
 #toc
 {
 	position: fixed;
-	left: 10px;
+	left: 1px;
 	top: 145px;
-	width: 155px; 
+	width: 185px; 
 	background-color: #fff;
-	font-family: calibri;
+	font-family: verdana;
+	font-size: 0.9em;
+	line-height: 1.3em;
 	padding: 0px 5px 5px 5px;
 	border-color: #EBEBEB;
 	border-style: solid;
@@ -133,7 +135,7 @@ a:hover {
 
 ul.overview_toc_list {
 	list-style-type: none; 
-	font-family: calibri;
+	font-family: verdana;
 	font-size:0.9em;
 	padding-left: 5px;
 }
@@ -141,12 +143,10 @@ ul.overview_toc_list {
 b.class
 {
 	color: darkgreen;
-	font-family: monospace;
 }
 
 b.tt
 {
-	font-family: monospace;
 	color: grey;
 }
 
