@@ -32,12 +32,148 @@
 	<a href="https://sourceforge.net/p/diffusive/discussion/" target="tab">Discussion</a>
 </nav>
 
+<div id="toc">
+	<p class="overview_toc">Contents</p>
+	<ul class="overview_toc_list">
+		<li><a href="#participate">Participate</a></li>
+		<li><a href="#getting_started">Getting Started</a>
+			<ul class="overview_toc_list">
+				<li><a href="#current_state_idiosyncrasies">Current State Idiosyncrasies</a>
+				<li><a href="#build_environment">Build Environment</a>
+			</ul>
+		</li>
+	</ul>
+</div>
+
 <article>
-<p>Sorry...still under construction.</p>
+<!-- 
+
+	Participate
+
+ -->
+<h2 id="participate"><a href="#overview">Participate</a></h2>
+<p>The <b>Diffusive</b> reference implementation works, but is still in development. There are still a number of
+items and features to be implemented for the base version. And there are a number of enhancements that ought to
+be developed regarding deployment and management of the diffusive network. So if you find you like Diffusive, please
+participate (contact: <a href="mailto:rob.philipp@gmail.com?Subject=Contributing%20to%20Diffusive">Rob Philipp</a>).</p>
 
 <p>For a more complete description of diffusive programming and the reference implementation, please see the
 <a href="overview_guide.html">the Overview</a> or download the 
 <a href="https://sourceforge.net/projects/diffusive/files/diffusive_programming.pdf">Diffusive Programming</a> paper.</p>
+
+<!-- 
+
+	Getting Started
+
+ -->
+<h2 id="getting_started"><a href="#overview">Getting Started</a></h2>
+<p>The next sections describe how to work with Diffusive in its current state. As Diffusive evolves, many of the
+idiosyncrasies of the current state will be removed, and it will become much easier to work with and use. For now,
+however, as I heard someone say: &quot;<em>it is what it is, and if it were different, it'd be different</em>&quot;.</p> 
+
+<!-- 
+	Idiosyncrasies of the Current State
+ -->
+<h3 id="current_state_idiosyncrasies"><a href="#overview">Idiosyncrasies of the Current State</a></h3>
+<p>Given that Diffusive is still in development, there are a few items that are fine for development, but make it harder
+for a user. As Diffusive progresses, these items will be cleaned up.</p>
+
+<ul>
+	<li>Diffusive uses a Java-based configuration to define its behavior and the topology of the network. The current
+		Java-based configuration uses annotations (<b class="class">@DiffusiveConfiguration</b> and 
+		<b class="class">@DiffusiveServerConfiguration</b>)) on configuration methods to configure various aspects
+		of Diffusive. The next step is to modify the current configuration methods to read basic parameters from
+		various sources, and then configure Diffusive based on those parameters. The next iteration will allow the
+		user to name a Java source file that will be compiled and loaded and run to configure Diffusive.
+	</li>
+	<li>The current test classes are included in the distribution under the <b>tests</b> package. These test cases
+		will be moved into a separate distribution. This becomes important when testing that classes are actually
+		loaded across the network through the <b class="class">RestfulClassLoader</b>. Currently, for the distribution
+		deployed as the server (as opposed to the application-attached diffuser) you must remove the test classes if
+		you want them to be loaded over the network. And that is a cumbersome if you are deploying jar files, because
+		then you need to two versions.
+	</li>
+</ul>
+</p>
+
+<!-- 
+	Idiosyncrasies of the Current State
+ -->
+<h3 id="build_environment"><a href="#overview">Build Environment</a></h3>
+<p>Diffusive requires Java 7 and has various dependencies.
+
+<dl>
+	<!-- Javassist -->
+	<dt>Javassist</dt>
+	<dd>
+		Javassist is a byte-code engineering library that is core to Diffusive. Recall that methods are diffused based
+		on the annotation <b class="class">@Diffusive</b>. Javassist finds those annotations at class-load time and replaces
+		all method calls to these annotated methods with a call to the diffuser instead.
+		<ul>
+			<li><b class="tt">javassist.jar</b></li>
+		</ul>
+	</dd>
+	
+	<!-- Jersey -->
+	<dt>Jersey and Grizzly</dt>
+	<dd>
+		Diffusive uses REST to manage diffusers and communicate between them. Jersey is a JSR-311 (JAX-RS) implementation
+		that provides convenient binding between the resource address and methods that handle them. And Grizzly is an 
+		in process HTTP server and client that Diffusive uses for issuing and handling HTTP requests.
+		<ul>
+			<li><b class="tt">grizzly-framework-2.2.1.jar</b></li>
+			<li><b class="tt">grizzly-http-2.2.1.jar</b></li>
+			<li><b class="tt">grizzly-http-server-2.2.1.jar</b></li>
+			<li><b class="tt">jersey-client-1.12.jar</b></li>
+			<li><b class="tt">jersey-core-1.12.jar</b></li>
+			<li><b class="tt">jersey-grizzly2-1.12.jar</b></li>
+			<li><b class="tt">jersey-server-1.12.jar</b></li>
+			<li><b class="tt">jsr311-api-1.1.1.jar</b></li>
+		</ul>
+	</dd>
+	
+	<!-- Abdera -->
+	<dt>Abdera v1.1.2</dt>
+	<dd>
+		Diffusive uses REST to manage diffusers and communicate between them. The messages flying back and forth are
+		Atom formated XML and Diffusive uses Abdera for creating and parsing the Atom messages.
+		<ul>
+			<li><b class="tt">abdera-core-1.1.2.jar</b></li>
+			<li><b class="tt">abdera-i18n-1.1.2.jar</b></li>
+			<li><b class="tt">abdera-parser-1.1.2.jar</b></li>
+			<li><b class="tt">axiom-api-1.2.10.jar</b></li>
+			<li><b class="tt">axiom-impl-1.2.10.jar</b></li>
+			<li><b class="tt">commons-logging-1.0.4.jar</b></li>
+		</ul>
+	</dd>
+	
+	<!-- FreezeDry for serialization -->
+	<dt>FreezeDry</dt>
+	<dd>
+		In order to send objects across the network, Diffusive must serialize them. How Diffusive serializes the objects
+		is configurable. Currently Diffusive allows serialization using Java's default serialization, and alternatively
+		using <a href="http://freezedried.sourceforge.net">FreezeDry</a>. Java's default approach requires that all classes 
+		to be serialized implement <b class="class">Serializable</b> and have a no-arg constructor. FreezeDry is a bit 
+		more flexible and requires neither of these, but is an alpha, and from time to time you may run into bugs.
+		<ul>
+			<li><b class="tt">FreezeDry_0.2.2.jar</b></li>
+			<li><b class="tt">json-20120228.jar</b></li>
+		</ul>
+	</dd>
+	
+	<!-- Testing, Logging, Streams -->
+	<dt>Logging, Unit Tests, and Streams</dt>
+	<dd>
+		Diffusive has a few additional dependencies for basic functions.
+		<ul>
+			<li><b class="tt">junit-4.8.1.jar</b></li>
+			<li><b class="tt">log4j-1.2.15.jar</b></li>
+			<li><b class="tt">commons-io-2.4.jar</b></li>
+		</ul>
+	</dd>
+	
+</dl>
+</p>
 
 </article>
  
