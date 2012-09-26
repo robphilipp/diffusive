@@ -38,8 +38,21 @@
 		<li><a href="#participate">Participate</a></li>
 		<li><a href="#getting_started">Getting Started</a>
 			<ul class="overview_toc_list">
-				<li><a href="#current_state_idiosyncrasies">Current State Idiosyncrasies</a>
+				<li><a href="#current_state_idiosyncrasies">Current State Idiosyncrasies</a></li>
 				<li><a href="#build_environment">Build Environment</a>
+					<ul class="overview_toc_list">
+						<li><a href="#minimim_requirements">Minimum Requirements</a></li>
+						<li><a href="#external_dependencies">External Dependencies</a></li>
+					</ul>
+				</li>
+				<li><a href="#configuring_diffusive">Configuring Diffusive</a>
+					<ul class="overview_toc_list">
+						<li><a href="#default_diffuser_configuration">Default Diffuser Configuration</a></li>
+						<li><a href="#custom_diffuser_configuration">Custom Diffuser Configuration</a></li>
+						<li><a href="#diffuser_server_configuration">Diffuser-Server Configuration</a></li>
+					</ul>
+				</li>
+				<li><a href="#running_diffusive">Running Diffusive</a></li>
 			</ul>
 		</li>
 	</ul>
@@ -79,7 +92,7 @@ however, as I heard someone say: &quot;<em>it is what it is, and if it were diff
 for a user. As Diffusive progresses, these items will be cleaned up.</p>
 
 <ul>
-	<li>Diffusive uses a Java-based configuration to define its behavior and the topology of the network. The current
+	<li id="configuration_idiosyncrasy">Diffusive uses a Java-based configuration to define its behavior and the topology of the network. The current
 		Java-based configuration uses annotations (<b class="class">@DiffusiveConfiguration</b> and 
 		<b class="class">@DiffusiveServerConfiguration</b>)) on configuration methods to configure various aspects
 		of Diffusive. The next step is to modify the current configuration methods to read basic parameters from
@@ -97,11 +110,16 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 </p>
 
 <!-- 
-	Idiosyncrasies of the Current State
+	Build Environment
  -->
 <h3 id="build_environment"><a href="#overview">Build Environment</a></h3>
-<p>Diffusive requires Java 7 and has various dependencies.
 
+<!-- Minimum Requirements -->
+<h4 id="minimim_requirements"><a href="#overview">Minimum Requirements</a></h4>
+<p>Diffusive requires Java 7.</p>
+
+<!-- External Dependencies -->
+<h4 id="external_dependencies"><a href="#overview">External Dependencies</a></h4>
 <dl>
 	<!-- Javassist -->
 	<dt>Javassist</dt>
@@ -110,7 +128,7 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 		on the annotation <b class="class">@Diffusive</b>. Javassist finds those annotations at class-load time and replaces
 		all method calls to these annotated methods with a call to the diffuser instead.
 		<ul>
-			<li><b class="tt">javassist.jar</b></li>
+			<li>javassist.jar</li>
 		</ul>
 	</dd>
 	
@@ -121,14 +139,14 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 		that provides convenient binding between the resource address and methods that handle them. And Grizzly is an 
 		in process HTTP server and client that Diffusive uses for issuing and handling HTTP requests.
 		<ul>
-			<li><b class="tt">grizzly-framework-2.2.1.jar</b></li>
-			<li><b class="tt">grizzly-http-2.2.1.jar</b></li>
-			<li><b class="tt">grizzly-http-server-2.2.1.jar</b></li>
-			<li><b class="tt">jersey-client-1.12.jar</b></li>
-			<li><b class="tt">jersey-core-1.12.jar</b></li>
-			<li><b class="tt">jersey-grizzly2-1.12.jar</b></li>
-			<li><b class="tt">jersey-server-1.12.jar</b></li>
-			<li><b class="tt">jsr311-api-1.1.1.jar</b></li>
+			<li>grizzly-framework-2.2.1.jar</li>
+			<li>grizzly-http-2.2.1.jar</li>
+			<li>grizzly-http-server-2.2.1.jar</li>
+			<li>jersey-client-1.12.jar</li>
+			<li>jersey-core-1.12.jar</li>
+			<li>jersey-grizzly2-1.12.jar</li>
+			<li>jersey-server-1.12.jar</li>
+			<li>jsr311-api-1.1.1.jar</li>
 		</ul>
 	</dd>
 	
@@ -138,12 +156,12 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 		Diffusive uses REST to manage diffusers and communicate between them. The messages flying back and forth are
 		Atom formated XML and Diffusive uses Abdera for creating and parsing the Atom messages.
 		<ul>
-			<li><b class="tt">abdera-core-1.1.2.jar</b></li>
-			<li><b class="tt">abdera-i18n-1.1.2.jar</b></li>
-			<li><b class="tt">abdera-parser-1.1.2.jar</b></li>
-			<li><b class="tt">axiom-api-1.2.10.jar</b></li>
-			<li><b class="tt">axiom-impl-1.2.10.jar</b></li>
-			<li><b class="tt">commons-logging-1.0.4.jar</b></li>
+			<li>abdera-core-1.1.2.jar</li>
+			<li>abdera-i18n-1.1.2.jar</li>
+			<li>abdera-parser-1.1.2.jar</li>
+			<li>axiom-api-1.2.10.jar</li>
+			<li>axiom-impl-1.2.10.jar</li>
+			<li>commons-logging-1.0.4.jar</li>
 		</ul>
 	</dd>
 	
@@ -156,8 +174,8 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 		to be serialized implement <b class="class">Serializable</b> and have a no-arg constructor. FreezeDry is a bit 
 		more flexible and requires neither of these, but is an alpha, and from time to time you may run into bugs.
 		<ul>
-			<li><b class="tt">FreezeDry_0.2.2.jar</b></li>
-			<li><b class="tt">json-20120228.jar</b></li>
+			<li>FreezeDry_0.2.2.jar</li>
+			<li>json-20120228.jar</li>
 		</ul>
 	</dd>
 	
@@ -166,16 +184,150 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 	<dd>
 		Diffusive has a few additional dependencies for basic functions.
 		<ul>
-			<li><b class="tt">junit-4.8.1.jar</b></li>
-			<li><b class="tt">log4j-1.2.15.jar</b></li>
-			<li><b class="tt">commons-io-2.4.jar</b></li>
+			<li>junit-4.8.1.jar</li>
+			<li>log4j-1.2.15.jar</li>
+			<li>commons-io-2.4.jar</li>
 		</ul>
 	</dd>
 	
 </dl>
+
+<!-- 
+	Configuring Diffusive
+ -->
+<h3 id="configuring_diffusive"><a href="#overview">Configuring Diffusive</a></h3>
+<p>Given it current-state idiosyncrasies, configuration of Diffusive is accomplished through Java source files that are
+are compiled with the build. (See <a href="#configuration_idiosyncrasy">configuration idiosyncrasy</a>.) There are two 
+parts of Diffusive the must be configured: the diffuser configuration; and, the diffuser-server configuration. In the
+next two subsections we describe the purpose and elements of both configurations.</p>
+
+<!-- Default Diffuser Configuration -->
+<h4 id="default_diffuser_configuration"><a href="#overview">Default Diffuser Configuration</a></h4>
+<p>When using the <a href="javadocs/index.html?org/microtitan/diffusive/launcher/DiffusiveLauncher.html"><b class="class">DiffusiveLauncher</b></a>
+directly, without extending and customizing it, the only configuration you must perform is related to the:
+<ol>
+	<li>Type of serialization you would like to use for the objects that are transferred over the network.</li>
+	<li>Location of the remote diffusers with which you would like to interact.</li>
+	<li>Class path URI that remote diffusers will look to when attempting to load a class.</li>
+</ol>
+And all this configuration is held in the
+<a href="javadocs/index.html?org/microtitan/diffusive/launcher/config/RestfulDiffuserConfig.html"><b class="class">RestfulDiffuserConfig</b></a>
+class' <b class="class">configure()</b> method.
 </p>
 
+<pre class="brush: java">
+@DiffusiveConfiguration
+public static final void configure()
+{
+	// 1. create the serializer
+	String serializerName = SerializerFactory.SerializerType.OBJECT.getName();
+	SerializerFactory factory = SerializerFactory.getInstance();
+	Serializer serializer = factory.createSerializer( serializerName );
+
+	// 2. create the diffusion strategy. this holds the end-points (location) of the
+	//    remote diffusers to which annotated methods are diffused, and the strategy
+	//    used to determine the end-point for a diffused call.
+	DiffuserStrategy strategy = createStrategy();
+	
+	// 3. create a list of end-points remote diffusers will look to when attempting
+	//    to load a class
+	List< URI > classPaths = createClassPathList();
+	
+	// IMPORTANT:
+	// create the diffuser and add it to the global diffuser repository. this is
+	// needed because the byte-code engineering framework needs access to the 
+	// diffuser so it can replace the annotated method calls.
+	Diffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, LOAD_THRESHOLD );
+	KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
+}
+</pre>
+
+<p>You may have noticed a set of static variables a the top of the <b class="class">RestfulDiffuserConfig</b> source file.</p>
+
+<pre class="brush: java">
+// holds the list of client endpoints to which diffused methods are sent. the end-point must
+// have a restful diffusive server running that can accept requests.
+public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.4:8182" );
+
+// holds the base URI of the class path that gets passed to the remote diffuser manager 
+// when creating a diffuser. this allows the remote code to load classes from a remote 
+// server. This URI typically points to the host running that is launching the code to be 
+// diffused (since it is that code that has the classes), or some other host that holds 
+// all the required classes (that have been deployed there) and is running a restful 
+// diffuser server
+public static final List< String > CLASSPATH_URI = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
+
+// the threshold for CPU loads, above which the diffuser will send the tasks to a 
+// remote diffuser, unless of course, there are no client end-points specified. When 
+// the threshold is below the load threshold, the diffuser will call the local diffuser 
+// to execute the tasks.
+public static final double LOAD_THRESHOLD = 0.5;
+</pre>
+
+<p>These variable provide an easy way to set the basic configuration. However, you can update this class to read
+from a file, or do whatever you want. This configuration file can also be changed, and we discuss that and a few
+other basic customizations in the next section.</p>
+
+<!-- Custom Diffuser Configuration -->
+<h4 id="custom_diffuser_configuration"><a href="#overview">Custom Diffuser Configuration</a></h4>
+
+<p>Recall that Diffusive uses byte-code engineering to replace calls to diffusive methods (those methods annotated with 
+<b class="class">@Diffusive</b>) with a calls to the diffuser itself. In this way, any diffusive-annotated method can
+be distributed, regardless of the method signature.</p> As described in the section,
+<a href="overview_guide.html#launching_and_instrumentation">Launching and Configuration</a>, in the
+<a href="overview_guide.html">Overview Guide</a>, the application to be diffused must be launched through the 
+<a href="javadocs/index.html?org/microtitan/diffusive/launcher/DiffusiveLauncher.html"><b class="class">DiffusiveLauncher</b></a>.
+The <b class="class">main(...)</b> method of the <b class="class">DiffusiveLauncher</b> allows you to specify the 
+name of the class holding your application's <b class="class">main(...)</b> method, and the program (command-line) arguments
+your application expects. The <b class="class">DiffusiveLauncher</b> will execute your application using a set of reasonable
+defaults--which you can modify by extending the <b class="class">DiffusiveLauncher</b> with your own class.</p>
+
+<p>When calling <b class="class">DiffusiveLauncher</b> and handing it your application's class name, it will instantiate
+a <a href="javadocs/index.html?org/microtitan/diffusive/launcher/DiffusiveLoader.html"><b class="class">DiffusiveLoader</b></a>
+that looks in the
+<a href="javadocs/index.html?org/microtitan/diffusive/launcher/config/RestfulDiffuserConfig.html"><b class="class">RestfulDiffuserConfig</b></a>
+class for <b>static</b> methods annotated with <b class="class">@DiffusiveConfiguration</b>. These annotated configuration
+methods will be called when the <b class="class">DiffusiveLoader.run(...)</b> method is called by the launcher.</p>
+
+<p>To make all this a bit more concrete, let's walk through some basic code. The <b class="class">DiffusiveLauncher</b>'s
+<b class="class">main(...)</b> method does two things:
+<ol>
+	<li>Instantiates a <b class="class">DiffusiveLauncher</b></li>
+	<li>Calls the <b class="class">run(...)</b> method on the <b class="class">DiffusiveLauncher</b> object.</li>
+</ol>
+</p>
+
+<pre class="brush: java">
+public static void main( String[] args )
+{
+	// 1: instantiate the new diffusive launcher
+	final DiffusiveLauncher launcher = new DiffusiveLauncher();
+	
+	// 2: run the application
+	final String classNameToRun = // the name of the your application's main class
+	final String[] programArgs = // the program arguments expected by your application
+	launcher.run( classNameToRun, programArgs );
+}
+</pre>
+
+<p>The <b class="class">DiffusiveLauncher</b>'s default, no-arg constructor uses some of the </p>
+
+<!-- Diffuser-Server Configuration -->
+<h4 id="diffuser_server_configuration"><a href="#overview">Diffuser-Server Configuration</a></h4>
+
+<!-- 
+	Running Diffusive
+ -->
+<h3 id="running_diffusive"><a href="#overview">Running Diffusive</a></h3>
+
 </article>
- 
+
+<!-- Finally, to actually run the highlighter, you need to include this JS on your page -->
+<script type="text/javascript">
+SyntaxHighlighter.defaults['gutter'] = false;
+SyntaxHighlighter.defaults['toolbar'] = false;
+SyntaxHighlighter.all()
+</script>
+
 </body>
 </html> 

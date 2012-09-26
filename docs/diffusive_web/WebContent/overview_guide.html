@@ -4,14 +4,6 @@
 	<meta charset=utf-8>
 	<link rel="stylesheet" type="text/css" href="diffusive.css"/>
 
-	<!-- Code Syntax Highlighting -->
-	<script type="text/javascript" src="scripts/syntax_highlight/shCore.js"></script>
-	<script type="text/javascript" src="scripts/syntax_highlight/shBrushJava.js"></script>
-	<script type="text/javascript" src="scripts/syntax_highlight/shBrushXml.js"></script>
-	
-	<link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shCore.css" />
-	<link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shThemeEclipse.css" />
-
 	<title>Diffusive</title>
 </head>
 
@@ -505,10 +497,9 @@ application method calling a diffusive (marked) method does not, and can not, kn
 <h4 id="launching_and_instrumentation"><a href="#overview">Launching and Instrumenting</a></h4>
 <p><em>Diffusive</em> accomplishes this through a combination of annotations and load-time byte-code engineering. 
 The annotations are simple: any method that is to be diffused is annotated with <b class="class">@Diffusive</b>. This signals 
-the class-loader that any calls to this method should be replaced with a call to a diffuser that has already been 
-configured to replace marked method calls with calls to the diffuser instead and hands the diffuser information 
-about the method call. (Particularly, and at a minimum, the diffuser needs to know the name of the method, it's parameter 
-types and values, its return type, and the name of the class that containing it.) To accomplish this <em>Diffusive</em> uses the byte-code 
+the class-loader that any calls to this method should be replaced with a call to a pre-configured diffuser. In this way, the 
+marked method calls get handed to the diffuser, along with the methods parameter types and values, then name of the class in
+which the method resides, and the method's return type. To accomplish this <em>Diffusive</em> uses the byte-code 
 engineering framework <a href="http://www.jboss.org/javassist/">Javassist</a>. (Some have pointed out that another 
 approach would have been to use aspect-oriented programming frameworks such as AspectJ. However, the compact 
 <a href="http://www.jboss.org/javassist/">Javassist</a> framework provides everything <em>Diffusive</em> needs.)</p>
