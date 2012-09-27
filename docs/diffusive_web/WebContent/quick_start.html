@@ -270,47 +270,60 @@ other basic customizations in the next section.</p>
 
 <!-- Custom Diffuser Configuration -->
 <h4 id="custom_diffuser_configuration"><a href="#overview">Custom Diffuser Configuration</a></h4>
+<p>In most cases the <b class="class">RestfulDiffuserConfig</b> class should provide enough flexibility. However,
+more than likely you'll want to implement a configuration class that reads the configuration from a file (for
+sure I have that on my ToDo list). Although you could simply modify the existing <b class="class">RestfulDiffuserConfig</b>
+class, a more sensible approach is to create a new class that meets your needs, and then tell the 
+<b class="class">DiffusiveLoader</b> object to use that configuration class.</p>
 
-<p>Recall that Diffusive uses byte-code engineering to replace calls to diffusive methods (those methods annotated with 
-<b class="class">@Diffusive</b>) with a calls to the diffuser itself. In this way, any diffusive-annotated method can
-be distributed, regardless of the method signature.</p> As described in the section,
-<a href="overview_guide.html#launching_and_instrumentation">Launching and Configuration</a>, in the
-<a href="overview_guide.html">Overview Guide</a>, the application to be diffused must be launched through the 
-<a href="javadocs/index.html?org/microtitan/diffusive/launcher/DiffusiveLauncher.html"><b class="class">DiffusiveLauncher</b></a>.
-The <b class="class">main(...)</b> method of the <b class="class">DiffusiveLauncher</b> allows you to specify the 
-name of the class holding your application's <b class="class">main(...)</b> method, and the program (command-line) arguments
-your application expects. The <b class="class">DiffusiveLauncher</b> will execute your application using a set of reasonable
-defaults--which you can modify by extending the <b class="class">DiffusiveLauncher</b> with your own class.</p>
-
-<p>When calling <b class="class">DiffusiveLauncher</b> and handing it your application's class name, it will instantiate
-a <a href="javadocs/index.html?org/microtitan/diffusive/launcher/DiffusiveLoader.html"><b class="class">DiffusiveLoader</b></a>
-that looks in the
-<a href="javadocs/index.html?org/microtitan/diffusive/launcher/config/RestfulDiffuserConfig.html"><b class="class">RestfulDiffuserConfig</b></a>
-class for <b>static</b> methods annotated with <b class="class">@DiffusiveConfiguration</b>. These annotated configuration
-methods will be called when the <b class="class">DiffusiveLoader.run(...)</b> method is called by the launcher.</p>
-
-<p>To make all this a bit more concrete, let's walk through some basic code. The <b class="class">DiffusiveLauncher</b>'s
-<b class="class">main(...)</b> method does two things:
-<ol>
-	<li>Instantiates a <b class="class">DiffusiveLauncher</b></li>
-	<li>Calls the <b class="class">run(...)</b> method on the <b class="class">DiffusiveLauncher</b> object.</li>
-</ol>
-</p>
+<p>Fortunately, this is quite straightforward. Simply create a new class <b class="class">MyDiffusiveLauncher</b> that
+extends <b class="class">DiffusiveLauncher</b>. In your new launcher, create a main and use the following code.</p>
 
 <pre class="brush: java">
-public static void main( String[] args )
-{
-	// 1: instantiate the new diffusive launcher
-	final DiffusiveLauncher launcher = new DiffusiveLauncher();
-	
-	// 2: run the application
-	final String classNameToRun = // the name of the your application's main class
-	final String[] programArgs = // the program arguments expected by your application
-	launcher.run( classNameToRun, programArgs );
+public class MyDiffusiveLauncher extends DiffusiveLauncher {
+
+	public static void main( String[] args )
+	{
+		// create a loader with that uses your specific configuration class and use
+		// that to create a diffuser launcher
+		List< String > configClasses = Arrays.asList( MyConfigClass.class.getName() );
+		DiffusiveLoader loader = createLoader( configClasses );
+		DiffusiveLauncher launcher = new DiffusiveLauncher( loader );
+
+		final String classNameToRun = // the name of the your application's main class
+		final String[] programArgs = // the program arguments expected by your application
+		launcher.run( classNameToRun, programArgs );
+	}
 }
 </pre>
 
-<p>The <b class="class">DiffusiveLauncher</b>'s default, no-arg constructor uses some of the </p>
+<p>Notice that we no longer use <b class="class">DiffusiveLauncher</b>'s default, no-arg constructor. Instead,
+we use the <b class="class">DiffusiveLauncher.createLoader(...)</b> method to create a new loader that uses
+your new configuration class instead, and then hand that new loader to the <b class="class">DiffusiveLauncher</b>'s
+constructor. The new configuration class is shown below.</p>
+
+<pre class="brush: java">
+public class MyConfigClass {
+
+	@DiffusiveConfiguration
+	public static final void configure()
+	{
+		// add your configuration code
+		.
+		.
+		.
+		
+		// IMPORTANT: you MUST create the diffuser and add it to the repository
+		// create the diffuser and add it to the global diffuser register
+		Diffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, LOAD_THRESHOLD );
+		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
+	}
+}
+</pre>
+
+<p>More extensive customizations, such as creating and using a new loader follow the same pattern. Clearly, the
+<b class="class">DiffusiveLauncher</b> could be updated to allow that specification of the configuration class.
+That would be a great contribution.</p>
 
 <!-- Diffuser-Server Configuration -->
 <h4 id="diffuser_server_configuration"><a href="#overview">Diffuser-Server Configuration</a></h4>
