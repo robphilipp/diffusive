@@ -15,7 +15,7 @@ nav
 	position: absolute;
 	left: 210px;
 	font-size: 0.9em;
-	font-family: verdana;
+	font-family: calibri;
 }
 article 
 {
@@ -24,7 +24,7 @@ article
 	top: 125px;
 	width: 750px; 
 	background-color: #fff;
-	font-family: sans-serif;
+	font-family: calibri;
 	line-height: 1.3em;
 	padding: 0px 15px 15px 15px;
 	border-color: #EBEBEB;
@@ -41,8 +41,7 @@ article
 	top: 145px;
 	width: 185px; 
 	background-color: #fff;
-	font-family: verdana;
-	font-size: 0.9em;
+	font-family: calibri;
 	line-height: 1.3em;
 	padding: 0px 5px 5px 5px;
 	border-color: #EBEBEB;
@@ -125,7 +124,7 @@ a:hover {
 
 ul.overview_toc_list {
 	list-style-type: none; 
-	font-family: verdana;
+	font-family: calibri;
 	font-size:0.9em;
 	padding-left: 5px;
 }
@@ -133,6 +132,7 @@ ul.overview_toc_list {
 b.class
 {
 	color: darkgreen;
+	font-family: monospace;
 }
 
 b.tt

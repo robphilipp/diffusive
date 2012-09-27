@@ -183,11 +183,7 @@ public class RestfulDiffuserServer {
 		if( args.length < 2 )
 		{
 			System.out.println();
-			System.out.println( "+-------------------------------------+" );
-			System.out.println( "|  Usage: name_of_class_to_run [arg]* |" );
-			System.out.println( "|                                     |" );
-			System.out.println( "|  **** Running simple test code **** |" );
-			System.out.println( "+-------------------------------------+" );
+			System.out.println( "Usage: server_uri configuration_class_name" );
 			System.out.println();
 			args = new String[] { DEFAULT_SERVER_URI, DEFAULT_CONFIGURATION_CLASS };
 		}

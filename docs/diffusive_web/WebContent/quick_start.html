@@ -196,13 +196,30 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 	Configuring Diffusive
  -->
 <h3 id="configuring_diffusive"><a href="#overview">Configuring Diffusive</a></h3>
-<p>Given it current-state idiosyncrasies, configuration of Diffusive is accomplished through Java source files that are
+<p>Given its current-state idiosyncrasies, configuration of Diffusive is accomplished through Java source files that are
 are compiled with the build. (See <a href="#configuration_idiosyncrasy">configuration idiosyncrasy</a>.) There are two 
 parts of Diffusive the must be configured: the diffuser configuration; and, the diffuser-server configuration. In the
 next two subsections we describe the purpose and elements of both configurations.</p>
 
+<p>Recall that, although all diffusers are the same, the application-attached diffuser is the diffuser to which <em>diffusive</em>
+methods are dispatched. It is the application-attached diffuser that then distributes the method call to remote diffusers. To do
+this, the application-attached diffuser must know which to which remote diffusers it can send methods--in other words, it must
+know its end-points and its diffusion strategy. It must also know which serialization mechanism to use. And, it must be able to
+supply the remote diffuser with a set of class paths from which the remote diffuser can load classes. This configuration is
+covered in the next section, <a href="#default_diffuser_configuration">Default Diffuser Configuration</a></p>
+
+<p>Recall also that to communicate with a RESTful diffuser, you must launch a diffuser server (<b class="class">RestfulDiffuserServer</b>). 
+The diffuser server provides two services. It provides access to the diffusers. And, it provides access to the <b class="class">Class</b>
+objects needed by the remote diffuser's class loader. The <b class="class">RestfulDiffuserServer</b> extends the
+<b class="class">javax.ws.rs.core.Application</b> class and binds to the JAX-RS resources,
+<b class="class">RestfulDiffuserManagerResource</b> for access to the diffusers, and the <b class="class">RestfulClassPathResource</b>
+to allow remote loading of classes. When a new <b class="class">RestfulDiffuserManagerResource</b> is created, it must be handed
+a default set of end-points and a strategy with which to select the end-points. We cover this configuration in the section,
+<a href="#diffuser_server_configuration">Diffuser-Server Configuration</a></p> 
+
 <!-- Default Diffuser Configuration -->
 <h4 id="default_diffuser_configuration"><a href="#overview">Default Diffuser Configuration</a></h4>
+  
 <p>When using the <a href="javadocs/index.html?org/microtitan/diffusive/launcher/DiffusiveLauncher.html"><b class="class">DiffusiveLauncher</b></a>
 directly, without extending and customizing it, the only configuration you must perform is related to the:
 <ol>
@@ -328,10 +345,55 @@ That would be a great contribution.</p>
 <!-- Diffuser-Server Configuration -->
 <h4 id="diffuser_server_configuration"><a href="#overview">Diffuser-Server Configuration</a></h4>
 
+<p>When running the <b class="class">RestfulDiffuserServer</b> class' <b class="class">main(...)</b> method without any
+command-line arguments, it uses the default configuration class, <b class="class">RestfulDiffuserServerConfig</b>. In a
+manner similar to the configuration of the application-attached diffuser, the server configuration method(s) are identified
+by the annotation <b class="class">@DiffusiveServerConfiguration</b>. The code below shows the default configuration 
+method.</p>
+
+<pre class="brush:java">
+@DiffusiveServerConfiguration
+public static final void configure()
+{
+	// 1. create a list of end-points that all new diffusers will have
+	List< URI > clientEndpoints = // the list of end-points
+	
+	// 2. create the strategy by which end-ponts are selected
+	DiffuserStrategy strategy = new RandomDiffuserStrategy( clientEndpoints );
+	
+	// 3. IMPORTANT: all configurations MUST add the strategy to the repository
+	// 	  add the strategy to the diffusive-strategy repository
+	KeyedDiffusiveStrategyRepository.getInstance().setValues( strategy, LOAD_THRESHOLD );
+}
+</pre>
+
+<p>The customization of the the diffusive-server configuration can be accomplished by creating a new configuration
+class and specifying it in as a command-line argument when launching the server.</p>
+
 <!-- 
 	Running Diffusive
  -->
 <h3 id="running_diffusive"><a href="#overview">Running Diffusive</a></h3>
+
+<p>Running Diffusive is pretty straightforward. In this section we'll walk you through running the test cases using
+Eclipse IDE. In this way, you'll be set up for debugging and participating in Diffusive's development.</p>
+
+<ol>
+	<li>Fire up Eclipse on all the machines that will participate and note their IP addresses.</li>
+	<li>In the <b class="class">RestfulDiffuserConfig</b> class, update the end-points to hold all
+		the IP addresses <b>except</b> the box on which you will launch the application.</li>
+	<li>In this example, we won't be doing any nested diffusion, so make sure that the end-points
+		defined in the <b class="class">RestfulDiffuserServerConfig</b> is an empty list. This tells
+		new diffusers that they will run everything locally, and won't diffuse any methods further.</li>
+	<li>Perform the second step on all the machines.</li>
+	<li>Run <b class="class">RestfulDiffuserServer</b> on all the machines without specifying any
+		command-line arguments.</li>
+	<li>Run <b class="class">DiffusiveLauncher</b> on your local box without specifying any command-line
+		arguments.</li>
+</ol>
+
+<p>At this point, the code should be diffusing and your results will soon start coming back. You can adjust the logging levels
+on the remote machines if you would like to see some action.</p>
 
 </article>
 
