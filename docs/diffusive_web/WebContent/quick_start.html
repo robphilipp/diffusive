@@ -5,9 +5,19 @@
 	<link rel="stylesheet" type="text/css" href="diffusive.css"/>
 
 	<!-- Code Syntax Highlighting -->
-	<script type="text/javascript" src="scripts/syntax_highlight/shCore.js"></script>
-	<script type="text/javascript" src="scripts/syntax_highlight/shBrushJava.js"></script>
-	<script type="text/javascript" src="scripts/syntax_highlight/shBrushXml.js"></script>
+	<script src="scripts/syntax_highlight/shCore.js"></script>
+	<script src="scripts/syntax_highlight/shBrushJava.js"></script>
+	<script src="scripts/syntax_highlight/shBrushXml.js"></script>
+
+	<script src="scripts/mootools-core-1.4.5.js" ></script>	
+	<script>
+		window.addEvent( 'domready', function() {
+			SyntaxHighlighter.defaults['gutter'] = false;
+			SyntaxHighlighter.defaults['toolbar'] = false;
+			SyntaxHighlighter.all()
+		});
+	</script>
+	
 	
 	<link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shCore.css" />
 	<link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shThemeEclipse.css" />
@@ -396,13 +406,6 @@ Eclipse IDE. In this way, you'll be set up for debugging and participating in Di
 on the remote machines if you would like to see some action.</p>
 
 </article>
-
-<!-- Finally, to actually run the highlighter, you need to include this JS on your page -->
-<script type="text/javascript">
-SyntaxHighlighter.defaults['gutter'] = false;
-SyntaxHighlighter.defaults['toolbar'] = false;
-SyntaxHighlighter.all()
-</script>
 
 </body>
 </html> 
