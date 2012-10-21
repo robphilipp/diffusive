@@ -7,7 +7,7 @@
 	<!-- 
 		version information 
 	-->
-	<property name="version" value="0.1.0" />
+	<property name="version" value="0.1.1" />
 
 	<!-- 
 		set global properties for this build
@@ -40,7 +40,7 @@
 	<!-- 
 		FreezeDry (serialization)
 	-->
-	<property name="freezedry" value="FreezeDry_0.2.2.jar" />
+	<property name="freezedry" value="FreezeDry_0.2.3.jar" />
 	<property name="json" value="json-20120228.jar" />
 
 	<!-- 
