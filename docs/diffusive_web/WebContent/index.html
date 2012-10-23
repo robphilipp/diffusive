@@ -1,54 +1,94 @@
 <!DOCTYPE html>
 <html lang=en>
 <head>
-	<meta charset=utf-8>
-	<link rel="stylesheet" type="text/css" href="diffusive.css"/>
+    <meta charset=utf-8>
+    <link rel="stylesheet" type="text/css" href="diffusive.css"/>
 
-	<title>Diffusive</title>
+    <script src="scripts/toc-creator.js"></script>
+
+    <script src="scripts/mootools-core-1.4.5.js" ></script>
+    <script>
+        window.addEvent( 'domready', function() {
+
+            // create the table of contents
+            createToc( "Contents" );
+        }, false );
+    </script>
+
+    <title>Diffusive</title>
 </head>
 
 <body>
 
 <header id="overview">
-	<img src="images/web_banner.png">
+    <img src="images/web_banner.png">
 </header>
 
 <nav>
-	<a href="overview_guide.html">Overview</a> | 
-	<a href="quick_start.html">Quick Start</a> |
-	<a href="javadocs/index.html" target="tab">Java Docs</a> |
-	<a href="https://sourceforge.net/p/diffusive/code/" target="tab">Code (hg)</a> |
-	<a href="https://sourceforge.net/projects/diffusive/files/" target="tab">Downloads</a> |
-	<a href="https://sourceforge.net/p/diffusive/wiki/Home/" target="tab">Wiki</a> |
-	<a href="https://sourceforge.net/p/diffusive/tickets/" target="tab">Tickets</a> |
-	<a href="https://sourceforge.net/p/diffusive/discussion/" target="tab">Discussion</a>
+    <a href="overview_guide.html">Overview</a>
+    <a href="quick_start.html">Quick Start</a>
+    <a href="javadocs/index.html" target="tab">Java Docs</a>
+    <a href="https://sourceforge.net/p/diffusive/code/" target="tab">Code (hg)</a>
+    <a href="https://sourceforge.net/projects/diffusive/files/" target="tab">Downloads</a>
+    <a href="https://sourceforge.net/p/diffusive/wiki/Home/" target="tab">Wiki</a>
+    <a href="https://sourceforge.net/p/diffusive/tickets/" target="tab">Tickets</a>
+    <a href="https://sourceforge.net/p/diffusive/discussion/" target="tab">Discussion</a>
 </nav>
 
 <article>
-<p>The goal of <b>Diffusive Programming</b> is to make method-level, task-oriented distributed computing easier by separating 
-the execution logic from the distribution logic.</p> 
 
-<p><b>Diffusive</b> is a Java reference implementation of the <a href="overview_guide.html#the_principles">six principles</a>
-that define <em>diffusive programming</em>. In <b>Diffusive</b>:</p>
-<ul>
-	<li>Methods are marked for diffusion (distribution) using the <b class="class">@Diffusive</b> annotation.</li>
-	<li>There are no <b class="class">Task</b> (or similar) interfaces to implement. Any method, with any signature
-		can be diffused (distributed).</li>
-	<li>You don't need to deploy the <b class="class">class</b> files to any of the compute nodes. <b>Diffusive</b>
-		will load the <b class="class">Class</b>es is needs at runtime from the source or from a location you configure.</li>
-	<li>The topology of the network of nodes can be anything that can be represented as a directed graph. Topologies can be 
-		tailored to solve specific problems.</li>
-	<li>You can do <a href="overview_guide.html#multi_layered">nested diffusion</a>.</li>
-	<li>You build redundant networks, or fault-tolerant (to a point) networks.</li>
- 	<li>Method execution is distributed to a network of nodes that can be configured or added and removed dynamically.</li>
-	<li>Communication between nodes uses a RESTful API</li> 
-</ul>
+    <h3 id="goals"><a href="#top">The Goal</a></h3>
+    <p>The goal of <b>Diffusive Programming</b> is to make method-level, task-oriented distributed computing easier by
+        separating the execution logic from the distribution logic.</p>
 
-<p>For a more complete description of diffusive programming and the reference implementation, please see the
-<a href="overview_guide.html">the Overview</a> or download the 
-<a href="https://sourceforge.net/projects/diffusive/files/diffusive_programming.pdf">Diffusive Programming</a> paper.</p>
+    <h3 id="what_it_is"><a href="#top">Easier Distributed Computing</a></h3>
+    <p><b>Diffusive</b> is a Java reference implementation of the <a href="overview_guide.html#the_principles">six
+        principles</a> that define <em>diffusive programming</em>. <b>Diffusive programming</b> attempts to overcomes
+        several inconveniences found in traditional distributed computing approaches:</p>
+
+    <dl>
+        <dt>Any Method Can Be Diffused (Distributed)</dt>
+        <dd>There are no <b class="class">Task</b> (or similar) interfaces to implement. <b>Any</b> method, with
+            <b>any</b> signature can be diffused (distributed).
+        </dd>
+
+        <dt>To Diffuse (Distribute) a Method, Simply Mark the Method</dt>
+        <dd>Methods are marked for diffusion (distribution) using the <b class="class">@Diffusive</b> annotation.
+            That's all. It's that simple!</dd>
+
+        <dt>Don't Worry about Pre-Deploying Class Files</dt>
+        <dd>You don't need to pre-deploy the <b class="class">class</b> files to any of the compute nodes.
+            <b>Diffusive</b> will load the <b class="class">Class</b>es it needs at runtime from the requesting
+            diffuser, or from a location you configure.
+        </dd>
+
+        <dt>Enjoy an Open Topology</dt>
+        <dd>The topology of the network of nodes can be anything that can be represented as a directed graph. Topologies
+            can be tailored to solve specific problems.
+        </dd>
+
+        <dt>Diffusers Can Diffuse</dt>
+        <dd>Because all <b>Diffusers</b> are equal, there is no difference between diffusers accepting an execution task
+            and a diffusers requesting an execution task. This allows a distributed method to further distribute
+            methods. In other words, you can do <a href="overview_guide.html#multi_layered">nested diffusion</a>.
+        </dd>
+
+        <dt>The Diffuser Network is Dynamic</dt>
+        <dd>Method execution is distributed to a network of nodes that can be configured or added and removed
+            dynamically.
+        </dd>
+
+        <dt>RESTful API</dt>
+        <dd>Communication between nodes uses a RESTful API.</dd>
+    </dl>
+
+    <h3 id="more_info"><a href="#top">More Information</a></h3>
+    <p>For a more complete description of diffusive programming and the reference implementation, please see the
+        <a href="overview_guide.html">the Overview</a> or download the
+        <a href="https://sourceforge.net/projects/diffusive/files/diffusive_programming.pdf">Diffusive Programming</a>
+        paper.</p>
 
 </article>
- 
+
 </body>
 </html> 

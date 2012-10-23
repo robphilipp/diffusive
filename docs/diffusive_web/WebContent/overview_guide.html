@@ -4,75 +4,53 @@
 	<meta charset=utf-8>
 	<link rel="stylesheet" type="text/css" href="diffusive.css"/>
 
-	<title>Diffusive</title>
+    <!-- Code Syntax Highlighting -->
+    <script src="scripts/syntax_highlight/shCore.js"></script>
+    <script src="scripts/syntax_highlight/shBrushJava.js"></script>
+    <script src="scripts/syntax_highlight/shBrushXml.js"></script>
+
+    <script src="scripts/toc-creator.js"></script>
+
+    <script src="scripts/mootools-core-1.4.5.js" ></script>
+    <script>
+        window.addEvent( 'domready', function() {
+            // syntax highlighting for the code
+            SyntaxHighlighter.defaults['gutter'] = false;
+            SyntaxHighlighter.defaults['toolbar'] = false;
+            SyntaxHighlighter.all();
+
+            // create the table of contents
+            createToc( "Contents" );
+        }, false );
+    </script>
+
+
+    <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shCore.css" />
+    <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shThemeEclipse.css" />
+
+    <title>Diffusive</title>
 </head>
 
 <body>
 
+
 <header id="overview">
-	<img src="images/web_banner.png">
+    <img src="images/web_banner.png">
 </header>
 
 <nav>
-	<a href="index.html">Home</a> | 
-	<a href="quick_start.html">Quick Start</a> |
-	<a href="javadocs/index.html" target="tab">Java Docs</a> |
-	<a href="https://sourceforge.net/p/diffusive/code/" target="tab">Code (hg)</a> |
-	<a href="https://sourceforge.net/projects/diffusive/files/" target="tab">Downloads</a> |
-	<a href="https://sourceforge.net/p/diffusive/wiki/Home/" target="tab">Wiki</a> |
-	<a href="https://sourceforge.net/p/diffusive/tickets/" target="tab">Tickets</a> |
-	<a href="https://sourceforge.net/p/diffusive/discussion/" target="tab">Discussion</a>
+    <a href="index.html">Home</a>
+    <a href="quick_start.html">Quick Start</a>
+    <a href="javadocs/index.html" target="tab">Java Docs</a>
+    <a href="https://sourceforge.net/p/diffusive/code/" target="tab">Code (hg)</a>
+    <a href="https://sourceforge.net/projects/diffusive/files/" target="tab">Downloads</a>
+    <a href="https://sourceforge.net/p/diffusive/wiki/Home/" target="tab">Wiki</a>
+    <a href="https://sourceforge.net/p/diffusive/tickets/" target="tab">Tickets</a>
+    <a href="https://sourceforge.net/p/diffusive/discussion/" target="tab">Discussion</a>
 </nav>
 
-<div id="toc">
-<p class="overview_toc">Contents</p>
-	<ul class="overview_toc_list">
-		<li><a href="#overview">Overview</a></li>
-		<li><a href="#introduction">Introduction</a></li>
-		<li><a href="#principles_of_diffusive_programming">Diffusive Principles</a>
-			<ul class="overview_toc_list">
-				<li><a href="#the_principles">The Principles</a></li>
-				<li><a href="#marking_principle">Marking</a></li>
-				<li><a href="#location_hiding_principle">Location Hiding</a></li>
-				<li><a href="#failure_resolution_principle">Failure Resolution</a></li>
-				<li><a href="#generic_computation_principle">Generic Computation</a></li>
-				<li><a href="#indistinguishability_principle">Indistinguishability</a></li>
-				<li><a href="#open_topology_principle">Open Topology</a></li>
-			</ul>
-		</li>
-		<li><a href="#diffusion_patterns">Diffusion Patterns</a>
-			<ul class="overview_toc_list">
-				<li><a href="#layered">Layered</a>
-					<ul class="overview_toc_list">
-						<li><a href="#single_layered">Single Layered</a></li>
-						<li><a href="#multi_layered">Multi-Layered</a></li>
-					</ul>
-				</li>
-				<li><a href="#redundant">Redundant</a></li>
-				<li><a href="#learning">Learning</a></li>
-			</ul>
-		</li>
-		<li><a href="#reference_implementation">Reference Implementation</a>
-			<ul class="overview_toc_list">
-				<li><a href="#marking_and_diffusing">Marking and Diffusing</a>
-					<ul class="overview_toc_list">
-						<li><a href="#launching_and_instrumentation">Launching and Instrumentation</a></li>
-						<li><a href="#distributing">Distributing</a></li>
-						<li><a href="#distribution_strategy">Distribution Strategy</a></li>
-						<li><a href="#serialization">Serialization</a></li>
-					</ul>
-				</li>
-				<li><a href="#best_efforts_failure_resolution">Failure Resolution</a></li>
-				<li><a href="#generic_computation">Generic Computation</a></li>
-				<li><a href="#indistinguishability_and_open_topology">Indistinguishability and Open Topology</a></li>
-			</ul>
-		</li>
-		<li><a href="#future_work">Future Work</a></li>
-	</ul>
-</div>
-
 <article>
-<h2><a href="#overview">Overview</a></h2>
+<h2><a href="#top">Overview</a></h2>
 <p>The goal of <b>Diffusive Programming</b> is to make task-oriented distributed computing easier by separating 
 the execution logic from the distribution logic. <em>Diffusive programming</em>, defined by a set of six principles, 
 is an approach for performing method-level, task-oriented distributed computing. In <em>diffusive programming</em>, 
@@ -83,7 +61,7 @@ and cache them. The topology of the network of nodes can be anything that can be
 Topologies can be tailored to solve specific problems. <em>Diffusive</em> is a Java reference implementation of the 
 six principles that define <em>diffusive programming</em>.</p>
 
-<h2 id="introduction"><a href="#overview">Introduction</a></h2>
+<h2 id="introduction"><a href="#top">Introduction</a></h2>
 <p>Task-oriented distributed computing allows independent computational tasks to be distributed to multiple computing nodes, 
 presumably to execute in parallel. This approach can reduce the overall compute time of a set of independent tasks. For 
 example, in quantitative finance, one may desire to calculate risk metrics for each financial instrument contained in a 
@@ -127,7 +105,7 @@ presents future work to be done on diffusive.</p>
 	Principles of Diffusive Programming
 
  -->
-<h2 id="principles_of_diffusive_programming"><a href="#overview">Principles of Diffusive Programming</a></h2>
+<h2 id="principles_of_diffusive_programming"><a href="#top">Principles of Diffusive Programming</a></h2>
 <em>Diffusive programming</em> is based on six principles that define a framework for performing task-oriented 
 distributed computing. The six principles are ordered. They build on each other, progressing from the action of 
 distributing the code to the deployment and configuration of the computation nodes.
@@ -135,7 +113,7 @@ distributing the code to the deployment and configuration of the computation nod
 <!-- 
 	The Principles
  -->
-<h3 id="the_principles"><a href="#overview">The Principles</a></h3>
+<h3 id="the_principles"><a href="#top">The Principles</a></h3>
 <dl>
 	<!-- marking, diffusive -->
 	<dt>Marking</dt>
@@ -210,7 +188,7 @@ differs from more typical or traditional methods of distributed computing.
 <!-- 
 	Marking
  -->
-<h3 id="marking_principle"><a href="#overview">Marking</a></h3>
+<h3 id="marking_principle"><a href="#top">Marking</a></h3>
 <p><em>Diffusive programming</em> allows the execution of individual methods to be distributed. <em>Marking</em> a 
 method is the act of specifying that a specific method is to be distributed. How a method is <em>marked</em> is 
 up to the implementation of this principle. However, this principle does state that the act of <em>marking</em> a 
@@ -229,7 +207,7 @@ next principle: location hiding.</p>
 <!-- 
 	Location Hiding
  -->
-<h3 id="location_hiding_principle"><a href="#overview">Location Hiding</a></h3>
+<h3 id="location_hiding_principle"><a href="#top">Location Hiding</a></h3>
 <p><em>Marking</em> a method tells the diffusive framework that that method is to be executed in a distributed manner. 
 But it is the principle of <em>location hiding</em> that places the requirement that any code calling a diffusive method 
 does not know, or need to know, where that method is executed. Removing the responsibility of knowing or having to deal 
@@ -249,7 +227,7 @@ mirrored, but in a distributed manner, simply by marking the method(s). When thi
 <!-- 
 	Best-Efforts Failure Resolution
  -->
-<h3 id="failure_resolution_principle"><a href="#overview">Best-Efforts Failure Resolution</a></h3>
+<h3 id="failure_resolution_principle"><a href="#top">Best-Efforts Failure Resolution</a></h3>
 <p>A task that is called and executed completely within a local address space (for example, code running 
 entirely in one process). may fail to return a result. The failure may occur because an input or logic error, and 
 in this case, it may be possible to trap and handle the error condition. In other cases, the failure may occur 
@@ -277,7 +255,7 @@ different diffuser a configured-number of times before giving up and reporting a
 <!-- 
 	Generic Computation
  -->
-<h3 id="generic_computation_principle"><a href="#overview">Generic Computation</a></h3>
+<h3 id="generic_computation_principle"><a href="#top">Generic Computation</a></h3>
 <p>The principle of <em>generic computation</em> provides that any method can be executed on a <em>diffuser</em> 
 without out the need to deploy the resource needed to execute that diffused method. Simply put, the shared object 
 libraries or classes don't need to be deployed to the remote server prior to making the request. Each <em>diffuser</em> 
@@ -294,7 +272,7 @@ centralized control over the versions. But even in this case, the resources need
 <!-- 
 	Indistinguishability
  -->
-<h3 id="indistinguishability_principle"><a href="#overview">Indistinguishability</a></h3>
+<h3 id="indistinguishability_principle"><a href="#top">Indistinguishability</a></h3>
 <p>The principle of <em>indistinguishability</em> means that a <em>diffuser</em> must be able to receive requests to 
 execute, and at the same time be able to <em>diffuse</em> (forward) those requests to another <em>diffuser</em>. In other 
 words, there isn't such a thing as a client diffuser and a server diffuser: they are one and the same.</p>
@@ -306,7 +284,7 @@ same time must be able to provide resources to a remote diffuser.</p>
 <!-- 
 	Open Topology
  -->
-<h3 id="open_topology_principle"><a href="#overview">Open Topology</a></h3>
+<h3 id="open_topology_principle"><a href="#top">Open Topology</a></h3>
 <p>The <em>open topology</em> principle, coupled with the <em>indistinguishability</em> principle, requires that it is 
 possible to create networks of <em>diffusers</em>, called <em>diffuser networks</em>, in any topology that can be 
 represented as a directed graph. Each node in the directed graph represents a <em>diffuser</em>, and each (directed) 
@@ -324,7 +302,7 @@ describes a few possible network topologies (patterns) that are designed to solv
 	Diffusion Patterns
 
  -->
-<h2 id="diffusion_patterns"><a href="#overview">Diffusion Patterns</a></h2>
+<h2 id="diffusion_patterns"><a href="#top">Diffusion Patterns</a></h2>
 <p><em>Diffusion patterns</em> are made possible by the last three diffusive programming principles: generic computing; 
 indistinguishability, and open topology. Together, these three principles make the statement that <em>diffusers</em> 
 form building blocks that can be connected as directed graphs. The principle of <em>open topology</em> requires that 
@@ -348,7 +326,7 @@ topologies have this characteristic in common.</p>
 <!-- 
 	Layered
  -->
-<h3 id="layered"><a href="#overview">Layered</a></h3>
+<h3 id="layered"><a href="#top">Layered</a></h3>
 <p>The layered topology is the simplest, and most similar to many distributed middleware solutions. In this topology, 
 the diffuser collocated with the application, which we will call the <em>application-attached diffuser</em>, is connected 
 to a set of end-points, which we call the <em>remote diffusers</em>. The application-attached diffuser, depending on 
@@ -357,7 +335,7 @@ diffusers execute the task and return the results to the application-attached di
 the application\footnote{In the discussion about the reference implementation, <em>Diffusive</em>, I'll provide details 
 on how these steps can be implemented.}.</p> 
 
-<h4 id="single_layered"><a href="#overview">Single Layered</a></h4>
+<h4 id="single_layered"><a href="#top">Single Layered</a></h4>
 <p>The <a href="#figure_single_layered">figure below</a> shows the simplest topology---a single layered diffuser network. In this figure, the circles label with 
 <b><em>D</em></b> are <em>diffusers</em>, the square at the bottom label with <b><em>A</em></b> is the application containing 
 the methods to be diffused. In this topology, the application-attached diffuser is responsible for distributing the tasks 
@@ -375,7 +353,7 @@ interface that can be implemented to provide a specific strategy based on CPU lo
 weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance 
 characteristics of the diffusive network.</p>
 
-<h4 id="multi_layered"><a href="#overview">Multi-Layered</a></h4>
+<h4 id="multi_layered"><a href="#top">Multi-Layered</a></h4>
 <p>A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is 
 shown in the <a href="#figure_multi_layered">figure below</a>. Implementations of the diffusive principles that allow nested method 
 <em>marking</em> allow tasks to be diffused that, themselves, contain subtasks that are to be diffused. This type of 
@@ -408,7 +386,7 @@ further.</p>
 <!-- 
 	Redundant
  -->
-<h3 id="redundant"><a href="#overview">Redundant</a></h3>
+<h3 id="redundant"><a href="#top">Redundant</a></h3>
 <p>In distributed computing it is not uncommon that a task fails to complete. A compute node may have crashed or 
 lost network connectivity with the collective. Or some mysterious set of events placed the execution of the task 
 in an unusual, never-to-be-repeated-until-a-demo state that prevented its completion. In cases where the completion 
@@ -425,7 +403,7 @@ result to return is passed to the application, and the rest are either ignored, 
 <!-- 
 	Learning
  -->
-<h3 id="learning"><a href="#overview">Learning</a></h3>
+<h3 id="learning"><a href="#top">Learning</a></h3>
 <p>Not all servers are created equal. For purposes of distributed computing, I focus on three important differences:</p>
 <ul>
 	<li>Execution capacity</li>
@@ -469,7 +447,7 @@ optimization algorithm.</p>
 	Reference Implementation
 
  -->
-<h2 id="reference_implementation"><a href="#overview">Reference Implementation</a></h2>
+<h2 id="reference_implementation"><a href="#top">Reference Implementation</a></h2>
 <p>The <em>Diffusive</em> reference implementation is a Java-based framework that implements the <em>diffusive</em> 
 principles. Aspects of <em>Diffusive</em> are specific to its implementation, and could be implemented in other ways. 
 For example, in <em>Diffusive</em> methods are <em>marked</em> through the use of annotations. In particular, a 
@@ -485,7 +463,7 @@ fully qualified class name with the method name appended with a &quot;.&quot;, s
 <!-- 
 	Marking and Diffusing
  -->
-<h3 id="marking_and_diffusing"><a href="#overview">Marking and Diffusing</a></h3>
+<h3 id="marking_and_diffusing"><a href="#top">Marking and Diffusing</a></h3>
 <p>The diffusive principle, <em>marking</em>, requires that a method is somehow identified as a 
 <em>diffusive method</em>. It further requires that <em>marking</em> a method is both sufficient and necessary for 
 a method to be diffused. The <em>location hiding</em> principle takes it a step further by requiring that any 
@@ -494,7 +472,7 @@ application method calling a diffusive (marked) method does not, and can not, kn
 <!-- 
 	Launching and Instrumentation
  -->
-<h4 id="launching_and_instrumentation"><a href="#overview">Launching and Instrumenting</a></h4>
+<h4 id="launching_and_instrumentation"><a href="#top">Launching and Instrumenting</a></h4>
 <p><em>Diffusive</em> accomplishes this through a combination of annotations and load-time byte-code engineering. 
 The annotations are simple: any method that is to be diffused is annotated with <b class="class">@Diffusive</b>. This signals 
 the class-loader that any calls to this method should be replaced with a call to a pre-configured diffuser. In this way, the 
@@ -531,7 +509,7 @@ It is important to point out that the original application code is untouched.</p
 <!-- 
 	Distributing
  -->
-<h4 id="distributing"><a href="#overview">Distributing</a></h4>
+<h4 id="distributing"><a href="#top">Distributing</a></h4>
 <p>The <em>application-attached</em> diffuser is responsible for distributing method calls to other diffusers, or 
 depending on its configuration and load, executing the method itself. By default <em>Diffusive</em> uses a 
 <em>RESTful</em> diffuser (<b class="class">RestfulDiffuser</b>) that adheres to the <a href="http://jsr311.java.net">JSR-311</a> 
@@ -573,7 +551,7 @@ client allows developers to deal only with Java objects.</p>
 <!-- 
 	Distribution Strategy
  -->
-<h4 id="distribution_strategy"><a href="#overview">Distribution Strategy</a></h4>
+<h4 id="distribution_strategy"><a href="#top">Distribution Strategy</a></h4>
 <p>Diffusers decide how to distribute the method calls based on a strategy (<b class="class">Strategy</b>). A 
 <b class="class">Strategy</b> simply returns a list of end-points when requested. In most cases, the list returned 
 by the <b class="class">Strategy</b> contains only one element. However, to allow for redundant diffuser networks, 
@@ -585,7 +563,7 @@ diffusers executing, the number of threads available for execution, and weightin
 <!-- 
 	Serialization
  -->
-<h4 id="serialization"><a href="#overview">Serialization</a></h4>
+<h4 id="serialization"><a href="#top">Serialization</a></h4>
 <p>In order to execute a method remotely, the remote execution environment needs certain information. Specifically, 
 the execution environment needs:</p>
 <ul>
@@ -618,7 +596,7 @@ JSON, or key-value pairs. However, if the class is too complex, it may require s
 <!-- 
 	Best-Efforts Failure Resolution
  -->
-<h3 id="best_efforts_failure_resolution"><a href="#overview">Best-Efforts Failure Resolution</a></h3>
+<h3 id="best_efforts_failure_resolution"><a href="#top">Best-Efforts Failure Resolution</a></h3>
 <p>The <em>Diffusive</em> reference implementation uses the concept of a <b class="class">Strategy</b> to determine 
 to which diffuser a method is diffused. The current <b class="class">Strategy</b> interface requires that a 
 <b class="class">Strategy</b> return a list of end-points to which the method can be diffused. An implementation of 
@@ -629,7 +607,7 @@ out of end-points.</p>
 <!-- 
 	Best-Efforts Failure Resolution
  -->
-<h3 id="generic_computation"><a href="#overview">Generic Computation</a></h3>
+<h3 id="generic_computation"><a href="#top">Generic Computation</a></h3>
 <p>The <em>Generic Computation</em> principle requires two that two conditions are met: that any method can be diffused; 
 and, prior deployment of resources is not required. The first condition is met because of the <em>Marking</em> 
 principle---any marked method can be diffused. The second condition is the focus of this section.</p>
@@ -709,7 +687,7 @@ this is automatic through Javassist).</p>
 <!-- 
 	Indistinguishability and Open Topology
  -->
-<h3 id="indistinguishability_and_open_topology"><a href="#overview">Indistinguishability and Open Topology</a></h3>
+<h3 id="indistinguishability_and_open_topology"><a href="#top">Indistinguishability and Open Topology</a></h3>
 <p>In <em>Diffusive</em> all diffusers of a certain type are the same. And with the exception of the 
 <em>application-attached</em> diffuser, all diffusers are managed the same way. The application-attached diffuser, 
 as the name implies, is attached to the application through the diffusive launcher. Recall that the diffuser launcher 
@@ -753,7 +731,7 @@ diffuser networks---as long as they can be represented by a directed graph.</p>
 	Future Work
 
  -->
-<h2 id="future_work"><a href="#overview">Future Work</a></h2>
+<h2 id="future_work"><a href="#top">Future Work</a></h2>
 <p>The current reference implementation is a work in progress. The main goal for creating a reference implementation 
 was to prove that the concepts of \emph{diffusive programming} could be implemented, with an eye toward building a 
 robust, secure, and accessible implementation. Given that, there are a number of items that need further exploration 
@@ -768,6 +746,6 @@ and development.</p>
 </ul>
 
 </article>
- 
+
 </body>
 </html> 
