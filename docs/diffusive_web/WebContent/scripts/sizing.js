@@ -54,8 +54,7 @@ function setElementSize( elem, bounds, padding, win )
     {
         if( elem.offsetLeft + elem.clientWidth > viewPort.width )
         {
-            elem.style.width = ( viewPort.width - elem.offsetLeft - padding ) + "px";
-        }
+            elem.style.width = ( viewPort.width - elem.offsetLeft - padding ) + "px";        }
         else if( viewPort.width > elem.clientWidth + elem.offsetLeft + padding )
         {
             elem.style.width = ( viewPort.width - elem.offsetLeft - padding ) + "px";
@@ -114,20 +113,15 @@ function adjustSizes( tocBounds, articleBounds, minWidth )
     }
     else
     {
-        // check to see if the overflow is defined
-//        if( article.style.overflow === null )
-        {
-            var loadCssLink = document.createElement( 'link' );
-            loadCssLink.setAttribute( 'rel', 'stylesheet' );
-            loadCssLink.setAttribute( 'type', 'text/css' );
-            loadCssLink.setAttribute( 'href', 'diffusive.css' );
-            document.getElementsByTagName( "head" )[ 0 ].appendChild( loadCssLink );
-        }
+        // reload the css
+        var loadCssLink = document.createElement( 'link' );
+        loadCssLink.setAttribute( 'rel', 'stylesheet' );
+        loadCssLink.setAttribute( 'type', 'text/css' );
+        loadCssLink.setAttribute( 'href', 'diffusive.css' );
+        document.getElementsByTagName( "head" )[ 0 ].appendChild( loadCssLink );
 
-//        var tocBounds = { minWidth: 100, maxWidth: 225, minHeight: 400, maxHeight: 750 };
+        // set the size of the TOC and article contents
         setElementSize( toc, tocBounds, 30, window );
-
-//        var articleBounds = { minWidth: 100, maxWidth: 775, minHeight: 400, maxHeight: 1000 };
         setElementSize( article, articleBounds, 40, window );
     }
 }
