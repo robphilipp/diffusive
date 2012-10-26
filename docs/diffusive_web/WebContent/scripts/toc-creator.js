@@ -6,37 +6,37 @@
  * Use the function "createToc(...)" at the bottom of the file. The other functions are intended to be "private"
  *
  * Makes the following assumptions:
- * 1. The contents in the <article>...</article> within the <body>...</body>
- * 2. Each header has an ID which is used as the tag (#name) to jump to that part of the page
+ * 1. Each header has an ID which is used as the tag (#name) to jump to that part of the page
  *
  * Use the CSS to define how the TOC is placed and displayed. I use these to put the TOC on the side
  * and keep it there during scrolling.
  *
-     // makes the box to hold the TOC and keeps it fixed at that position
-     #toc
-     {
-         position: fixed;
-         left: 10px;
-         top: 145px;
-         width: 155px;
-         background-color: #fff;
-         font-family: calibri;
-         padding: 0px 5px 5px 5px;
-         border-color: #EBEBEB;
-         border-style: solid;
-         border-width: 1px;
-     }
+ // makes the box to hold the TOC and keeps it fixed at that position
+ #toc
+ {
+     position: fixed;
+     left: 10px;
+     top: 145px;
+     width: 155px;
+     background-color: #fff;
+     font-family: calibri;
+     padding: 0px 5px 5px 5px;
+     border-color: #EBEBEB;
+     border-style: solid;
+     border-width: 1px;
+     z-index: 10;
+ }
 
-     // the styling for the TOC title
-     p.overview_toc, #overview_toc
-     {
-         font-style: italic;
-         color: #C67171;
-         margin-bottom: 0px;
-     }
+ // the styling for the TOC title
+ p.overview_toc, #overview_toc
+ {
+     font-style: italic;
+     color: #C67171;
+     margin-bottom: 0px;
+ }
 
-     // allows for the lists to be nested and the font size decreases for each nesting level
-     ul.overview_toc_list {
+ // allows for the lists to be nested and the font size decreases for each nesting level
+ ul.overview_toc_list {
         list-style-type: none;
         font-family: calibri;
         font-size:0.9em;
@@ -52,18 +52,25 @@
 function $grabHeaders()
 {
     var headers = [];
-    var elements = document.getElementsByTagName( "*" );
-    if( elements )
+    if ( document.querySelectorAll )
     {
-        var j = 0;
-        for( var i = 0, len = elements.length; i < len; ++i )
+        headers = document.querySelectorAll( "h1,h2,h3,h4,h5,h6" );
+    }
+    else
+    {
+        var elements = document.getElementsByTagName( "*" );
+        if ( elements )
         {
-            var tag = elements[ i ];
-            var tagName = tag.tagName.toLowerCase();
-            if( tagName.search( /^h[1-6]$/g ) >= 0 )
+            var j = 0;
+            for ( var i = 0, len = elements.length; i < len; ++i )
             {
-                headers[ j ] = tag;
-                ++j;
+                var tag = elements[ i ];
+                var tagName = tag.tagName.toLowerCase();
+                if ( tagName.search( /^h[1-6]$/g ) >= 0 )
+                {
+                    headers[ j ] = tag;
+                    ++j;
+                }
             }
         }
     }
@@ -80,10 +87,10 @@ function $grabHeaders()
 function $getHeaderLevel( header )
 {
     var level = -1;
-    if( header )
+    if ( header )
     {
         var tagName = header.tagName.toLowerCase();
-        if( tagName.search( /^h[1-6]$/g ) >= 0 )
+        if ( tagName.search( /^h[1-6]$/g ) >= 0 )
         {
             level = tagName.charAt( 1 ).toInt();
         }
@@ -105,18 +112,18 @@ function $createTocList( headers, index, level, parent )
     unorderedList.setAttribute( "class", "overview_toc_list" );
 
     var i = index;
-    for( var len = headers.length; i < len; ++i )
+    for ( var len = headers.length; i < len; ++i )
     {
         var header = headers[ i ];
 
         var headerLevel = $getHeaderLevel( header );
-        if( headerLevel < level )
+        if ( headerLevel < level )
         {
             // done with the current list
             --i;
             break;
         }
-        else if( headerLevel > level )
+        else if ( headerLevel > level )
         {
             // create new list--this is a sub-list
             i = $createTocList( headers, i, headerLevel, unorderedList );
@@ -124,7 +131,7 @@ function $createTocList( headers, index, level, parent )
         else
         {
             var headerId = header.getAttribute( "id" );
-            if( headerId != null )
+            if ( headerId !== null )
             {
                 // create the link to the section in the html doc
                 var link = document.createElement( "a" );
@@ -154,14 +161,14 @@ function $findMinMaxHeaders( headers )
 {
     var minLevel = 100;
     var maxLevel = 0;
-    for( var i = 0, len = headers.length; i < len; ++i )
+    for ( var i = 0, len = headers.length; i < len; ++i )
     {
         var level = $getHeaderLevel( headers[ i ] );
-        if( level < minLevel )
+        if ( level < minLevel )
         {
             minLevel = level;
         }
-        if( level > maxLevel )
+        if ( level > maxLevel )
         {
             maxLevel = level;
         }
@@ -171,8 +178,7 @@ function $findMinMaxHeaders( headers )
 
 /**
  * MAIN FUNCTION: call this one. Makes the following assumptions:
- * 1. The contents in the <article>...</article> within the <body>...</body>
- * 2. Each header has an ID which is used as the tag (#name) to jump to that part of the page
+ * 1. Each header has an ID which is used as the tag (#name) to jump to that part of the page
  * @param title The title to appear at the top of the content list
  */
 function createToc( title )
@@ -197,5 +203,9 @@ function createToc( title )
     $createTocList( headers, 0, levels[ 0 ], tocDiv );
 
     // add the TOC div to the document
-    document.body.insertBefore( frag, document.getElementsByTagName( "article" )[ 0 ] );
+//    document.body.appendChild( frag );
+    document.body.insertBefore( frag, document.getElementsByTagName( 'article' )[ 0 ] );
+
+    // return the div element for reference
+    return tocDiv;
 }

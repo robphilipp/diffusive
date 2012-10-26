@@ -10,10 +10,14 @@
     <script src="scripts/syntax_highlight/shBrushXml.js"></script>
 
     <script src="scripts/toc-creator.js"></script>
+    <script src="scripts/sizing.js"></script>
 
     <script src="scripts/mootools-core-1.4.5.js" ></script>
     <script>
+        var tocBounds = { minWidth: 100, maxWidth: 225, minHeight: 400, maxHeight: 400 };
+        var articleBounds = { minWidth: 100, maxWidth: 775, minHeight: 400, maxHeight: 1000 };
         window.addEvent( 'domready', function() {
+
             // syntax highlighting for the code
             SyntaxHighlighter.defaults['gutter'] = false;
             SyntaxHighlighter.defaults['toolbar'] = false;
@@ -21,7 +25,15 @@
 
             // create the table of contents
             createToc( "Contents" );
+
+            // adjust the article window size
+            adjustSizes( tocBounds, articleBounds );
         }, false );
+
+        window.onresize = function() {
+            adjustSizes( tocBounds, articleBounds );
+        };
+
     </script>
 
 
@@ -34,7 +46,7 @@
 
 <body>
 
-<header id="overview">
+<header>
 	<img src="images/web_banner.png">
 </header>
 
@@ -55,7 +67,7 @@
 	Participate
 
  -->
-<h2 id="participate"><a href="#top">Participate</a></h2>
+<h2 id="participate"><a href="#participate">Participate</a></h2>
 <p>The <b>Diffusive</b> reference implementation works, but is still in development. There are still a number of
 items and features to be implemented for the base version. And there are a number of enhancements that ought to
 be developed regarding deployment and management of the diffusive network. So if you find you like Diffusive, please
@@ -70,7 +82,7 @@ participate (contact: <a href="mailto:rob.philipp@gmail.com?Subject=Contributing
 	Getting Started
 
  -->
-<h2 id="getting_started"><a href="#top">Getting Started</a></h2>
+<h2 id="getting_started"><a href="#participate">Getting Started</a></h2>
 <p>The next sections describe how to work with Diffusive in its current state. As Diffusive evolves, many of the
 idiosyncrasies of the current state will be removed, and it will become much easier to work with and use. For now,
 however, as I heard someone say: &quot;<em>it is what it is, and if it were different, it'd be different</em>&quot;.</p> 
@@ -78,7 +90,7 @@ however, as I heard someone say: &quot;<em>it is what it is, and if it were diff
 <!-- 
 	Idiosyncrasies of the Current State
  -->
-<h3 id="current_state_idiosyncrasies"><a href="#top">Idiosyncrasies of the Current State</a></h3>
+<h3 id="current_state_idiosyncrasies"><a href="#participate">Idiosyncrasies of the Current State</a></h3>
 <p>Given that Diffusive is still in development, there are a few items that are fine for development, but make it harder
 for a user. As Diffusive progresses, these items will be cleaned up.</p>
 
@@ -102,14 +114,14 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 <!-- 
 	Build Environment
  -->
-<h3 id="build_environment"><a href="#top">Build Environment</a></h3>
+<h3 id="build_environment"><a href="#participate">Build Environment</a></h3>
 
 <!-- Minimum Requirements -->
-<h4 id="minimim_requirements"><a href="#top">Minimum Requirements</a></h4>
+<h4 id="minimim_requirements"><a href="#participate">Minimum Requirements</a></h4>
 <p>Diffusive requires Java 7.</p>
 
 <!-- External Dependencies -->
-<h4 id="external_dependencies"><a href="#top">External Dependencies</a></h4>
+<h4 id="external_dependencies"><a href="#participate">External Dependencies</a></h4>
 <dl>
 	<!-- Javassist -->
 	<dt>Javassist</dt>
@@ -185,7 +197,7 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 <!-- 
 	Configuring Diffusive
  -->
-<h3 id="configuring_diffusive"><a href="#top">Configuring Diffusive</a></h3>
+<h3 id="configuring_diffusive"><a href="#participate">Configuring Diffusive</a></h3>
 <p>Given its current-state idiosyncrasies, configuration of Diffusive is accomplished through Java source files that are
 are compiled with the build. (See <a href="#configuration_idiosyncrasy">configuration idiosyncrasy</a>.) There are two 
 parts of Diffusive the must be configured: the diffuser configuration; and, the diffuser-server configuration. In the
@@ -208,7 +220,7 @@ a default set of end-points and a strategy with which to select the end-points. 
 <a href="#diffuser_server_configuration">Diffuser-Server Configuration</a></p> 
 
 <!-- Default Diffuser Configuration -->
-<h4 id="default_diffuser_configuration"><a href="#top">Default Diffuser Configuration</a></h4>
+<h4 id="default_diffuser_configuration"><a href="#participate">Default Diffuser Configuration</a></h4>
   
 <p>When using the <a href="javadocs/index.html?org/microtitan/diffusive/launcher/DiffusiveLauncher.html"><b class="class">DiffusiveLauncher</b></a>
 directly, without extending and customizing it, the only configuration you must perform is related to the:
@@ -275,7 +287,7 @@ from a file, or do whatever you want. This configuration file can also be change
 other basic customizations in the next section.</p>
 
 <!-- Custom Diffuser Configuration -->
-<h4 id="custom_diffuser_configuration"><a href="#top">Custom Diffuser Configuration</a></h4>
+<h4 id="custom_diffuser_configuration"><a href="#participate">Custom Diffuser Configuration</a></h4>
 <p>In most cases the <b class="class">RestfulDiffuserConfig</b> class should provide enough flexibility. However,
 more than likely you'll want to implement a configuration class that reads the configuration from a file (for
 sure I have that on my ToDo list). Although you could simply modify the existing <b class="class">RestfulDiffuserConfig</b>
@@ -332,7 +344,7 @@ public class MyConfigClass {
 That would be a great contribution.</p>
 
 <!-- Diffuser-Server Configuration -->
-<h4 id="diffuser_server_configuration"><a href="#top">Diffuser-Server Configuration</a></h4>
+<h4 id="diffuser_server_configuration"><a href="#participate">Diffuser-Server Configuration</a></h4>
 
 <p>When running the <b class="class">RestfulDiffuserServer</b> class' <b class="class">main(...)</b> method without any
 command-line arguments, it uses the default configuration class, <b class="class">RestfulDiffuserServerConfig</b>. In a
@@ -362,7 +374,7 @@ class and specifying it in as a command-line argument when launching the server.
 <!-- 
 	Running Diffusive
  -->
-<h3 id="running_diffusive"><a href="#top">Running Diffusive</a></h3>
+<h3 id="running_diffusive"><a href="#participate">Running Diffusive</a></h3>
 
 <p>Running Diffusive is pretty straightforward. In this section we'll walk you through running the test cases using
 Eclipse IDE. In this way, you'll be set up for debugging and participating in Diffusive's development.</p>
