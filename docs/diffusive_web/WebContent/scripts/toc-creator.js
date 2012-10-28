@@ -92,7 +92,7 @@ function $getHeaderLevel( header )
         var tagName = header.tagName.toLowerCase();
         if ( tagName.search( /^h[1-6]$/g ) >= 0 )
         {
-            level = tagName.charAt( 1 ).toInt();
+            level = tagName.charAt( 1 ).valueOf()
         }
     }
     return level;

@@ -54,7 +54,8 @@ function setElementSize( elem, bounds, padding, win )
     {
         if( elem.offsetLeft + elem.clientWidth > viewPort.width )
         {
-            elem.style.width = ( viewPort.width - elem.offsetLeft - padding ) + "px";        }
+            elem.style.width = ( viewPort.width - elem.offsetLeft - padding ) + "px";
+        }
         else if( viewPort.width > elem.clientWidth + elem.offsetLeft + padding )
         {
             elem.style.width = ( viewPort.width - elem.offsetLeft - padding ) + "px";
@@ -113,13 +114,16 @@ function adjustSizes( tocBounds, articleBounds, minWidth )
     }
     else
     {
-        // reload the css
-        var loadCssLink = document.createElement( 'link' );
-        loadCssLink.setAttribute( 'rel', 'stylesheet' );
-        loadCssLink.setAttribute( 'type', 'text/css' );
-        loadCssLink.setAttribute( 'href', 'diffusive.css' );
-        document.getElementsByTagName( "head" )[ 0 ].appendChild( loadCssLink );
-
+        // if the article fit into the view-port when it was less then
+        if( article.clientLeft + article.clientWidth < minWidth )
+        {
+            // reload the css
+            var loadCssLink = document.createElement( 'link' );
+            loadCssLink.setAttribute( 'rel', 'stylesheet' );
+            loadCssLink.setAttribute( 'type', 'text/css' );
+            loadCssLink.setAttribute( 'href', 'diffusive.css' );
+            document.getElementsByTagName( "head" )[ 0 ].appendChild( loadCssLink );
+        }
         // set the size of the TOC and article contents
         setElementSize( toc, tocBounds, 30, window );
         setElementSize( article, articleBounds, 40, window );
