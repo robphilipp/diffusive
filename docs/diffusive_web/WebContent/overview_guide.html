@@ -367,11 +367,12 @@ characteristics of the diffusive network.</p>
 
 <h4 id="multi_layered"><a href="#overview">Multi-Layered</a></h4>
 <p>A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is 
-shown in the <a href="#figure_multi_layered">figure below</a>. Implementations of the diffusive principles that allow nested method 
-<em>marking</em> allow tasks to be diffused that, themselves, contain subtasks that are to be diffused. This type of 
-topology can dramatically improve the performance of calculations that can be represented as tasks of subtasks. An 
+shown in the <a href="#figure_multi_layered">figure below</a>, which is effectively map-reduce. Implementations of the
+diffusive principles that allow nested method <em>marking</em> allow tasks to be diffused that, themselves, contain
+sub-tasks that are to be diffused. This type of topology can dramatically improve the performance of calculations
+that can be represented as tasks of sub-tasks. An
 illustrative example is a calculation that is composed of a set of independent calculations, where each of these 
-independent calculations are themselves composed of a set of independent calculations.</p> 
+independent calculations are themselves composed of a set of independent calculations.</p>
 
 <p class="image" id="figure_multi_layered">
 	<img src="images/topology_multi_layer.png" title="Multi-Layer Diffuser Network Topologies"/>
@@ -465,9 +466,9 @@ principles. Aspects of <em>Diffusive</em> are specific to its implementation, an
 For example, in <em>Diffusive</em> methods are <em>marked</em> through the use of annotations. In particular, a 
 <em>diffusive</em> method is annotated with \textsf{@Diffusive}. However, it would have been possible to allow 
 methods to be marked through a configuration file that holds a list of <em>markers</em> represented by their 
-fully qualified method names\footnote{For example, the fully qualified method name could be represented by the 
+fully qualified method names. (For example, the fully qualified method name could be represented by the
 fully qualified class name with the method name appended with a &quot;.&quot;, such as 
-<b class="class">org.myapp.calc.PriceCalc.calculate</b>.}. These aspects only change the specifics of how a 
+<b class="class">org.myapp.calc.PriceCalc.calculate</b>.). These aspects only change the specifics of how a
 <em>diffusive</em> framework implements the principles, but not how it behaves.</p>
 
 <p>In the next sections I discuss how <em>Diffusive</em> framework implements the five diffusive principles.</p>
