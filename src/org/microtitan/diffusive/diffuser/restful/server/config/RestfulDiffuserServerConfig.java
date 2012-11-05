@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.freezedry.persistence.XmlPersistence;
 import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 import org.microtitan.diffusive.diffuser.restful.server.KeyedDiffusiveStrategyRepository;
+import org.microtitan.diffusive.diffuser.restful.server.config.xml.RestfulDiffuserServerConfigXml;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
 
@@ -36,17 +38,25 @@ import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
  */
 public class RestfulDiffuserServerConfig {
 
-	// list of end-points that newly created diffuser will look to send their requests, if
-	// the list is empty, then the newly created diffusers will execute ALL requests locally,
-	// and not be able to diffuse them to other end-points if they are currently busy.
-	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.4:8182" );
-//	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList();
+	/**
+	 * List of end-points that newly created diffuser will look to send their requests, if
+	 * the list is empty, then the newly created diffusers will execute ALL requests locally,
+	 * and not be able to diffuse them to other end-points if they are currently busy.
+	 */
+	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList();
 	
-	// for diffusers created through calls to the server, this is the load threshold value.
-	// the threshold for CPU loads, above which the diffuser will send the tasks to a remote diffuser,
-	// unless of course, there are no client end-points specified. When the threshold is below the 
-	// load threshold, the diffuser will call the local diffuser to execute the tasks.
+	/**
+	 * For diffusers created through calls to the server, this is the load threshold value.
+	 * the threshold for CPU loads, above which the diffuser will send the tasks to a remote diffuser,
+	 * unless of course, there are no client end-points specified. When the threshold is below the 
+	 * load threshold, the diffuser will call the local diffuser to execute the tasks.
+	 */
 	public static final double LOAD_THRESHOLD = 0.75;
+	
+	/**
+	 * The name of the XML configuration file that is read
+	 */
+	public static final String XML_CONFIG_FILE_NAME = "restful_server_config.xml";
 
 	/**
 	 * Creates the list of end-points, the default strategy based on those end-points,
@@ -55,13 +65,51 @@ public class RestfulDiffuserServerConfig {
 	@DiffusiveServerConfiguration
 	public static final void configure()
 	{
-		final List< URI > clientEndpoints = createEndpointList();
+		// laod the configuration file
+		final RestfulDiffuserServerConfigXml config = loadConfig( XML_CONFIG_FILE_NAME );
+		
+		// if the config file was read properly, then use it to for configuration,
+		// otherwise use the default values from this class 
+		List< URI > clientEndpoints = null;
+		double loadThreshold;
+		if( config != null )
+		{
+			clientEndpoints = config.getClientEndpointsAsUri();
+			loadThreshold = config.getLaodThreshold();
+		}
+		else
+		{
+			clientEndpoints = createEndpointList();
+			loadThreshold = LOAD_THRESHOLD;
+		}
+		
+		// set up the strategy and the strategy repository
 		final DiffuserStrategy strategy = new RandomDiffuserStrategy( clientEndpoints );
-		KeyedDiffusiveStrategyRepository.getInstance().setValues( strategy, LOAD_THRESHOLD );
+		KeyedDiffusiveStrategyRepository.getInstance().setValues( strategy, loadThreshold );
 	}
 	
 	/**
-	 * @return a {@link List} of {@link URI} that hold the location of endpoints to which the
+	 * Loads the configuration object from the XML file and returns it. If the configuration file
+	 * couldn't be read properly, then returns null.
+	 * @param filename The name of the configuration file to read
+	 * @return The configuration object or null if the configuration file can't be read properly
+	 */
+	private static final RestfulDiffuserServerConfigXml loadConfig( final String filename )
+	{
+		RestfulDiffuserServerConfigXml config = null;
+		try
+		{
+			config = new XmlPersistence().read( RestfulDiffuserServerConfigXml.class, filename );
+		}
+		catch( IllegalArgumentException e )
+		{
+			// really nothing to do..if it didn't load
+		}
+		return config;
+	}
+	
+	/**
+	 * @return a {@link List} of {@link URI} that hold the location of end points to which the
 	 * local {@link RestfulDiffuser} can diffuse method calls.
 	 */
 	private static List< URI > createEndpointList()

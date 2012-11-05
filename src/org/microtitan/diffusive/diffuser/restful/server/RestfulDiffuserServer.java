@@ -16,9 +16,7 @@
 package org.microtitan.diffusive.diffuser.restful.server;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +36,7 @@ import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManage
 import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
 import org.microtitan.diffusive.diffuser.restful.server.config.RestfulDiffuserServerConfig;
 import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
+import org.microtitan.diffusive.utils.NetworkUtils;
 
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 
@@ -54,7 +53,7 @@ public class RestfulDiffuserServer {
 	// default address for server
 	private static final int SERVER_PORT = 8182;
 	private static final String SERVER_SCHEME = "http";
-	public static final String DEFAULT_SERVER_URI = createDefaultServerUri( SERVER_SCHEME, SERVER_PORT );
+	public static final String DEFAULT_SERVER_URI = NetworkUtils.createLocalHostServerUri( SERVER_SCHEME, SERVER_PORT );
 	
 	public static final String DEFAULT_CONFIGURATION_CLASS = RestfulDiffuserServerConfig.class.getName();
 	
@@ -70,34 +69,6 @@ public class RestfulDiffuserServer {
 								  final RestfulDiffuserApplication application )
 	{
 		this.server = createHttpServer( serverUri, application );
-	}
-	
-	/*
-	 * @return grabs the ip address for the local host
-	 */
-	private static String getLocalIpAddress()
-	{
-		String ip = "localhost";
-		try
-        {
-	        ip = InetAddress.getLocalHost().getHostAddress();
-        }
-        catch( UnknownHostException e )
-        {
-	        e.printStackTrace();
-        }
-		return ip;
-	}
-	
-	/*
-	 * Constructs a string representation of the URI from the local host's IP address, the specified scheme and port
-	 * @param scheme The scheme (i.e. http, https, etc)
-	 * @param port The port at which the server listens
-	 * @return a string representation of the URI
-	 */
-	private static String createDefaultServerUri( final String scheme, final int port )
-	{
-		return scheme + "://" + getLocalIpAddress() + String.format( ":%d", port );
 	}
 	
 	/*
@@ -177,7 +148,7 @@ public class RestfulDiffuserServer {
 	public static void main( String[] args )
 	{
 		DOMConfigurator.configure( "log4j.xml" );
-		Logger.getRootLogger().setLevel( Level.DEBUG );
+		Logger.getRootLogger().setLevel( Level.WARN );
 
 		// ensure that a class has been specified (the class must have a main)
 		if( args.length < 2 )
