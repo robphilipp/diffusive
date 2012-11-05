@@ -58,14 +58,14 @@ public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 	 * @param endpoints The map of end-points (values) and their associated weights (keys)
 	 * to which to diffuse methods.
 	 */
-	protected AbstractDiffuserStrategy( final Map< Double, URI > endpoints )
+	protected AbstractDiffuserStrategy( final Map< URI, Double > endpoints )
 	{
 		this.endpoints = new ArrayList<>( endpoints.size() );
 		this.weights = new ArrayList<>( endpoints.size() );
-		for( Map.Entry< Double, URI > entry : endpoints.entrySet() )
+		for( Map.Entry< URI, Double > entry : endpoints.entrySet() )
 		{
-			this.endpoints.add( entry.getValue() );
-			this.weights.add( entry.getKey() );
+			this.endpoints.add( entry.getKey() );
+			this.weights.add( entry.getValue() );
 		}
 	}
 	
@@ -211,10 +211,17 @@ public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 	{
 		final StringBuffer buffer = new StringBuffer();
 		buffer.append( "Client Endpoints: " + Constants.NEW_LINE );
-		for( URI uri : endpoints )
+		final double weightSum = getWeightSum();
+		for( int i = 0; i < endpoints.size(); ++i )
 		{
-			buffer.append( "  " + uri.toString() + Constants.NEW_LINE );
+			final double weight = weights.get( i );
+			buffer.append( "  " + endpoints.get( i ).toString() + ": " );
+			buffer.append( String.format( "%6.4f", weight ) );
+			buffer.append( " (" + String.format( "%6.4f", weight / weightSum ) );
+			buffer.append( ")" );
+			buffer.append( Constants.NEW_LINE );
 		}
+		buffer.append( "Sum of Weights: " + weightSum + Constants.NEW_LINE );
 		return buffer.toString();
 	}
 }

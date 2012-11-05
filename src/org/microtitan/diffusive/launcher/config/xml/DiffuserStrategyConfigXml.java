@@ -1,22 +1,16 @@
 package org.microtitan.diffusive.launcher.config.xml;
 
-import java.util.List;
-
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
 
+/**
+ * Interface for the diffuser strategy XML configuration object. This is used by the strategies
+ * for persisting and loading diffuser strategies. The configuration object must load its configuration
+ * and then use that to create the appropriate strategy, which it must return.
+ * 
+ * @author Robert Philipp
+ */
 public interface DiffuserStrategyConfigXml {
-
-	/**
-	 * @return The list of end-points from which the strategy can select
-	 */
-	List< String > getClientEndpoints();
-	
-	/**
-	 * Sets the list of end-points from which the strategy can select
-	 * @param clientEndpoints The list of end-points from which the strategy can select
-	 */
-	void setClientEndpoints( final List< String > clientEndpoints );
 
 	/**
 	 * Creates a {@link RandomDiffuserStrategy} from the valid client end-points held in this object

@@ -1,9 +1,10 @@
 package org.microtitan.diffusive.launcher.config.xml;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -24,15 +25,18 @@ public class RestfulDiffuserConfigXml {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserConfigXml.class );
 	
-//	/**
-//	 * List of end-points that newly created diffuser will look to send their requests, if
-//	 * the list is empty, then the newly created diffusers will execute ALL requests locally,
-//	 * and not be able to diffuse them to other end-points if they are currently busy.
-//	 */
-////	@PersistCollection(elementPersistName="endPoint")
-//	@Persist( ignore=true )
-//	private List< String > clientList;
+	/**
+	 * The name of the XML configuration file holding the diffuser strategy configuration
+	 */
+//	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_diffuser_strategy.xml";
+	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_weighted_diffuser_strategy.xml";
 	
+	/**
+	 * The fully qualified class name of the {@link Class} of the diffuser strategy implementation
+	 */
+//	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomDiffuserStrategyConfigXml.class.getName();
+	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomWeightedDiffuserStrategyConfigXml.class.getName();
+
 	/**
 	 * List of end-points that serve up classes to the remote class loader. These end-points will be set
 	 * for a newly created diffuser as part of its configuration, so that the new diffuser knows where
@@ -59,8 +63,6 @@ public class RestfulDiffuserConfigXml {
 	 */
 	private String serializerName;
 	
-	// use the strategy class to pass to the persistence, along with the file name holding
-	// the strategy, need to add an ignore the strategy (don't persistence)
 	/**
 	 * The name of the strategy class. This gets persisted, and is passed to the persistence reader
 	 * to load the strategey from the strategy file
@@ -79,34 +81,6 @@ public class RestfulDiffuserConfigXml {
 	 */
 	@Persist( ignore=true )
 	private DiffuserStrategy diffuserStrategy;
-	
-//	/**
-//	 * @return {@link List} of end-points that the newly created diffusers will use to send
-//	 * their requests.
-//	 */
-//	public List< String > getClientEndpoints()
-//	{
-//		return clientList;
-//	}
-//	
-//	/**
-//	 * Validates and removes invalid client end points, and then sets the end point list
-//	 * to the list of valid end points. 
-//	 * @param clientEndpoints
-//	 */
-//	public void setClientEndpoints( final List< String > clientEndpoints )
-//	{
-//		this.clientList = ConfigUtils.validateEndpoints( clientEndpoints );
-//	}
-//
-//	/**
-//	 * @return {@link List} of end-points that the newly created diffusers will use to send
-//	 * their requests.
-//	 */
-//	public List< URI > getClientEndpointsAsUri()
-//	{
-//		return ConfigUtils.createEndpointList( clientList );
-//	}
 	
 	/**
 	 * @return The list of class path end-points from which newly created diffusers can load
@@ -180,16 +154,6 @@ public class RestfulDiffuserConfigXml {
 		this.serializerName = serializerName;
 	}
 	
-//	public DiffuserStrategy getDiffuserStrategy()
-//	{
-//		return diffuserStrategy;
-//	}
-//	
-//	public void setDiffuserStrategy( final RandomDiffuserStrategy diffuserStrategy )
-//	{
-//		this.diffuserStrategy = diffuserStrategy;
-//	}
-
 	/**
 	 * @return The fully qualified class name of the {@link Class} implementing the diffuser strategy
 	 */
@@ -253,14 +217,6 @@ public class RestfulDiffuserConfigXml {
 	public String toString()
 	{
 		final StringBuffer rep = new StringBuffer();
-//		if( clientList != null )
-//		{
-//			rep.append( "Client End-Point List:" + Constants.NEW_LINE );
-//			for( String endpoint : clientList )
-//			{
-//				rep.append( "  " + endpoint + Constants.NEW_LINE );
-//			}
-//		}
 		rep.append( "Class Path List:" + Constants.NEW_LINE );
 		for( String path : classPathList )
 		{
@@ -268,9 +224,6 @@ public class RestfulDiffuserConfigXml {
 		}
 		rep.append( "Load Threshold: " + loadThreshold + Constants.NEW_LINE );
 		rep.append( "Serializer Name: " + serializerName + Constants.NEW_LINE );
-//		rep.append( "Diffuser Strategy Type: " + diffuserStrategy.getClass().getName() + Constants.NEW_LINE );
-//		rep.append( "Diffuser Strategy: " + Constants.NEW_LINE );
-//		rep.append( diffuserStrategy.toString() );
 		
 		return rep.toString();
 	}
@@ -282,34 +235,34 @@ public class RestfulDiffuserConfigXml {
 		Logger.getRootLogger().setLevel( Level.WARN );
 
 		final RestfulDiffuserConfigXml xmlConfig = new RestfulDiffuserConfigXml();
-		final List< String > endpoints = new ArrayList<>( Arrays.asList( "http://192.168.1.4:8182" + RestfulDiffuserManagerResource.DIFFUSER_PATH ) );
-//		xmlConfig.setClientEndpoints( endpoints );
 		xmlConfig.setLaodThreshold( 0.75 );
 		xmlConfig.setSerializerName( SerializerFactory.SerializerType.PERSISTENCE_XML.getName() );
 		xmlConfig.setClassPaths( Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI + RestfulClassPathResource.CLASSPATH_PATH ) );
-//		xmlConfig.setDiffuserStrategy( new RandomDiffuserStrategy( xmlConfig.getClientEndpointsAsUri() ) );
-		xmlConfig.setDiffuserStrategyConfigClassName( RestfulDiffuserConfig.XML_STRATEGY_CONFIG_CLASS_NAME );
-		xmlConfig.setDiffuserStrategyConfigFile( RestfulDiffuserConfig.XML_STRATEGY_CONFIG_FILE_NAME );
+		xmlConfig.setDiffuserStrategyConfigClassName( XML_STRATEGY_CONFIG_CLASS_NAME );
+		xmlConfig.setDiffuserStrategyConfigFile( XML_STRATEGY_CONFIG_FILE_NAME );
 		
 		// write out the diffuser configuration file file
 		new XmlPersistence().write( xmlConfig, RestfulDiffuserConfig.XML_CONFIG_FILE_NAME );
 		
 		// write out the diffuser-strategy configuration file
-		final RandomDiffuserStrategyConfigXml xmlStrategyConfig = new RandomDiffuserStrategyConfigXml();
-//		xmlStrategyConfig.setClientEndpoints( xmlConfig.getClientEndpoints() );
+//		final RandomDiffuserStrategyConfigXml xmlStrategyConfig = new RandomDiffuserStrategyConfigXml();
+//		final List< String > endpoints = new ArrayList<>( Arrays.asList( "http://192.168.1.4:8182" + RestfulDiffuserManagerResource.DIFFUSER_PATH ) );
+		final RandomWeightedDiffuserStrategyConfigXml xmlStrategyConfig = new RandomWeightedDiffuserStrategyConfigXml();
+		final Map< String, Double > endpoints = new LinkedHashMap<>();
+		endpoints.put( "http://192.168.1.4:8182" + RestfulDiffuserManagerResource.DIFFUSER_PATH, 3.14159 );
 		xmlStrategyConfig.setClientEndpoints( endpoints );
 		xmlStrategyConfig.setRandomSeed( 0 );
-		new XmlPersistence().write( xmlStrategyConfig, RestfulDiffuserConfig.XML_STRATEGY_CONFIG_FILE_NAME );
+		new XmlPersistence().write( xmlStrategyConfig, XML_STRATEGY_CONFIG_FILE_NAME );
 		
-		// read the config file back in to test
+		// read the configuration file into the diffuser configuration object and display the results
 		final XmlPersistence persist = new XmlPersistence();
 		final RestfulDiffuserConfigXml config = persist.read( RestfulDiffuserConfigXml.class, 
 															  RestfulDiffuserConfig.XML_CONFIG_FILE_NAME );
 		System.out.println( config.toString() );
 		
+		// read the configuration file into the strategy configuration object and display the results
 		final DiffuserStrategyConfigXml strategyConfig = persist.read( config.getDiffuserStrategyConfigClass(), 
 															   		   config.getDiffuserStrategyConfigFile() );
-//		config.setClientEndpoints( strategyConfig.getClientEndpoints() );
-		
+		System.out.println( strategyConfig.toString() );
 	}
 }

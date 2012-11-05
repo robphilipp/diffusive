@@ -16,7 +16,6 @@
 package org.microtitan.diffusive.launcher.config;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -26,13 +25,11 @@ import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
-import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 import org.microtitan.diffusive.launcher.config.xml.DiffuserStrategyConfigXml;
-import org.microtitan.diffusive.launcher.config.xml.RandomDiffuserStrategyConfigXml;
 import org.microtitan.diffusive.launcher.config.xml.RestfulDiffuserConfigXml;
 
 /**
@@ -51,53 +48,11 @@ public class RestfulDiffuserConfig {
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserConfig.class );
 	
 	/**
-	 * holds the list of client endpoints to which diffused methods are sent. the end-point must
-	 * have a restful diffusive server running that can accept requests.
-	 */
-//	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
-	public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.4:8182" );
-	
-	/**
-	 * holds the base URI of the class path that gets passed to the remote diffuser manager when
-	 * creating a diffuser. this allows the remote code to load classes from a remote server. This
-	 * URI typically points to the host running that is launching the code to be diffused (since it
-	 * is that code that has the classes), or some other host that holds all the required classes (that
-	 * have been deployed there) and is running a restful diffuser server
-	 */
-	public static final List< String > CLASSPATH_URI = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
-	
-	/**
-	 * The threshold for CPU loads, above which the diffuser will send the tasks to a remote diffuser,
-	 * unless of course, there are no client end-points specified. When the threshold is below the 
-	 * load threshold, the diffuser will call the local diffuser to execute the tasks.
-	 */
-	public static final double LOAD_THRESHOLD = 0.5;
-	
-	/**
-	 * The name of the serializer used to serialize objects that get pass back and forth between the diffusers.
-	 * The type of serialization doesn't, in and of itself, matter. What matters is that the diffusers use the
-	 * same method of serialization so that the receiving diffuser can reconstruct (de-serialize) the object.
-	 * The serializer is created from this name using the {@link SerializerFactory}.
-	 */
-//	public static final String SERIALIZER_NAME = SerializerFactory.SerializerType.PERSISTENCE_XML.getName();
-	public static final String SERIALIZER_NAME = SerializerFactory.SerializerType.OBJECT.getName();
-	
-	/**
 	 * The name of the XML configuration file that is read to obtain the configuration settings that are needed
 	 * by the RESTful diffuser
 	 */
 	public static final String XML_CONFIG_FILE_NAME = "restful_diffuser_config.xml";
 	
-	/**
-	 * The name of the XML configuration file holding the diffuser strategy configuration
-	 */
-	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_diffuser_strategy.xml";
-	
-	/**
-	 * The fully qualified class name of the {@link Class} of the diffuser strategy implementation
-	 */
-	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomDiffuserStrategyConfigXml.class.getName();
-
 	/**
 	 * Method that is called to configure the Diffusive framework. In particular, creates a 
 	 * {@link RestfulDiffuser} with the specified diffusion end-points and the class path URI
@@ -111,14 +66,6 @@ public class RestfulDiffuserConfig {
 	@DiffusiveConfiguration
 	public static final void configure()
 	{
-//		// create a default diffuser, load the diffuser repository, and set the default diffuser
-//		// into the repository (needed by the Javassist diffuser method replacement)
-//		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SERIALIZER_NAME );
-//		final DiffuserStrategy strategy = createStrategy();
-//		final List< URI > classPaths = createClassPathList();
-//		final Diffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, LOAD_THRESHOLD );
-//		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
-
 		// read the RESTful diffuser config file into the configuration object
 		final RestfulDiffuserConfigXml config = loadConfig( XML_CONFIG_FILE_NAME );
 		

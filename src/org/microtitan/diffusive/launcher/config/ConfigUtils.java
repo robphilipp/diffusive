@@ -3,6 +3,7 @@ package org.microtitan.diffusive.launcher.config;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -16,7 +17,7 @@ public class ConfigUtils {
 	 * @return a {@link List} of {@link URI} that hold the location of end-points to which the
 	 * local {@link RestfulDiffuser} can diffuse method calls.
 	 */
-	public static List< URI > createEndpointList( final List< String > clientEndpoints )
+	public static List< URI > createEndpointList( final Collection< String > clientEndpoints )
 	{
 		final List< URI > endpoints = new ArrayList<>();
 		for( String client : clientEndpoints )
@@ -32,7 +33,7 @@ public class ConfigUtils {
 	 * @param clientEndpoints The list of end-points of the client
 	 * @return A validated list of end-points.
 	 */
-	public static List< String > validateEndpoints( final List< String > clientEndpoints )
+	public static List< String > validateEndpoints( final Collection< String > clientEndpoints )
 	{
 		final List< String > endpoints = new ArrayList<>();
 		for( String client : clientEndpoints )

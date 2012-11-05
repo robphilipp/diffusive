@@ -24,6 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * Selects an end-point based on a weighted distribution. This allows, for example, one 
+ * end-point to be picked more often than another. By specifying a map of 
+ * @author Robert Philipp
+ *
+ */
 public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 
 	private static final long DEFAULT_SEED = 1;
@@ -35,7 +41,7 @@ public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 	 * @param endpoints The {@link List} of end-point {@link URI} to which to diffuser methods
 	 * @param randomSeed The random seed that initializes the pseudo-random number sequence
 	 */
-	public RandomWeightedDiffuserStrategy( final Map< Double, URI > endpoints, final long randomSeed )
+	public RandomWeightedDiffuserStrategy( final Map< URI, Double > endpoints, final long randomSeed )
 	{
 		super( endpoints );
 		
@@ -46,7 +52,7 @@ public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 	 * Constructor that accepts a list of end-points and a default seed for the pseudo-random number generator
 	 * @param endpoints The {@link List} of end-point {@link URI} to which to diffuser methods
 	 */
-	public RandomWeightedDiffuserStrategy( final Map< Double, URI > endpoints )
+	public RandomWeightedDiffuserStrategy( final Map< URI, Double > endpoints )
 	{
 		this( endpoints, DEFAULT_SEED );
 	}
@@ -56,7 +62,7 @@ public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 	 */
 	public RandomWeightedDiffuserStrategy()
 	{
-		this( new HashMap< Double, URI >() );
+		this( new HashMap< URI, Double >() );
 	}
 	
 	/*
@@ -90,13 +96,14 @@ public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 	
 	public static void main( String[] args )
 	{
-		final Map< Double, URI > endpoints = new LinkedHashMap<>();
-		endpoints.put( 0.5, URI.create( "http://localhost:1" ) );
-		endpoints.put( 1.5, URI.create( "http://localhost:2" ) );
-		endpoints.put( 3.0, URI.create( "http://localhost:3" ) );
-		endpoints.put( 0.1, URI.create( "http://localhost:4" ) );
+		final Map< URI, Double > endpoints = new LinkedHashMap<>();
+		endpoints.put( URI.create( "http://localhost:1" ), 0.5 );
+		endpoints.put( URI.create( "http://localhost:2" ), 1.5 );
+		endpoints.put( URI.create( "http://localhost:3" ), 3.0 );
+		endpoints.put( URI.create( "http://localhost:4" ), 0.1 );
 		
 		final RandomWeightedDiffuserStrategy strategy = new RandomWeightedDiffuserStrategy( endpoints );
+		System.out.println( strategy.toString() );
 		
 		final int size = 1_000_000;
 		final List< URI > selected = new ArrayList<>( size );
@@ -121,7 +128,14 @@ public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 		
 		for( Map.Entry< URI, Integer > entry : results.entrySet() )
 		{
-			System.out.println( entry.getKey().toString() + ": " + entry.getValue() );
+			final long num = entry.getValue();
+			final double frac = (double)num / size;
+			System.out.println( entry.getKey().toString() + ": " + 
+								String.format( "%8d", num ) + 
+								" (" + String.format( "%6.4f", frac ) + 
+								" versus " + 
+								String.format( "%6.4f", strategy.getWeight( entry.getKey() ) / strategy.getWeightSum() ) + 
+								")" );
 		}
 	}
 }
