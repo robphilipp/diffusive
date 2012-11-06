@@ -1,3 +1,18 @@
+/*
+ * Copyright 2012 Robert Philipp
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.microtitan.diffusive.launcher.config.xml;
 
 import java.net.URI;
@@ -21,6 +36,13 @@ import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.launcher.config.ConfigUtils;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 
+/**
+ * Configuration object for the REStful diffuser launcher. This object is persisted as XML and
+ * and the XML configuration is loaded into an object of this class for use by the {@link RestfulDiffuserConfig}
+ * object that configures the launcher.
+ *  
+ * @author Robert Philipp
+ */
 public class RestfulDiffuserConfigXml {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserConfigXml.class );
@@ -28,14 +50,14 @@ public class RestfulDiffuserConfigXml {
 	/**
 	 * The name of the XML configuration file holding the diffuser strategy configuration
 	 */
-//	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_diffuser_strategy.xml";
-	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_weighted_diffuser_strategy.xml";
+	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_diffuser_strategy.xml";
+//	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_weighted_diffuser_strategy.xml";
 	
 	/**
 	 * The fully qualified class name of the {@link Class} of the diffuser strategy implementation
 	 */
-//	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomDiffuserStrategyConfigXml.class.getName();
-	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomWeightedDiffuserStrategyConfigXml.class.getName();
+	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomDiffuserStrategyConfigXml.class.getName();
+//	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomWeightedDiffuserStrategyConfigXml.class.getName();
 
 	/**
 	 * List of end-points that serve up classes to the remote class loader. These end-points will be set
