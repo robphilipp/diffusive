@@ -7,7 +7,7 @@
 	<!-- 
 		version information 
 	-->
-	<property name="version" value="0.1.1" />
+	<property name="version" value="0.1.2" />
 
 	<!-- 
 		set global properties for this build
@@ -22,6 +22,14 @@
 	<property name="app_name" value="Diffusive" />
 	<property name="app_type_launcher" value="Launcher" />
 	<property name="app_type_server" value="Server" />
+
+	<!-- 
+		set the run configuration files
+	-->
+	<property name="restful_server_config" value="restful_server_config.xml"/>
+	<property name="restful_diffuser_config" value="restful_diffuser_config.xml"/>
+	<property name="random_diffuser_strategy_config" value="random_diffuser_strategy.xml"/>
+	<property name="random_weighted_diffuser_strategy_config" value="random_weighted_diffuser_strategy.xml"/>
 
 	<!-- =====================================================================
 						   D E P E N D E N C I E S
@@ -218,7 +226,7 @@
 
 		<jar destfile="${dist}/${jars}/${launcher_jar_file}">
 			<fileset dir="${build}" includes="**/*.class" />
-			<fileset dir="${build}" includes="${log4j_config}" />			
+			<fileset dir="${build}" includes="${log4j_config}" />
 
 			<manifest>
 				<attribute name="Ant" value="${user.name}" />
@@ -282,6 +290,7 @@
 		<jar destfile="${dist}/${single_jar}/${launcher_jar_file}">
 			<fileset dir="${build}" includes="**/*.class" />
 			<fileset dir="${build}" includes="${log4j_config}" />			
+
 			<zipfileset src="${java-libs}/${log4j}" excludes="META-INF/*" />
 			<zipfileset src="${java-libs}/${junit}" excludes="META-INF/*" />
 
@@ -337,6 +346,7 @@
 		<jar destfile="${dist}/${single_jar}/${server_jar_file}">
 			<fileset dir="${build}" includes="**/*.class" />
 			<fileset dir="${build}" includes="${log4j_config}" />			
+
 			<zipfileset src="${java-libs}/${log4j}" excludes="META-INF/*" />
 			<zipfileset src="${java-libs}/${junit}" excludes="META-INF/*" />
 
@@ -402,6 +412,23 @@
 		<copy file="log4j.xml" todir="${release}/${jars}" />
 		<copy file="log4j.xml" todir="${release}/${rel_src}" />
 		
+		<!-- copy the run configurations to the top-level directory -->
+		<copy file="${restful_server_config}" todir="${release}/${single_jar}" />
+		<copy file="${restful_server_config}" todir="${release}/${jars}" />
+		<copy file="${restful_server_config}" todir="${release}/${rel_src}" />
+
+		<copy file="${restful_diffuser_config}" todir="${release}/${single_jar}" />
+		<copy file="${restful_diffuser_config}" todir="${release}/${jars}" />
+		<copy file="${restful_diffuser_config}" todir="${release}/${rel_src}" />
+
+		<copy file="${random_diffuser_strategy_config}" todir="${release}/${single_jar}" />
+		<copy file="${random_diffuser_strategy_config}" todir="${release}/${jars}" />
+		<copy file="${random_diffuser_strategy_config}" todir="${release}/${rel_src}" />
+
+		<copy file="${random_weighted_diffuser_strategy_config}" todir="${release}/${single_jar}" />
+		<copy file="${random_weighted_diffuser_strategy_config}" todir="${release}/${jars}" />
+		<copy file="${random_weighted_diffuser_strategy_config}" todir="${release}/${rel_src}" />
+
 		<!-- copy the this build file to the release src directory -->
 		<copy file="build.xml" todir="${release}/${rel_src}" />
 		

@@ -110,7 +110,7 @@ function adjustSizes( tocBounds, articleBounds, minWidth )
         {
             sheets[ i ].disabled = true;
         }
-        article.clientWidth = minWidth;
+        if( article ) article.clientWidth = minWidth;
     }
     else
     {
@@ -125,7 +125,7 @@ function adjustSizes( tocBounds, articleBounds, minWidth )
             document.getElementsByTagName( "head" )[ 0 ].appendChild( loadCssLink );
         }
         // set the size of the TOC and article contents
-        setElementSize( toc, tocBounds, 30, window );
-        setElementSize( article, articleBounds, 40, window );
+        if( toc ) setElementSize( toc, tocBounds, 30, window );
+        if( article ) setElementSize( article, articleBounds, 40, window );
     }
 }
