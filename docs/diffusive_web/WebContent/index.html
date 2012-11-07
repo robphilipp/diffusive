@@ -99,6 +99,24 @@
         <a href="https://sourceforge.net/projects/diffusive/files/diffusive_programming.pdf">Diffusive Programming</a>
         paper.</p>
 
+    <h3 id="whats_new"><a href="#goals">What's New</a></h3>
+    <h4>Version 0.1.2 (from version 0.1.0)</h4>
+    <p>Main change is the new capability to configure diffusers from XML files. Also small updates to
+    incorporate fixes and added features from <a href="http://freezedried.sourceforge.net">FreezeDry</a>.</p>
+    <ol>
+        <li>Modified Diffusive's server and diffuser configuration classes to load an XML file containing
+            the basic configuration properties. As part of this, add XML files for configuring the diffuser
+            strategy. This allows the diffuser strategy to be specified in diffuser configuration XML file.
+            Now the diffuser server can be configured from <b class="class">restful_server_config.xml</b>,
+            the diffusers can be configured from <b class="class">restful_diffuser_config.xml</b>, and the
+            diffuser strategies can be configured from <b class="class">random_diffuser_strategy.xml</b>
+            and <b class="class">random_weighted_diffuser_strategy.xml</b></li>
+        <li>Updated FreezeDry from version 0.2.2 to version 0.2.4 (see
+            <a href="http://freezedried.sourceforge.net/overview_guide.html#whats_new">FreezeDry updates</a>
+            for more details).</li>
+    </ol>
+
+
 </article>
 
 </body>
