@@ -61,8 +61,11 @@ public class ConfigUtils {
 			URI uri;
 			try
 			{
-				uri = new URI( client );
-				endpoints.add( uri.getScheme() + "://" + uri.getHost() +":" + uri.getPort() + uri.getPath() );
+				if( !client.isEmpty() )
+				{
+					uri = new URI( client );
+					endpoints.add( uri.getScheme() + "://" + uri.getHost() +":" + uri.getPort() + uri.getPath() );
+				}
 			}
 			catch( URISyntaxException e )
 			{
