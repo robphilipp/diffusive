@@ -100,6 +100,19 @@
         paper.</p>
 
     <h3 id="whats_new"><a href="#goals">What's New</a></h3>
+    <h4>Version 0.1.3 (from version 0.1.2)</h4>
+    <p>Updated the configuration files so that it can be run locally right out of the box (based on suggestion
+        from Anteneh Nurlin).</p>
+    <ol>
+        <li>Updated the configuration files so that <b class="class">restful_server_config.xml</b> and
+            <b class="class">random_diffuser_strategy.xml</b> don't have any end-points. This allows
+            diffusive test cases to be run locally without any configuration. Just run the
+            <b class="class">RestfulDiffusiveServer</b> class, and then the <b class="class">DiffusiveLauncher</b>
+            class, and it should run.</li>
+        <li>Fixed bug that prevented diffusive from running when no end-points were specified in the
+            configuration files.</li>
+    </ol>
+
     <h4>Version 0.1.2 (from version 0.1.0)</h4>
     <p>Main change is the new capability to configure diffusers from XML files. Also small updates to
     incorporate fixes and added features from <a href="http://freezedried.sourceforge.net">FreezeDry</a>.</p>
