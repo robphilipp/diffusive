@@ -372,7 +372,8 @@ public class RestfulDiffuserManagerResource {
 		final DiffuserSignature diffuserId = DiffuserSignature.parse( signature );
 		final List< String > argumentTypes = diffuserId.getArgumentTypeNames();
 		
-		// grab the argument types and validate that they are equal
+		// grab the argument types from the request and validate that they are equal
+		// to the argument types from the diffusive signature associated with this diffuser
 		final List< String > requestArgTypes = request.getArgumentTypes();
 		if( !requestArgTypes.equals( argumentTypes ) )
 		{

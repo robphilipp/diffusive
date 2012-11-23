@@ -18,6 +18,8 @@ package org.microtitan.diffusive.diffuser.restful.resources.cache;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.log4j.Logger;
+import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 
@@ -28,31 +30,53 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
  * @author Robert Philipp
  */
 public class ResultCacheEntry< T > {
+	
+	private static final Logger LOGGER = Logger.getLogger( ResultCacheEntry.class );
 
 	private final Future< T > result;
 	private final String serializerType;
 
+	/**
+	 * Constructs an entry for the results cache that holds the result and the serializer used
+	 * to serialize and deserialize the object.
+	 * @param result The {@link Future} object from which to retrieve the result
+	 * @param serializerType The serializer type as specified in the {@link SerializerFactory}
+	 */
 	public ResultCacheEntry( final Future< T > result, final String serializerType )
 	{
 		this.result = result;
 		this.serializerType = serializerType;
 	}
 
+	/**
+	 * Constructs an entry for the results cache that holds the result and the serializer used
+	 * to serialize and deserialize the object.
+	 * @param result The {@link Future} object from which to retrieve the result
+	 * @param serializer The serializer used to serialize/de-serialize the results object.
+	 */
 	public ResultCacheEntry( final Future< T > result, final Serializer serializer )
 	{
 		this( result, SerializerFactory.getSerializerName( serializer.getClass() ) );
 	}
 
+	/**
+	 * @return The serializer type as specified in the {@link SerializerFactory}
+	 */
 	public String getSerializerType()
 	{
 		return serializerType;
 	}
 
+	/**
+	 * Blocking call that returns the result object held in the {@link Future} object.
+	 * @return the result object held in the {@link Future} object.
+	 */
 	public T getResult()
 	{
 		T resultObject = null;
 		try
 		{
+			// blocking call
 			resultObject = result.get();
 		}
 		catch( InterruptedException e )
@@ -61,18 +85,21 @@ public class ResultCacheEntry< T > {
 		}
 		catch( ExecutionException e )
 		{
-			throw new IllegalStateException( e );
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error executing the diffusive method." + Constants.NEW_LINE );
+			message.append( "  Future: " + result.getClass().getName() + Constants.NEW_LINE );
+			message.append( "  Serializer Type: " + serializerType );
+			LOGGER.error( message.toString(), e );
+			throw new IllegalStateException( message.toString(), e );
 		}
 		return resultObject;
 	}
 
+	/**
+	 * @return true if the task has completed; false otherwise
+	 */
 	public boolean isDone()
 	{
 		return result.isDone();
 	}
-
-	// public boolean isCancelled()
-	// {
-	// return result.isCancelled();
-	// }
 }
