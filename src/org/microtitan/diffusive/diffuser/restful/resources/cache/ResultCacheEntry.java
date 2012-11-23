@@ -48,22 +48,23 @@ public class ResultCacheEntry< T > {
 		return serializerType;
 	}
 
-	public T getResult()
+	public T getResult() throws InterruptedException, ExecutionException
 	{
-		T resultObject = null;
-		try
-		{
-			resultObject = result.get();
-		}
-		catch( InterruptedException e )
-		{
-			Thread.currentThread().interrupt();
-		}
-		catch( ExecutionException e )
-		{
-			throw new IllegalStateException( e );
-		}
-		return resultObject;
+//		T resultObject = null;
+//		try
+//		{
+//			resultObject = result.get();
+//		}
+//		catch( InterruptedException e )
+//		{
+//			Thread.currentThread().interrupt();
+//		}
+//		catch( ExecutionException e )
+//		{
+//			throw new IllegalStateException( e );
+//		}
+//		return resultObject;
+		return result.get();
 	}
 
 	public boolean isDone()

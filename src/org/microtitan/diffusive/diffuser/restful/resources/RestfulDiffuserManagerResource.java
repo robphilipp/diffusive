@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -708,8 +709,23 @@ public class RestfulDiffuserManagerResource {
 			{
 				final StringBuffer message = new StringBuffer();
 				message.append( "Error occured while attempting to close the byte array output stream for the serialized result result." );
-				LOGGER.error( message.toString() );
-				throw new IllegalArgumentException( message.toString() );
+				LOGGER.error( message.toString(), e );
+				throw new IllegalArgumentException( message.toString(), e );
+			}
+			// error grabbing the result from the future...some execution or threading error.
+			catch( ExecutionException | InterruptedException e )
+			{
+				final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
+
+				final Entry entry = Atom.createEntry();
+				entry.setId( requestId );
+				entry.setContent( "Failded to retrieve result." + Constants.NEW_LINE + e.getMessage(), MediaType.TEXT_PLAIN );
+				feed.addEntry( entry );
+				
+				response = Response.created( resultUri )
+								   .status( Status.INTERNAL_SERVER_ERROR )
+								   .entity( feed.toString() )
+								   .build();
 			}
 		}
 		// currently running
