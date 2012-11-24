@@ -346,7 +346,7 @@ public class RestfulDiffuserManagerResource {
 	 * 	<li>The class name of the object containing the method to execute.</li>
 	 * 	<li>A {@code byte[]} representing the serialized object containing the method to call.</li>
 	 * 	<li>The name of the serializer used to serialize and deserialize (see the enum 
-	 * 		{@link SerializerFactory.SerializerType}</li>
+	 * 		{@link SerializerFactory.SerializerType})</li>
 	 * </ul>
 	 * This is a non-blocking method. A reference to the result is placed in the results cache, and the status
 	 * of the execution can be monitored with the {@link #isRunning(String, String)} method. The results can be
