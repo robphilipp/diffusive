@@ -709,8 +709,12 @@ public class RestfulDiffuserManagerResource {
 			{
 				final StringBuffer message = new StringBuffer();
 				message.append( "Error occured while attempting to close the byte array output stream for the serialized result result." );
-				LOGGER.error( message.toString(), e );
-				throw new IllegalArgumentException( message.toString(), e );
+				message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+				message.append( "  Result URI: " + resultUri.toString() + Constants.NEW_LINE );
+				message.append( "  Cache Key: " + cacheKey + Constants.NEW_LINE );
+				message.append( "  Creation Date: " + date + Constants.NEW_LINE );
+				LOGGER.error( message.toString() );
+				throw new IllegalArgumentException( message.toString() );
 			}
 			// error grabbing the result from the future...some execution or threading error.
 			catch( ExecutionException | InterruptedException e )
