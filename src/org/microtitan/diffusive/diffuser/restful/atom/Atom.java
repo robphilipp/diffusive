@@ -24,6 +24,11 @@ import org.apache.abdera.model.Link;
 import org.apache.abdera.model.Text;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 
+/**
+ * Utility class to create Atom {@link Feed}s and {@link Entry}s
+ * 
+ * @author Robert Philipp
+ */
 public class Atom {
 
 	// names for generating the Atom feeds
@@ -52,22 +57,52 @@ public class Atom {
 		return createFeed( resourceUri, id, Text.Type.TEXT, created, null );
 	}
 
+	/**
+	 * Creates a new feed whose ID is the specified resource URI, the title is a text title
+	 * specified by the title, and the specified published date, and has a link to the
+	 * resource with a relationship of {@link #LINK_RELATION_SELF} = {@value #LINK_RELATION_SELF}
+	 * @param resourceUri The URI of the resource used as the ID and is provided in the link
+	 * @param id The title of the feed
+	 * @param created The date the feed was published (created)
+	 * @param generatorUri The {@link URI} of the resource that generated the feed.
+	 * @return the newly created feed
+	 */
 	public static Feed createFeed( final URI resourceUri, final String id, final Date created, final URI generatorUri )
 	{
 		return createFeed( resourceUri, id, Text.Type.TEXT, created, generatorUri );
 	}
-	
+
+	/**
+	 * Creates a new feed whose ID is the specified resource URI, the title is a text title
+	 * specified by the title, and the specified published date, and has a link to the
+	 * resource with a relationship of {@link #LINK_RELATION_SELF} = {@value #LINK_RELATION_SELF}
+	 * @param resourceUri The URI of the resource used as the ID and is provided in the link
+	 * @param id The title of the feed
+	 * @param titleType The type of the title (text, html, xhtml)
+	 * @param created The date the feed was published (created)
+	 * @return the newly created feed
+	 */
 	public static Feed createFeed( final URI resourceUri, final String id, final Text.Type titleType, final Date created )
 	{
 		return createFeed( resourceUri, id, titleType, created, null );
 	}
 
+	/**
+	 * Creates a new feed whose ID is the specified resource URI, the title is a text title
+	 * specified by the title, and the specified published date, and has a link to the
+	 * resource with a relationship of {@link #LINK_RELATION_SELF} = {@value #LINK_RELATION_SELF}
+	 * @param resourceUri The URI of the resource used as the ID and is provided in the link
+	 * @param id The title of the feed
+	 * @param titleType The type of the title (text, html, xhtml)
+	 * @param created The date the feed was published (created)
+	 * @param generatorUri The {@link URI} of the resource that generated the feed.
+	 * @return the newly created feed
+	 */
 	public static Feed createFeed( final URI resourceUri, final String id, final Text.Type titleType, final Date created, final URI generatorUri )
 	{
 		final String uri = resourceUri.toString();
 		
 		final Feed feed = createFeed();
-//		feed.setId( uri );
 		feed.setId( id );
 		feed.setTitle( id, titleType );
 		feed.setUpdated( created );
@@ -78,23 +113,40 @@ public class Atom {
 		}
 		return feed;
 	}
-	
+
+	/**
+	 * @return a {@link Feed} {@link Entry}
+	 */
 	public static Entry createEntry()
 	{
 		return AbderaFactory.getInstance().newEntry();
 	}
-	
+
+	/**
+	 * Creates and returns a feed entry with the specified properties
+	 * @param resourceUri The URI of the resource used as the ID and is provided in the link
+	 * @param id The title of the feed
+	 * @param created The date the feed was published (created)
+	 * @return a {@link Feed} {@link Entry}
+	 */
 	public static Entry createEntry( final URI resourceUri, final String id, final Date created )
 	{
 		return createEntry( resourceUri, id, Text.Type.TEXT, created );
 	}
-	
+
+	/**
+	 * Creates and returns a feed entry with the specified properties
+	 * @param resourceUri The URI of the resource used as the ID and is provided in the link
+	 * @param id The title of the feed
+	 * @param titleType The type of the title (text, html, xhtml)
+	 * @param created The date the feed was published (created)
+	 * @return a {@link Feed} {@link Entry}
+	 */
 	public static Entry createEntry( final URI resourceUri, final String id, final Text.Type titleType, final Date created )
 	{
 		final String uri = resourceUri.toString();
 		
 		final Entry entry = createEntry();
-//		entry.setId( uri );
 		entry.setId( id );
 		entry.setTitle( id, titleType );
 		entry.setUpdated( created );

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -345,7 +346,7 @@ public class RestfulDiffuserManagerResource {
 	 * 	<li>The class name of the object containing the method to execute.</li>
 	 * 	<li>A {@code byte[]} representing the serialized object containing the method to call.</li>
 	 * 	<li>The name of the serializer used to serialize and deserialize (see the enum 
-	 * 		{@link SerializerFactory.SerializerType}</li>
+	 * 		{@link SerializerFactory.SerializerType})</li>
 	 * </ul>
 	 * This is a non-blocking method. A reference to the result is placed in the results cache, and the status
 	 * of the execution can be monitored with the {@link #isRunning(String, String)} method. The results can be
@@ -709,8 +710,27 @@ public class RestfulDiffuserManagerResource {
 			{
 				final StringBuffer message = new StringBuffer();
 				message.append( "Error occured while attempting to close the byte array output stream for the serialized result result." );
+				message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+				message.append( "  Result URI: " + resultUri.toString() + Constants.NEW_LINE );
+				message.append( "  Cache Key: " + cacheKey + Constants.NEW_LINE );
+				message.append( "  Creation Date: " + date + Constants.NEW_LINE );
 				LOGGER.error( message.toString() );
 				throw new IllegalArgumentException( message.toString() );
+			}
+			// error grabbing the result from the future...some execution or threading error.
+			catch( ExecutionException | InterruptedException e )
+			{
+				final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
+
+				final Entry entry = Atom.createEntry();
+				entry.setId( requestId );
+				entry.setContent( "Failded to retrieve result." + Constants.NEW_LINE + e.getMessage(), MediaType.TEXT_PLAIN );
+				feed.addEntry( entry );
+				
+				response = Response.created( resultUri )
+								   .status( Status.INTERNAL_SERVER_ERROR )
+								   .entity( feed.toString() )
+								   .build();
 			}
 		}
 		// currently running

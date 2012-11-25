@@ -16,10 +16,9 @@
 package org.microtitan.diffusive.diffuser.restful.resources.cache;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
-import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 
@@ -27,20 +26,21 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
  * The entry into the results cache. Each entry holds the results object and the
  * serializer name used for serializing and deserializing the result object.
  * 
+ * @see ResultsCache
+ * 
  * @author Robert Philipp
  */
 public class ResultCacheEntry< T > {
-	
-	private static final Logger LOGGER = Logger.getLogger( ResultCacheEntry.class );
 
 	private final Future< T > result;
 	private final String serializerType;
 
 	/**
-	 * Constructs an entry for the results cache that holds the result and the serializer used
-	 * to serialize and deserialize the object.
-	 * @param result The {@link Future} object from which to retrieve the result
-	 * @param serializerType The serializer type as specified in the {@link SerializerFactory}
+	 * Constructs the entry for the {@link ResultsCache}
+	 * @param result The {@link Future} that can be queried for the result.
+	 * @param serializerType The name of the serializer used to serialize/deserialize
+	 * the result object (see {@link SerializerFactory.SerializerType} for a list
+	 * of available serializers).
 	 */
 	public ResultCacheEntry( final Future< T > result, final String serializerType )
 	{
@@ -49,10 +49,11 @@ public class ResultCacheEntry< T > {
 	}
 
 	/**
-	 * Constructs an entry for the results cache that holds the result and the serializer used
-	 * to serialize and deserialize the object.
-	 * @param result The {@link Future} object from which to retrieve the result
-	 * @param serializer The serializer used to serialize/de-serialize the results object.
+	 * Constructs the entry for the {@link ResultsCache}
+	 * @param result The {@link Future} that can be queried for the result.
+	 * @param serializer The serializer used to serialize/deserialize
+	 * the result object (see {@link SerializerFactory} for a list
+	 * of available serializers).
 	 */
 	public ResultCacheEntry( final Future< T > result, final Serializer serializer )
 	{
@@ -60,7 +61,7 @@ public class ResultCacheEntry< T > {
 	}
 
 	/**
-	 * @return The serializer type as specified in the {@link SerializerFactory}
+	 * @return The name of the serializer used serialize/deserialize the result object
 	 */
 	public String getSerializerType()
 	{
@@ -68,31 +69,16 @@ public class ResultCacheEntry< T > {
 	}
 
 	/**
-	 * Blocking call that returns the result object held in the {@link Future} object.
-	 * @return the result object held in the {@link Future} object.
+	 * This is a blocking call to request the result object
+	 * @return The result object
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @see Future
+	 * @see ExecutorService
 	 */
-	public T getResult()
+	public T getResult() throws InterruptedException, ExecutionException
 	{
-		T resultObject = null;
-		try
-		{
-			// blocking call
-			resultObject = result.get();
-		}
-		catch( InterruptedException e )
-		{
-			Thread.currentThread().interrupt();
-		}
-		catch( ExecutionException e )
-		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Error executing the diffusive method." + Constants.NEW_LINE );
-			message.append( "  Future: " + result.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Serializer Type: " + serializerType );
-			LOGGER.error( message.toString(), e );
-			throw new IllegalStateException( message.toString(), e );
-		}
-		return resultObject;
+		return result.get();
 	}
 
 	/**
