@@ -86,7 +86,6 @@ public class DiffusiveLauncher {
 	{
 		final List< String > configurations = new ArrayList<>();
 		configurations.add( RestfulDiffuserConfig.class.getName() );
-//		configurations.add( LocalDiffuserRepositoryConfig.class.getName() );
 		return configurations;
 	}
 	
