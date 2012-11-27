@@ -51,13 +51,17 @@ public class RestfulDiffuserConfigXml {
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserConfigXml.class );
 	
 	/**
-	 * The name of the XML configuration file holding the diffuser strategy configuration
+	 * The name of the XML configuration file holding the diffuser strategy configuration.
+	 * NOTE: This field is only used in the main(...) class for testing and to help create
+	 * configuration files for strategies 
 	 */
 	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_diffuser_strategy.xml";
 //	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_weighted_diffuser_strategy.xml";
 	
 	/**
 	 * The fully qualified class name of the {@link Class} of the diffuser strategy implementation
+	 * NOTE: This field is only used in the main(...) class for testing and to help create
+	 * configuration files for strategies 
 	 */
 	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomDiffuserStrategyConfigXml.class.getName();
 //	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomWeightedDiffuserStrategyConfigXml.class.getName();
