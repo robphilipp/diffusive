@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.microtitan.diffusive.launcher.config.xml;
+package org.microtitan.diffusive.diffuser.strategy;
 
-import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
-import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
 
 /**
  * Interface for the diffuser strategy XML configuration object. This is used by the strategies

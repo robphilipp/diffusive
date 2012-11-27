@@ -33,6 +33,9 @@ import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManage
 import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
+import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategyConfigXml;
+import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml;
+import org.microtitan.diffusive.diffuser.strategy.RandomWeightedDiffuserStrategyConfigXml;
 import org.microtitan.diffusive.launcher.config.ConfigUtils;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 

@@ -13,46 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.microtitan.diffusive.launcher.config.xml;
+package org.microtitan.diffusive.diffuser.strategy;
 
+import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.freezedry.persistence.annotations.PersistCollection;
+import org.freezedry.persistence.annotations.PersistMap;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
-import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
 import org.microtitan.diffusive.launcher.config.ConfigUtils;
 
-/**
- * Holds the configuration for the diffuser strategies.
- * 
- * @author Robert Philipp
- */
-public class RandomDiffuserStrategyConfigXml implements DiffuserStrategyConfigXml {
+public class RandomWeightedDiffuserStrategyConfigXml implements DiffuserStrategyConfigXml {
 
 	/**
-	 * The list of end-points from which the strategy may choose 
+	 * Holds the client end-points and their associated weights
 	 */
-	@PersistCollection(elementPersistName="endPoint")
-	private List< String > clientEndpoints;
+	@PersistMap(entryPersistName="client",keyPersistName="endPoint", valuePersistName="weight")
+	private Map< String, Double > endpoints;
 	
 	private long randomSeed;
 
 	/**
-	 * @return The list of end-points from which the strategy can select
+	 * @return
 	 */
-	public List< String > getClientEndpoints()
+	public Map< String, Double > getClientEndpoints()
 	{
-		return clientEndpoints;
+		return endpoints;
 	}
 
 	/**
 	 * Sets the list of end-points from which the strategy can select
 	 * @param clientEndpoints The list of end-points from which the strategy can select
 	 */
-	public void setClientEndpoints( final List< String > clientEndpoints )
+	public void setClientEndpoints( final Map< String, Double > clientEndpoints )
 	{
-		this.clientEndpoints = clientEndpoints;
+		this.endpoints = clientEndpoints;
 	}
 	
 	/**
@@ -79,8 +75,17 @@ public class RandomDiffuserStrategyConfigXml implements DiffuserStrategyConfigXm
 	@Override
 	public DiffuserStrategy createStrategy()
 	{
-		final List< String > validEndpoints = ConfigUtils.validateEndpoints( clientEndpoints );
-		return new RandomDiffuserStrategy( ConfigUtils.createEndpointList( validEndpoints ), randomSeed );
+		final List< String > validEndpoints = ConfigUtils.validateEndpoints( endpoints.keySet() );
+		final Map< URI, Double > urlEndpoints = new LinkedHashMap<>();
+		for( String endpoint : validEndpoints )
+		{
+			final Double weight = endpoints.get( endpoint );
+			if( weight != null )
+			{
+				urlEndpoints.put( URI.create( endpoint ), weight );
+			}
+		}
+		return new RandomWeightedDiffuserStrategy( urlEndpoints, randomSeed );
 	}
 	
 	/*
@@ -91,12 +96,12 @@ public class RandomDiffuserStrategyConfigXml implements DiffuserStrategyConfigXm
 	public String toString()
 	{
 		final StringBuffer buffer = new StringBuffer();
-		if( clientEndpoints != null )
+		if( endpoints != null )
 		{
 			buffer.append( "Client End-Points: " + Constants.NEW_LINE );
-			for( String endpoint : clientEndpoints )
+			for( Map.Entry< String, Double > entry : endpoints.entrySet() )
 			{
-				buffer.append( "  " + endpoint + Constants.NEW_LINE );
+				buffer.append( "  " + entry.getKey() + ": " + String.format( "%6.4f", entry.getValue() ) + Constants.NEW_LINE );
 			}
 		}
 		buffer.append( "Random Seed: " + randomSeed );

@@ -28,8 +28,8 @@ import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
+import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategyConfigXml;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
-import org.microtitan.diffusive.launcher.config.xml.DiffuserStrategyConfigXml;
 import org.microtitan.diffusive.launcher.config.xml.RestfulDiffuserConfigXml;
 
 /**
