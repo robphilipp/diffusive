@@ -18,8 +18,9 @@ package org.microtitan.diffusive.classloaders;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -47,17 +48,18 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
      * provides a mechanism for running additional configuration that will be loaded by the
      * same class loader that is loading the application with the diffuser annotations.
 	 * @param classPaths The {@link List} of class path URI
-	 * @param configClasses A {@link List} containing the names of configuration classes that are 
+	 * @param configClasses A {@link Map} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need. 
 	 * @param delegationPrefixes The list of prefixes to the fully qualified class name. Classes whose fully qualified class
 	 * names start with one of these prefixes are loaded by the parent class loader instead of this one.
 	 * @param parentLoader the parent class loader of this class loader
 	 * @param classPool the source of the class files
 	 */
 	public RestfulDiffuserClassLoader( final List< URI > classPaths,
-									   final List< String > configClasses, 
+									   final Map< String, Object[] > configClasses,
 									   final List< String > delegationPrefixes,
 									   final ClassLoader parentLoader, 
 									   final ClassPool classPool )
@@ -79,15 +81,16 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
      * Creates a new class loader using the specified parent class loader for delegation. Also
      * provides a mechanism for running additional configuration that will be loaded by the
      * same class loader that is loading the application with the diffuser annotations.
-	 * @param configClasses A {@link List} containing the names of configuration classes that are 
+	 * @param configClasses A {@link Map} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param parentLoader the parent class loader of this class loader
 	 * @param classPool the source of the class files
 	 */
 	public RestfulDiffuserClassLoader( final List< URI > classPaths,
-									   final List< String > configClasses, 
+									   final Map< String, Object[] > configClasses,
 									   final ClassLoader parentLoader, 
 									   final ClassPool classPool )
 	{
@@ -101,7 +104,7 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	 */
 	public RestfulDiffuserClassLoader( final List< URI > classPaths, final ClassLoader parentLoader, final ClassPool classPool )
 	{
-		this( classPaths, new ArrayList< String >(), parentLoader, classPool );
+		this( classPaths, new LinkedHashMap< String, Object[] >(), parentLoader, classPool );
 	}
 
 	/**
@@ -110,10 +113,13 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	 * @param configClasses A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param classPool the source of the class files
 	 */
-	public RestfulDiffuserClassLoader( final List< URI > classPaths, final List< String > configClasses, final ClassPool classPool )
+	public RestfulDiffuserClassLoader( final List< URI > classPaths, 
+			   						   final Map< String, Object[] > configClasses,
+									   final ClassPool classPool )
 	{
 		this( classPaths, configClasses, RestfulDiffuserClassLoader.class.getClassLoader(), classPool );
 	}
@@ -124,7 +130,7 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	 */
 	public RestfulDiffuserClassLoader( final List< URI > classPaths, final ClassPool classPool )
 	{
-		this( classPaths, new ArrayList< String >(), classPool );
+		this( classPaths, new LinkedHashMap< String, Object[] >(), classPool );
 	}
 		
 	/**

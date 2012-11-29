@@ -18,7 +18,9 @@ package org.microtitan.diffusive.launcher;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -47,7 +49,8 @@ public class DiffusiveLoader extends Loader {
 	
 	private static final Logger LOGGER = Logger.getLogger( DiffusiveLoader.class );
 
-	private final List< String > configurationClasses;
+//	private final List< String > configurationClasses;
+	private final Map< String, Object[] > configurationClasses;
 	private final List< String > delegationPrefixes;
 	
 	// hold a reference to this, because we need it to overload the javassist Loader
@@ -61,19 +64,20 @@ public class DiffusiveLoader extends Loader {
 	 * @param configClasses A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param delegationPrefixes The list of prefixes to the fully qualified class name. Classes whose fully qualified class
 	 * names start with one of these prefixes are loaded by the parent class loader instead of this one.
 	 * @param parentLoader the parent class loader of this class loader
 	 * @param classPool the source of the class files
 	 */
-	public DiffusiveLoader( final List< String > configClasses, 
+	public DiffusiveLoader( final Map< String, Object[] > configClasses,  
 							final List< String > delegationPrefixes,
 							final ClassLoader parentLoader, 
 							final ClassPool classPool )
 	{
 		super( parentLoader, classPool );
-		configurationClasses = new ArrayList<>( configClasses );
+		configurationClasses = new LinkedHashMap<>( configClasses );
 		this.delegationPrefixes = new ArrayList<>( delegationPrefixes );
 
 		this.classPool = classPool;
@@ -86,11 +90,12 @@ public class DiffusiveLoader extends Loader {
 	 * @param configClasses A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param parentLoader the parent class loader of this class loader
 	 * @param classPool the source of the class files
 	 */
-	public DiffusiveLoader( final List< String > configClasses, 
+	public DiffusiveLoader( final Map< String, Object[] > configClasses, 
 							final ClassLoader parentLoader, 
 							final ClassPool classPool )
 	{
@@ -104,7 +109,7 @@ public class DiffusiveLoader extends Loader {
 	 */
 	public DiffusiveLoader( final ClassLoader parentLoader, final ClassPool classPool )
 	{
-		this( new ArrayList< String >(), parentLoader, classPool );
+		this( new LinkedHashMap< String, Object[] >(), parentLoader, classPool );
 	}
 
 	/**
@@ -113,13 +118,14 @@ public class DiffusiveLoader extends Loader {
 	 * @param configClasses A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param classPool the source of the class files
 	 */
-	public DiffusiveLoader( final List< String > configClasses, final ClassPool classPool )
+	public DiffusiveLoader( final Map< String, Object[] > configClasses, final ClassPool classPool )
 	{
 		super( classPool );
-		configurationClasses = new ArrayList<>( configClasses );
+		configurationClasses = new LinkedHashMap<>( configClasses );
 		delegationPrefixes = createDefaultDelegationPrefixes();
 
 		this.classPool = classPool;
@@ -131,7 +137,7 @@ public class DiffusiveLoader extends Loader {
 	 */
 	public DiffusiveLoader( final ClassPool classPool )
 	{
-		this( new ArrayList< String >(), classPool );
+		this( new LinkedHashMap< String, Object[] >(), classPool );
 	}
 		
 	/**
@@ -140,12 +146,13 @@ public class DiffusiveLoader extends Loader {
 	 * @param configClasses A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 */
-	public DiffusiveLoader( final List< String > configClasses )
+	public DiffusiveLoader( final Map< String, Object[] > configClasses )
 	{
 		super();
-		configurationClasses = new ArrayList<>( configClasses );
+		configurationClasses = new LinkedHashMap<>( configClasses );
 		delegationPrefixes = createDefaultDelegationPrefixes();
 	}
 	
@@ -154,9 +161,8 @@ public class DiffusiveLoader extends Loader {
 	 */
 	public DiffusiveLoader()
 	{
-		this( new ArrayList< String >() );
+		this( new LinkedHashMap< String, Object[] >() );
 	}
-	
 	
 	/**
 	 * Adds the name of a class that contains configuration items. A configuration item is
@@ -165,14 +171,17 @@ public class DiffusiveLoader extends Loader {
 	 * @return true if the class name was added to the list of configuration classes; false otherwise
 	 * @see #invokeConfigurationClasses()
 	 */
-	public boolean addConfigurationClass( final String className )
+	public Object[] addConfigurationClass( final String className, final Object[] parameters )
 	{
-		boolean isAdded = false;
-		if( !configurationClasses.contains( className ) )
+		if( configurationClasses.containsKey( className ) )
 		{
-			isAdded = configurationClasses.add( className );
+			final StringBuffer message = new StringBuffer();
+			message.append( "Replaced parameters of the configuration class: " + Constants.NEW_LINE );
+			message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
+			message.append( "  Parameters: " + parameters );
+			LOGGER.info( message.toString() );
 		}
-		return isAdded;
+		return configurationClasses.put( className, parameters );
 	}
 	
 	/**
@@ -182,7 +191,7 @@ public class DiffusiveLoader extends Loader {
 	 * @return true if the class name was removed to the list of configuration classes; false otherwise
 	 * @see #invokeConfigurationClasses()
 	 */
-	public boolean removeConfigurationClass( final String className )
+	public Object[] removeConfigurationClass( final String className )
 	{
 		return configurationClasses.remove( className );
 	}
@@ -209,7 +218,6 @@ public class DiffusiveLoader extends Loader {
 		prefixes.add( "org.apache.log4j." );
 		prefixes.add( "org.apache.commons.logging." );
 		prefixes.add( "org.apache.abdera." );
-//		prefixes.add( "org.microtitan.diffusive." );
 		
 		// we want to make sure that the DiffusiveConfiguration annotation is loaded
 		// by the default app class loader, and NOT this one.
@@ -404,9 +412,9 @@ public class DiffusiveLoader extends Loader {
 	{
 		// run through the class names, load the classes, and then invoke the configuration methods
 		// (that have been annotated with @DiffusiveConfiguration)
-		for( String className : configurationClasses )
+		for( Map.Entry< String, Object[] > className : configurationClasses.entrySet() )
 		{
-			final Class< ? > setupClazz = loadClass( className );
+			final Class< ? > setupClazz = loadClass( className.getKey() );
 			Method configurationMethod = null;
 			try
 			{
@@ -418,7 +426,7 @@ public class DiffusiveLoader extends Loader {
 						// hold on the the method in case there is an invocation exception
 						// and to warn the user if no configuration method was found
 						configurationMethod = method;
-						method.invoke( null/*setupClazz.newInstance()*/ );
+						method.invoke( null, className.getValue() );
 					}
 				}
 				if( configurationMethod == null )

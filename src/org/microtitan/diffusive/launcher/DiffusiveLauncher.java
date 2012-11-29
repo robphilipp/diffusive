@@ -15,13 +15,18 @@
  */
 package org.microtitan.diffusive.launcher;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javassist.ClassPool;
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -54,7 +59,18 @@ import org.microtitan.tests.threaded.MultiThreadedCalc;
 public class DiffusiveLauncher {
 	
 	private static final Logger LOGGER = Logger.getLogger( DiffusiveLauncher.class );
-	
+
+	/**
+	 * The directory containing the diffuser configuration file for the application-attached diffuser.
+	 */
+	public static final String XML_CONFIG_DIR = "config/launcher/";
+
+	/**
+	 * The name of the XML configuration file that is read to obtain the configuration settings that are needed
+	 * by the RESTful diffuser
+	 */
+	public static final String XML_CONFIG_FILE_NAME = "restful_diffuser_config.xml";
+
 	private final DiffusiveLoader loader;
 
 	/**
@@ -72,6 +88,19 @@ public class DiffusiveLauncher {
 	 * rewrite diffusive methods, and delegate loading to the parent class loader. Uses a {@link RestfulDiffuser},
 	 * uses the default values from the {@link DiffusiveLoader} to determine which classes to load using the
 	 * parent class loader (logging, abdera, diffusive configuration annotation, etc).
+	 * @param configurationClasses the classes holding the configuration for the launcher. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
+	 */
+	public DiffusiveLauncher( final Map< String, Object[] > configurationClasses )
+	{
+		this( createLoader( configurationClasses, createDefaultTranslator( createDefaultMethodIntercepter() ) ) );
+	}
+	
+	/**
+	 * Constructs a {@link DiffusiveLauncher} that uses a default {@link DiffusiveLoader} to load classes, 
+	 * rewrite diffusive methods, and delegate loading to the parent class loader. Uses a {@link RestfulDiffuser},
+	 * uses the default values from the {@link DiffusiveLoader} to determine which classes to load using the
+	 * parent class loader (logging, abdera, diffusive configuration annotation, etc).
 	 */
 	public DiffusiveLauncher()
 	{
@@ -82,10 +111,10 @@ public class DiffusiveLauncher {
 	 * @return creates a default list of class names that have configuration items (methods used to configure
 	 * diffusive)
 	 */
-	private static List< String > createDefaultConfiguration()
+	private static Map< String, Object[] > createDefaultConfiguration()
 	{
-		final List< String > configurations = new ArrayList<>();
-		configurations.add( RestfulDiffuserConfig.class.getName() );
+		final Map< String, Object[] > configurations = new LinkedHashMap<>();
+		configurations.put( RestfulDiffuserConfig.class.getName(), new Object[] { XML_CONFIG_FILE_NAME } );
 		return configurations;
 	}
 	
@@ -126,10 +155,11 @@ public class DiffusiveLauncher {
 	 * @param configurations A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @return a {@link DiffusiveLoader}
 	 */
-	public static final DiffusiveLoader createLoader( final List< String > configurations )
+	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations )
 	{
 		return createLoader( configurations, createDefaultTranslator( createDefaultMethodIntercepter() ) );
 	}
@@ -141,11 +171,12 @@ public class DiffusiveLauncher {
 	 * @param configurations A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation.  Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param translator The translator used to modify the diffusive methods.
 	 * @return a {@link DiffusiveLoader}
 	 */
-	public static final DiffusiveLoader createLoader( final List< String > configurations,
+	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations,
 													  final DiffusiveTranslator translator )
 	{
 		// get the default class pool
@@ -179,13 +210,14 @@ public class DiffusiveLauncher {
 	 * @param configurations A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param delegationPrefixes The list of prefixes to the fully qualified class name. Classes whose fully qualified class
 	 * names start with one of these prefixes are loaded by the parent class loader instead of this one.
 	 * @param translator The translator used to modify the diffusive methods.
 	 * @return a {@link DiffusiveLoader}
 	 */
-	public static final DiffusiveLoader createLoader( final List< String > configurations,
+	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations,
 													  final List< String > delegationPrefixes,
 													  final DiffusiveTranslator translator )
 	{
@@ -315,6 +347,50 @@ public class DiffusiveLauncher {
 		}
 	}
 	
+	private static enum RunMode {
+		CLEAN( "clean" ),
+		DIFFUSED( "diffused" );
+		
+		private String mode;
+		private RunMode( final String mode )
+		{
+			this.mode = mode;
+		}
+		
+		public String getName()
+		{
+			return mode;
+		}
+		
+		public static RunMode getRunMode( final String modeString )
+		{
+			RunMode runMode = null;
+			for( RunMode mode : RunMode.values() )
+			{
+				if( mode.getName().equals( modeString ) )
+				{
+					runMode = mode;
+					break;
+				}
+			}
+			return runMode;
+		}
+	}
+	
+	private static final RunMode validateRunMode( final OptionSpec< String > runModeSpec, final OptionSet options )
+	{
+		final RunMode runMode = RunMode.getRunMode( runModeSpec.value( options ) );
+		if( runMode == null )
+		{
+			final String message = "Invalid argument for \"run-mode\" option: " + runModeSpec.value( options );
+			LOGGER.error( message );
+			System.out.println( message );
+			System.exit( 0 );
+		}
+		return runMode;
+	}
+
+	
 	/**
 	 * Make sure to run a {@link RestfulDiffuserServer} instance before calling this. And
 	 * make sure that the endpoint listed in the {@link RestfulDiffuserServer#DEFAULT_SERVER_URI}
@@ -322,38 +398,83 @@ public class DiffusiveLauncher {
 	 * knows how to call the endpoint.
 	 * 
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main( String[] args )
+	public static void main( String[] args ) throws IOException
 	{
-		DOMConfigurator.configure( "log4j.xml" );
-		Logger.getRootLogger().setLevel( Level.ERROR );
-
-		// ensure that a class has been specified (the class must have a main)
-		if( args.length < 1 )
+		// set up the command-line arguments
+		final OptionParser parser = new OptionParser();
+		final OptionSpec< String > logLevelSpec = 
+				parser.accepts( "log-level" ).withRequiredArg().ofType( String.class ).defaultsTo( Level.WARN.toString() ).
+				describedAs( Level.TRACE + "|" + Level.DEBUG + "|" + Level.INFO + "|" + Level.WARN + "|" + Level.ERROR );
+		final OptionSpec< String > runModeSpec =
+				parser.accepts( "run-mode" ).withRequiredArg().ofType( String.class ).defaultsTo( RunMode.DIFFUSED.getName() ).
+				describedAs( RunMode.DIFFUSED.getName() + "|" + RunMode.CLEAN.getName() );
+		final OptionSpec< String > configDirSpec =
+				parser.accepts( "config-dir" ).withRequiredArg().ofType( String.class ).defaultsTo( XML_CONFIG_DIR );
+		final OptionSpec< String > configFileSpec =
+				parser.accepts( "config-file" ).withRequiredArg().ofType( String.class ).defaultsTo( XML_CONFIG_FILE_NAME );
+		final OptionSpec< String > configClassSpec =
+				parser.accepts( "config-class" ).withRequiredArg().ofType( String.class ).defaultsTo( RestfulDiffuserConfig.class.getName() );
+		final OptionSpec< String > classNameSpec = 
+				parser.accepts( "execute-class" ).withRequiredArg().ofType( String.class ).defaultsTo( MultiThreadedCalc.class.getName() );
+		final OptionSpec< String > programArgSpec = 
+				parser.accepts( "prog-args" ).withRequiredArg().ofType( String.class ).withValuesSeparatedBy( ' ' );
+		parser.accepts( "help" );
+		
+		// parse the command-line arguments
+		OptionSet options = null;
+		try
 		{
-			System.out.println();
-			System.out.println( "+-------------------------------------+" );
-			System.out.println( "|  Usage: name_of_class_to_run [arg]* |" );
-			System.out.println( "|                                     |" );
-			System.out.println( "|  **** Running simple test code **** |" );
-			System.out.println( "+-------------------------------------+" );
-			System.out.println();
-//			args = new String[] { BeanTest.class.getName() };
-//			args = new String[] { SingleThreadedCalc.class.getName() };
-			args = new String[] { MultiThreadedCalc.class.getName() };
+			options = parser.parse( args );
 		}
-		
+		catch( OptionException e )
+		{
+			e.printStackTrace();
+			LOGGER.error( "Error parsing the command-line options.", e );
+
+			System.out.println( "\nPlease see the usage information below: " );
+			parser.printHelpOn( System.out );
+			System.exit( -1 );
+		}
+
+		// if the user requests help, print out help
+		if( options.has( "help" ) )
+		{
+			parser.printHelpOn( System.out );
+			System.exit( 0 );
+		}
+
+		// set the logging level
+		DOMConfigurator.configure( "log4j.xml" );
+		Logger.getRootLogger().setLevel( Level.toLevel( logLevelSpec.value( options ) ) );
+
+		// grab the values of the command-line arguments
+		final RunMode runMode = validateRunMode( runModeSpec, options );
+		final String classNameToRun = classNameSpec.value( options );
+		String[] programArgs = new String[] {};
+		if( options.has( programArgSpec ) )
+		{
+			programArgSpec.values( options ).toArray( new String[0] );
+		}
+
+		// start the timing for the run
 		final long start = System.currentTimeMillis();
-		
-		// run the application for the specified class
-		final String classNameToRun = args[ 0 ];
-		final String[] programArgs = Arrays.copyOfRange( args, 1, args.length );
-//		final DiffusiveTranslator translator = createDefaultTranslator( createDefaultMethodIntercepter() );
-//		run( createDefaultConfiguration(), translator, classNameToRun, programArgs );
-//		runClean( classNameToRun, programArgs );
-		
-		final DiffusiveLauncher launcher = new DiffusiveLauncher();
-		launcher.run( classNameToRun, programArgs );
+		if( runMode == RunMode.DIFFUSED )
+		{
+			// grab the list of configuration classes for configuring the application attached diffuser
+			final String configFile = configDirSpec.value( options ) + configFileSpec.value( options );
+			final Map< String, Object[] > configurationClasses = new LinkedHashMap<>();
+			configurationClasses.put( configClassSpec.value( options ), new Object[] { configFile } );
+
+			// run the application for the specified class
+			final DiffusiveLauncher launcher = new DiffusiveLauncher( configurationClasses );
+			launcher.run( classNameToRun, programArgs );
+		}
+		else if( runMode == RunMode.CLEAN )
+		{
+			runClean( classNameToRun, programArgs );
+		}
 		
 		System.out.println( "done: " + (double)(System.currentTimeMillis() - start)/1000 + " s" );
 	}

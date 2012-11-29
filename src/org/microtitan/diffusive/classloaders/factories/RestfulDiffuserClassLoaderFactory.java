@@ -17,7 +17,9 @@ package org.microtitan.diffusive.classloaders.factories;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javassist.ClassPool;
 import javassist.expr.ExprEditor;
@@ -43,7 +45,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	
 	private static RestfulDiffuserClassLoaderFactory instance = null;
 	
-	private List< String > configClasses;
+	private Map< String, Object[] > configClasses;
 	private List< String > delegationPrefixes;
 	private ClassPool classPool;
     
@@ -80,15 +82,16 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 * @param configClasses A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param delegationPrefixes The list of prefixes to the fully qualified class name. Classes whose fully qualified class
 	 * names start with one of these prefixes are loaded by the parent class loader instead of this one.
 	 * @param parentLoader the parent class loader of this class loader
 	 * @param classPool the source of the class files
 	 */
-	public void set( final List< String > configClasses, final List< String > delegationPrefixes, final ClassPool pool )
+	public void set( final Map< String, Object[] > configClasses, final List< String > delegationPrefixes, final ClassPool pool )
 	{
-		this.configClasses = new ArrayList<>( configClasses );
+		this.configClasses = new LinkedHashMap<>( configClasses );
 		this.delegationPrefixes = new ArrayList<>( delegationPrefixes );
 		this.classPool = pool;
 	}
@@ -98,12 +101,13 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 * @param configClasses A {@link List} containing the names of configuration classes that are 
 	 * used for configuration. Because these need to be loaded by this class loader, they must all 
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link DiffusiveConfiguration} annotation
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param classPool the source of the class files
 	 */
-	public void set( final List< String > configClasses, final ClassPool pool )
+	public void set( final Map< String, Object[] > configClasses, final ClassPool pool )
 	{
-		this.configClasses = new ArrayList<>( configClasses );
+		this.configClasses = new LinkedHashMap<>( configClasses );
 		this.classPool = pool;
 	}
 	
@@ -137,6 +141,10 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 		return new MethodIntercepterEditor( signature );
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory#create(java.lang.ClassLoader, java.lang.String, java.util.List)
+	 */
 	@Override
 	public RestfulDiffuserClassLoader create( final ClassLoader parentLoader, final String signature, final List< URI > classPaths )
 	{

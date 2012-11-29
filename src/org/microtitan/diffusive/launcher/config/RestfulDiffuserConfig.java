@@ -47,11 +47,11 @@ public class RestfulDiffuserConfig {
 	
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserConfig.class );
 	
-	/**
-	 * The name of the XML configuration file that is read to obtain the configuration settings that are needed
-	 * by the RESTful diffuser
-	 */
-	public static final String XML_CONFIG_FILE_NAME = "restful_diffuser_config.xml";
+//	/**
+//	 * The name of the XML configuration file that is read to obtain the configuration settings that are needed
+//	 * by the RESTful diffuser
+//	 */
+//	public static final String XML_CONFIG_FILE_NAME = "restful_diffuser_config.xml";
 	
 	/**
 	 * Method that is called to configure the Diffusive framework. In particular, creates a 
@@ -64,10 +64,11 @@ public class RestfulDiffuserConfig {
 	 * the location holding that diffuser.
 	 */
 	@DiffusiveConfiguration
-	public static final void configure()
+	public static final void configure( final String configFileName )
 	{
 		// read the RESTful diffuser config file into the configuration object
-		final RestfulDiffuserConfigXml config = loadConfig( XML_CONFIG_FILE_NAME );
+//		final RestfulDiffuserConfigXml config = loadConfig( XML_CONFIG_FILE_NAME );
+		final RestfulDiffuserConfigXml config = loadConfig( configFileName );
 		
 		// now read the diffuser strategy configuration file into the strategy configuration object.
 		// recall that the strategy configuration can create the strategy object

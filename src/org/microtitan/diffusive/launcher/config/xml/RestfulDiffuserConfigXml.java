@@ -34,6 +34,7 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategyConfigXml;
 import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml;
+import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 import org.microtitan.diffusive.launcher.config.ConfigUtils;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 
@@ -269,7 +270,8 @@ public class RestfulDiffuserConfigXml {
 		xmlConfig.setDiffuserStrategyConfigFile( XML_STRATEGY_CONFIG_FILE_NAME );
 		
 		// write out the diffuser configuration file file
-		new XmlPersistence().write( xmlConfig, RestfulDiffuserConfig.XML_CONFIG_FILE_NAME );
+//		new XmlPersistence().write( xmlConfig, RestfulDiffuserConfig.XML_CONFIG_FILE_NAME );
+		new XmlPersistence().write( xmlConfig, DiffusiveLauncher.XML_CONFIG_FILE_NAME );
 		
 		// write out the diffuser-strategy configuration file
 		final RandomDiffuserStrategyConfigXml xmlStrategyConfig = new RandomDiffuserStrategyConfigXml();
@@ -283,8 +285,8 @@ public class RestfulDiffuserConfigXml {
 		
 		// read the configuration file into the diffuser configuration object and display the results
 		final XmlPersistence persist = new XmlPersistence();
-		final RestfulDiffuserConfigXml config = persist.read( RestfulDiffuserConfigXml.class, 
-															  RestfulDiffuserConfig.XML_CONFIG_FILE_NAME );
+		final RestfulDiffuserConfigXml config = persist.read( RestfulDiffuserConfigXml.class, DiffusiveLauncher.XML_CONFIG_FILE_NAME );
+//															  RestfulDiffuserConfig.XML_CONFIG_FILE_NAME );
 		System.out.println( config.toString() );
 		
 		// read the configuration file into the strategy configuration object and display the results

@@ -135,7 +135,8 @@ public class RestfulDiffuserManagerResource {
 	 * remote diffuser.
 	 * @param configurationClasses A {@link List} of fully qualified class names. Each class should
 	 * have methods annotated with {@link DiffusiveServerConfiguration}, which are called and used
-	 * to configure this resource. These annotated methods should be {@code static}.
+	 * to configure this resource. These annotated methods should be {@code static}. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param classLoaderFactory The factory for creating class loaders needed for the diffusers. This
 	 * allows using different class loaders for the server. For example, {@link RestfulClassLoader}
 	 * for non-nested diffusion or a {@link RestfulDiffuserClassLoader} for nested diffusion.
@@ -143,7 +144,6 @@ public class RestfulDiffuserManagerResource {
 	public RestfulDiffuserManagerResource( final ExecutorService executor, 
 										   final ResultsCache resultsCache,
 										   final DiffuserLoadCalc loadCalc,
-//										   final List< String > configurationClasses,
 										   final Map< String, Object[] > configurationClasses,
 										   final ClassLoaderFactory classLoaderFactory )
 	{
