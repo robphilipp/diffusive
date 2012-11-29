@@ -1,1 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><RestfulDiffuserConfigXml><classPathList><classPath>http://192.168.1.4:8182/classpath</classPath></classPathList><loadThreshold>0.75</loadThreshold><serializerName>persistence_xml</serializerName><strategyConfigClassName>org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml</strategyConfigClassName><strategyConfigFile>random_diffuser_strategy.xml</strategyConfigFile></RestfulDiffuserConfigXml>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<RestfulDiffuserConfigXml>
+	<classPathList>
+		<classPath>http://192.168.1.4:8182/diffusers</classPath>
+	</classPathList>
+	<loadThreshold>0.75</loadThreshold>
+	<serializerName>persistence_xml</serializerName>
+	<strategyConfigClassName>org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml</strategyConfigClassName>
+	<strategyConfigFile>config/launcher/random_diffuser_strategy.xml</strategyConfigFile>
+</RestfulDiffuserConfigXml>

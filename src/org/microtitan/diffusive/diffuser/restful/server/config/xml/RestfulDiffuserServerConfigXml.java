@@ -205,15 +205,15 @@ public class RestfulDiffuserServerConfigXml {
 	/**
 	 * Validate that the utility mode string was a valid option.
 	 * @param modeSpec The option specification for the mode
-	 * @param options The parsed command-line optoins
+	 * @param options The parsed command-line options
 	 * @return The {@link UsageMode}
 	 */
-	private static final UsageMode validateMode( final OptionSpec< String > modeSpec, final OptionSet options )
+	private static final UsageMode validateUsageMode( final OptionSpec< String > modeSpec, final OptionSet options )
 	{
 		final UsageMode mode = UsageMode.getMode( modeSpec.value( options ) );
 		if( mode == null )
 		{
-			final String message = "Invalid argument for \"mode\" option: " + modeSpec.value( options );
+			final String message = "Invalid argument for \"usage-mode\" option: " + modeSpec.value( options );
 			LOGGER.error( message );
 			System.out.println( message );
 			System.exit( 0 );
@@ -293,6 +293,8 @@ public class RestfulDiffuserServerConfigXml {
 				parser.accepts( "strategy-config-file" ).withRequiredArg().ofType( String.class ).defaultsTo( DEFAULT_STRATEGY.getFileName() );
 		final OptionSpec< String > strategyConfigClassSpec = 
 				parser.accepts( "strategy-config-class" ).withRequiredArg().ofType( String.class ).defaultsTo( DEFAULT_STRATEGY.getClassName() );
+		final OptionSpec< Long > strategySeedSpec =
+				parser.accepts( "strategy-seed" ).withRequiredArg().ofType( Long.class ).defaultsTo( 3141592653l );
 		final OptionSpec< Double > thresholdSpec = 
 				parser.accepts( "load-threshold" ).withRequiredArg().ofType( Double.class ).defaultsTo( 0.75 ).describedAs( "[0,1]" );
 		parser.accepts( "help" );
@@ -325,7 +327,7 @@ public class RestfulDiffuserServerConfigXml {
 		Logger.getRootLogger().setLevel( Level.toLevel( logLevelSpec.value( options ) ) );
 		
 		// set the values
-		final UsageMode mode = validateMode( modeSpec, options );
+		final UsageMode mode = validateUsageMode( modeSpec, options );
 		final ServerMode serverType = validateServerMode( serverModeSpec, options );
 		final String directory = configDirSpec.value( options ) + serverType.getName() + "/";
 		final String configFile = directory + configFileSpec.value( options );
@@ -343,6 +345,7 @@ public class RestfulDiffuserServerConfigXml {
 		}
 		
 		final double loadThreshold = thresholdSpec.value( options );
+		final long randomSeed = strategySeedSpec.value( options );
 		
 		// report back on the settings
 		final StringBuffer message = new StringBuffer();
@@ -380,7 +383,7 @@ public class RestfulDiffuserServerConfigXml {
 				xmlStrategyConfig = new RandomDiffuserStrategyConfigXml();
 				final List< String > endpoints = new ArrayList<>( Arrays.asList( endpoint ) );
 				((RandomDiffuserStrategyConfigXml)xmlStrategyConfig).setClientEndpoints( endpoints );
-				((RandomDiffuserStrategyConfigXml)xmlStrategyConfig).setRandomSeed( 0 );
+				((RandomDiffuserStrategyConfigXml)xmlStrategyConfig).setRandomSeed( randomSeed );
 			}
 			else if( strategyType == StrategyType.RANDOM_WEIGHTED )
 			{
@@ -388,7 +391,7 @@ public class RestfulDiffuserServerConfigXml {
 				final Map< String, Double > endpoints = new LinkedHashMap<>();
 				endpoints.put( endpoint, 3.14159 );
 				((RandomWeightedDiffuserStrategyConfigXml)xmlStrategyConfig).setClientEndpoints( endpoints );
-				((RandomWeightedDiffuserStrategyConfigXml)xmlStrategyConfig).setRandomSeed( 0 );
+				((RandomWeightedDiffuserStrategyConfigXml)xmlStrategyConfig).setRandomSeed( randomSeed );
 			}
 			
 			// write the strategy configuration file
@@ -400,7 +403,7 @@ public class RestfulDiffuserServerConfigXml {
 		{
 			// read the config file back in to test
 			final XmlPersistence persist = new XmlPersistence();
-			final RestfulDiffuserServerConfigXml config = persist.read( RestfulDiffuserServerConfigXml.class, strategyConfigFile );
+			final RestfulDiffuserServerConfigXml config = persist.read( RestfulDiffuserServerConfigXml.class, configFile );
 
 			System.out.println( config.toString() );
 			

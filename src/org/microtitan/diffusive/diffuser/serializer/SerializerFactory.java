@@ -181,6 +181,20 @@ public class SerializerFactory {
 			}
 			return name;
 		}
+		
+		public static SerializerType getSerializerType( final String name )
+		{
+			SerializerType serializerType = null;
+			for( SerializerType type : values() )
+			{
+				if( type.getName().equals( name ) )
+				{
+					serializerType = type;
+					break;
+				}
+			}
+			return serializerType;
+		}
 	}
 	
 }
