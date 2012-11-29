@@ -69,7 +69,7 @@ public class ConfigUtils {
 			}
 			catch( URISyntaxException e )
 			{
-				final String message = "Invalid URI for end-point: " + client;
+				final String message = "IGNORED invalid URI for end-point: " + client;
 				LOGGER.warn( message, e );
 			}
 		}

@@ -104,7 +104,16 @@ public class RestfulDiffuserConfig {
 		}
 		return config;
 	}
-	
+
+	/**
+	 * Loads the {@link DiffuserStrategy} from the specified file name and its associated XML configuration
+	 * {@link Class}. Note that the XML configuration {@link Class} must have a generic argument that extends
+	 * the {@link DiffuserStrategyConfigXml} class.
+	 * @param fileName The name of the file containing the configuration information for creating the {@link DiffuserStrategy}.
+	 * @param clazz The {@link Class} into which the configuration information is loaded. Note that the class
+	 * must extend the {@link DiffuserStrategyConfigXml} class.
+	 * @return The loaded {@link DiffuserStrategy}
+	 */
 	private static final DiffuserStrategy loadStrategy( final String fileName, final Class< ? extends DiffuserStrategyConfigXml > clazz )
 	{
 		DiffuserStrategy strategy = null;
@@ -126,50 +135,4 @@ public class RestfulDiffuserConfig {
 		}
 		return strategy;
 	}
-	
-//	/**
-//	 * @return a {@link List} of {@link URI} that hold the location of endpoints to which the
-//	 * local {@link RestfulDiffuser} can diffuse method calls.
-//	 */
-//	private static DiffuserStrategy createStrategy( final List< URI > endpoints )
-//	{
-//		return new RandomDiffuserStrategy( endpoints );
-//	}
-//
-//	/**
-//	 * @return a {@link List} of {@link URI} that hold the location of endpoints to which the
-//	 * local {@link RestfulDiffuser} can diffuse method calls.
-//	 */
-//	private static List< URI > createEndpointList()
-//	{
-//		final List< URI > endpoints = new ArrayList<>();
-//		for( String client : CLIENT_ENDPOINTS )
-//		{
-//			endpoints.add( URI.create( client + RestfulDiffuserManagerResource.DIFFUSER_PATH ) );
-//		}
-//		return endpoints;
-//	}
-//	
-//	/**
-//	 * @return a {@link List} of {@link URI} that hold the location of endpoints to which the
-//	 * local {@link RestfulDiffuser} can diffuse method calls.
-//	 */
-//	private static DiffuserStrategy createStrategy()
-//	{
-//		return new RandomDiffuserStrategy( createEndpointList() );
-//	}
-//	
-//	/**
-//	 * @return a {@link List} of {@link URI} holding the location from which a {@link RestfulClassLoader}
-//	 * can load local classes. To each URI in the list, the resource path is appended.
-//	 */
-//	private static List< URI > createClassPathList()
-//	{
-//		final List< URI > endpoints = new ArrayList<>();
-//		for( String client : CLASSPATH_URI )
-//		{
-//			endpoints.add( URI.create( client + RestfulClassPathResource.CLASSPATH_PATH ) );
-//		}
-//		return endpoints;
-//	}
 }

@@ -16,10 +16,9 @@
 package org.microtitan.diffusive.launcher.config.xml;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -35,7 +34,6 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategyConfigXml;
 import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml;
-import org.microtitan.diffusive.diffuser.strategy.RandomWeightedDiffuserStrategyConfigXml;
 import org.microtitan.diffusive.launcher.config.ConfigUtils;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 
@@ -274,11 +272,11 @@ public class RestfulDiffuserConfigXml {
 		new XmlPersistence().write( xmlConfig, RestfulDiffuserConfig.XML_CONFIG_FILE_NAME );
 		
 		// write out the diffuser-strategy configuration file
-//		final RandomDiffuserStrategyConfigXml xmlStrategyConfig = new RandomDiffuserStrategyConfigXml();
-//		final List< String > endpoints = new ArrayList<>( Arrays.asList( "http://192.168.1.4:8182" + RestfulDiffuserManagerResource.DIFFUSER_PATH ) );
-		final RandomWeightedDiffuserStrategyConfigXml xmlStrategyConfig = new RandomWeightedDiffuserStrategyConfigXml();
-		final Map< String, Double > endpoints = new LinkedHashMap<>();
-		endpoints.put( "http://192.168.1.4:8182" + RestfulDiffuserManagerResource.DIFFUSER_PATH, 3.14159 );
+		final RandomDiffuserStrategyConfigXml xmlStrategyConfig = new RandomDiffuserStrategyConfigXml();
+		final List< String > endpoints = new ArrayList<>( Arrays.asList( "http://192.168.1.4:8182" + RestfulDiffuserManagerResource.DIFFUSER_PATH ) );
+//		final RandomWeightedDiffuserStrategyConfigXml xmlStrategyConfig = new RandomWeightedDiffuserStrategyConfigXml();
+//		final Map< String, Double > endpoints = new LinkedHashMap<>();
+//		endpoints.put( "http://192.168.1.4:8182" + RestfulDiffuserManagerResource.DIFFUSER_PATH, 3.14159 );
 		xmlStrategyConfig.setClientEndpoints( endpoints );
 		xmlStrategyConfig.setRandomSeed( 0 );
 		new XmlPersistence().write( xmlStrategyConfig, XML_STRATEGY_CONFIG_FILE_NAME );

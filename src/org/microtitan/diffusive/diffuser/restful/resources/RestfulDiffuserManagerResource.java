@@ -143,7 +143,8 @@ public class RestfulDiffuserManagerResource {
 	public RestfulDiffuserManagerResource( final ExecutorService executor, 
 										   final ResultsCache resultsCache,
 										   final DiffuserLoadCalc loadCalc,
-										   final List< String > configurationClasses,
+//										   final List< String > configurationClasses,
+										   final Map< String, Object[] > configurationClasses,
 										   final ClassLoaderFactory classLoaderFactory )
 	{
 		this.executor = executor;
@@ -876,11 +877,11 @@ public class RestfulDiffuserManagerResource {
 	 *  
 	 * @throws Throwable
 	 */
-	private static void invokeConfigurationClasses( final List< String > configurationClasses )
+	private static void invokeConfigurationClasses( final Map< String, Object[] > configurationClasses )
 	{
 		// run through the class names, load the classes, and then invoke the configuration methods
 		// (that have been annotated with @DiffusiveConfiguration)
-		for( String className : configurationClasses )
+		for( Map.Entry< String, Object[] > className : configurationClasses.entrySet() )
 		{
 			Method configurationMethod = null;
 			try
@@ -888,7 +889,7 @@ public class RestfulDiffuserManagerResource {
 				// attempt to load the class...if it isn't found, then a warning will be issued in
 				// the class not found exception, and the loop will continue to attempt to load any
 				// other configuration classes.
-				final Class< ? > setupClazz = RestfulDiffuserServer.class.getClassLoader().loadClass( className );
+				final Class< ? > setupClazz = RestfulDiffuserServer.class.getClassLoader().loadClass( className.getKey() );
 				
 				// grab the methods that have an annotation @DiffusiveServerConfiguration and invoke them
 				for( final Method method : setupClazz.getMethods() )
@@ -898,13 +899,13 @@ public class RestfulDiffuserManagerResource {
 						// hold on the the method in case there is an invocation exception
 						// and to warn the user if no configuration method was found
 						configurationMethod = method;
-						method.invoke( null/*setupClazz.newInstance()*/ );
+						method.invoke( null, className.getValue() );
 					}
 				}
 				if( configurationMethod == null )
 				{
 					final StringBuffer message = new StringBuffer();
-					message.append( "Error finding a method annotated with @Configure" + Constants.NEW_LINE );
+					message.append( "Error finding a method annotated with @DiffusiveServerConfiguration" + Constants.NEW_LINE );
 					message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
 					LOGGER.warn( message.toString() );
 				}
