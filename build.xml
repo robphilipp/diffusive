@@ -98,35 +98,35 @@
 		the dependencies
 	-->
 	<property environment="env"/>
+	<property name="dependencies" value="dependencies"/>
 	<property name="java-libs" value="${env.JAVA_LIBS}" />
 	<property name="json-libs" value="json"/>
 	<property name="abdera-libs" value="abdera" />
 	<property name="jersey-libs" value="jersey" />
 	<property name="javassist-libs" value="javassist" />
 	<property name="commons-io-libs" value="apache_commons_io" />
-	<property name="internal_class_path" value="${junit} 
-												${log4j}
-												${freezedry} 
-												${json} 
-												${abdera_core} 
-												${abdera_i18n} 
-												${abdera_parser} 
-												${axiom_api} 
-												${axiom_impl} 
-												${commons-logging} 
-												${grizzly_framework} 
-												${grizzly_http} 
-												${grizzly_http_server} 
-												${jersey_client} 
-												${jersey_core} 
-												${jersey_grizzly} 
-												${jersey_server} 
-												${jsr311_api} 
-												${javassist} 
-												${commons_io} 
-												${jopt_simple}"/>
-
-
+	<property name="jar_class_path" value="${dependencies}/${junit} 
+		${dependencies}/${log4j}
+		${dependencies}/${freezedry} 
+		${dependencies}/${json} 
+		${dependencies}/${abdera_core} 
+		${dependencies}/${abdera_i18n} 
+		${dependencies}/${abdera_parser} 
+		${dependencies}/${axiom_api} 
+		${dependencies}/${axiom_impl} 
+		${dependencies}/${commons-logging} 
+		${dependencies}/${grizzly_framework} 
+		${dependencies}/${grizzly_http} 
+		${dependencies}/${grizzly_http_server} 
+		${dependencies}/${jersey_client} 
+		${dependencies}/${jersey_core} 
+		${dependencies}/${jersey_grizzly} 
+		${dependencies}/${jersey_server} 
+		${dependencies}/${jsr311_api} 
+		${dependencies}/${javassist} 
+		${dependencies}/${commons_io} 
+		${dependencies}/${jopt_simple}"/>
+	
 	<!-- 
 		jar dependencies when building a jar that looks in a lib directory for
 		the dependencies at runtime 
@@ -247,7 +247,7 @@
 				<attribute name="Implementation-Version" value="${version}" />
 				<!-- Runtime information -->
 				<attribute name="Main-Class" value="org/microtitan/diffusive/launcher/DiffusiveLauncher" />
-				<attribute name="Class-Path" value="${internal_class_path}" />
+				<attribute name="Class-Path" value="${jar_class_path}" />
 			</manifest>
 		</jar>
 
@@ -279,7 +279,7 @@
 				<attribute name="Implementation-Version" value="${version}" />
 				<!-- Runtime information -->
 				<attribute name="Main-Class" value="org/microtitan/diffusive/diffuser/restful/server/RestfulDiffuserServer" />
-				<attribute name="Class-Path" value="${internal_class_path}" />
+				<attribute name="Class-Path" value="${jar_class_path}" />
 			</manifest>
 		</jar>
 
@@ -338,7 +338,7 @@
 				<attribute name="Implementation-Version" value="${version}" />
 				<!-- Runtime information -->
 				<attribute name="Main-Class" value="org/microtitan/diffusive/launcher/DiffusiveLauncher" />
-				<attribute name="Class-Path" value="${internal_class_path}" />
+				<attribute name="Class-Path" value="${jar_class_path}" />
 			</manifest>
 		</jar>
 	</target>
@@ -360,7 +360,7 @@
 			<fileset dir="${build}" includes="**/*.class" />
 			<fileset dir="${build}" includes="${log4j_config}" />			
 
-			<!-- <zipfileset src="${java-libs}/${log4j}" excludes="META-INF/*" />
+			<zipfileset src="${java-libs}/${log4j}" excludes="META-INF/*" />
 			<zipfileset src="${java-libs}/${junit}" excludes="META-INF/*" />
 
 			<zipfileset src="${java-libs}/${freezedry}" excludes="META-INF/*" />
@@ -386,37 +386,10 @@
 
 			<zipfileset src="${java-libs}/${commons-io-libs}/${commons_io}" excludes="META-INF/*" />
 
-			<zipfileset src="${java-libs}/${jopt_simple}" excludes="META-INF/*" /> -->
+			<zipfileset src="${java-libs}/${jopt_simple}" excludes="META-INF/*" />
 
-			<zipfileset src="${java-libs}/${log4j}" />
-			<zipfileset src="${java-libs}/${junit}" />
 
-			<zipfileset src="${java-libs}/${freezedry}" />
-			<zipfileset src="${java-libs}/${json-libs}/${json}" />
-
-			<zipfileset src="${java-libs}/${abdera-libs}/${abdera_core}" />
-			<zipfileset src="${java-libs}/${abdera-libs}/${abdera_i18n}" />
-			<zipfileset src="${java-libs}/${abdera-libs}/${abdera_parser}" />
-			<zipfileset src="${java-libs}/${abdera-libs}/${axiom_api}" />
-			<zipfileset src="${java-libs}/${abdera-libs}/${axiom_impl}" />
-			<zipfileset src="${java-libs}/${abdera-libs}/${commons-logging}" />
-			
-			<zipfileset src="${java-libs}/${jersey-libs}/${grizzly_framework}" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${grizzly_http}" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${grizzly_http_server}" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_client}" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_core}" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_grizzly}" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_server}" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jsr311_api}" />
-			
-			<zipfileset src="${java-libs}/${javassist-libs}/${javassist}" />
-
-			<zipfileset src="${java-libs}/${commons-io-libs}/${commons_io}" />
-
-			<zipfileset src="${java-libs}/${jopt_simple}" />
-			
- 			<manifest>
+			<manifest>
 				<attribute name="Ant" value="${user.name}" />
 				<!-- Information about the program itself -->
 				<attribute name="Implementation-Vendor" value="Rob Philipp" />
@@ -424,7 +397,7 @@
 				<attribute name="Implementation-Version" value="${version}" />
 				<!-- Runtime information -->
 				<attribute name="Main-Class" value="org/microtitan/diffusive/diffuser/restful/server/RestfulDiffuserServer" />
-				<attribute name="Class-Path" value="${internal_class_path}" />
+				<attribute name="Class-Path" value="${jar_class_path}" />
 			</manifest>
 		</jar>
 	</target>
@@ -436,8 +409,10 @@
 	-->
 	<property name="release" location="${dist}/${app_name}_v${version}" />
 	<target name="make_release" 
-			depends="make_launcher_jar, make_server_jar, make_combined_launcher_jar, make_combined_server_jar" 
-			description="builds the single and diffusive jars and creates the release structure">
+		depends="make_launcher_jar, make_server_jar" 
+		description="builds the single and diffusive jars and creates the release structure">
+			<!-- depends="make_launcher_jar, make_server_jar, make_combined_launcher_jar, make_combined_server_jar" 
+			description="builds the single and diffusive jars and creates the release structure"> -->
 		
 		<property name="rel_src" value="src" />
 	
@@ -446,17 +421,17 @@
 		
 		<!-- create the release directory and its subdirectorys: src, single_jar, jars -->
 		<mkdir dir="${release}" />
-		<mkdir dir="${release}/${single_jar}" />
+		<!-- <mkdir dir="${release}/${single_jar}" /> -->
 		<mkdir dir="${release}/${jars}" />
 		<mkdir dir="${release}/${rel_src}" />
 		
 		<!-- copy the log4j configuration files into the appropriate directories -->
-		<copy file="log4j.xml" todir="${release}/${single_jar}" />
+		<!-- <copy file="log4j.xml" todir="${release}/${single_jar}" /> -->
 		<copy file="log4j.xml" todir="${release}/${jars}" />
 		<copy file="log4j.xml" todir="${release}/${rel_src}" />
 		
 		<!-- copy the run configurations to the top-level directory -->
-		<copy todir="${release}/${single_jar}/${config}"><fileset dir="${config}" includes="**/*.xml" /></copy>
+		<!-- <copy todir="${release}/${single_jar}/${config}"><fileset dir="${config}" includes="**/*.xml" /></copy> -->
 		<copy todir="${release}/${jars}/${config}"><fileset dir="${config}" includes="**/*.xml" /></copy>
 		<copy todir="${release}/${rel_src}/${config}"><fileset dir="${config}" includes="**/*.xml" /></copy>
 
@@ -480,40 +455,40 @@
 		<copy file="build.xml" todir="${release}/${rel_src}" />
 		
 		<!-- copy the single jar to the single jar release directory -->
-		<copy file="${dist}/${single_jar}/${launcher_jar_file}" todir="${release}/${single_jar}" />
+		<!-- <copy file="${dist}/${single_jar}/${launcher_jar_file}" todir="${release}/${single_jar}" />
 		<copy file="${dist}/${single_jar}/${server_jar_file}" todir="${release}/${single_jar}" />
-		<zip destfile="${release}/${single_jar}/${app_name}_${version}.zip" basedir="${release}/${single_jar}" includes="*.*" />
+		<zip destfile="${release}/${single_jar}/${app_name}_${version}.zip" basedir="${release}/${single_jar}" includes="*.*" /> -->
 		
 		<!-- copy the multiple jars to the jars release directory -->
 		<copy file="${dist}/${jars}/${launcher_jar_file}" todir="${release}/${jars}" />
 		<copy file="${dist}/${jars}/${server_jar_file}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${junit}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${log4j}" todir="${release}/${jars}" />
+		<copy file="${java-libs}/${junit}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${log4j}" todir="${release}/${jars}/${dependencies}" />
 		
-		<copy file="${java-libs}/${freezedry}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${json-libs}/${json}" todir="${release}/${jars}" />
+		<copy file="${java-libs}/${freezedry}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${json-libs}/${json}" todir="${release}/${jars}/${dependencies}" />
 
-		<copy file="${java-libs}/${abdera-libs}/${abdera_core}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${abdera-libs}/${abdera_i18n}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${abdera-libs}/${abdera_parser}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${abdera-libs}/${axiom_api}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${abdera-libs}/${axiom_impl}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${abdera-libs}/${commons-logging}" todir="${release}/${jars}" />
+		<copy file="${java-libs}/${abdera-libs}/${abdera_core}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${abdera-libs}/${abdera_i18n}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${abdera-libs}/${abdera_parser}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${abdera-libs}/${axiom_api}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${abdera-libs}/${axiom_impl}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${abdera-libs}/${commons-logging}" todir="${release}/${jars}/${dependencies}" />
 		
-		<copy file="${java-libs}/${jersey-libs}/${grizzly_framework}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${jersey-libs}/${grizzly_http}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${jersey-libs}/${grizzly_http_server}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_client}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_core}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_grizzly}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_server}" todir="${release}/${jars}" />
-		<copy file="${java-libs}/${jersey-libs}/${jsr311_api}" todir="${release}/${jars}" />
+		<copy file="${java-libs}/${jersey-libs}/${grizzly_framework}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-libs}/${grizzly_http}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-libs}/${grizzly_http_server}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-libs}/${jersey_client}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-libs}/${jersey_core}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-libs}/${jersey_grizzly}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-libs}/${jersey_server}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-libs}/${jsr311_api}" todir="${release}/${jars}/${dependencies}" />
 		
-		<copy file="${java-libs}/${javassist-libs}/${javassist}" todir="${release}/${jars}" />
+		<copy file="${java-libs}/${javassist-libs}/${javassist}" todir="${release}/${jars}/${dependencies}" />
 
-		<copy file="${java-libs}/${commons-io-libs}/${commons_io}" todir="${release}/${jars}" />
+		<copy file="${java-libs}/${commons-io-libs}/${commons_io}" todir="${release}/${jars}/${dependencies}" />
 		
-		<copy file="${java-libs}/${jopt_simple}" todir="${release}/${jars}" />
+		<copy file="${java-libs}/${jopt_simple}" todir="${release}/${jars}/${dependencies}" />
 		
 		<zip destfile="${release}/${jars}/${app_name}_${version}.zip" basedir="${release}/${jars}" includes="*.*" />
 		

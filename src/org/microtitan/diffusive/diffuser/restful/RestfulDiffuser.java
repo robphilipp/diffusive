@@ -129,7 +129,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
 				message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
 				message.append( "  Argument Types: " );
-				if( arguments.length > 0 )
+				if( arguments != null && arguments.length > 0 )
 				{
 					for( final Object argument : arguments )
 					{
