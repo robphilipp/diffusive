@@ -15,22 +15,15 @@
  */
 package org.microtitan.diffusive.diffuser.serializer;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.freezedry.persistence.Persistence;
 import org.freezedry.persistence.utils.Constants;
-import org.microtitan.tests.TestClassA;
-import org.microtitan.tests.TestClassB;
 
 /**
  * Serializes objects into a serializes for specified by the {@link Persistence} engine, and deserializes
@@ -111,35 +104,35 @@ public class PersistenceSerializer implements Serializer {
 		return object;
 	}
 
-	/**
-	 * 
-	 * @param args
-	 */
-	public static void main( String[] args )
-	{
-		DOMConfigurator.configure( "log4j.xml" );
-		Logger.getRootLogger().setLevel( Level.DEBUG );
-		
-		final TestClassB b = new TestClassB();
-		b.setMessage(  "test_class_bee" );
-		final TestClassA a = new TestClassA( b );
-
-//		final Serializer serializer = new PersistenceSerializer( new XmlPersistence() );
-		final Serializer serializer = new XmlPersistenceSerializer();
-//		final Serializer serializer = new JsonPersistenceSerializer();
-//		final Serializer serializer = new KeyValuePersistenceSerializer();
-		try
-		{
-			serializer.serialize( a, new FileOutputStream( "test_a.xml" ) );
-			
-			final TestClassA serA = serializer.deserialize( new FileInputStream( "test_a.xml" ), TestClassA.class );
-			
-			System.out.println( serA.toString() );
-		}
-		catch( FileNotFoundException e1 )
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
+//	/**
+//	 * 
+//	 * @param args
+//	 */
+//	public static void main( String[] args )
+//	{
+//		DOMConfigurator.configure( "log4j.xml" );
+//		Logger.getRootLogger().setLevel( Level.DEBUG );
+//		
+//		final TestClassB b = new TestClassB();
+//		b.setMessage(  "test_class_bee" );
+//		final TestClassA a = new TestClassA( b );
+//
+////		final Serializer serializer = new PersistenceSerializer( new XmlPersistence() );
+//		final Serializer serializer = new XmlPersistenceSerializer();
+////		final Serializer serializer = new JsonPersistenceSerializer();
+////		final Serializer serializer = new KeyValuePersistenceSerializer();
+//		try
+//		{
+//			serializer.serialize( a, new FileOutputStream( "test_a.xml" ) );
+//			
+//			final TestClassA serA = serializer.deserialize( new FileInputStream( "test_a.xml" ), TestClassA.class );
+//			
+//			System.out.println( serA.toString() );
+//		}
+//		catch( FileNotFoundException e1 )
+//		{
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//	}
 }

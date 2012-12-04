@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<RestfulDiffuserConfigXml>
+	<classPathList></classPathList>
+	<loadThreshold>0.75</loadThreshold>
+	<serializerName>persistence_xml</serializerName>
+	<strategyConfigClassName>org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml</strategyConfigClassName>
+	<strategyConfigFile>../examples/local/launcher/random_diffuser_strategy.xml</strategyConfigFile>
+</RestfulDiffuserConfigXml>

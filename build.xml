@@ -219,8 +219,7 @@
 	<target name="configure_logging" description="copies to log4j.properties file to the dist directory">
 		<copy file="log4j.xml" todir="${dist}" failonerror="false" />
 	</target>
-
-
+	
 	<!-- 
 		Target: make_launcher_jar
 		
@@ -236,7 +235,7 @@
 		<echo>Directory contianing external libraries: ${env.JAVA_LIBS}</echo>
 
 		<jar destfile="${dist}/${jars}/${launcher_jar_file}">
-			<fileset dir="${build}" includes="**/*.class" />
+			<fileset dir="${build}" includes="**/*.class" excludes="org/microtitan/tests/**"/>
 			<fileset dir="${build}" includes="${log4j_config}" />
 
 			<manifest>
@@ -403,13 +402,43 @@
 	</target>
 	
 	<!-- 
+		Target: make_example_jar
+		
+		builds a jar that contains only the example classes org.microtitan.tests 
+	-->
+	<property name="example_jar" value="example_${version}.jar" />
+	<target name="make_example_jar" depends="configure_logging" description="build the jar containing the example code">
+		<echo>***** Building example code jar file for ${app_name} *****</echo>
+		<echo>Base Directory: ${basedir}</echo>
+		<echo>Directory containing classes: ${build}</echo>
+		<echo>Directory to contain jar: ${dist}/${jars}</echo>
+		<echo>Directory contianing external libraries: ${env.JAVA_LIBS}</echo>
+
+		<jar destfile="${dist}/${jars}/${example_jar}">
+			<fileset dir="${build}" includes="org/microtitan/tests/**/*.class" />
+			<fileset dir="${build}" includes="${log4j_config}" />
+
+			<manifest>
+				<attribute name="Ant" value="${user.name}" />
+				<!-- Information about the program itself -->
+				<attribute name="Implementation-Vendor" value="Rob Philipp" />
+				<attribute name="Implementation-Title" value="${app_name}" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<!-- Runtime information -->
+			</manifest>
+		</jar>
+
+	</target>
+
+	<!-- 
 		Target: make_release
 		
 		creates the directory with the release code and zip files. calls the dependencies for make the freeze dry jars 
 	-->
+	<property name="examples" value="examples" />
 	<property name="release" location="${dist}/${app_name}_v${version}" />
 	<target name="make_release" 
-		depends="make_launcher_jar, make_server_jar" 
+		depends="make_launcher_jar, make_server_jar, make_example_jar" 
 		description="builds the single and diffusive jars and creates the release structure">
 			<!-- depends="make_launcher_jar, make_server_jar, make_combined_launcher_jar, make_combined_server_jar" 
 			description="builds the single and diffusive jars and creates the release structure"> -->
@@ -496,5 +525,9 @@
 		<copy todir="${release}/${rel_src}"><fileset dir="${src}" includes="**/*.java" /></copy>
 		<zip destfile="${release}/${rel_src}/${app_name}_src_${version}.zip" basedir="${release}/${rel_src}" includes="**/*.java, **/*.xml" />
 		
+		<!-- copy the example files the examples -->
+		<mkdir dir="${release}/${examples}" />
+		<copy todir="${release}/${examples}"><fileset dir="${examples}" includes="**/*.*" /></copy>
+		<copy file="${dist}/${jars}/${example_jar}" todir="${release}/${examples}" />
 	</target>
 </project>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<RandomDiffuserStrategyConfigXml>
+	<clientEndpoints>
+		<endPoint>http://your.ip.address:8182/diffusers</endPoint>
+	</clientEndpoints>
+	<randomSeed>3141592653</randomSeed>
+</RandomDiffuserStrategyConfigXml>

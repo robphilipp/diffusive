@@ -155,33 +155,33 @@ public class RestfulDiffuserServer {
 		}
 	}
 	
-	/**
-	 * Extracts the configuration directory from the command-line arguments
-	 * @param serverModeSpec The option specification holding the server mode argument information
-	 * @param options The options parsed from the command-line
-	 * @return The configuration directory
-	 */
-	private static final String getConfigDir( final OptionSpec< String > serverModeSpec, final OptionSet options )
-	{
-		String configDirectory = null;
-		final ServerMode mode = ServerMode.getServerType( serverModeSpec.value( options ) );
-		if( mode == ServerMode.REMOTE )
-		{
-			configDirectory = REMOTE_CONFIGURATION_PATH;
-		}
-		else if( mode == ServerMode.CLASS )
-		{
-			configDirectory = CLASS_CONFIGURATION_PATH;
-		}
-		else
-		{
-			final String message = "Invalid argument for \"server-mode\" option: " + serverModeSpec.value( options );
-			LOGGER.error( message );
-			System.out.println( message );
-			System.exit( 0 );
-		}
-		return configDirectory;
-	}
+//	/**
+//	 * Extracts the configuration directory from the command-line arguments
+//	 * @param serverModeSpec The option specification holding the server mode argument information
+//	 * @param options The options parsed from the command-line
+//	 * @return The configuration directory
+//	 */
+//	private static final String getConfigDir( final OptionSpec< String > serverModeSpec, final OptionSet options )
+//	{
+//		String configDirectory = null;
+//		final ServerMode mode = ServerMode.getServerType( serverModeSpec.value( options ) );
+//		if( mode == ServerMode.REMOTE )
+//		{
+//			configDirectory = REMOTE_CONFIGURATION_PATH;
+//		}
+//		else if( mode == ServerMode.CLASS )
+//		{
+//			configDirectory = CLASS_CONFIGURATION_PATH;
+//		}
+//		else
+//		{
+//			final String message = "Invalid argument for \"server-mode\" option: " + serverModeSpec.value( options );
+//			LOGGER.error( message );
+//			System.out.println( message );
+//			System.exit( 0 );
+//		}
+//		return configDirectory;
+//	}
 	
 	/**
 	 * 
@@ -195,11 +195,13 @@ public class RestfulDiffuserServer {
 		final OptionSpec< String > logLevelSpec = 
 				parser.accepts( "log-level" ).withRequiredArg().ofType( String.class ).defaultsTo( Level.WARN.toString() ).
 				describedAs( Level.TRACE + "|" + Level.DEBUG + "|" + Level.INFO + "|" + Level.WARN + "|" + Level.ERROR );
-		final OptionSpec< String > serverModeSpec = 
-				parser.accepts( "server-mode" ).withRequiredArg().ofType( String.class ).defaultsTo( ServerMode.REMOTE.getName() ).
-				describedAs( ServerMode.REMOTE.getName() + "|" + ServerMode.CLASS.getName() );
+//		final OptionSpec< String > serverModeSpec = 
+//				parser.accepts( "server-mode" ).withRequiredArg().ofType( String.class ).defaultsTo( ServerMode.REMOTE.getName() ).
+//				describedAs( ServerMode.REMOTE.getName() + "|" + ServerMode.CLASS.getName() );
 		final OptionSpec< String > serverUriSpec = 
 				parser.accepts( "server-uri" ).withRequiredArg().ofType( String.class ).defaultsTo( DEFAULT_SERVER_URI );
+		final OptionSpec< String > configDirSpec =
+				parser.accepts( "config-dir" ).withRequiredArg().ofType( String.class ).defaultsTo( REMOTE_CONFIGURATION_PATH );
 		final OptionSpec< String > configFileSpec = 
 				parser.accepts( "config-file-name" ).withRequiredArg().ofType( String.class ).defaultsTo( DEFAULT_CONFIGURATION_FILE );
 		final OptionSpec< String > configClassSpec = 
@@ -239,15 +241,15 @@ public class RestfulDiffuserServer {
 		
 		// set up the options based on the values from the command-line
 		final URI serverUri = URI.create( serverUriSpec.value( options ) );
-		final String configDirectory = getConfigDir( serverModeSpec, options );
-		final String configFileName = configDirectory + configFileSpec.value( options ); 
+//		final String configDirectory = getConfigDir( serverModeSpec, options );
+		final String configFileName = configDirSpec.value( options ) + configFileSpec.value( options ); 
 		final String configClassName = configClassSpec.value( options );
 		final int maxThreads = maxThreadsSpec.value( options );
 		final int maxResultsCached = maxResultsCachedSpec.value( options );
 		
 		// report the options used
 		final StringBuffer buffer = new StringBuffer( Constants.NEW_LINE + "Configuration Items" + Constants.NEW_LINE );
-		buffer.append( "  Server Mode: " + serverModeSpec.value( options ) + Constants.NEW_LINE );
+//		buffer.append( "  Server Mode: " + serverModeSpec.value( options ) + Constants.NEW_LINE );
 		buffer.append( "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
 		buffer.append( "  Config File: " + configFileName + Constants.NEW_LINE );
 		buffer.append( "  Config Class: " + configClassName + Constants.NEW_LINE );

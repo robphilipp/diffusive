@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import javassist.ClassPool;
+import javassist.NotFoundException;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -40,7 +41,6 @@ import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
-import org.microtitan.tests.threaded.MultiThreadedCalc;
 
 
 /**
@@ -91,9 +91,9 @@ public class DiffusiveLauncher {
 	 * @param configurationClasses the classes holding the configuration for the launcher. Associated with each configuration class is
 	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 */
-	public DiffusiveLauncher( final Map< String, Object[] > configurationClasses )
+	public DiffusiveLauncher( final Map< String, Object[] > configurationClasses, final List< String > classPaths )
 	{
-		this( createLoader( configurationClasses, createDefaultTranslator( createDefaultMethodIntercepter() ) ) );
+		this( createLoader( configurationClasses, classPaths ) );
 	}
 	
 	/**
@@ -104,7 +104,7 @@ public class DiffusiveLauncher {
 	 */
 	public DiffusiveLauncher()
 	{
-		this( createLoader( createDefaultConfiguration(), createDefaultTranslator( createDefaultMethodIntercepter() ) ) );
+		this( createLoader() );
 	}
 	
 	/**
@@ -145,7 +145,18 @@ public class DiffusiveLauncher {
 	 */
 	public static final DiffusiveLoader createLoader()
 	{
-		return createLoader( createDefaultConfiguration(), createDefaultTranslator( createDefaultMethodIntercepter() ) );
+		return createLoader( createDefaultConfiguration() );
+	}
+    
+	/**
+	 * @param classPaths The class paths to the application's jar file
+	 * @return a {@link DiffusiveLoader} that uses the default set of configuration class, the
+	 * default set of delegation prefixes (defined in the {@link DiffusiveLoader} class), and
+	 * the default {@link DiffusiveTranslator}.
+	 */
+	public static final DiffusiveLoader createLoader( final List< String > classPaths )
+	{
+		return createLoader( createDefaultConfiguration(), classPaths );
 	}
     
 	/**
@@ -161,7 +172,24 @@ public class DiffusiveLauncher {
 	 */
 	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations )
 	{
-		return createLoader( configurations, createDefaultTranslator( createDefaultMethodIntercepter() ) );
+		return createLoader( configurations, null );
+	}
+	
+	/**
+	 * Creates a {@link DiffusiveLoader} the uses the specified list of configuration classes, the
+	 * default set of delegation prefixes (defined in the {@link DiffusiveLoader} class), and
+	 * the default {@link DiffusiveTranslator}. 
+	 * @param configurations A {@link List} containing the names of configuration classes that are 
+	 * used for configuration. Because these need to be loaded by this class loader, they must all 
+	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
+	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
+	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
+	 * @param classPaths The class paths to the application's jar file
+	 * @return a {@link DiffusiveLoader}
+	 */
+	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations, final List< String > classPaths )
+	{
+		return createLoader( configurations, classPaths, createDefaultTranslator( createDefaultMethodIntercepter() ) );
 	}
 	
 	/**
@@ -173,15 +201,20 @@ public class DiffusiveLauncher {
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
 	 * with the @{@link DiffusiveConfiguration} annotation.  Associated with each configuration class is
 	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
+	 * @param classPaths The class paths to the application's jar file
 	 * @param translator The translator used to modify the diffusive methods.
 	 * @return a {@link DiffusiveLoader}
 	 */
 	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations,
+													  final List< String > classPaths,
 													  final DiffusiveTranslator translator )
 	{
 		// get the default class pool
 		final ClassPool pool = ClassPool.getDefault();
-
+		
+		// add the specified application's Jar file to the class pool's class path
+		addClassPathToClassPool( classPaths, pool );
+		
 		// create a loader for that pool, setting the class loader for this class as the parent
 		final DiffusiveLoader loader = new DiffusiveLoader( configurations, DiffusiveLauncher.class.getClassLoader(), pool );
 		
@@ -212,18 +245,23 @@ public class DiffusiveLauncher {
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
 	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
 	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
+	 * @param classPaths The class paths to the application's jar file
 	 * @param delegationPrefixes The list of prefixes to the fully qualified class name. Classes whose fully qualified class
 	 * names start with one of these prefixes are loaded by the parent class loader instead of this one.
 	 * @param translator The translator used to modify the diffusive methods.
 	 * @return a {@link DiffusiveLoader}
 	 */
 	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations,
+													  final List< String > classPaths,
 													  final List< String > delegationPrefixes,
 													  final DiffusiveTranslator translator )
 	{
 		// get the default class pool
 		final ClassPool pool = ClassPool.getDefault();
 
+		// add the specified application's Jar file to the class pool's class path
+		addClassPathToClassPool( classPaths, pool );
+		
 		// create a loader for that pool, setting the class loader for this class as the parent
 		final DiffusiveLoader loader = new DiffusiveLoader( configurations, delegationPrefixes, DiffusiveLauncher.class.getClassLoader(), pool );
 		
@@ -243,6 +281,46 @@ public class DiffusiveLauncher {
 		}
 
 		return loader;
+	}
+	
+	/**
+	 * Adds the specified Jar files to the {@link ClassPool}'s class path's 
+	 * @param classPaths The list of paths to the application's Jar files 
+	 * @param pool The {@link ClassPool} to which to add the Jar files
+	 */
+	private static void addClassPathToClassPool( final List< String > classPaths, final ClassPool pool )
+	{
+		// nothing to do if the class path list is null or empty
+		if( classPaths == null || classPaths.isEmpty() )
+		{
+			return;
+		}
+		
+		// add the class path to the application's jar file
+		for( String classPath : classPaths )
+		{
+			try
+			{
+				pool.insertClassPath( classPath );
+				
+				if( LOGGER.isInfoEnabled() )
+				{
+					final StringBuffer message = new StringBuffer();
+					message.append( "Added Jar file to class pool's class path" + Constants.NEW_LINE );
+					message.append( "  Jar Class Path: " + classPath + Constants.NEW_LINE );
+					message.append( "  Class Pool: " + pool.toString() );
+					LOGGER.info( message.toString() );
+				}
+			}
+			catch( NotFoundException e ) 
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Unable to find Jar file when attempting to add it to class pool's class path" + Constants.NEW_LINE );
+				message.append( "  Jar Class Path: " + classPath + Constants.NEW_LINE );
+				message.append( "  Class Pool: " + pool.toString() );
+				LOGGER.warn( message.toString(), e );
+			}
+		}
 	}
 	
 	/**
@@ -417,7 +495,10 @@ public class DiffusiveLauncher {
 		final OptionSpec< String > configClassSpec =
 				parser.accepts( "config-class" ).withRequiredArg().ofType( String.class ).defaultsTo( RestfulDiffuserConfig.class.getName() );
 		final OptionSpec< String > classNameSpec = 
-				parser.accepts( "execute-class" ).withRequiredArg().ofType( String.class ).defaultsTo( MultiThreadedCalc.class.getName() );
+//				parser.accepts( "execute-class" ).withRequiredArg().ofType( String.class ).defaultsTo( MultiThreadedCalc.class.getName() );
+				parser.accepts( "execute-class" ).withRequiredArg().ofType( String.class ).defaultsTo( "org.microtitan.tests.threaded.MultiThreadedCalc" );
+		final OptionSpec< String > classPathSpec =
+				parser.accepts( "class-path" ).withRequiredArg().ofType( String.class ).withValuesSeparatedBy( ':' );
 		final OptionSpec< String > programArgSpec = 
 				parser.accepts( "prog-args" ).withRequiredArg().ofType( String.class ).withValuesSeparatedBy( ' ' );
 		parser.accepts( "help" );
@@ -452,10 +533,16 @@ public class DiffusiveLauncher {
 		// grab the values of the command-line arguments
 		final RunMode runMode = validateRunMode( runModeSpec, options );
 		final String classNameToRun = classNameSpec.value( options );
+		List< String > classPaths = null;
+		if( options.has( classPathSpec ) )
+		{
+			classPaths = classPathSpec.values( options );
+		}
+		
 		String[] programArgs = new String[] {};
 		if( options.has( programArgSpec ) )
 		{
-			programArgSpec.values( options ).toArray( new String[0] );
+			programArgs = programArgSpec.values( options ).toArray( new String[0] );
 		}
 
 		// start the timing for the run
@@ -468,7 +555,7 @@ public class DiffusiveLauncher {
 			configurationClasses.put( configClassSpec.value( options ), new Object[] { configFile } );
 
 			// run the application for the specified class
-			final DiffusiveLauncher launcher = new DiffusiveLauncher( configurationClasses );
+			final DiffusiveLauncher launcher = new DiffusiveLauncher( configurationClasses, classPaths );
 			launcher.run( classNameToRun, programArgs );
 		}
 		else if( runMode == RunMode.CLEAN )
