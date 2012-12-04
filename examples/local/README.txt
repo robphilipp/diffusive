@@ -8,6 +8,20 @@ This will cause diffusive to diffuse the code to a RESTful diffuser server runni
 that end-point. And so, we will also need to run a RESTful diffuser server.
 
 
+Broadly speaking there are two main tasks:
+1. Start the diffuser server
+2. Run the diffusive launcher specifying the code you would like to diffuse
+
+Starting the Diffusive Server
+-----------------------------
+1. change to the distribution's "jars" directory
+2. run the following command from the command-line (but first put it all on one line)
+	java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/local/remote_server/ 
+										 --class-path=../examples/example_0.2.0.jar
+
+
+Run the Diffusive Launcher
+--------------------------
 1. edit the class path in the examples/local/launcher/random_diffuser_strategy.xml file
 	<RandomDiffuserStrategyConfigXml>
 		<clientEndpoints>

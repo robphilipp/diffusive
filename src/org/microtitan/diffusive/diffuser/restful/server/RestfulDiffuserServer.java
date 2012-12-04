@@ -17,7 +17,9 @@ package org.microtitan.diffusive.diffuser.restful.server;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -206,6 +208,9 @@ public class RestfulDiffuserServer {
 				parser.accepts( "config-file-name" ).withRequiredArg().ofType( String.class ).defaultsTo( DEFAULT_CONFIGURATION_FILE );
 		final OptionSpec< String > configClassSpec = 
 				parser.accepts( "config-class" ).withRequiredArg().ofType( String.class ).defaultsTo( DEFAULT_CONFIGURATION_CLASS );
+		final char pathSeparator = System.getProperty( "path.separator").charAt( 0 );
+		final OptionSpec< String > classPathSpec =
+				parser.accepts( "class-path" ).withRequiredArg().ofType( String.class ).withValuesSeparatedBy( pathSeparator );
 		final OptionSpec< Integer > maxThreadsSpec = 
 				parser.accepts( "max-threads" ).withRequiredArg().ofType( Integer.class ).defaultsTo( 100 );
 		final OptionSpec< Integer > maxResultsCachedSpec = 
@@ -244,6 +249,11 @@ public class RestfulDiffuserServer {
 //		final String configDirectory = getConfigDir( serverModeSpec, options );
 		final String configFileName = configDirSpec.value( options ) + configFileSpec.value( options ); 
 		final String configClassName = configClassSpec.value( options );
+		List< String > classPaths = null;
+		if( options.has( classPathSpec ) )
+		{
+			classPaths = classPathSpec.values( options );
+		}
 		final int maxThreads = maxThreadsSpec.value( options );
 		final int maxResultsCached = maxResultsCachedSpec.value( options );
 		
@@ -253,6 +263,13 @@ public class RestfulDiffuserServer {
 		buffer.append( "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
 		buffer.append( "  Config File: " + configFileName + Constants.NEW_LINE );
 		buffer.append( "  Config Class: " + configClassName + Constants.NEW_LINE );
+		if( classPaths != null )
+		{
+			for( String classPath : classPaths )
+			{
+				buffer.append( "    " + classPath + Constants.NEW_LINE );
+			}
+		}
 		buffer.append( "  Max Threads: " + maxThreads + Constants.NEW_LINE );
 		buffer.append( "  Max Results Cached: " + maxResultsCached + Constants.NEW_LINE );
 		LOGGER.info( buffer.toString() );
@@ -271,15 +288,18 @@ public class RestfulDiffuserServer {
 		// server, or should be diffused to one of (if any exist) end-points attached to this server.
 		final DiffuserLoadCalc loadCalc = RestfulDiffuserManagerResource.createLoadCalc( cache );
 		
+		// create the additional jar class path
+		final List< URL > jarUrl = RestfulDiffuserManagerResource.createJarClassPath( classPaths );
+		
 		// create the manager resource and the web application needed by the web server
-		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc, configClasses, RestfulDiffuserClassLoaderFactory.getInstance() );
+		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc, configClasses, RestfulDiffuserClassLoaderFactory.getInstance(), jarUrl );
 		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
 		application.addSingletonResource( resource );
 		application.addPerRequestResource( RestfulClassPathResource.class );
 
 		// create the web server
 		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
-				
+		
 		System.out.println( String.format( "Jersy app started with WADL available at %s/application.wadl", serverUri ) );
 		System.out.println( String.format( "Try out %s.", serverUri ) );
 		System.out.println( "Hit enter to stop it..." );

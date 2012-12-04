@@ -24,7 +24,7 @@ import org.microtitan.diffusive.diffuser.restful.client.RestfulClientFactory;
 /**
  * Class loader that accesses a web service to load a {@link Class} object from a {@code byte} array
  * that represents a serialized {@link Class} object. The serialized {@link Class} object is returned 
- * the web service. Logic is contained it the overridden {@link #findClass(String)} method. The 
+ * the web service. Logic is contained in the overridden {@link #findClass(String)} method. The 
  * {@link #getClazz(String, byte[])} method is a convenience method.
  * 
  * @author Robert Philipp

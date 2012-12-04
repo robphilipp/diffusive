@@ -497,8 +497,9 @@ public class DiffusiveLauncher {
 		final OptionSpec< String > classNameSpec = 
 //				parser.accepts( "execute-class" ).withRequiredArg().ofType( String.class ).defaultsTo( MultiThreadedCalc.class.getName() );
 				parser.accepts( "execute-class" ).withRequiredArg().ofType( String.class ).defaultsTo( "org.microtitan.tests.threaded.MultiThreadedCalc" );
+		final char pathSeparator = System.getProperty( "path.separator").charAt( 0 );
 		final OptionSpec< String > classPathSpec =
-				parser.accepts( "class-path" ).withRequiredArg().ofType( String.class ).withValuesSeparatedBy( ':' );
+				parser.accepts( "class-path" ).withRequiredArg().ofType( String.class ).withValuesSeparatedBy( pathSeparator );
 		final OptionSpec< String > programArgSpec = 
 				parser.accepts( "prog-args" ).withRequiredArg().ofType( String.class ).withValuesSeparatedBy( ' ' );
 		parser.accepts( "help" );

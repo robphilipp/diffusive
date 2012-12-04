@@ -21,7 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -124,6 +127,10 @@ public class RestfulDiffuserManagerResource {
 	private final double loadThreshold;
 	
 	private final ClassLoaderFactory classLoaderFactory;
+	
+	// holds the class loader used to specified the additional jars that hold the classes
+	// for the actual diffused methods.
+	private final URLClassLoader urlClassLoader;
 
 	/**
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
@@ -140,12 +147,16 @@ public class RestfulDiffuserManagerResource {
 	 * @param classLoaderFactory The factory for creating class loaders needed for the diffusers. This
 	 * allows using different class loaders for the server. For example, {@link RestfulClassLoader}
 	 * for non-nested diffusion or a {@link RestfulDiffuserClassLoader} for nested diffusion.
+	 * @param classPaths holds a list of {@link URL} to JAR files that must be loaded in order to execute
+	 * (see {@link #createJarClassPath(List)} for a convenient method to create this list).
+	 * diffuser methods, and that will get sent to other remote diffusers
 	 */
 	public RestfulDiffuserManagerResource( final ExecutorService executor, 
 										   final ResultsCache resultsCache,
 										   final DiffuserLoadCalc loadCalc,
 										   final Map< String, Object[] > configurationClasses,
-										   final ClassLoaderFactory classLoaderFactory )
+										   final ClassLoaderFactory classLoaderFactory,
+										   final List< URL > classPaths )
 	{
 		this.executor = executor;
 		
@@ -162,6 +173,10 @@ public class RestfulDiffuserManagerResource {
 		
 		// set the class-loader factory (RESTful class loader with or without nested diffusion)
 		this.classLoaderFactory = classLoaderFactory;
+
+		// create the class loader for the additional jars that hold the classes for the diffusive methods
+		final URL[] urls = classPaths.toArray( new URL[0] );
+		urlClassLoader = new URLClassLoader( urls, this.getClass().getClassLoader() );
 	}
 	
 	/**
@@ -197,6 +212,65 @@ public class RestfulDiffuserManagerResource {
 	public static final DiffuserLoadCalc createLoadCalc( final ResultsCache cache )
 	{
 		return new TaskCpuLoadCalc( cache );
+	}
+
+	/**
+	 * Creates a list of absolute URL based on the (relative or absolute) paths to the additional jar files.
+	 * For example, suppose that your current directory is {@code /User/name/diffuser/Diffuser_Server_0.2.0/jars}
+	 * and you specify that the jar containing your code is in {@code ../mycode/mycode_v2.jar} relative to the
+	 * directory from which the server is executed. Then this method would return a list containing the absolute 
+	 * path {@code file:///User/name/diffuser/Diffuser_Server_0.2.0/mycode/mycode_v2.jar}. Or if you specified 
+	 * an absolution path, then this method would return {@code file://} prepended to your absolute path
+	 * @param jarPaths The list of jar file paths.
+	 * @return a list of absolute URL jar paths.
+	 * @throws MalformedURLException 
+	 */
+	public static final List< URL > createJarClassPath( final List< String > jarPaths )
+	{
+		final List< URL > urls = new ArrayList<>();
+		
+		try
+		{
+			final URL baseUrl = new URL( "file", null, "//" + System.getProperty( "user.dir" ) + "/" );
+			for( String jarPath : jarPaths )
+			{
+				try
+				{
+					if( jarPath.startsWith( "/" ) )
+					{
+						// jar path is absolute
+						urls.add( new URL( "file", null, "//" + jarPath ) );
+					}
+					else
+					{
+						// jar path is relative
+						urls.add( new URL( baseUrl, jarPath ) );
+					}
+				}
+				catch( MalformedURLException e1 )
+				{
+					final StringBuffer message = new StringBuffer();
+					message.append( "Malformed URL specified for jar file." + Constants.NEW_LINE );
+					message.append( "  Specified jar paths: " + Constants.NEW_LINE );
+					message.append( "  Path: " + jarPath + Constants.NEW_LINE );
+					LOGGER.info( message.toString(), e1 );
+					throw new IllegalArgumentException( message.toString(), e1 );
+				}
+			}
+		}
+		catch( MalformedURLException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Malformed URL specified for jar file." + Constants.NEW_LINE );
+			message.append( "  Specified jar paths: " + Constants.NEW_LINE );
+			for( String path : jarPaths )
+			{
+				message.append( "  Path: " + path + Constants.NEW_LINE );
+			}
+			LOGGER.info( message.toString(), e );
+			throw new IllegalArgumentException( message.toString(), e );
+		}
+		return urls;
 	}
 	
 	/**
@@ -542,53 +616,86 @@ public class RestfulDiffuserManagerResource {
         }
 		catch( ClassNotFoundException e )
 		{
-			// grab the diffuser entry associated with the specified signature, and if an
-			// entry exists, then we can grab the class path URI list from it and use it
-			// to construct a new URL class loader
-			final DiffuserEntry entry = diffusers.get( signature );
-			if( entry != null )
+			// log the fact that we couldn't load the class from the system class path,
+			// and that we're going to use the URL class loader to attempt to load the class
+			if( LOGGER.isInfoEnabled() )
 			{
-				// grab the list of class path URI. if the list is empty or doesn't exist, then
-				// there is no further place to look, and so we punt.
-				final ClassLoader loader = entry.getClassLoader();
-				if( loader != null )
+				final StringBuffer message = new StringBuffer();
+				message.append( "Failed to load class from system class path, attempting to use URL class loader." + Constants.NEW_LINE );
+				message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+				message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+				message.append( "  Class Loader: " + this.getClass().getClassLoader().getClass().getName() + Constants.NEW_LINE );
+				message.append( "  System Class Path: " + Constants.NEW_LINE );
+				message.append( "    " + System.getProperty( "java.class.path" ) );
+				LOGGER.info( message.toString() );
+			}
+			
+			try
+			{
+				clazz = Class.forName( classname, true, urlClassLoader );
+			}
+			catch( ClassNotFoundException e2 )
+			{
+				final StringBuffer message = new StringBuffer();
+				message.append( "Failed to load class using URL class loader, attempting to use specific diffuser URL class loader." + Constants.NEW_LINE );
+				message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+				message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+				message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
+				message.append( "  URL Class Path: " );
+				for( URL url : urlClassLoader.getURLs() )
 				{
-					// set up the RESTful class loader and attempt to load the class from the remote server 
-					// listed in the class paths URI list
-					try
+					message.append( Constants.NEW_LINE + "    " + url.toString() );
+				}
+				LOGGER.info( message.toString(), e2 );
+			
+				// grab the diffuser entry associated with the specified signature, and if an
+				// entry exists, then we can grab the class path URI list from it and use it
+				// to construct a new URL class loader
+				final DiffuserEntry entry = diffusers.get( signature );
+				if( entry != null )
+				{
+					// grab the list of class path URI. if the list is empty or doesn't exist, then
+					// there is no further place to look, and so we punt.
+					final ClassLoader loader = entry.getClassLoader();
+					if( loader != null )
 					{
-						clazz = Class.forName( classname, true, loader );
-					}
-					catch( ClassNotFoundException e1 )
-					{
-						final StringBuffer message = new StringBuffer();
-						message.append( "Error loading class:" + Constants.NEW_LINE );
-						message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
-						message.append( "  Class Name: " + classname + Constants.NEW_LINE );
-						message.append( "  Class Loader: " + loader.getClass().getName() );
-						LOGGER.error( message.toString(), e1 );
-						throw new IllegalArgumentException( message.toString(), e1 );
-					}
-					
-					if( LOGGER.isDebugEnabled() )
-					{
-						final StringBuffer message = new StringBuffer();
-						message.append( "Loaded class:" + Constants.NEW_LINE );
-						message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
-						message.append( "  Class Name: " + classname + Constants.NEW_LINE );
-						message.append( "  Class Loader: " + loader.getClass().getName() );
-						LOGGER.debug( message.toString() );
+						// set up the RESTful class loader and attempt to load the class from the remote server 
+						// listed in the class paths URI list
+						try
+						{
+							clazz = Class.forName( classname, true, loader );
+						}
+						catch( ClassNotFoundException e1 )
+						{
+							final StringBuffer message2 = new StringBuffer();
+							message2.append( "Error loading class:" + Constants.NEW_LINE );
+							message2.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+							message2.append( "  Class Name: " + classname + Constants.NEW_LINE );
+							message2.append( "  Class Loader: " + loader.getClass().getName() );
+							LOGGER.error( message2.toString(), e1 );
+							throw new IllegalArgumentException( message2.toString(), e1 );
+						}
+						
+						if( LOGGER.isDebugEnabled() )
+						{
+							final StringBuffer message2 = new StringBuffer();
+							message2.append( "Loaded class:" + Constants.NEW_LINE );
+							message2.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+							message2.append( "  Class Name: " + classname + Constants.NEW_LINE );
+							message2.append( "  Class Loader: " + loader.getClass().getName() );
+							LOGGER.debug( message2.toString() );
+						}
 					}
 				}
-			}
-			else
-			{
-    			final StringBuffer message = new StringBuffer();
-    			message.append( "Error occured while attempting to deserialize the method's arguments. The Class for the argument's type not found." + Constants.NEW_LINE );
-    			message.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
-    			message.append( "  Class Name: " + classname );
-    			LOGGER.error( message.toString() );
-    			throw new IllegalArgumentException( message.toString() );
+				else
+				{
+	    			final StringBuffer message2 = new StringBuffer();
+	    			message2.append( "Error occured while attempting to deserialize the method's arguments. The Class for the argument's type not found." + Constants.NEW_LINE );
+	    			message2.append( "  Signature (Key): " + signature + Constants.NEW_LINE );
+	    			message2.append( "  Class Name: " + classname );
+	    			LOGGER.error( message2.toString() );
+	    			throw new IllegalArgumentException( message2.toString() );
+				}
 			}
 		}
 		return clazz;

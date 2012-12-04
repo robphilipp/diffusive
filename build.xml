@@ -125,7 +125,7 @@
 		${dependencies}/${jsr311_api} 
 		${dependencies}/${javassist} 
 		${dependencies}/${commons_io} 
-		${dependencies}/${jopt_simple}"/>
+		${dependencies}/${jopt_simple}" />
 	
 	<!-- 
 		jar dependencies when building a jar that looks in a lib directory for
@@ -235,7 +235,7 @@
 		<echo>Directory contianing external libraries: ${env.JAVA_LIBS}</echo>
 
 		<jar destfile="${dist}/${jars}/${launcher_jar_file}">
-			<fileset dir="${build}" includes="**/*.class" excludes="org/microtitan/tests/**"/>
+			<fileset dir="${build}" includes="**/*.class" excludes="org/microtitan/tests/**" />
 			<fileset dir="${build}" includes="${log4j_config}" />
 
 			<manifest>
@@ -267,7 +267,7 @@
 		<echo>Directory contianing external libraries: ${env.JAVA_LIBS}</echo>
 
 		<jar destfile="${dist}/${jars}/${server_jar_file}">
-			<fileset dir="${build}" includes="**/*.class" />
+			<fileset dir="${build}" includes="**/*.class" excludes="org/microtitan/tests/**" />
 			<fileset dir="${build}" includes="${log4j_config}" />			
 
 			<manifest>
