@@ -264,10 +264,19 @@ public class ClassLoaderUtils {
 		}
 
 
-//		final URL url = new URL( "file", null, "//C:/Users/desktop/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
-		final URL url = new URL( "file", null, "/Users/rob/Documents/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
+		final URL url = new URL( "file", null, "///C:/Users/desktop/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
+//		final URL url = new URL( "file", null, "/Users/rob/Documents/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
+		System.out.println( url.toString() );
 		final URLClassLoader urlClassLoader = new URLClassLoader( new URL[] { url } );
-		System.out.println( convertClassToByteArray( classname, urlClassLoader ).length );
+		final byte[] urlBytes = convertClassToByteArray( classname, urlClassLoader );
+		if( urlBytes == null )
+		{
+			System.out.println( "null" );
+		}
+		else
+		{
+			System.out.println( urlBytes.length );
+		}
 		
 		final InputStream input = urlClassLoader.getResourceAsStream( classname.replace( '.', '/' ) + ".class" );
 		if( input == null )

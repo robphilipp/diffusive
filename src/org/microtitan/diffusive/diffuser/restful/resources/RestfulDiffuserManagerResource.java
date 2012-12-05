@@ -235,16 +235,29 @@ public class RestfulDiffuserManagerResource {
 			try
 			{
 				final String baseDir = System.getProperty( "user.dir" ).replace( '\\', '/' );
-				final URL baseUrl = new URL( "file", null, "//" + baseDir + "/" );
+				URL baseUrl = null; 
+				if( Pattern.matches( "^[a-zA-z]{1}\\:\\/(\\S)*", baseDir ) )
+				{
+					baseUrl = new URL( "file", null, "///" + baseDir + "/" );
+				}
+				else
+				{
+					baseUrl = new URL( "file", null, "//" + baseDir + "/" );
+				}
 				for( String jarPath : jarPaths )
 				{
 					final String path = jarPath.replace( '\\', '/' );
 					try
 					{
-						if( path.startsWith( "/" ) || Pattern.matches( "^[a-zA-z]{1}\\:\\/(\\S)*", path ) )
+						if( path.startsWith( "/" ) )
 						{
-							// jar path is absolute
+							// jar path is absolute (unix, mac, or windows /C:/dddd...)
 							urls.add( new URL( "file", null, "//" + path ) );
+						}
+						else if( Pattern.matches( "^[a-zA-z]{1}\\:\\/(\\S)*", path ) )
+						{
+							// jar path is absolute (windows C:/dddd...)
+							urls.add( new URL( "file", null, "///" + path ) );
 						}
 						else
 						{
