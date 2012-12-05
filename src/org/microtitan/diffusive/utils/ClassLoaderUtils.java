@@ -15,16 +15,15 @@
  */
 package org.microtitan.diffusive.utils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 
 public class ClassLoaderUtils {
@@ -46,6 +45,44 @@ public class ClassLoaderUtils {
 
 			// grab the input stream
 			final InputStream input = ClassLoader.getSystemResourceAsStream( classAsPath );
+			
+			// convert to bytes if the input stream exists
+			if( input != null )
+			{
+				bytes = IOUtils.toByteArray( input );
+			}
+		}
+		catch( IOException e )
+		{
+        	final StringBuffer message = new StringBuffer();
+        	message.append( "Error writing out to the Class< ? > to a byte array." + Constants.NEW_LINE );
+        	message.append( "  Class: " + className );
+        	LOGGER.error( message.toString(), e );
+        	throw new IllegalStateException( message.toString(), e );
+		}
+		
+		return bytes;
+	}
+
+	/**
+	 * Converts the {@link Class} into a {@code byte[]}.
+	 * @param clazz The {@link Class} to convert into a {@code byte[]}
+	 * @return a {@code byte[]} representation of the {@link Class}
+	 */
+	public static byte[] convertClassToByteArray( final String className, final URLClassLoader classLoader )
+	{
+		byte[] bytes = null;
+		try
+		{
+			// mangle the class name as specified by the ClassLoader.getSystemResourceAsStream docs
+			final String classAsPath = className.replace( '.', '/' ) + ".class";
+
+			// grab the input stream
+			InputStream input = classLoader.getResourceAsStream( classAsPath );
+			if( input == null )
+			{
+				input = classLoader.getResourceAsStream( "/" + classAsPath );
+			}
 			
 			// convert to bytes if the input stream exists
 			if( input != null )
@@ -120,62 +157,66 @@ public class ClassLoaderUtils {
 //		return bytes;
 //	}
 
-	/**
-	 * Loads and the converts the {@link Class} into a {@code byte[]}.
-	 * @param class The name of the {@link Class} to convert into a {@code byte[]}
-	 * @param classLoader The {@link URLClassLoader} used to load the class from a JAR path
-	 * @return a {@code byte[]} representation of the {@link Class}
-	 */
-	public static byte[] convertClassToByteArray( final String classname, final URLClassLoader classLoader )
-	{
-		byte[] bytes = null;
-		try( final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			 final ObjectOutput out = new ObjectOutputStream( bos ) )
-		{
-			// load the class using the URL class loader that should already be set up with the JAR information
-			final Class< ? > clazz = Class.forName( classname, true, classLoader );
-
-			// write the Class object into the output stream
-			out.writeObject( clazz );
-			out.close();
-			
-			// convert the input stream (which was filled from the piped input stream)
-			bytes = bos.toByteArray();
-		}
-		catch( ClassNotFoundException e )
-		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to load class using URL class loader." + Constants.NEW_LINE );
-			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
-			message.append( "  Class Loader: " + classLoader.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  URL Class Path: " );
-			for( URL url : classLoader.getURLs() )
-			{
-				message.append( Constants.NEW_LINE + "    " + url.toString() );
-			}
-			LOGGER.info( message.toString(), e );
+//	/**
+//	 * Loads and the converts the {@link Class} into a {@code byte[]}.
+//	 * @param class The name of the {@link Class} to convert into a {@code byte[]}
+//	 * @param classLoader The {@link URLClassLoader} used to load the class from a JAR path
+//	 * @return a {@code byte[]} representation of the {@link Class}
+//	 */
+//	public static byte[] convertClassToByteArray( final String classname, final URLClassLoader classLoader )
+//	{
+//		byte[] bytes = null;
+//		try( final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//			 final ObjectOutput out = new ObjectOutputStream( bos ) )
+//		{
+//			// load the class using the URL class loader that should already be set up with the JAR information
+//			final Class< ? > clazz = Class.forName( classname, true, classLoader );
+//
+//			// write the Class object into the output stream
+//			out.writeObject( clazz );
+//			out.close();
+//			
+//			// convert the input stream (which was filled from the piped input stream)
+//			bytes = bos.toByteArray();
+//		}
+//		catch( ClassNotFoundException e )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Failed to load class using URL class loader." + Constants.NEW_LINE );
+//			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+//			message.append( "  Class Loader: " + classLoader.getClass().getName() + Constants.NEW_LINE );
+//			message.append( "  URL Class Path: " );
+//			for( URL url : classLoader.getURLs() )
+//			{
+//				message.append( Constants.NEW_LINE + "    " + url.toString() );
+//			}
+//			LOGGER.info( message.toString(), e );
+////			throw new IllegalArgumentException( message.toString(), e );
+//		}
+//		catch( IOException e )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Failed create, write, and/or read I/O streams." + Constants.NEW_LINE );
+//			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+//			message.append( "  Class Loader: " + classLoader.getClass().getName() + Constants.NEW_LINE );
+//			message.append( "  URL Class Path: " );
+//			for( URL url : classLoader.getURLs() )
+//			{
+//				message.append( Constants.NEW_LINE + "    " + url.toString() );
+//			}
+//			LOGGER.error( message.toString(), e );
 //			throw new IllegalArgumentException( message.toString(), e );
-		}
-		catch( IOException e )
-		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed create, write, and/or read I/O streams." + Constants.NEW_LINE );
-			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
-			message.append( "  Class Loader: " + classLoader.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  URL Class Path: " );
-			for( URL url : classLoader.getURLs() )
-			{
-				message.append( Constants.NEW_LINE + "    " + url.toString() );
-			}
-			LOGGER.error( message.toString(), e );
-			throw new IllegalArgumentException( message.toString(), e );
-		}
-		
-		return bytes;
-	}
+//		}
+//		
+//		return bytes;
+//	}
 
 	public static void main( String[] args ) throws IOException
 	{
+		// set the logging level
+		DOMConfigurator.configure( "log4j.xml" );
+		Logger.getRootLogger().setLevel( Level.DEBUG );
+		
 //		Class< ? > clazz = null;
 //		final URL url = new URL( "file", null, "//C:/Users/desktop/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
 //		final URLClassLoader urlClassLoader = new URLClassLoader( new URL[] { url } );
@@ -223,9 +264,20 @@ public class ClassLoaderUtils {
 		}
 
 
-		final URL url = new URL( "file", null, "//C:/Users/desktop/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
+//		final URL url = new URL( "file", null, "//C:/Users/desktop/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
+		final URL url = new URL( "file", null, "/Users/rob/Documents/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
 		final URLClassLoader urlClassLoader = new URLClassLoader( new URL[] { url } );
 		System.out.println( convertClassToByteArray( classname, urlClassLoader ).length );
+		
+		final InputStream input = urlClassLoader.getResourceAsStream( classname.replace( '.', '/' ) + ".class" );
+		if( input == null )
+		{
+			System.out.println( "null" );
+		}
+		else
+		{
+			System.out.println( IOUtils.toByteArray( input ).length );
+		}
 		urlClassLoader.close();
 		
 //		final String className = BeanTest.class.getName();
