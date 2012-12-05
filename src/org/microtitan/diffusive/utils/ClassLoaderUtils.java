@@ -15,13 +15,11 @@
  */
 package org.microtitan.diffusive.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -67,6 +65,61 @@ public class ClassLoaderUtils {
 		return bytes;
 	}
 	
+//	/**
+//	 * Loads and the converts the {@link Class} into a {@code byte[]}.
+//	 * @param class The name of the {@link Class} to convert into a {@code byte[]}
+//	 * @param classLoader The {@link URLClassLoader} used to load the class from a JAR path
+//	 * @return a {@code byte[]} representation of the {@link Class}
+//	 */
+//	public static byte[] convertClassToByteArray( final String classname, final URLClassLoader classLoader )
+//	{
+//		byte[] bytes = null;
+//		try( final PipedOutputStream pos = new PipedOutputStream();
+//			 final PipedInputStream pis = new PipedInputStream( pos );
+//			 final ObjectOutputStream oos = new ObjectOutputStream( pos );
+//			 final ObjectInputStream ois = new ObjectInputStream( pis ) )
+//		{
+//			// load the class using the URL class loader that should already be set up with the JAR information
+//			final Class< ? > clazz = Class.forName( classname, true, classLoader );
+//
+//			// write the Class object into the output stream
+//			oos.writeObject( clazz );
+//			
+//			// convert the input stream (which was filled from the piped input stream)
+//			bytes = IOUtils.toByteArray( ois );
+//		}
+//		catch( ClassNotFoundException e )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Failed to load class using URL class loader." + Constants.NEW_LINE );
+//			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+//			message.append( "  Class Loader: " + classLoader.getClass().getName() + Constants.NEW_LINE );
+//			message.append( "  URL Class Path: " );
+//			for( URL url : classLoader.getURLs() )
+//			{
+//				message.append( Constants.NEW_LINE + "    " + url.toString() );
+//			}
+//			LOGGER.info( message.toString(), e );
+//			throw new IllegalArgumentException( message.toString(), e );
+//		}
+//		catch( IOException e )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Failed create, write, and/or read I/O streams." + Constants.NEW_LINE );
+//			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+//			message.append( "  Class Loader: " + classLoader.getClass().getName() + Constants.NEW_LINE );
+//			message.append( "  URL Class Path: " );
+//			for( URL url : classLoader.getURLs() )
+//			{
+//				message.append( Constants.NEW_LINE + "    " + url.toString() );
+//			}
+//			LOGGER.info( message.toString(), e );
+//			throw new IllegalArgumentException( message.toString(), e );
+//		}
+//		
+//		return bytes;
+//	}
+
 	/**
 	 * Loads and the converts the {@link Class} into a {@code byte[]}.
 	 * @param class The name of the {@link Class} to convert into a {@code byte[]}
@@ -76,19 +129,18 @@ public class ClassLoaderUtils {
 	public static byte[] convertClassToByteArray( final String classname, final URLClassLoader classLoader )
 	{
 		byte[] bytes = null;
-		try( final PipedOutputStream pos = new PipedOutputStream();
-			 final PipedInputStream pis = new PipedInputStream( pos );
-			 final ObjectOutputStream oos = new ObjectOutputStream( pos );
-			 final ObjectInputStream ois = new ObjectInputStream( pis ) )
+		try( final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			 final ObjectOutput out = new ObjectOutputStream( bos ) )
 		{
 			// load the class using the URL class loader that should already be set up with the JAR information
 			final Class< ? > clazz = Class.forName( classname, true, classLoader );
 
 			// write the Class object into the output stream
-			oos.writeObject( clazz );
+			out.writeObject( clazz );
+			out.close();
 			
 			// convert the input stream (which was filled from the piped input stream)
-			bytes = IOUtils.toByteArray( ois );
+			bytes = bos.toByteArray();
 		}
 		catch( ClassNotFoundException e )
 		{
@@ -102,7 +154,7 @@ public class ClassLoaderUtils {
 				message.append( Constants.NEW_LINE + "    " + url.toString() );
 			}
 			LOGGER.info( message.toString(), e );
-			throw new IllegalArgumentException( message.toString(), e );
+//			throw new IllegalArgumentException( message.toString(), e );
 		}
 		catch( IOException e )
 		{
@@ -115,50 +167,66 @@ public class ClassLoaderUtils {
 			{
 				message.append( Constants.NEW_LINE + "    " + url.toString() );
 			}
-			LOGGER.info( message.toString(), e );
+			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}
 		
 		return bytes;
 	}
 
-	public static void main( String[] args ) throws MalformedURLException
+	public static void main( String[] args ) throws IOException
 	{
-		Class< ? > clazz = null;
+//		Class< ? > clazz = null;
+//		final URL url = new URL( "file", null, "//C:/Users/desktop/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
+//		final URLClassLoader urlClassLoader = new URLClassLoader( new URL[] { url } );
+//		final String classname = "org.microtitan.tests.threaded.MultiThreadedCalc";
+//		byte[] bytes = null;
+//		try
+//		{
+//			clazz = Class.forName( classname, true, urlClassLoader );
+//			final PipedOutputStream pos = new PipedOutputStream();
+//			final PipedInputStream pis = new PipedInputStream( pos );
+//			final ObjectOutputStream oos = new ObjectOutputStream( pos );s
+//			oos.writeObject( clazz );
+//			bytes = IOUtils.toByteArray( new ObjectInputStream( pis ) );
+////			final InputStream input = urlClassLoader.getResourceAsStream( classname + ".class" );
+////			bytes = IOUtils.toByteArray( input );
+//		}
+//		catch( ClassNotFoundException e2 )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Failed to load class using URL class loader, attempting to use specific diffuser URL class loader." + Constants.NEW_LINE );
+//			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+//			message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
+//			message.append( "  URL Class Path: " );
+//			for( URL goturl : urlClassLoader.getURLs() )
+//			{
+//				message.append( Constants.NEW_LINE + "    " + goturl.toString() );
+//			}
+//			LOGGER.info( message.toString(), e2 );
+//		}
+//		catch( IOException e )
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+		final String classname = "org.microtitan.tests.threaded.MultiThreadedCalc";
+		final byte[] systemBytes = convertClassToByteArray( classname );
+		if( systemBytes == null )
+		{
+			System.out.println( "null" );
+		}
+		else
+		{
+			System.out.println( systemBytes.length );
+		}
+
+
 		final URL url = new URL( "file", null, "//C:/Users/desktop/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
 		final URLClassLoader urlClassLoader = new URLClassLoader( new URL[] { url } );
-		final String classname = "org.microtitan.tests.threaded.MultiThreadedCalc";
-		byte[] bytes = null;
-		try
-		{
-			clazz = Class.forName( classname, true, urlClassLoader );
-			final PipedOutputStream pos = new PipedOutputStream();
-			final PipedInputStream pis = new PipedInputStream( pos );
-			final ObjectOutputStream oos = new ObjectOutputStream( pos );
-			oos.writeObject( clazz );
-			bytes = IOUtils.toByteArray( new ObjectInputStream( pis ) );
-//			final InputStream input = urlClassLoader.getResourceAsStream( classname + ".class" );
-//			bytes = IOUtils.toByteArray( input );
-		}
-		catch( ClassNotFoundException e2 )
-		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to load class using URL class loader, attempting to use specific diffuser URL class loader." + Constants.NEW_LINE );
-			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
-			message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  URL Class Path: " );
-			for( URL goturl : urlClassLoader.getURLs() )
-			{
-				message.append( Constants.NEW_LINE + "    " + goturl.toString() );
-			}
-			LOGGER.info( message.toString(), e2 );
-		}
-		catch( IOException e )
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println( bytes );
+		System.out.println( convertClassToByteArray( classname, urlClassLoader ).length );
+		urlClassLoader.close();
 		
 //		final String className = BeanTest.class.getName();
 //		byte[] bytes = convertClassToByteArray( className );
