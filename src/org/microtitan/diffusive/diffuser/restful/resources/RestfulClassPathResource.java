@@ -88,15 +88,18 @@ public class RestfulClassPathResource {
 			
 			// attempt to use the url class loader to create the bytes
 			classBytes = ClassLoaderUtils.convertClassToByteArray( className, urlClassLoader );
-			message.append( Constants.NEW_LINE );
-			message.append( "Could not load class using URL class loader" + Constants.NEW_LINE );
-			message.append( "  Class Path Searched: " );
-			for( URL url : urlClassLoader.getURLs() )
+			if( classBytes == null || classBytes.length == 0 )
 			{
-				message.append( Constants.NEW_LINE + "    " + url.toString() );
+				message = new StringBuffer();
+				message.append( "Could not load class using URL class loader" + Constants.NEW_LINE );
+				message.append( "  Class Path Searched: " );
+				for( URL url : urlClassLoader.getURLs() )
+				{
+					message.append( Constants.NEW_LINE + "    " + url.toString() );
+				}
+				LOGGER.error( message.toString() );
+				throw new IllegalArgumentException( message.toString() );
 			}
-			LOGGER.error( message.toString() );
-			throw new IllegalArgumentException( message.toString() );
 		}
 //		if( classBytes == null || classBytes.length == 0 )
 //		{
