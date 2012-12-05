@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -235,25 +237,26 @@ public class RestfulDiffuserManagerResource {
 			final URL baseUrl = new URL( "file", null, "//" + baseDir + "/" );
 			for( String jarPath : jarPaths )
 			{
+				final String path = jarPath.replace( '\\', '/' );
 				try
 				{
-					if( jarPath.startsWith( "/" ) )
+					if( path.startsWith( "/" ) || Pattern.matches( "^[a-zA-z]{1}\\:\\/(\\S)*", path ) )
 					{
 						// jar path is absolute
-						urls.add( new URL( "file", null, "//" + jarPath ) );
+						urls.add( new URL( "file", null, "//" + path ) );
 					}
 					else
 					{
 						// jar path is relative
-						urls.add( new URL( baseUrl, jarPath ) );
+						urls.add( new URL( baseUrl, path ) );
 					}
 				}
 				catch( MalformedURLException e1 )
 				{
 					final StringBuffer message = new StringBuffer();
 					message.append( "Malformed URL specified for jar file." + Constants.NEW_LINE );
-					message.append( "  Specified jar paths: " + Constants.NEW_LINE );
-					message.append( "  Path: " + jarPath + Constants.NEW_LINE );
+					message.append( "  Specified Jar Path: " + jarPath + Constants.NEW_LINE );
+					message.append( "  Modified Jar Path: " + path );
 					LOGGER.info( message.toString(), e1 );
 					throw new IllegalArgumentException( message.toString(), e1 );
 				}
@@ -1123,6 +1126,22 @@ public class RestfulDiffuserManagerResource {
 		public Object call()
 		{
 			return diffuser.runObject( loadCalc.getLoad(), returnType, deserializedObject, methodName, arguments );
+		}
+	}
+	
+	public static void main( String...args )
+	{
+		final List< String > jarPaths = new ArrayList<>();
+		jarPaths.add( "..\\examples\\example_0.2.0.jar" );
+		jarPaths.add( "../another/example.jar" );
+		jarPaths.add( "C:/this/is/a/path/to/a/jar.jar" );
+		jarPaths.add( "C:\\this\\is\\another\\jar\\path\\example_0.2.0.jar" );
+		jarPaths.add( "/unix/type/jar/path/example.jar" );
+		jarPaths.add( "/Users/person/Documents/workspace/examples/example_0.2.0.jar" );
+		final List< URL > paths = createJarClassPath( jarPaths );
+		for( URL path : paths )
+		{
+			System.out.println( path.toString() );
 		}
 	}
 }
