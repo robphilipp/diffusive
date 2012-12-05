@@ -293,9 +293,11 @@ public class RestfulDiffuserServer {
 		
 		// create the manager resource and the web application needed by the web server
 		final RestfulDiffuserManagerResource resource = new RestfulDiffuserManagerResource( executor, cache, loadCalc, configClasses, RestfulDiffuserClassLoaderFactory.getInstance(), jarUrl );
+		final RestfulClassPathResource classPathResource = new RestfulClassPathResource( jarUrl );
 		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
 		application.addSingletonResource( resource );
-		application.addPerRequestResource( RestfulClassPathResource.class );
+//		application.addPerRequestResource( RestfulClassPathResource.class );
+		application.addSingletonResource( classPathResource );
 
 		// create the web server
 		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );

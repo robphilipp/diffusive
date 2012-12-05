@@ -230,48 +230,51 @@ public class RestfulDiffuserManagerResource {
 	{
 		final List< URL > urls = new ArrayList<>();
 		
-		try
+		if( jarPaths != null && !jarPaths.isEmpty() )
 		{
-			final String baseDir = System.getProperty( "user.dir" ).replace( '\\', '/' );
-			final URL baseUrl = new URL( "file", null, "//" + baseDir + "/" );
-			for( String jarPath : jarPaths )
+			try
 			{
-				final String path = jarPath.replace( '\\', '/' );
-				try
+				final String baseDir = System.getProperty( "user.dir" ).replace( '\\', '/' );
+				final URL baseUrl = new URL( "file", null, "//" + baseDir + "/" );
+				for( String jarPath : jarPaths )
 				{
-					if( path.startsWith( "/" ) || Pattern.matches( "^[a-zA-z]{1}\\:\\/(\\S)*", path ) )
+					final String path = jarPath.replace( '\\', '/' );
+					try
 					{
-						// jar path is absolute
-						urls.add( new URL( "file", null, "//" + path ) );
+						if( path.startsWith( "/" ) || Pattern.matches( "^[a-zA-z]{1}\\:\\/(\\S)*", path ) )
+						{
+							// jar path is absolute
+							urls.add( new URL( "file", null, "//" + path ) );
+						}
+						else
+						{
+							// jar path is relative
+							urls.add( new URL( baseUrl, path ) );
+						}
 					}
-					else
+					catch( MalformedURLException e1 )
 					{
-						// jar path is relative
-						urls.add( new URL( baseUrl, path ) );
+						final StringBuffer message = new StringBuffer();
+						message.append( "Malformed URL specified for jar file." + Constants.NEW_LINE );
+						message.append( "  Specified Jar Path: " + jarPath + Constants.NEW_LINE );
+						message.append( "  Modified Jar Path: " + path );
+						LOGGER.info( message.toString(), e1 );
+						throw new IllegalArgumentException( message.toString(), e1 );
 					}
 				}
-				catch( MalformedURLException e1 )
-				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "Malformed URL specified for jar file." + Constants.NEW_LINE );
-					message.append( "  Specified Jar Path: " + jarPath + Constants.NEW_LINE );
-					message.append( "  Modified Jar Path: " + path );
-					LOGGER.info( message.toString(), e1 );
-					throw new IllegalArgumentException( message.toString(), e1 );
-				}
 			}
-		}
-		catch( MalformedURLException e )
-		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Malformed URL specified for jar file." + Constants.NEW_LINE );
-			message.append( "  Specified jar paths: " + Constants.NEW_LINE );
-			for( String path : jarPaths )
+			catch( MalformedURLException e )
 			{
-				message.append( "  Path: " + path + Constants.NEW_LINE );
+				final StringBuffer message = new StringBuffer();
+				message.append( "Malformed URL specified for jar file." + Constants.NEW_LINE );
+				message.append( "  Specified jar paths: " + Constants.NEW_LINE );
+				for( String path : jarPaths )
+				{
+					message.append( "  Path: " + path + Constants.NEW_LINE );
+				}
+				LOGGER.info( message.toString(), e );
+				throw new IllegalArgumentException( message.toString(), e );
 			}
-			LOGGER.info( message.toString(), e );
-			throw new IllegalArgumentException( message.toString(), e );
 		}
 		return urls;
 	}

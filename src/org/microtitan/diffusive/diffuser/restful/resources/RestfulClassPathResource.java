@@ -17,7 +17,10 @@ package org.microtitan.diffusive.diffuser.restful.resources;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.ws.rs.GET;
@@ -31,7 +34,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.log4j.Logger;
-import org.freezedry.persistence.utils.Constants;
+import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.utils.ClassLoaderUtils;
 
@@ -45,12 +48,21 @@ public class RestfulClassPathResource {
 	// parameters for retrieving a Class for a specific diffuser
 	public static final String FULLY_QUALIFIED_CLASS_NAME = "classname";
 	
+	// holds the class loader used to specified the additional jars that hold the classes
+	// for the actual diffused methods.
+	private final URLClassLoader urlClassLoader;
+
 	/**
 	 * 
+	 * @param classPaths holds a list of {@link URL} to JAR files that must be loaded in order to execute
+	 * (see {@link #createJarClassPath(List)} for a convenient method to create this list).
+	 * diffuser methods, and that will get sent to other remote diffusers
 	 */
-	public RestfulClassPathResource()
+	public RestfulClassPathResource( final List< URL > classPaths )
 	{
-		
+		// create the class loader for the additional jars that hold the classes for the diffusive methods
+		final URL[] urls = classPaths.toArray( new URL[0] );
+		urlClassLoader = new URLClassLoader( urls, this.getClass().getClassLoader() );
 	}
 	
 	/**
@@ -64,14 +76,35 @@ public class RestfulClassPathResource {
 							  @PathParam( FULLY_QUALIFIED_CLASS_NAME ) final String className )
 	{
 		// find the class and convert it to a byte[] for transport across the network
-		final byte[] classBytes = ClassLoaderUtils.convertClassToByteArray( className );
+		byte[] classBytes = ClassLoaderUtils.convertClassToByteArray( className );
 		if( classBytes == null || classBytes.length == 0 )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Could not find class: " + className + Constants.NEW_LINE );
+			StringBuffer message = new StringBuffer();
+			message.append( "Could not find class on system class path. Attempting URL class loader." + Constants.NEW_LINE );
+			message.append( "  Class Name: " + className + Constants.NEW_LINE );
+			message.append( "  Class Loader: " + this.getClass().getClassLoader().getClass().getName() + Constants.NEW_LINE );
+			message.append( "  Class Path: " + System.getProperty( "java.class.path" ) );
+			LOGGER.info( message.toString() );
+			
+			// attempt to use the url class loader to create the bytes
+			classBytes = ClassLoaderUtils.convertClassToByteArray( className, urlClassLoader );
+			message.append( Constants.NEW_LINE );
+			message.append( "Could not load class using URL class loader" + Constants.NEW_LINE );
+			message.append( "  Class Path Searched: " );
+			for( URL url : urlClassLoader.getURLs() )
+			{
+				message.append( Constants.NEW_LINE + "    " + url.toString() );
+			}
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
+//		if( classBytes == null || classBytes.length == 0 )
+//		{
+//			final StringBuffer message = new StringBuffer();
+//			message.append( "Could not find class: " + className + Constants.NEW_LINE );
+//			LOGGER.error( message.toString() );
+//			throw new IllegalArgumentException( message.toString() );
+//		}
 		
 		// grab the date for time stamp
 		final Date date = new Date();

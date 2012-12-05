@@ -17,14 +17,17 @@ package org.microtitan.diffusive.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.classloaders.RestfulClassLoader;
-import org.microtitan.tests.BeanTest;
 
 public class ClassLoaderUtils {
 
@@ -46,8 +49,11 @@ public class ClassLoaderUtils {
 			// grab the input stream
 			final InputStream input = ClassLoader.getSystemResourceAsStream( classAsPath );
 			
-			// convert to bytes
-			bytes = IOUtils.toByteArray( input );
+			// convert to bytes if the input stream exists
+			if( input != null )
+			{
+				bytes = IOUtils.toByteArray( input );
+			}
 		}
 		catch( IOException e )
 		{
@@ -61,22 +67,113 @@ public class ClassLoaderUtils {
 		return bytes;
 	}
 	
-	public static void main( String[] args )
+	/**
+	 * Loads and the converts the {@link Class} into a {@code byte[]}.
+	 * @param class The name of the {@link Class} to convert into a {@code byte[]}
+	 * @param classLoader The {@link URLClassLoader} used to load the class from a JAR path
+	 * @return a {@code byte[]} representation of the {@link Class}
+	 */
+	public static byte[] convertClassToByteArray( final String classname, final URLClassLoader classLoader )
 	{
-		final String className = BeanTest.class.getName();
-		byte[] bytes = convertClassToByteArray( className );
+		byte[] bytes = null;
+		try( final PipedOutputStream pos = new PipedOutputStream();
+			 final PipedInputStream pis = new PipedInputStream( pos );
+			 final ObjectOutputStream oos = new ObjectOutputStream( pos );
+			 final ObjectInputStream ois = new ObjectInputStream( pis ) )
+		{
+			// load the class using the URL class loader that should already be set up with the JAR information
+			final Class< ? > clazz = Class.forName( classname, true, classLoader );
+
+			// write the Class object into the output stream
+			oos.writeObject( clazz );
+			
+			// convert the input stream (which was filled from the piped input stream)
+			bytes = IOUtils.toByteArray( ois );
+		}
+		catch( ClassNotFoundException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Failed to load class using URL class loader." + Constants.NEW_LINE );
+			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+			message.append( "  Class Loader: " + classLoader.getClass().getName() + Constants.NEW_LINE );
+			message.append( "  URL Class Path: " );
+			for( URL url : classLoader.getURLs() )
+			{
+				message.append( Constants.NEW_LINE + "    " + url.toString() );
+			}
+			LOGGER.info( message.toString(), e );
+			throw new IllegalArgumentException( message.toString(), e );
+		}
+		catch( IOException e )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Failed create, write, and/or read I/O streams." + Constants.NEW_LINE );
+			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+			message.append( "  Class Loader: " + classLoader.getClass().getName() + Constants.NEW_LINE );
+			message.append( "  URL Class Path: " );
+			for( URL url : classLoader.getURLs() )
+			{
+				message.append( Constants.NEW_LINE + "    " + url.toString() );
+			}
+			LOGGER.info( message.toString(), e );
+			throw new IllegalArgumentException( message.toString(), e );
+		}
 		
-		Class< ? > clazz = new RestfulClassLoader( null, ClassLoaderUtils.class.getClassLoader() ).getClazz( className, bytes );
+		return bytes;
+	}
+
+	public static void main( String[] args ) throws MalformedURLException
+	{
+		Class< ? > clazz = null;
+		final URL url = new URL( "file", null, "//C:/Users/desktop/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
+		final URLClassLoader urlClassLoader = new URLClassLoader( new URL[] { url } );
+		final String classname = "org.microtitan.tests.threaded.MultiThreadedCalc";
+		byte[] bytes = null;
 		try
 		{
-			final Method method = clazz.getMethod( "print" );
-			method.invoke( clazz.newInstance() );
+			clazz = Class.forName( classname, true, urlClassLoader );
+			final PipedOutputStream pos = new PipedOutputStream();
+			final PipedInputStream pis = new PipedInputStream( pos );
+			final ObjectOutputStream oos = new ObjectOutputStream( pos );
+			oos.writeObject( clazz );
+			bytes = IOUtils.toByteArray( new ObjectInputStream( pis ) );
+//			final InputStream input = urlClassLoader.getResourceAsStream( classname + ".class" );
+//			bytes = IOUtils.toByteArray( input );
 		}
-		catch( IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException | InstantiationException e )
+		catch( ClassNotFoundException e2 )
 		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "Failed to load class using URL class loader, attempting to use specific diffuser URL class loader." + Constants.NEW_LINE );
+			message.append( "  Class Name: " + classname + Constants.NEW_LINE );
+			message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
+			message.append( "  URL Class Path: " );
+			for( URL goturl : urlClassLoader.getURLs() )
+			{
+				message.append( Constants.NEW_LINE + "    " + goturl.toString() );
+			}
+			LOGGER.info( message.toString(), e2 );
+		}
+		catch( IOException e )
+		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println( bytes );
 		
-		System.out.println( clazz.getName() );
+//		final String className = BeanTest.class.getName();
+//		byte[] bytes = convertClassToByteArray( className );
+//		
+//		Class< ? > clazz = new RestfulClassLoader( null, ClassLoaderUtils.class.getClassLoader() ).getClazz( className, bytes );
+//		try
+//		{
+//			final Method method = clazz.getMethod( "print" );
+//			method.invoke( clazz.newInstance() );
+//		}
+//		catch( IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException | InstantiationException e )
+//		{
+//			e.printStackTrace();
+//		}
+//		
+//		System.out.println( clazz.getName() );
 	}
 }
