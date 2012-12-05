@@ -231,7 +231,8 @@ public class RestfulDiffuserManagerResource {
 		
 		try
 		{
-			final URL baseUrl = new URL( "file", null, "//" + System.getProperty( "user.dir" ) + "/" );
+			final String baseDir = System.getProperty( "user.dir" ).replace( '\\', '/' );
+			final URL baseUrl = new URL( "file", null, "//" + baseDir + "/" );
 			for( String jarPath : jarPaths )
 			{
 				try
