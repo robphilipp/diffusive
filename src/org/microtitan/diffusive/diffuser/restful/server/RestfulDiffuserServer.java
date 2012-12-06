@@ -157,34 +157,6 @@ public class RestfulDiffuserServer {
 		}
 	}
 	
-//	/**
-//	 * Extracts the configuration directory from the command-line arguments
-//	 * @param serverModeSpec The option specification holding the server mode argument information
-//	 * @param options The options parsed from the command-line
-//	 * @return The configuration directory
-//	 */
-//	private static final String getConfigDir( final OptionSpec< String > serverModeSpec, final OptionSet options )
-//	{
-//		String configDirectory = null;
-//		final ServerMode mode = ServerMode.getServerType( serverModeSpec.value( options ) );
-//		if( mode == ServerMode.REMOTE )
-//		{
-//			configDirectory = REMOTE_CONFIGURATION_PATH;
-//		}
-//		else if( mode == ServerMode.CLASS )
-//		{
-//			configDirectory = CLASS_CONFIGURATION_PATH;
-//		}
-//		else
-//		{
-//			final String message = "Invalid argument for \"server-mode\" option: " + serverModeSpec.value( options );
-//			LOGGER.error( message );
-//			System.out.println( message );
-//			System.exit( 0 );
-//		}
-//		return configDirectory;
-//	}
-	
 	/**
 	 * 
 	 * @param args

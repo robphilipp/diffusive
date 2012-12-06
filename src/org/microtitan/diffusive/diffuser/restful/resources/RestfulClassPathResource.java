@@ -39,6 +39,30 @@ import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.utils.ClassLoaderUtils;
 
+/**
+ * The JAX-RS resource that provides {@code byte[]} representations of a specified class. The 
+ * resource will first attempt to load the {@link Class} file as a resource found on the application's
+ * class path. If the no {@link Class} with that name is found, then it will attempt to load the
+ * {@link Class} file from the JAR files listed in the {@code classPaths} handed to the constructor.
+ * The URL should point to a JAR file, and are likely to be a local path. See the 
+ * {@link RestfulDiffuserManagerResource#createJarClassPath(List)} method to create a {@link List}
+ * of {@link URL} from a list of absolute or relative local paths. Examples of paths passed to
+ * the {@link RestfulDiffuserManagerResource#createJarClassPath(List)} method are:
+ * <ul>
+ * 	<li>{@code ..\\examples\\example_0.2.0.jar} (a relative path on Windows)</li>
+ * 	<li>{@code ../another/example.jar} (a relative path on Windows, Unix/Linux, MacOSX)</li>
+ * 	<li>{@code C:/this/is/a/path/to/a/jar.jar} (an absolute path on Windows)</li>
+ * 	<li>{@code C:\\this\\is\\another\\jar\\path\\example_0.2.0.jar} (an absolute path on Windows)</li>
+ * 	<li>{@code /unix/type/jar/path/example.jar} (an absolute path on Unix/Linux, MacOSX)</li>
+ * 	<li>{@code /Users/person/Documents/workspace/examples/example_0.2.0.jar} (an absolute path on Unix/Linux, MacOSX)</li>
+ * </ul>
+ * On Windows these will be translated to the form<br>
+ * {@code file:///C:/path/to/jar/file/example.jar}<br>
+ * and on Unix/Linux and MacOSX these will be translated to the form<br>
+ * {@code file:///path/to/jar/file/example.jar}<br>
+ * 
+ * @author Robert Philipp
+ */
 @Path( RestfulClassPathResource.CLASSPATH_PATH )
 public class RestfulClassPathResource {
 

@@ -150,7 +150,21 @@ public class RestfulDiffuserManagerResource {
 	 * for non-nested diffusion or a {@link RestfulDiffuserClassLoader} for nested diffusion.
 	 * @param classPaths holds a list of {@link URL} to JAR files that must be loaded in order to execute
 	 * (see {@link #createJarClassPath(List)} for a convenient method to create this list).
-	 * diffuser methods, and that will get sent to other remote diffusers
+	 * diffuser methods, and that will get sent to other remote diffusers. The URL should point to a 
+	 * JAR file, and are likely to be a local path.<br> 
+	 * Examples of paths passed to the {@link #createJarClassPath(List)} method are:
+	 * <ul>
+	 * 	<li>{@code ..\\examples\\example_0.2.0.jar} (a relative path on Windows)</li>
+	 * 	<li>{@code ../another/example.jar} (a relative path on Windows, Unix/Linux, MacOSX)</li>
+	 * 	<li>{@code C:/this/is/a/path/to/a/jar.jar} (an absolute path on Windows)</li>
+	 * 	<li>{@code C:\\this\\is\\another\\jar\\path\\example_0.2.0.jar} (an absolute path on Windows)</li>
+	 * 	<li>{@code /unix/type/jar/path/example.jar} (an absolute path on Unix/Linux, MacOSX)</li>
+	 * 	<li>{@code /Users/person/Documents/workspace/examples/example_0.2.0.jar} (an absolute path on Unix/Linux, MacOSX)</li>
+	 * </ul>
+	 * On Windows these will be translated to the form<br>
+	 * {@code file:///C:/path/to/jar/file/example.jar}<br>
+	 * and on Unix/Linux and MacOSX these will be translated to the form<br>
+	 * {@code file:///path/to/jar/file/example.jar}<br>
 	 */
 	public RestfulDiffuserManagerResource( final ExecutorService executor, 
 										   final ResultsCache resultsCache,

@@ -425,6 +425,12 @@ public class DiffusiveLauncher {
 		}
 	}
 	
+	/**
+	 * Whether the diffuser launcher is to diffuse to remote diffusers or just stay local
+	 * for debugging.
+	 *  
+	 * @author Robert Philipp
+	 */
 	private static enum RunMode {
 		CLEAN( "clean" ),
 		DIFFUSED( "diffused" );
@@ -455,6 +461,13 @@ public class DiffusiveLauncher {
 		}
 	}
 	
+	/**
+	 * Validates the the user specified a valid run mode. If the user specified a valid run-mode string, then
+	 * the method returns the associated run mode, otherwise it exits with a message.
+	 * @param runModeSpec The command-line specification for the run-mode
+	 * @param options The options entered on the command-line by the user
+	 * @return The {@link RunMode} associated with the user-specified string.
+	 */
 	private static final RunMode validateRunMode( final OptionSpec< String > runModeSpec, final OptionSet options )
 	{
 		final RunMode runMode = RunMode.getRunMode( runModeSpec.value( options ) );
@@ -468,7 +481,6 @@ public class DiffusiveLauncher {
 		return runMode;
 	}
 
-	
 	/**
 	 * Make sure to run a {@link RestfulDiffuserServer} instance before calling this. And
 	 * make sure that the endpoint listed in the {@link RestfulDiffuserServer#DEFAULT_SERVER_URI}
