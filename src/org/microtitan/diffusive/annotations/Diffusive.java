@@ -20,7 +20,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
+/**
+ * Tag annotation that signifies that this method is intended to be diffused by the diffusive
+ * framework, in cases where the applications is launched through the DiffusiveLauncher.
+ *  
+ * @author Robert Philipp
+ */
 @Retention( RetentionPolicy.RUNTIME )
 @Target( { ElementType.METHOD } )
 public @interface Diffusive {

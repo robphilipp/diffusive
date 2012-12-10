@@ -23,6 +23,10 @@
 	<property name="app_type_launcher" value="Launcher" />
 	<property name="app_type_server" value="Server" />
 
+	<property name="annotations_jar" value="Diffusive_Annotations_v${version}.jar" />
+	<property name="annotations_dir" value="org/microtitan/diffusive/annotations" />
+	<property name="tests_dir" value="org/microtitan/tests" />
+
 	<!-- 
 		set the run configuration files
 	-->
@@ -228,14 +232,14 @@
 	<property name="jars" value="jars" />
 	<property name="launcher_jar_file" value="${app_name}_${app_type_launcher}_${version}.jar" />
 	<target name="make_launcher_jar" depends="clean_dist, init, configure_logging" description="build the launcher jar file containing only Diffusive classes">
-		<echo>***** Building single jar file for ${app_name} *****</echo>
+		<echo>***** Building diffusive launcher jar file for ${app_name} *****</echo>
 		<echo>Base Directory: ${basedir}</echo>
 		<echo>Directory containing classes: ${build}</echo>
 		<echo>Directory to contain jar: ${dist}/${jars}</echo>
 		<echo>Directory contianing external libraries: ${env.JAVA_LIBS}</echo>
 
 		<jar destfile="${dist}/${jars}/${launcher_jar_file}">
-			<fileset dir="${build}" includes="**/*.class" excludes="org/microtitan/tests/**" />
+			<fileset dir="${build}" includes="**/*.class" excludes="${tests_dir}/**" />
 			<fileset dir="${build}" includes="${log4j_config}" />
 
 			<manifest>
@@ -260,14 +264,14 @@
 	<property name="jars" value="jars" />
 	<property name="server_jar_file" value="${app_name}_${app_type_server}_${version}.jar" />
 	<target name="make_server_jar" depends="clean_dist, init, configure_logging" description="build the server jar file containing only Diffusive classes">
-		<echo>***** Building single jar file for ${app_name} *****</echo>
+		<echo>***** Building RESTful diffusive server jar file for ${app_name} *****</echo>
 		<echo>Base Directory: ${basedir}</echo>
 		<echo>Directory containing classes: ${build}</echo>
 		<echo>Directory to contain jar: ${dist}/${jars}</echo>
-		<echo>Directory contianing external libraries: ${env.JAVA_LIBS}</echo>
+		<echo>Directory containing external libraries: ${env.JAVA_LIBS}</echo>
 
 		<jar destfile="${dist}/${jars}/${server_jar_file}">
-			<fileset dir="${build}" includes="**/*.class" excludes="org/microtitan/tests/**" />
+			<fileset dir="${build}" includes="**/*.class" excludes="${tests_dir}/**" />
 			<fileset dir="${build}" includes="${log4j_config}" />			
 
 			<manifest>
@@ -429,6 +433,32 @@
 		</jar>
 
 	</target>
+	
+	<!--
+		Target: make_annotation_jar
+		
+		builds a jar that contains the diffusive annotations in org.microtitan.diffusive.annotations
+	-->
+	<target name="make_annotations_jar" depends="init" description="build the jar containing the diffusive annotations">
+		<echo>***** Building diffusive annotations jar file for ${app_name} *****</echo>
+		<echo>Base Directory: ${basedir}</echo>
+		<echo>Directory containing classes: ${build}/${annotations_dir}</echo>
+		<echo>Directory to contain jar: ${dist}/${jars}</echo>
+		<echo>Directory contianing external libraries: ${env.JAVA_LIBS}</echo>
+		
+		<jar destfile="${dist}/${jars}/${annotations_jar}">
+			<fileset dir="${build}" includes="${annotations_dir}/**/*.class" />
+			
+			<manifest>
+				<attribute name="Ant" value="${user.name}" />
+				<!-- Information about the program itself -->
+				<attribute name="Implementation-Vendor" value="Rob Philipp" />
+				<attribute name="Implementation-Title" value="${app_name}" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<!-- Runtime information -->
+			</manifest>
+		</jar>
+	</target>
 
 	<!-- 
 		Target: make_release
@@ -438,8 +468,8 @@
 	<property name="examples" value="examples" />
 	<property name="release" location="${dist}/${app_name}_v${version}" />
 	<target name="make_release" 
-		depends="make_launcher_jar, make_server_jar, make_example_jar" 
-		description="builds the single and diffusive jars and creates the release structure">
+			depends="make_launcher_jar, make_server_jar, make_example_jar, make_annotations_jar" 
+			description="builds the single and diffusive jars and creates the release structure">
 			<!-- depends="make_launcher_jar, make_server_jar, make_combined_launcher_jar, make_combined_server_jar" 
 			description="builds the single and diffusive jars and creates the release structure"> -->
 		
@@ -491,6 +521,7 @@
 		<!-- copy the multiple jars to the jars release directory -->
 		<copy file="${dist}/${jars}/${launcher_jar_file}" todir="${release}/${jars}" />
 		<copy file="${dist}/${jars}/${server_jar_file}" todir="${release}/${jars}" />
+		<copy file="${dist}/${jars}/${annotations_jar}" todir="${release}/${jars}" />
 		<copy file="${java-libs}/${junit}" todir="${release}/${jars}/${dependencies}" />
 		<copy file="${java-libs}/${log4j}" todir="${release}/${jars}/${dependencies}" />
 		

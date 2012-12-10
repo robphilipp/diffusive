@@ -20,6 +20,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Tag annotation that signifies that a method is intended to provide configuration
+ * for the DiffusiveLauncher. For example, it could set end-points, class path,
+ * diffusion strategy, etc.
+ *  
+ * @author Robert Philipp
+ */
 @Retention( RetentionPolicy.RUNTIME )
 @Target( ElementType.METHOD )
 public @interface DiffusiveConfiguration {
