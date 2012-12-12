@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang=en>
+<html lang=en xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
 	<meta charset=utf-8>
 	<link rel="stylesheet" type="text/css" href="diffusive.css"/>
@@ -87,31 +87,170 @@ participate (contact: <a href="mailto:rob.philipp@gmail.com?Subject=Contributing
 idiosyncrasies of the current state will be removed, and it will become much easier to work with and use. For now,
 however, as I heard someone say: &quot;<em>it is what it is, and if it were different, it'd be different</em>&quot;.</p> 
 
-<!-- 
-	Idiosyncrasies of the Current State
- -->
-<h3 id="current_state_idiosyncrasies"><a href="#participate">Idiosyncrasies of the Current State</a></h3>
-<p>Given that Diffusive is still in development, there are a few items that are fine for development, but make it harder
-for a user. As Diffusive progresses, these items will be cleaned up.</p>
+<!--
+    Running the Examples
+-->
+<h3 id="running_examples"><a href="#participate">Running the Examples</a></h3>
+<p>New to Diffusive version 0.2.0 are a set of examples that you can run with minimal configuration. There are three
+examples:</p>
+<dl>
+    <!-- local, stand-alone -->
+    <dt>Local, Stand-Alone Diffusion</dt>
+    <dd>
+        This is the first, and simplest example, and should run without any modification. In this example, you launch
+        the example application by using the <b class="class">DiffusiveLauncher</b>, and the methods marked
+        <b class="class">@Diffusive</b> in the <b class="class">org.microtitan.tests.threaded.Task</b> will be diffused
+        to a local diffuser, by the application-attached diffuser.
+    </dd>
 
-<ul>
-	<li id="configuration_idiosyncrasy">Diffusive uses a Java-based configuration to define its behavior and the topology of the network. The current
-		Java-based configuration uses annotations (<b class="class">@DiffusiveConfiguration</b> and 
-		<b class="class">@DiffusiveServerConfiguration</b>)) on configuration methods to configure various aspects
-		of Diffusive. The next step is to modify the current configuration methods to read basic parameters from
-		various sources, and then configure Diffusive based on those parameters. The next iteration will allow the
-		user to name a Java source file that will be compiled and loaded and run to configure Diffusive.
-	</li>
-	<li>The current test classes are included in the distribution under the <b>tests</b> package. These test cases
-		will be moved into a separate distribution. This becomes important when testing that classes are actually
-		loaded across the network through the <b class="class">RestfulClassLoader</b>. Currently, for the distribution
-		deployed as the server (as opposed to the application-attached diffuser) you must remove the test classes if
-		you want them to be loaded over the network. And that is a cumbersome if you are deploying jar files, because
-		then you need to two versions.
-	</li>
-</ul>
+    <!-- local -->
+    <dt>Local Diffusion</dt>
+    <dd>
+        This second example builds on the first. Although, in this example, everything runs on a local machine, you will
+        actually diffuse code to a diffuser running in a separate process. By configuring your application-attached
+        diffuser differently, and launching a <b class="class">RestfulDiffuserServer</b>, the diffusive method in the
+        <b class="class">org.microtitan.tests.threaded.Task</b> will be diffused to the RESTful diffuser server.
+    </dd>
 
-<!-- 
+    <!-- remote, single -->
+    <dt>Single, Remote Diffusion</dt>
+    <dd>
+        This third example builds on the first two by adding a <b class="class">RestfulDiffuserServer</b> running on a
+        different machine. The diffusive method in the  <b class="class">org.microtitan.tests.threaded.Task</b> will now
+        be diffused to the remote RESTful diffuser server. Additionally, the local RESTful diffuser server will provide
+        the remote RESTful diffuser server the <b class="class">Class</b> object it needs to deserialize and execute
+        the diffused method.
+    </dd>
+</dl>
+
+<p>The <b class="tt">examples</b> subdirectory of the distribution directory contains the configuration files for these
+three examples, a <b class="tt">README.txt</b> file for each example, and the JAR file containing the example code that
+is to be run using Diffusive. In the next sections we give steps to run the examples.</p>
+
+<!-- Local, Stand-Alone Diffusion -->
+<h4 id="local_stand_alone_diffusion"><a href="#participate">Local, Stand-Alone Diffusion Example</a></h4>
+<p>Recall that in this example we will launch the example application by using the <b class="class">DiffusiveLauncher</b>,
+    and the methods marked <b class="class">@Diffusive</b> in the <b class="class">org.microtitan.tests.threaded.Task</b>
+    will be diffused to a local diffuser, by the application-attached diffuser.</p>
+
+<p>The configuration files for the local, stand-alone diffusion example can be found in the
+    <b class="tt">Diffusive_vX.Y.Z/examples/local_stand_alone</b> directory. This directory contains a subdirectory <b class="tt">launcher</b>
+    and a <b class="tt">README.txt</b>. The subdirectory has two files: <b class="tt">restful_diffuser_config.xml</b> and
+    <b class="class">random_diffuser_strategy.xml</b>. The first file is the configuration file used by the
+    <b class="class">DiffusiveLauncher</b> to set the strategy, the object serializer, and end-points used by the
+application-attached diffuser. In this example, we don't need to alter either of these configuration files.</p>
+
+<p>To run this example:</p>
+<ol>
+    <li>Change to the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory</li>
+    <li>Type <b class="tt">java -jar Diffusive_Launcher_0.2.0.jar --config-dir=../examples/local_stand_alone/launcher/
+                                                                  --execute-class=org.microtitan.tests.threaded.MultiThreadedCalc
+                                                                  --class-path=../examples/example_0.2.0.jar</b></li>
+</ol>
+
+<p>The end of your output should look something like this. <img src="images/local_stand_alone_results.png"> Make sure that
+out of the 20 tasks run, all completed.</p>
+
+<p>Now let's turn to the command-line options in step 2.</p>
+<dl>
+    <dt>--config-dir</dt>
+    <dd>This option tells the diffusive launcher where to find the configuration files. In this case, we have specified
+        that <b>relative</b> to the <b class="tt">jars</b> directory, the configuration files are up one directory and in the
+        <b class="tt">examples/local_stand_alone/launcher</b> directory.
+    </dd>
+
+    <dt>--execute-class</dt>
+    <dd>This option tells the diffusive launcher in which class the application's <b class="class">main(...)</b> method
+        can be found. The "application" is the application you wish to execute through Diffusive. In this case, we are
+        executing the multi-thread calc test application <b class="class">org.microtitan.tests.threaded.MultiThreadedCalc</b>.
+    </dd>
+
+    <dt>--class-path</dt>
+    <dd>This option tells the diffusive launcher where to find the classes that are part of the application to be executed,
+        and which are not part of the diffusive distribution.<br><br>
+        It is important to point out that you <b>must</b> use this option, and not the standard option <b class="tt">-cp</b>
+        (or <b class="tt">-classpath</b>), and not the class path environment variable when specifying where to find
+        the application classes.<br><br>
+        Recall that when running a Java application, which is packaged in a JAR, using the command<br>
+        <b class="tt">java -jar Diffusive_Launcher_0.2.0.jar</b><br>
+        the class path used by Java to load classes is the one
+        specified in the JAR file's manifest (the Class-Path attribute). If you ran the command<br>
+        <b class="tt">java -cp directory/to/nowhere -jar Diffusive_Launcher_0.2.0.jar</b><br>
+        Java will ignore the class path
+        you specified on the command-line. In fact, it will ignore <b>all</b> other class path settings. (See, for example,
+        <a href="http://docs.oracle.com/javase/7/docs/technotes/tools/windows/java.html">Oracle's Java launcher documentation</a>.
+        Specifically, see the documentation for the "-jar" option: "When you use this option, the JAR
+        file is the source of all user classes, and other user class path settings are ignored.")
+    </dd>
+</dl>
+
+<p>For a full list of the diffuser launcher's command-line options, type<br>
+<b class="tt">java -jar Diffusive_Launcher_0.2.0.jar --help</b></p>
+
+<!-- Local Diffusion -->
+<h4 id="local_diffusion"><a href="#participate">Local Diffusion Example</a></h4>
+<p>Recall that in this example, although all processes will run on our local machine, we will diffuse methods to a RESTful
+    diffuser server running in a separate process than the process from which we launched our application. Accordingly,
+    this example will be slightly more complex and require us to make a few modifications to the diffusive launcher's
+    configuration files. And, we'll have to start up a RESTful diffuser server first, before we launch the example
+    application.</p>
+
+<p>The configuration files for the local diffusion example can be found in the <b class="tt">Diffusive_vX.Y.Z/examples/local</b>
+    directory. This directory contains two subdirectories <b class="tt">launcher</b> and <b class="tt">diffuser_server</b>,
+    and a <b class="tt">README.txt</b>.</p>
+
+<p>The <b class="tt">launcher</b> directory contains the same configuration files as in the local, stand-alone example.
+    However, we want diffusive launcher to diffuse methods to the RESTful diffuser server running in a
+    separate process. To achieve this, we'll have to modify its strategy configuration file,
+    <b class="class">random_diffuser_strategy.xml</b>,by specifying the end-point (IP address) for the RESTful
+    diffuser server.</p>
+
+<p>The <b class="tt">diffuser_server</b> subdirectory contains the configuration files for the RESTful diffuser server.
+    Because the RESTful diffuser server will run on the local machine, and won't diffuse
+    methods any further, we won't have to modify any of its configuration files for this example.</p>
+
+<p>To run this example:</p>
+<ol>
+    <li>Change to the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory</li>
+    <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory, type<br>
+        <b class="tt">java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/local/diffuser_server/
+                                                           --class-path=../examples/example_0.2.0.jar</b><br>
+        to start the RESTful diffuser server.
+    </li>
+    <li>Replase the text, "<b class="tt">your.ip.address</b>", with your IP address (or domain name), in the
+        configuration file <b class="class">launcher/random_diffuser_strategy.xml</b>. Do not use
+        "<b class="tt">localhost</b>" as your IP address.
+        <pre class="brush: xml; highlight: 4">
+            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <RandomDiffuserStrategyConfigXml>
+                <clientEndpoints>
+                    <endPoint>http://your.ip.address:8182/diffusers</endPoint>
+                </clientEndpoints>
+                <randomSeed>3141592653</randomSeed>
+            </RandomDiffuserStrategyConfigXml>
+        </pre>
+    </li>
+    <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory, type<br>
+        <b class="tt">java -jar Diffusive_Launcher_0.2.0.jar --config-dir=../examples/local/launcher/
+                                                             --execute-class=org.microtitan.tests.threaded.MultiThreadedCalc
+                                                             --class-path=../examples/example_0.2.0.jar</b><br>
+        to launch the example application.
+    </li>
+</ol>
+
+<p>The end of your output should look something like this. <img src="images/local_results.png"> Make sure that
+    out of the 20 tasks run, all completed. And best of all, notice that how much slower your application ran! Using
+    the local diffuser, the runtime was about 4.3 seconds. Now using the RESTful diffuser, we're at 7.8 seconds! We're
+    well on our way to maximizing our execution time! Well,
+    that's the overhead of serializing/deserializing the methods' objects and the results. You'll also have noticed that
+    the terminal window from which you started the RESTful diffuser server spit out some logs.</p>
+
+<p>You're on a roll. Now for the more complicated example!</p>
+
+<!-- Single, Remote Diffusion -->
+<h4 id="single_remote_diffusion"><a href="#participate">Single, Remote Diffusion Example</a></h4>
+
+<!--
 	Build Environment
  -->
 <h3 id="build_environment"><a href="#participate">Build Environment</a></h3>
@@ -122,6 +261,8 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 
 <!-- External Dependencies -->
 <h4 id="external_dependencies"><a href="#participate">External Dependencies</a></h4>
+The Diffusive reference implementation has a number of dependencies on other open-source projects. These dependencies can
+be found under the distribution directory's <b class="tt">jars/dependencies</b> directory.
 <dl>
 	<!-- Javassist -->
 	<dt>Javassist</dt>
@@ -176,7 +317,7 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 		to be serialized implement <b class="class">Serializable</b> and have a no-arg constructor. FreezeDry is a bit 
 		more flexible and requires neither of these, but is an alpha, and from time to time you may run into bugs.
 		<ul>
-			<li>FreezeDry_0.2.2.jar</li>
+			<li>FreezeDry_0.2.5.jar</li>
 			<li>json-20120228.jar</li>
 		</ul>
 	</dd>
@@ -191,6 +332,20 @@ for a user. As Diffusive progresses, these items will be cleaned up.</p>
 			<li>commons-io-2.4.jar</li>
 		</ul>
 	</dd>
+
+    <!-- Command-Line interface for the launcher, server, and xml configuration objects -->
+    <dt>Command-Line Interface</dt>
+    <dd>
+        The <b class="class">DiffusiveLauncher</b>, the <b class="class">RestfulDiffuserServer</b> have
+        a command-line interface that allows options and configuration items to be specified when running
+        the distribution JARs (<b class="class">Diffusive_Launcher_x.y.z.jar</b> and <b class="class">Diffusive_Server_x.y.z.jar</b>)
+        from a command-line. The XML configuration objects <b class="class">RestfulDiffuserConfigXml</b> and
+        <b class="class">RestfulDiffuserServerConfigXml</b> also have a command-line interface that allows you to
+        generate and validate configuration files. But at this time, these are only available through the IDE.
+        <ul>
+            <li>jopt-simple-4.3.jar</li>
+        </ul>
+    </dd>
 	
 </dl>
 

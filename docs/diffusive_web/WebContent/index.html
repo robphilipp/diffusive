@@ -100,9 +100,36 @@
         paper.</p>
 
     <h3 id="whats_new"><a href="#goals">What's New</a></h3>
+    <h4>Version 0.2.0 (from version 0.1.3)</h4>
+    <p>This is first version that allows users to run Diffusive from the distribution JAR files, and to separate the
+        application (to diffuse) from the distribution JARs. Previous version required Diffusive to be run from an IDE.</p>
+    <ol>
+        <li>Developed command-line interfaces for <b class="class">DiffuserLauncher</b>, and for the
+            <b class="class">RestfulDiffuserServer</b>. These new interfaces allow you the ability to set various options
+            and configuration items. To get more details, execute the jars from the command-line with the <b class="tt">--help</b>
+            option: <br><b class="class">java -jar Diffusive_Launcher_0.2.0.jar --help</b></li> or
+            <br><b class="class">java -jar Diffusive_Server_0.2.0.jar --help</b>
+        <li>Developed command-line interfaces for the XML configuration objects: <b class="class">RestfulDiffuserConfigXml</b>
+            and the <b class="class">RestfulDiffuserServerConfigXml</b> that can generate and validated configuration files.</li>
+        <li>Added three examples with increasing complexity:
+            <ol>
+                <li>A stand-alone local diffuser that allows you to run diffusive without starting a diffuser server.</li>
+                <li>A local diffuser example that runs a local RESTful diffuser server and the diffuser launcher on
+                    the same machine.</li>
+                <li>A single remote example that runs a local RESTful diffuser server to provide class resources, a remote
+                    RESTful diffuser server to perform the execution, and a local diffuser launcher.</li>
+            </ol>
+        </li>
+        <li>Fixed a bug related to the loading of class files that were neither in the JAR, or in the JAR's manifest's
+            <b class="tt">Class-Path</b> (which wasn't so easy). This is needed so that JAR files containing the user's
+            application can be run and loaded for <b class="class">RestfulClassLoader</b> and
+            <b class="class">RestfulDiffuserClassLoader</b>.</li>
+        <li>Improved some JAX-RS exception mapping. Not yet at the point I'd like it to be.</li>
+    </ol>
+
     <h4>Version 0.1.3 (from version 0.1.2)</h4>
     <p>Updated the configuration files so that it can be run locally right out of the box (based on suggestion
-        from Anteneh Nurlin).</p>
+        from Anteneh Nurlien).</p>
     <ol>
         <li>Updated the configuration files so that <b class="class">restful_server_config.xml</b> and
             <b class="class">random_diffuser_strategy.xml</b> don't have any end-points. This allows

@@ -202,7 +202,8 @@ b.class
 
 b.tt
 {
-	color: grey;
+	color: #585858;
+    font-family: monospace;
 }
 
 th
