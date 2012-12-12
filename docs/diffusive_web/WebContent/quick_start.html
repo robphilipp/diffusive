@@ -217,7 +217,7 @@ out of the 20 tasks run, all completed.</p>
                                                            --class-path=../examples/example_0.2.0.jar</b><br>
         to start the RESTful diffuser server.
     </li>
-    <li>Replase the text, "<b class="tt">your.ip.address</b>", with your IP address (or domain name), in the
+    <li>Replace the text, "<b class="tt">your.ip.address</b>", with your IP address (or domain name), in the
         configuration file <b class="class">launcher/random_diffuser_strategy.xml</b>. Do not use
         "<b class="tt">localhost</b>" as your IP address.
         <pre class="brush: xml; highlight: 4">
@@ -249,6 +249,95 @@ out of the 20 tasks run, all completed.</p>
 
 <!-- Single, Remote Diffusion -->
 <h4 id="single_remote_diffusion"><a href="#participate">Single, Remote Diffusion Example</a></h4>
+<p>Recall that in this example we'll be diffusing a method from our local machine to a remote machine. This example is the
+    most complex of the three examples. There are a fair number of things that can go wrong that may prevent the example
+    from working properly. So we'll try to give you the tools to get basic troubleshooting information that will help
+    you separate your configuration or system/network problems from any bad code in Diffusive.</p>
+
+<p>The configuration files for this example are located in the <b class="tt">Diffusive_vX.Y.Z/examples/remote_single</b>
+    directory. This directory contains three subdirectories <b class="tt">launcher</b>, <b class="tt">diffuser_server</b>,
+    and <b class="tt">remote_diffuser_server</b>. It contains one <b class="tt">README.txt</b> file.</p>
+
+<p>The local RESTful diffuser server in this example is slightly different from its purpose in the previous, local diffusion,
+    example. In the local diffusion example, the application-attached diffuser diffused methods to it. In this example,
+    the application-attached diffuser diffuses methods to the remote RESTful diffuser server, and the local RESTful
+    diffuser server provides the <b class="class">Class</b> objects to the remote diffuser server.</p>
+
+<p>To run this example:</p>
+<dl>
+    <dt>Start the RESTful Diffuser Server on the local machine</dt>
+    <dd>
+        <ol>
+            <li>On your local machine, change to the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory</li>
+            <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory on your local machine, type<br>
+                <b class="tt">java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/remote_single/diffuser_server/
+                    --class-path=../examples/example_0.2.0.jar</b><br>
+                to start the local RESTful diffuser server.
+            </li>
+        </ol>
+    </dd>
+
+    <dt>Start the RESTful Diffuser Server on the remote machine</dt>
+    <dd>
+        <ol>
+            <li>On your remote machine, change to the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory</li>
+            <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory on your remote machine, type<br>
+                <b class="tt">java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/remote_single/remote_diffuser_server/</b><br>
+                to start the remote RESTful diffuser server.
+            </li>
+        </ol>
+        <p>Notice that we don't add the class path to the example code when we start the remote diffuser server. Recall that
+        the local RESTful diffuser server will provide the <b class="class">Class</b> objects.</p>
+    </dd>
+
+    <dt>Run the Diffuser Launcher on the local machine.</dt>
+    <dd>
+        <ol>
+            <li>Replace the text, "<b class="tt">ip.address.of.remote.machine</b>", with the IP address (or domain name) of
+                the remote machine, in the configuration file <b class="class">launcher/random_diffuser_strategy.xml</b>
+                located on your local machine.
+                <pre class="brush: xml; highlight: 4">
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                    <RandomDiffuserStrategyConfigXml>
+                        <clientEndpoints>
+                            <endPoint>http://ip.address.of.remote.machine:8182/diffusers</endPoint>
+                        </clientEndpoints>
+                        <randomSeed>3141592653</randomSeed>
+                    </RandomDiffuserStrategyConfigXml>
+                </pre>
+            </li>
+            <li>Replace the text, "<b class="tt">your.ip.address</b>", with your IP address (or domain name), in the
+                configuration file <b class="class">launcher/restful_server_config.xml</b> located on your local machine.
+                Do not use "<b class="tt">localhost</b>" as your IP address.
+                <pre class="brush: xml; highlight: 4">
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                    <RestfulDiffuserConfigXml>
+                        <classPathList>
+                            <classPath>http://your.ip.address:8182/classpath</classPath>
+                        </classPathList>
+                        <loadThreshold>0.75</loadThreshold>
+                        <serializerName>persistence_xml</serializerName>
+                        <strategyConfigClassName>org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml</strategyConfigClassName>
+                        <strategyConfigFile>../examples/remote_single/launcher/random_diffuser_strategy.xml</strategyConfigFile>
+                    </RestfulDiffuserConfigXml>
+                </pre>
+            </li>
+            <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory on your local machine, launch the example
+                application by typing:<br>
+                <b class="tt">java -jar Diffusive_Launcher_0.2.0.jar --config-dir=../examples/remote_single/launcher/
+                                                                     --execute-class=org.microtitan.tests.threaded.MultiThreadedCalc
+                                                                     --class-path=../examples/example_0.2.0.jar</b><br>
+            </li>
+        </ol>
+    </dd>
+</dl>
+
+<p>The end of your output should look something like this. <img src="images/local_results.png"> Make sure that
+    out of the 20 tasks run, all completed. And best of all, notice that how much slower your application ran! Using
+    the local diffuser, the runtime was about 4.3 seconds. Now using the RESTful diffuser, we're at 7.8 seconds! We're
+    well on our way to maximizing our execution time! Well,
+    that's the overhead of serializing/deserializing the methods' objects and the results. You'll also have noticed that
+    the terminal window from which you started the RESTful diffuser server spit out some logs.</p>
 
 <!--
 	Build Environment

@@ -35,7 +35,7 @@ Starting the Remote RESTful Diffuser Server
 1. On your remote machine, change to the distribution's "jars" directory
 2. run the following command from the command-line (but first put it all on one line)
 
-   java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/remote_single/remote_diffuser_server/ --class-path=../examples/example_0.2.0.jar
+   java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/remote_single/remote_diffuser_server/
 
 Run the Diffusive Launcher
 --------------------------
