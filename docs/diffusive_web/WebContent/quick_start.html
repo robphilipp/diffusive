@@ -332,12 +332,66 @@ out of the 20 tasks run, all completed.</p>
     </dd>
 </dl>
 
-<p>The end of your output should look something like this. <img src="images/local_results.png"> Make sure that
-    out of the 20 tasks run, all completed. And best of all, notice that how much slower your application ran! Using
-    the local diffuser, the runtime was about 4.3 seconds. Now using the RESTful diffuser, we're at 7.8 seconds! We're
-    well on our way to maximizing our execution time! Well,
-    that's the overhead of serializing/deserializing the methods' objects and the results. You'll also have noticed that
-    the terminal window from which you started the RESTful diffuser server spit out some logs.</p>
+<p>The end of your output should look something like this. <img src="images/remote_single_results.png"> Make sure that
+    out of the 20 tasks run, all completed.</p>
+
+<p>If everything ran correctly, then congratulations! You ran this, and are well on your way to become a proficient diffuser!
+If, on the other hand, you had problems, then there are a couple quick things you can try.</p>
+
+<h5 id="single_remote_diffusion_troubleshooting"><a href="#participate">Troubleshooting</a></h5>
+<dl>
+    <dt>Connectivity Issues</dt>
+    <dd><p>If Diffusive just hangs an then times out (and spews error message on one of your three terminal windows) you
+        could have connection issues. For example, you may have a firewall running on one of your machines that doesn't
+        allow port 8182, or external connections, or neither. You can test this. Recall that the diffusers are RESTful
+        web services. So, we attempt to can connect to them through our browser.</p>
+        <ol>
+            <li>Lets try to connect to the RESTful diffuser server on the remote machine. Open a browser, and type<br>
+                <b class="tt">http://ip.address.of.remote.machine:8182/diffusers</b><br>
+                And you should get back something like this<br>
+                <img src="images/remote_server_diffuser_list.png"><br>
+                This ensures that you can connect to your remote diffuser server.
+            </li>
+            <li>Now we want to make sure that you can get from your remote diffuser server to you local diffuser server.
+                This is important because the remote diffuser server needs to get the <b class="class">Class</b> objects from
+                the local diffuser so that it can deserialize the objects coming to it from your application-attached diffuser.
+                So we do the same thing, except from you remote machine, open a browser and type<br>
+                <b class="tt">http://ip.address.of.local.machine:8182/diffusers</b><br>
+                and you should see a similar item.
+            </li>
+        </ol>
+    </dd>
+
+    <dt>Class Path Issues</dt>
+    <dd><p>Recall that the remote diffuser server relies on the class path end-point specified in the laucher's configuration
+        file. In our case, the remote diffuser server calls the local diffuser server to ask for the <b class="class">Class</b>
+        objects. If the local diffuser server can't locate the class requested by the remote diffuser server, then we
+        have a problem.</p>
+
+        <p>You can test this in a similar manner as we tested for connectivity. From a browser on your local machine, type<br>
+            <b class="tt">http://ip.address.of.local.machine:8182/classpath/org.microtitan.tests.threaded.MultiThreadedCalc</b><br>
+            and you should get back something like this<br>
+            <img src="images/multi_calc_class_bytes.png"><br>
+            Repeat this for the following classes:
+            <ol>
+                <li><b class="tt">org.microtitan.tests.threaded.Task</b></li>
+                <li><b class="tt">org.microtitan.tests.threaded.Result</b></li>
+            </ol>
+        </p>
+
+        <p>If you did NOT have connectivity problems, then repeat the above tests from the remote server.</p>
+    </dd>
+
+    <dt>Recheck you configuration files</dt>
+    <dd><p>Maybe you miss-typed an IP address or switched your local and remote IP addresses.</p></dd>
+</dl>
+
+<p>If neither of these turn out to be the issue, then set the log-level to <b class="tt">DEBUG</b> through the command-line
+    option, <b class="tt">--log-level=DEBUG</b> for the launcher and the two servers and retry. Maybe the logs will give
+    you some nugget of information.</p>
+
+<p>If still nothing works. Don't get frustrated. Rather, <a href="mailto:rob.philipp@gmail.com?subject=Diffusive Help">send me</a>
+    an email and I'll try to help trouble shoot.</p>
 
 <!--
 	Build Environment
