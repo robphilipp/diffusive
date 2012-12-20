@@ -169,9 +169,6 @@ public class RestfulDiffuserServer {
 		final OptionSpec< String > logLevelSpec = 
 				parser.accepts( "log-level" ).withRequiredArg().ofType( String.class ).defaultsTo( Level.WARN.toString() ).
 				describedAs( Level.TRACE + "|" + Level.DEBUG + "|" + Level.INFO + "|" + Level.WARN + "|" + Level.ERROR );
-//		final OptionSpec< String > serverModeSpec = 
-//				parser.accepts( "server-mode" ).withRequiredArg().ofType( String.class ).defaultsTo( ServerMode.REMOTE.getName() ).
-//				describedAs( ServerMode.REMOTE.getName() + "|" + ServerMode.CLASS.getName() );
 		final OptionSpec< String > serverUriSpec = 
 				parser.accepts( "server-uri" ).withRequiredArg().ofType( String.class ).defaultsTo( DEFAULT_SERVER_URI );
 		final OptionSpec< String > configDirSpec =
@@ -218,7 +215,6 @@ public class RestfulDiffuserServer {
 		
 		// set up the options based on the values from the command-line
 		final URI serverUri = URI.create( serverUriSpec.value( options ) );
-//		final String configDirectory = getConfigDir( serverModeSpec, options );
 		final String configFileName = configDirSpec.value( options ) + configFileSpec.value( options ); 
 		final String configClassName = configClassSpec.value( options );
 		List< String > classPaths = null;
@@ -231,7 +227,6 @@ public class RestfulDiffuserServer {
 		
 		// report the options used
 		final StringBuffer buffer = new StringBuffer( Constants.NEW_LINE + "Configuration Items" + Constants.NEW_LINE );
-//		buffer.append( "  Server Mode: " + serverModeSpec.value( options ) + Constants.NEW_LINE );
 		buffer.append( "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
 		buffer.append( "  Config File: " + configFileName + Constants.NEW_LINE );
 		buffer.append( "  Config Class: " + configClassName + Constants.NEW_LINE );

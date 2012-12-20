@@ -28,9 +28,9 @@ import org.microtitan.diffusive.Constants;
 
 /**
  * Utilities for converting a {@link Class}, reference by name, into a {@code byte[]} for transporting
- * across the network. The {@link #convertClassToByteArray(String)} method uses the application
+ * across the network. The {@link #loadClassToByteArray(String)} method uses the application
  * class loader and the application's class path to search for the {@link Class} file and load it
- * as a resource. The {@link #convertClassToByteArray(String, URLClassLoader)} uses the specified
+ * as a resource. The {@link #loadClassToByteArray(String, URLClassLoader)} uses the specified
  * {@link URLClassLoader} to search the JAR files held in the {@link URLClassLoader} and loads the
  * {@link Class} file as a resource from that JAR.
  * 
@@ -45,7 +45,7 @@ public class ClassLoaderUtils {
 	 * @param clazz The {@link Class} to convert into a {@code byte[]}
 	 * @return a {@code byte[]} representation of the {@link Class}
 	 */
-	public static byte[] convertClassToByteArray( final String className )
+	public static byte[] loadClassToByteArray( final String className )
 	{
 		byte[] bytes = null;
 		try
@@ -80,7 +80,7 @@ public class ClassLoaderUtils {
 	 * @param clazz The {@link Class} to convert into a {@code byte[]}
 	 * @return a {@code byte[]} representation of the {@link Class}
 	 */
-	public static byte[] convertClassToByteArray( final String className, final URLClassLoader classLoader )
+	public static byte[] loadClassToByteArray( final String className, final URLClassLoader classLoader )
 	{
 		byte[] bytes = null;
 		try
@@ -120,7 +120,7 @@ public class ClassLoaderUtils {
 		Logger.getRootLogger().setLevel( Level.DEBUG );
 		
 		final String classname = "org.microtitan.tests.threaded.MultiThreadedCalc";
-		final byte[] systemBytes = convertClassToByteArray( classname );
+		final byte[] systemBytes = loadClassToByteArray( classname );
 		if( systemBytes == null )
 		{
 			System.out.println( "null" );
@@ -134,7 +134,7 @@ public class ClassLoaderUtils {
 //		final URL url = new URL( "file", null, "/Users/rob/Documents/workspace/diffusive/Diffusive_v0.2.0/examples/example_0.2.0.jar" );
 		System.out.println( url.toString() );
 		final URLClassLoader urlClassLoader = new URLClassLoader( new URL[] { url } );
-		final byte[] urlBytes = convertClassToByteArray( classname, urlClassLoader );
+		final byte[] urlBytes = loadClassToByteArray( classname, urlClassLoader );
 		if( urlBytes == null )
 		{
 			System.out.println( "null" );

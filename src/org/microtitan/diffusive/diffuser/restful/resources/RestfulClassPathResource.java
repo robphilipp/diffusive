@@ -22,6 +22,7 @@ import java.net.URLClassLoader;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -76,6 +77,10 @@ public class RestfulClassPathResource {
 	// holds the class loader used to specified the additional jars that hold the classes
 	// for the actual diffused methods.
 	private final URLClassLoader urlClassLoader;
+	
+	// caches the byte arrays for class names so that once loaded, they don't
+	// have to be loaded again
+	private final ConcurrentHashMap< String, byte[] > classByteArrayCache;
 
 	/**
 	 * 
@@ -88,13 +93,16 @@ public class RestfulClassPathResource {
 		// create the class loader for the additional jars that hold the classes for the diffusive methods
 		final URL[] urls = classPaths.toArray( new URL[0] );
 		urlClassLoader = new URLClassLoader( urls, this.getClass().getClassLoader() );
+		
+		// create the cache for the class byte[]
+		classByteArrayCache = new ConcurrentHashMap<>();
 	}
 	
 	/**
-	 * 
-	 * @param uriInfo
-	 * @param className
-	 * @return
+	 * Returns the {@link Class} object as a {@code byte[]}
+	 * @param uriInfo The context containing the URI information
+	 * @param className The fully-qualified class name of the {@link Class} object to retrieve
+	 * @return A {@link Response} containing the {@link Class} object as a {@code byte[]}
 	 */
 	@GET @Path( "{" + FULLY_QUALIFIED_CLASS_NAME + ": [a-zA-Z0-9\\.\\-]*}" )
 	public Response getClass( @Context final UriInfo uriInfo,
@@ -108,36 +116,26 @@ public class RestfulClassPathResource {
 		final String resultKey = UUID.randomUUID().toString();
 		final Feed feed = Atom.createFeed( requestUri, resultKey, date, uriInfo.getBaseUri() );
 
-		// find the class and convert it to a byte[] for transport across the network
-		byte[] classBytes = ClassLoaderUtils.convertClassToByteArray( className );
-		StringBuffer message = new StringBuffer();
-		if( classBytes == null || classBytes.length == 0 )
-		{
-			message.append( "Could not find class on system class path. Attempting URL class loader." + Constants.NEW_LINE );
-			message.append( "  Class Name: " + className + Constants.NEW_LINE );
-			message.append( "  Class Loader: " + this.getClass().getClassLoader().getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Class Path: " + System.getProperty( "java.class.path" ) );
-			LOGGER.info( message.toString() );
-			
-			// attempt to use the url class loader to create the bytes
-			classBytes = ClassLoaderUtils.convertClassToByteArray( className, urlClassLoader );
-			if( classBytes == null || classBytes.length == 0 )
-			{
-				message = new StringBuffer();
-				message.append( "Could not load class using URL class loader" + Constants.NEW_LINE );
-				message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
-				message.append( "  Class Path Searched: " );
-				for( URL url : urlClassLoader.getURLs() )
-				{
-					message.append( Constants.NEW_LINE + "    " + url.toString() );
-				}
-				LOGGER.error( message.toString() );
-			}
-		}
+		// grab the class object represented as a byte array (from the cache or resource)
+		final byte[] classBytes = getClass( className );
+		
+		// TODO at this point, go back to the class path end-point and attempt to load the class.
+		// Not sure if I can do this...this resource doesn't know about any upstream diffusers.
+		// Diffuser servers don't know about incoming servers, only end points to which it sends work.
+		// NOTE: does this effect how I deal with the cache...can these be cached or not?
 
 		Response response = null;
 		if( classBytes == null || classBytes.length == 0 )
 		{
+			// create the error message for the response
+			final StringBuffer message = new StringBuffer();
+			message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
+			message.append( "  Class Path Searched: " );
+			for( URL url : urlClassLoader.getURLs() )
+			{
+				message.append( Constants.NEW_LINE + "    " + url.toString() );
+			}
+
 			// create an error entry
 			final Entry entry = Atom.createEntry();
 			entry.setId( resultKey );
@@ -166,5 +164,60 @@ public class RestfulClassPathResource {
 							   .build();
 		}
 		return response;
+	}
+	
+	/**
+	 * Grabs the {@link Class} object {@code byte[]} from the cache, or if not found, attempts
+	 * to load it from the resource (class file or JAR file).
+	 * @param className The fully-qualified class name (sometimes called the digital class name)
+	 * @return The {@code byte[]} representing the {@link Class}
+	 */
+	private byte[] getClass( final String className )
+	{
+		// grab the class bytes from the cache
+		byte[] classBytes = classByteArrayCache.get( className );
+		
+		// if the class hasn't been stored in the cache, then load the resource
+		if( classBytes == null || classBytes.length == 0 )
+		{
+			// find the class and convert it to a byte[] for transport across the network
+			classBytes = ClassLoaderUtils.loadClassToByteArray( className );
+			StringBuffer message = new StringBuffer();
+			if( classBytes == null || classBytes.length == 0 )
+			{
+				message.append( "Could not find class on system class path. Attempting URL class loader." + Constants.NEW_LINE );
+				message.append( "  Class Name: " + className + Constants.NEW_LINE );
+				message.append( "  Class Loader: " + this.getClass().getClassLoader().getClass().getName() + Constants.NEW_LINE );
+				message.append( "  Class Path: " + System.getProperty( "java.class.path" ) );
+				LOGGER.info( message.toString() );
+				
+				// attempt to use the url class loader to create the bytes
+				classBytes = ClassLoaderUtils.loadClassToByteArray( className, urlClassLoader );
+				if( classBytes == null || classBytes.length == 0 )
+				{
+					message = new StringBuffer();
+					message.append( "Could not load class using URL class loader" + Constants.NEW_LINE );
+					message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
+					message.append( "  Class Path Searched: " );
+					for( URL url : urlClassLoader.getURLs() )
+					{
+						message.append( Constants.NEW_LINE + "    " + url.toString() );
+					}
+					LOGGER.error( message.toString() );
+				}
+				else
+				{
+					// cache the class bytes
+					classByteArrayCache.put( className, classBytes );
+				}
+			}
+			else
+			{
+				// cache the class bytes
+				classByteArrayCache.put( className, classBytes );
+			}
+		}
+		
+		return classBytes;
 	}
 }
