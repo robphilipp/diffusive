@@ -93,6 +93,8 @@ public class RestfulDiffuserManagerResource {
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserManagerResource.class );
 
 	public static final String DIFFUSER_PATH = "/diffusers";
+	public static final String END_POINTS_PATH = "endpoints";
+	public static final String END_POINT_PATH = "endpoint";
 	
 	// parameters for creating a diffuser
 	public static final String SERIALIZER_NAME = "serializer_name";
@@ -986,7 +988,65 @@ public class RestfulDiffuserManagerResource {
 		}
 		return response;
 	}
-		
+
+	/**
+	 * Returns a {@link List} of end-point {@link URI} for the specified diffuser
+	 * @param uriInfo Information about the request URI and the JAX-RS application.
+	 * @param signature The signature of the {@link RestfulDiffuser} corresponding to a specific method.
+	 * The signatures are created using the {@link DiffuserSignature} class.
+	 * @return a {@link List} of end-point {@link URI} for the specified diffuser
+	 */
+	@GET @Path( "{" + SIGNATURE + "}/" + END_POINTS_PATH )
+	@Produces( MediaType.APPLICATION_ATOM_XML )
+	public Response getEndpoints( @Context final UriInfo uriInfo, @PathParam( SIGNATURE ) final String signature )
+	{
+		// create the URI to the newly created diffuser
+		final URI endPointListUri = uriInfo.getAbsolutePathBuilder().build();
+
+		// grab the date for time stamp
+		final Date date = new Date();
+
+		Response response = null;
+		DiffuserEntry diffuserEntry = null;
+		if( ( diffuserEntry = diffusers.get( signature ) ) != null )
+		{
+			// create the atom feed
+			final Feed feed = Atom.createFeed( endPointListUri, "get-diffuser-enp-points", date );
+			
+			// grab the diffuser's strategy, then grab the strategies end-points
+			final DiffuserStrategy strategy = diffuserEntry.getDiffuser().getStrategy();
+			final List< URI > endPoints = strategy.getEndpoints();
+			
+			// add an entry for each diffuser
+			for( URI uri : endPoints )
+			{
+				// create the entry and it to the feed 
+				final Entry feedEntry = Atom.createEntry( uri, signature, date );
+				feedEntry.setSummaryAsHtml( "<p>End-Points for RESTful Diffuser: " + signature + "</p>" );
+				feed.addEntry( feedEntry );
+			}
+
+			// create the response
+			response = Response.created( endPointListUri )
+							   .status( Status.OK )
+							   .location( endPointListUri )
+							   .entity( feed.toString() )
+							   .type( MediaType.APPLICATION_ATOM_XML )
+							   .build();
+		}
+		else
+		{
+			// create the atom feed
+			final Feed feed = Atom.createFeed( endPointListUri, "error-get-diffuser-end-points", date );
+
+			// create the error response
+			response = Response.created( endPointListUri )
+							   .status( Status.BAD_REQUEST )
+							   .entity( feed.toString() )
+							   .build();
+		}
+		return response;
+	}
 
 	/**
 	 * Creates the results cache ID used as the key into the {@link #resultsCache}.
