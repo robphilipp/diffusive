@@ -336,6 +336,94 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		return result;
 	}
 	
+	/**
+	 * @return The maximum threads in the thread-pool that account for redundant diffusion
+	 */
+	public int getMaxRedundancy()
+	{
+		return maxRedundancy;
+	}
+
+	/**
+	 * Set the maximum threads in the thread-pool that account for redundant diffusion
+	 * @param maxRedundancy The maximum threads in the thread-pool that account for redundant diffusion
+	 */
+	public void setMaxRedundancy( final int maxRedundancy )
+	{
+		this.maxRedundancy = maxRedundancy;
+	}
+
+	/**
+	 * @return The amount of time, in {@link TimeUnit}s, before the diffuser decides that 
+	 * the result isn't coming back.
+	 */
+	public int getPollingTimeout()
+	{
+		return pollingTimeout;
+	}
+
+	/**
+	 * Set the amount of time, in {@link TimeUnit}s, before the diffuser decides that 
+	 * the result isn't coming back.
+	 * @param pollingTimeout The amount of time, in {@link TimeUnit}s, before the diffuser decides that 
+	 * the result isn't coming back.
+	 */
+	public void setPollingTimeout( final int pollingTimeout )
+	{
+		this.pollingTimeout = pollingTimeout;
+	}
+
+	/**
+	 * @return The {@link TimeUnit}s for the polling time-out
+	 */
+	public TimeUnit getPollingTimeUnit()
+	{
+		return pollingTimeUnit;
+	}
+
+	/**
+	 * Sets the {@link TimeUnit}s for the polling time-out
+	 * @param pollingTimeUnit The {@link TimeUnit}s for the polling time-out
+	 */
+	public void setPollingTimeUnit( final TimeUnit pollingTimeUnit )
+	{
+		this.pollingTimeUnit = pollingTimeUnit;
+	}
+
+	/**
+	 * @return The {@link Serializer} used to serialize and deserialize objects
+	 */
+	public Serializer getSerializer()
+	{
+		return serializer;
+	}
+
+	/**
+	 * @return The {@link DiffuserStrategy} responsible for supplying the set of
+	 * end-points for which to diffuse the method.
+	 */
+	public DiffuserStrategy getStrategy()
+	{
+		return strategy;
+	}
+
+	/**
+	 * @return The list of class-path {@link URI} from which to retrieve {@link Class} objects to load
+	 */
+	public List< URI > getClassPaths()
+	{
+		return classPaths;
+	}
+
+	/**
+	 * @return The load threshold used to determine whether to diffuser a method to a remote or local 
+	 * diffuser.
+	 */
+	public double getLoadThreshold()
+	{
+		return loadThreshold;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()

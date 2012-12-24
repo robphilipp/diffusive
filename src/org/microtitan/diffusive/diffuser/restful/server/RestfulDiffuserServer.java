@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.classloaders.factories.RestfulDiffuserClassLoaderFactory;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
@@ -72,19 +73,31 @@ public class RestfulDiffuserServer {
 	// class containing the configuration method
 	public static final String DEFAULT_CONFIGURATION_CLASS = RestfulDiffuserServerConfig.class.getName();
 	
+	// information regarding the diffuser manager content
+	// WARNING: changing the resource requires updating the html so that all relative links
+	// are prepended with the new resource name. And this will break your ability to load
+	// the website locally through your browser. Until I figure out how to properly configure
+	// grizzly for static content, don't change.
+	public static final String DIFFUSER_MANAGER_RESOURCE = "/";
+	public static final String DIFFUSER_MANAGER_CONTENT_PATH = System.getProperty( "user.dir" ) + "/manager/WebContent";
+	
 	// the actual server
 	private final HttpServer server;
 
 	/**
-	 * Creates a starts the RESTful diffuser server listening at the specified server URI and using the 
+	 * Creates and starts the RESTful diffuser server listening at the specified server URI and using the 
 	 * specified JAX-RS application.
 	 * @param serverUri The URI for this RESTful diffuser (i.e. the URI at which others would call this diffuser)
 	 * @param application The JAX-RS application that contains information about the resources that contain the JAX-RS bindings
 	 */
 	public RestfulDiffuserServer( final URI serverUri, 
-								  final RestfulDiffuserApplication application )
+								  final RestfulDiffuserApplication application,
+								  final String diffuserManagerResource,
+								  final String diffuserManagerContentPath )
 	{
 		this.server = createHttpServer( serverUri, application );
+		
+		setStaticContentLocation( server, diffuserManagerResource, diffuserManagerContentPath );
 	}
 	
 	/*
@@ -122,6 +135,29 @@ public class RestfulDiffuserServer {
 			LOGGER.debug( message.toString() );
 		}
 		return server;
+	}
+	
+	/**
+	 * Sets the location of the "static" content used to manage the diffusers. The content should include
+	 * the html, css, and javascript that is served up to allow the user to add, delete, query the 
+	 * diffusers.
+	 * @param server The HTTP server that serves up this static content (and the REST content)
+	 * @param diffuserManagerResource The resource of the diffuser manager. For example, the
+	 * {@link URI} of the diffuser manager resource will be {@code http://ip.address:port/[diffuserManagerResource]}
+	 * where the {@code [diffuserManagerResource]} means the content of that variable
+	 * @param diffuserManagerContentPath The path to the directory containing the html, css, and
+	 * javascript that is served up as a web page to manage the server.
+	 */
+	private static void setStaticContentLocation( final HttpServer server,
+												  final String diffuserManagerResource, 
+												  final String diffuserManagerContentPath )
+	{		
+		// create the static handler that points to the "diffuser manager" content
+		final StaticHttpHandler handler = new StaticHttpHandler( diffuserManagerContentPath );
+		
+		// add the static content path to the http server under the specified resource
+		// i.e.  http://ip.address:port/[diffuserManagerResource]
+		server.getServerConfiguration().addHttpHandler( handler, diffuserManagerResource );
 	}
 	
 	/**
@@ -169,9 +205,6 @@ public class RestfulDiffuserServer {
 		final OptionSpec< String > logLevelSpec = 
 				parser.accepts( "log-level" ).withRequiredArg().ofType( String.class ).defaultsTo( Level.WARN.toString() ).
 				describedAs( Level.TRACE + "|" + Level.DEBUG + "|" + Level.INFO + "|" + Level.WARN + "|" + Level.ERROR );
-//		final OptionSpec< String > serverModeSpec = 
-//				parser.accepts( "server-mode" ).withRequiredArg().ofType( String.class ).defaultsTo( ServerMode.REMOTE.getName() ).
-//				describedAs( ServerMode.REMOTE.getName() + "|" + ServerMode.CLASS.getName() );
 		final OptionSpec< String > serverUriSpec = 
 				parser.accepts( "server-uri" ).withRequiredArg().ofType( String.class ).defaultsTo( DEFAULT_SERVER_URI );
 		final OptionSpec< String > configDirSpec =
@@ -187,6 +220,10 @@ public class RestfulDiffuserServer {
 				parser.accepts( "max-threads" ).withRequiredArg().ofType( Integer.class ).defaultsTo( 100 );
 		final OptionSpec< Integer > maxResultsCachedSpec = 
 				parser.accepts( "max-results-cached" ).withRequiredArg().ofType( Integer.class ).defaultsTo( 100 );
+		final OptionSpec< String > diffuserManagerContentPathSpec =
+				parser.accepts( "manager-content-path" ).withRequiredArg().ofType( String.class ).defaultsTo( DIFFUSER_MANAGER_CONTENT_PATH );
+		final OptionSpec< String > diffuserManagerResourceSpec = 
+				parser.accepts( "manager-resource" ).withRequiredArg().ofType( String.class ).defaultsTo( DIFFUSER_MANAGER_RESOURCE );
 		parser.accepts( "help" );
 		
 		// parse the command-line arguments
@@ -218,7 +255,6 @@ public class RestfulDiffuserServer {
 		
 		// set up the options based on the values from the command-line
 		final URI serverUri = URI.create( serverUriSpec.value( options ) );
-//		final String configDirectory = getConfigDir( serverModeSpec, options );
 		final String configFileName = configDirSpec.value( options ) + configFileSpec.value( options ); 
 		final String configClassName = configClassSpec.value( options );
 		List< String > classPaths = null;
@@ -228,10 +264,11 @@ public class RestfulDiffuserServer {
 		}
 		final int maxThreads = maxThreadsSpec.value( options );
 		final int maxResultsCached = maxResultsCachedSpec.value( options );
+		final String diffuserManagerContent = diffuserManagerContentPathSpec.value( options );
+		final String diffuserManagerResource = diffuserManagerResourceSpec.value( options );
 		
 		// report the options used
 		final StringBuffer buffer = new StringBuffer( Constants.NEW_LINE + "Configuration Items" + Constants.NEW_LINE );
-//		buffer.append( "  Server Mode: " + serverModeSpec.value( options ) + Constants.NEW_LINE );
 		buffer.append( "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
 		buffer.append( "  Config File: " + configFileName + Constants.NEW_LINE );
 		buffer.append( "  Config Class: " + configClassName + Constants.NEW_LINE );
@@ -244,6 +281,8 @@ public class RestfulDiffuserServer {
 		}
 		buffer.append( "  Max Threads: " + maxThreads + Constants.NEW_LINE );
 		buffer.append( "  Max Results Cached: " + maxResultsCached + Constants.NEW_LINE );
+		buffer.append( "  Diffuser Manager Resource: " + diffuserManagerResource + Constants.NEW_LINE );
+		buffer.append( "  Diffuser Manager Content Path: " + diffuserManagerContent + Constants.NEW_LINE );
 		LOGGER.info( buffer.toString() );
 		System.out.println( buffer.toString() );
 
@@ -268,11 +307,11 @@ public class RestfulDiffuserServer {
 		final RestfulClassPathResource classPathResource = new RestfulClassPathResource( jarUrl );
 		final RestfulDiffuserApplication application = new RestfulDiffuserApplication();
 		application.addSingletonResource( resource );
-//		application.addPerRequestResource( RestfulClassPathResource.class );
 		application.addSingletonResource( classPathResource );
 
-		// create the web server
-		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application );
+		// create the web server that serves up the web application and the static content used to manage
+		// the diffuser server and the diffusers
+		final RestfulDiffuserServer server = new RestfulDiffuserServer( serverUri, application, diffuserManagerResource, diffuserManagerContent );
 		
 		System.out.println( String.format( "Jersy app started with WADL available at %s/application.wadl", serverUri ) );
 		System.out.println( String.format( "Try out %s.", serverUri ) );

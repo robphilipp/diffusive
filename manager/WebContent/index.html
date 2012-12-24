@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <link rel="stylesheet" type="text/css" href="themes/jquery-ui-1.9.2.custom.css">
+    <link rel="stylesheet" type="text/css" href="diffusive.css"/>
+
+    <script src="scripts/jquery-1.8.3.js"></script>
+    <script src="scripts/ui/jquery-ui-1.9.2.custom.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $( "#tabs" ).tabs();
+        });
+        $( document ).ready( function()
+        {
+            $( "#list-diffusers" ).load( "http://localhost:8182/diffusers" );
+        } );
+        $(function() {
+            $( ".sortable" ).sortable();
+            $( ".sortable" ).disableSelection();
+        });
+        $(function() {
+           $( "#add-arg-type-button" ).click( function() {
+               $( "#method-argument-list" ).append( '<li class="ui-state-default">' +
+                                                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
+                                                        '<input type="text" class="item-list-input" value="">' +
+                                                        '<input type="button" class="item-list-remove-button" value="X">' +
+                                                    '</li>' );
+           })
+        });
+        $(function() {
+            $(".item-list-remove-button").live( "click", function() {
+                $(this).parent().remove();
+            });
+        });
+    </script>
+
+    <title>Diffusive Management</title>
+</head>
+
+<body>
+<header>
+    <img src="images/web_banner.png">
+</header>
+
+<article>
+<div id="tabs">
+    <ul>
+        <li><a href="#list-diffusers">Diffuser List</a></li>
+        <li><a href="#create-diffuser">Create Diffuser</a></li>
+        <li><a href="#tabs-3">Manage Diffusers</a></li>
+    </ul>
+
+    <div id="list-diffusers">
+        <p>List of diffusers?</p>
+    </div>
+    <div id="create-diffuser">
+        <form id="create-diffuser-form">
+            <div class="form-element">
+                <p id="containing-class-name">Containing Class Name: <input type="text" id="containing-class-input" size="55"></p>
+                <p class="note">This should be the fully-qualified name of the Java class containing the method.</p>
+                <p id="method-name">Method Name: <input type="text" id="method-name-input"></p>
+                <p id="method-arguments"><input type="button" id="add-arg-type-button" value="+"> Method Arguments</p>
+                <ul class="sortable" id="method-argument-list">
+                </ul>
+                <p id="return-types"><input type="button" id="add-return-type-button" value="+"> Return Type</p>
+            </div>
+            <div class="form-element">
+                <p id="class-paths"><input type="button" id="add-class-path-button" value="+"> Class-Path</p>
+            </div>
+            <div class="form-element">
+                <p id="end-points"><input type="button" id="add-end-points-button" value="+"> Diffuser End-Points</p>
+            </div>
+            <div class="form-element">
+                <p id="serializer-name">Serializer Name:</p>
+            </div>
+        </form>
+    </div>
+    <div id="tabs-3">
+        <p>And what to put here?</p>
+    </div>
+</div>
+</article>
+
+</body>
+</html>
