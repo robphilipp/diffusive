@@ -218,7 +218,7 @@ ul.sortable li input.item-list-input
     width: 85%;
 }
 
-ul.sortable li input.item-list-remove-button
+ul.sortable li input.item-list-remove-button, #remove-return-type-button
 {
     position: relative;
     bottom: 5px;

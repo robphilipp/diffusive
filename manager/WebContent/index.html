@@ -26,12 +26,41 @@
                                                         '<input type="text" class="item-list-input" value="">' +
                                                         '<input type="button" class="item-list-remove-button" value="X">' +
                                                     '</li>' );
-           })
+           });
+           $( "#add-class-path-button" ).click( function() {
+               $( "#class-path-list" ).append( '<li class="ui-state-default">' +
+                                                   '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
+                                                   '<input type="text" class="item-list-input" value="">' +
+                                                   '<input type="button" class="item-list-remove-button" value="X">' +
+                                               '</li>' );
+            });
+            $( "#add-end-points-button" ).click( function() {
+                $( "#end-points-list" ).append( '<li class="ui-state-default">' +
+                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
+                        '<input type="text" class="item-list-input" value="">' +
+                        '<input type="button" class="item-list-remove-button" value="X">' +
+                        '</li>' );
+            });
         });
         $(function() {
             $(".item-list-remove-button").live( "click", function() {
                 $(this).parent().remove();
             });
+        });
+        $(function() {
+           $( "#add-return-type-button" ).click( function() {
+              $( "#return-type-list" ).append( '<li class="ui-state-default">' +
+                                                   '<input type="text" class="item-list-input" value="">' +
+                                                   '<input type="button" id="remove-return-type-button" value="X">' +
+                                               '</li>' );
+              $( "#add-return-type-button" ).hide();
+           });
+        });
+        $( function() {
+           $( "#remove-return-type-button" ).live( "click", function() {
+               $(this).parent().remove();
+               $( "#add-return-type-button" ).show();
+           });
         });
     </script>
 
@@ -63,13 +92,16 @@
                 <p id="method-arguments"><input type="button" id="add-arg-type-button" value="+"> Method Arguments</p>
                 <ul class="sortable" id="method-argument-list">
                 </ul>
-                <p id="return-types"><input type="button" id="add-return-type-button" value="+"> Return Type</p>
+                <p id="return-type"><input type="button" id="add-return-type-button" value="+"> Return Type</p>
+                <ul class="sortable" id="return-type-list"></ul>
             </div>
             <div class="form-element">
                 <p id="class-paths"><input type="button" id="add-class-path-button" value="+"> Class-Path</p>
+                <ul class="sortable" id="class-path-list"></ul>
             </div>
             <div class="form-element">
                 <p id="end-points"><input type="button" id="add-end-points-button" value="+"> Diffuser End-Points</p>
+                <ul class="sortable" id="end-points-list"></ul>
             </div>
             <div class="form-element">
                 <p id="serializer-name">Serializer Name:</p>
