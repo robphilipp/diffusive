@@ -93,7 +93,8 @@ public class RestfulDiffuserManagerResource {
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserManagerResource.class );
 
 	public static final String DIFFUSER_PATH = "/diffusers";
-	public static final String END_POINTS_PATH = "endpoints";
+	public static final String END_POINTS_PATH = "/endpoints";
+	public static final String SERIALIZERS_PATH = "/serializers";
 	public static final String END_POINT_PATH = "endpoint";
 	
 	// parameters for creating a diffuser
@@ -996,7 +997,7 @@ public class RestfulDiffuserManagerResource {
 	 * The signatures are created using the {@link DiffuserSignature} class.
 	 * @return a {@link List} of end-point {@link URI} for the specified diffuser
 	 */
-	@GET @Path( "{" + SIGNATURE + "}/" + END_POINTS_PATH )
+	@GET @Path( "{" + SIGNATURE + "}" + END_POINTS_PATH )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
 	public Response getEndpoints( @Context final UriInfo uriInfo, @PathParam( SIGNATURE ) final String signature )
 	{
@@ -1011,7 +1012,7 @@ public class RestfulDiffuserManagerResource {
 		if( ( diffuserEntry = diffusers.get( signature ) ) != null )
 		{
 			// create the atom feed
-			final Feed feed = Atom.createFeed( endPointListUri, "get-diffuser-enp-points", date );
+			final Feed feed = Atom.createFeed( endPointListUri, "get-diffuser-end-points", date );
 			
 			// grab the diffuser's strategy, then grab the strategies end-points
 			final DiffuserStrategy strategy = diffuserEntry.getDiffuser().getStrategy();
@@ -1045,6 +1046,44 @@ public class RestfulDiffuserManagerResource {
 							   .entity( feed.toString() )
 							   .build();
 		}
+		return response;
+	}
+
+	/**
+	 * Returns the set of names that the factory uses to create {@link Serializer}s 
+	 * @param uriInfo Information about the request URI and the JAX-RS application.
+	 * @return the set of names that the factory uses to create {@link Serializer}s
+	 */
+	@GET @Path( SERIALIZERS_PATH )
+	@Produces( MediaType.APPLICATION_ATOM_XML )
+	public Response getSerializers( @Context final UriInfo uriInfo )
+	{
+		// grab the base URI builder for absolute paths and build the base URI
+		final UriBuilder baseUriBuilder = uriInfo.getAbsolutePathBuilder();
+		final URI baseUri = baseUriBuilder.build();
+
+		// grab the date for time stamp
+		final Date date = new Date();
+		
+		// create the atom feed
+		final Feed feed = Atom.createFeed( baseUri, "get-serializer-names", date, baseUri );
+
+		// add an entry for each diffuser
+		for( String serializer : SerializerFactory.getSerializerNames() )
+		{
+			// create the entry and it to the feed 
+			final Entry feedEntry = Atom.createEntry( baseUri, serializer, date );
+			feedEntry.setSummaryAsHtml( "<p>Serializer Name: " + serializer + "</p>" );
+			feed.addEntry( feedEntry );
+		}
+		
+		final Response response = Response.created( baseUri )
+				  .status( Status.OK )
+				  .location( baseUri )
+				  .entity( feed.toString() )
+				  .type( MediaType.APPLICATION_ATOM_XML )
+				  .build();
+		
 		return response;
 	}
 

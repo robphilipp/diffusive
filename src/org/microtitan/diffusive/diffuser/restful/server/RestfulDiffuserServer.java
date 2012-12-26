@@ -78,8 +78,12 @@ public class RestfulDiffuserServer {
 	// are prepended with the new resource name. And this will break your ability to load
 	// the website locally through your browser. Until I figure out how to properly configure
 	// grizzly for static content, don't change.
-	public static final String DIFFUSER_MANAGER_RESOURCE = "/";
+	public static final String DIFFUSER_MANAGER_RESOURCE = "/manager";
 	public static final String DIFFUSER_MANAGER_CONTENT_PATH = System.getProperty( "user.dir" ) + "/manager/WebContent";
+	public static final String DIFFUSER_MANAGER_IMAGES = "/images";
+	public static final String DIFFUSER_MANAGER_SCRIPTS = "/scripts";
+	public static final String DIFFUSER_MANAGER_THEMES = "/themes";
+	public static final String DIFFUSER_MANAGER_CSS = "/css";
 	
 	// the actual server
 	private final HttpServer server;
@@ -153,11 +157,19 @@ public class RestfulDiffuserServer {
 												  final String diffuserManagerContentPath )
 	{		
 		// create the static handler that points to the "diffuser manager" content
-		final StaticHttpHandler handler = new StaticHttpHandler( diffuserManagerContentPath );
+		final StaticHttpHandler handler = new StaticHttpHandler( diffuserManagerContentPath, 
+																 diffuserManagerContentPath + DIFFUSER_MANAGER_IMAGES,
+																 diffuserManagerContentPath + DIFFUSER_MANAGER_SCRIPTS,
+																 diffuserManagerContentPath + DIFFUSER_MANAGER_THEMES,
+																 diffuserManagerContentPath + DIFFUSER_MANAGER_CSS );
 		
 		// add the static content path to the http server under the specified resource
 		// i.e.  http://ip.address:port/[diffuserManagerResource]
-		server.getServerConfiguration().addHttpHandler( handler, diffuserManagerResource );
+		server.getServerConfiguration().addHttpHandler( handler, diffuserManagerResource, 
+																 DIFFUSER_MANAGER_IMAGES,
+																 DIFFUSER_MANAGER_SCRIPTS,
+																 DIFFUSER_MANAGER_THEMES,
+																 DIFFUSER_MANAGER_CSS );
 	}
 	
 	/**

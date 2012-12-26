@@ -17,6 +17,7 @@ package org.microtitan.diffusive.diffuser.serializer;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
@@ -45,7 +46,7 @@ public class SerializerFactory {
 
 	private Map< String, Class< ? extends Serializer > > serializerClasses;
 	
-	/*
+	/**
 	 * Private constructor prevents instantiation from other classes
 	 */
 	private SerializerFactory() 
@@ -53,7 +54,7 @@ public class SerializerFactory {
 		serializerClasses = createDefaultSerializerClassMap();
 	}
 	
-	/*
+	/**
 	 * @return Creates and returns the default mapping between the serializer type and its class.
 	 */
 	private static Map< String, Class< ? extends Serializer > > createDefaultSerializerClassMap()
@@ -67,11 +68,22 @@ public class SerializerFactory {
 		return serializerClasses;
 	}
 	
+	/**
+	 * Returns the {@link Class} of the {@link Serializer} associated with the serializer name
+	 * @param name The name of the serializer
+	 * @return the {@link Class} of the {@link Serializer} associated with the serializer name
+	 * @see SerializerType
+	 */
 	public synchronized static final Class< ? extends Serializer > getSerializerClass( final String name )
 	{
 		return getInstance().serializerClasses.get( name );
 	}
 	
+	/**
+	 * Returns the serializer name associated with the {@link Serializer} {@link Class}
+	 * @param clazz The {@link Class} of the {@link Serializer} for which to return the name
+	 * @return the serializer name associated with the {@link Serializer} {@link Class}
+	 */
 	public synchronized static final String getSerializerName( final Class< ? extends Serializer > clazz )
 	{
 		String name = null;
@@ -84,6 +96,14 @@ public class SerializerFactory {
 			}
 		}
 		return name;
+	}
+	
+	/**
+	 * @return The names of the {@link Serializer}s as represented by this factory
+	 */
+	public synchronized static final Set< String > getSerializerNames()
+	{
+		return getInstance().serializerClasses.keySet();
 	}
 	
 	/**
