@@ -13,6 +13,10 @@
         });
         $( document ).ready( function()
         {
+//            var serverUri = "";
+            var serverUri = "http://192.168.1.4:8182";
+            var diffusersUri = serverUri + "/diffusers";
+            var serializersUri = diffusersUri + "/serializers";
             // request the list of diffusers (atom feed) from the diffuser server
             // <feed xmlns="http://www.w3.org/2005/Atom">
             //     <id>get-diffuser-list</id>
@@ -29,16 +33,26 @@
             //          <summary type="html">&lt;html&gt;&lt;p&gt;RESTful Diffuser for: org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result&lt;/p&gt;&lt;/html&gt;</summary>
             //     </entry>
             //  </feed>
-            // Use this line when loading page from server (i.e. not developing):
-            //  $.get( "/diffusers", function( xml ) {
-            $.get( "http://192.168.1.5:8182/diffusers", function( xml ) {
+            $.get( diffusersUri, function( xml ) {
                 $(xml).find( "entry").each( function( i ) {
                     $( "#diffuser-list" ).append( '<dt>' + $( this ).find( "title" ).text() + '</dt>' );
                     $( "#diffuser-list" ).append( '<dd><p>' +
-                                                      '<a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
-                                                      '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
-                                                  '</dd>' );
+                            '<a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
+                            '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
+                            '</dd>' );
                 })
+            }, "xml" );
+
+            $.get( serializersUri, function( xml ) {
+                $(xml).find( "entry" ).each( function( i ) {
+                    var option = $( this ).find( "title" ).text();
+                    if( option === "persistence_xml" ) {
+                        $( "#serializer-name-list" ).append( '<option selected>' + option + '</option>' );
+                    } else {
+                        $( "#serializer-name-list" ).append( '<option>' + option + '</option>' );
+                    }
+                });
+
             }, "xml" );
 
             // make the item-lists (arguments, end-points, class-paths) sortable through drag and drop
@@ -48,19 +62,19 @@
             // add argument input field and remove-item button to the method's argument list
             $( "#add-arg-type-button" ).click( function() {
                 $( "#method-argument-list" ).append( '<li class="ui-state-default">' +
-                                                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
-                                                        '<input type="text" class="item-list-input" value="">' +
-                                                        '<input type="button" class="item-list-remove-button" value="X">' +
-                                                     '</li>' );
+                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
+                        '<input type="text" class="item-list-input" value="">' +
+                        '<input type="button" class="item-list-remove-button" value="X">' +
+                        '</li>' );
             });
 
             // add class-path input field and remove-item button to the class-path list
             $( "#add-class-path-button" ).click( function() {
                 $( "#class-path-list" ).append( '<li class="ui-state-default">' +
-                                                   '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
-                                                   '<input type="text" class="item-list-input" value="">' +
-                                                   '<input type="button" class="item-list-remove-button" value="X">' +
-                                                '</li>' );
+                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
+                        '<input type="text" class="item-list-input" value="">' +
+                        '<input type="button" class="item-list-remove-button" value="X">' +
+                        '</li>' );
             });
 
             // add end-point input field and remove-item button to the end-point list
@@ -80,9 +94,9 @@
             // allows the user to add a return type; once clicked, hides itself
             $( "#add-return-type-button" ).click( function() {
                 $( "#return-type-list" ).append( '<li class="ui-state-default">' +
-                                                       '<input type="text" class="item-list-input" value="">' +
-                                                       '<input type="button" id="remove-return-type-button" value="X">' +
-                                                   '</li>' );
+                        '<input type="text" class="item-list-input" value="">' +
+                        '<input type="button" id="remove-return-type-button" value="X">' +
+                        '</li>' );
                 $( "#add-return-type-button" ).hide();
             });
 
@@ -103,52 +117,52 @@
 </header>
 
 <article>
-<div id="tabs">
-    <ul>
-        <li><a href="#list-diffusers">Diffuser List</a></li>
-        <li><a href="#create-diffuser">Create Diffuser</a></li>
-        <li><a href="#tabs-3">Manage Diffusers</a></li>
-    </ul>
+    <div id="tabs">
+        <ul>
+            <li><a href="#list-diffusers">Diffuser List</a></li>
+            <li><a href="#create-diffuser">Create Diffuser</a></li>
+            <li><a href="#tabs-3">Manage Diffusers</a></li>
+        </ul>
 
-    <div id="list-diffusers">
-        <dl id="diffuser-list"></dl>
+        <div id="list-diffusers">
+            <dl id="diffuser-list"></dl>
+        </div>
+        <div id="create-diffuser">
+            <form id="create-diffuser-form">
+                <div class="form-element">
+                    <p id="containing-class-name">Containing Class Name: <input type="text" id="containing-class-input" size="55"></p>
+                    <p class="note">This should be the fully-qualified name of the Java class containing the method.</p>
+                    <p id="method-name">Method Name: <input type="text" id="method-name-input"></p>
+                    <p id="method-arguments"><input type="button" id="add-arg-type-button" value="+"> Method Arguments</p>
+                    <ul class="sortable" id="method-argument-list">
+                    </ul>
+                    <p id="return-type"><input type="button" id="add-return-type-button" value="+"> Return Type</p>
+                    <ul class="sortable" id="return-type-list"></ul>
+                </div>
+                <div class="form-element">
+                    <p id="class-paths"><input type="button" id="add-class-path-button" value="+"> Class-Path</p>
+                    <ul class="sortable" id="class-path-list"></ul>
+                </div>
+                <div class="form-element">
+                    <p id="end-points"><input type="button" id="add-end-points-button" value="+"> Diffuser End-Points</p>
+                    <ul class="sortable" id="end-points-list"></ul>
+                </div>
+                <div class="form-element">
+                    <p id="serializer-name">Serializer Name:</p>
+                    <select id="serializer-name-list">
+                        <!--<option>persistence_xml</option>-->
+                        <!--<option>persistence_json</option>-->
+                        <!--<option>persistence_key_value</option>-->
+                        <!--<option>object_presistence</option>-->
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div id="tabs-3">
+            <p>And what to put here?</p>
+        </div>
     </div>
-    <div id="create-diffuser">
-        <form id="create-diffuser-form">
-            <div class="form-element">
-                <p id="containing-class-name">Containing Class Name: <input type="text" id="containing-class-input" size="55"></p>
-                <p class="note">This should be the fully-qualified name of the Java class containing the method.</p>
-                <p id="method-name">Method Name: <input type="text" id="method-name-input"></p>
-                <p id="method-arguments"><input type="button" id="add-arg-type-button" value="+"> Method Arguments</p>
-                <ul class="sortable" id="method-argument-list">
-                </ul>
-                <p id="return-type"><input type="button" id="add-return-type-button" value="+"> Return Type</p>
-                <ul class="sortable" id="return-type-list"></ul>
-            </div>
-            <div class="form-element">
-                <p id="class-paths"><input type="button" id="add-class-path-button" value="+"> Class-Path</p>
-                <ul class="sortable" id="class-path-list"></ul>
-            </div>
-            <div class="form-element">
-                <p id="end-points"><input type="button" id="add-end-points-button" value="+"> Diffuser End-Points</p>
-                <ul class="sortable" id="end-points-list"></ul>
-            </div>
-            <div class="form-element">
-                <p id="serializer-name">Serializer Name:</p>
-                <select id="serializer-name-list">
-                    <option>persistence_xml</option>
-                    <option>persistence_json</option>
-                    <option>persistence_key_value</option>
-                    <option>object_presistence</option>
-                </select>
-            </div>
-        </form>
-    </div>
-    <div id="tabs-3">
-        <p>And what to put here?</p>
-    </div>
-</div>
 </article>
 
 </body>
-</html>
+</html>                   
