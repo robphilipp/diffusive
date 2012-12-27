@@ -3,7 +3,7 @@
 <head>
     <meta charset=utf-8>
     <link rel="stylesheet" type="text/css" href="themes/jquery-ui-1.9.2.custom.css">
-    <link rel="stylesheet" type="text/css" href="diffusive.css"/>
+    <link rel="stylesheet" type="text/css" href="css/diffusive.css">
 
     <script src="scripts/jquery-1.8.3.js"></script>
     <script src="scripts/ui/jquery-ui-1.9.2.custom.js"></script>
@@ -13,27 +13,57 @@
         });
         $( document ).ready( function()
         {
-            $( "#list-diffusers" ).load( "http://localhost:8182/diffusers" );
-        } );
-        $(function() {
+            // request the list of diffusers (atom feed) from the diffuser server
+            // <feed xmlns="http://www.w3.org/2005/Atom">
+            //     <id>get-diffuser-list</id>
+            //     <title type="text">get-diffuser-list</title>
+            //     <updated>2012-12-27T21:04:12.694Z</updated>
+            //     <link href="http://192.168.1.5:8182/diffusers" rel="self"></link>
+            //     <generator uri="http://192.168.1.5:8182/diffusers" version="0.1">org.microtitan.diffusive.diffuser.restful.RestfulDiffuser</generator>
+            //     <entry>
+            //          <id>org.microtitan.tests.threaded.task:call()-org.microtitan.tests.threaded.Result</id><
+            //          title type="text">org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result</title>
+            //          <updated>2012-12-27T21:04:12.694Z</updated>
+            //          <published>2012-12-27T21:04:12.694Z</published>
+            //          <link href="http://192.168.1.5:8182/diffusers/org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result" rel="self"></link>
+            //          <summary type="html">&lt;html&gt;&lt;p&gt;RESTful Diffuser for: org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result&lt;/p&gt;&lt;/html&gt;</summary>
+            //     </entry>
+            //  </feed>
+            // Use this line when loading page from server (i.e. not developing):
+            //  $.get( "/diffusers", function( xml ) {
+            $.get( "http://192.168.1.5:8182/diffusers", function( xml ) {
+                $(xml).find( "entry").each( function( i ) {
+                    $( "#diffuser-list" ).append( '<dt>' + $( this ).find( "title" ).text() + '</dt>' );
+                    $( "#diffuser-list" ).append( '<dd><p>' +
+                                                      '<a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
+                                                      '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
+                                                  '</dd>' );
+                })
+            }, "xml" );
+
+            // make the item-lists (arguments, end-points, class-paths) sortable through drag and drop
             $( ".sortable" ).sortable();
             $( ".sortable" ).disableSelection();
-        });
-        $(function() {
-           $( "#add-arg-type-button" ).click( function() {
-               $( "#method-argument-list" ).append( '<li class="ui-state-default">' +
+
+            // add argument input field and remove-item button to the method's argument list
+            $( "#add-arg-type-button" ).click( function() {
+                $( "#method-argument-list" ).append( '<li class="ui-state-default">' +
                                                         '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
                                                         '<input type="text" class="item-list-input" value="">' +
                                                         '<input type="button" class="item-list-remove-button" value="X">' +
-                                                    '</li>' );
-           });
-           $( "#add-class-path-button" ).click( function() {
-               $( "#class-path-list" ).append( '<li class="ui-state-default">' +
+                                                     '</li>' );
+            });
+
+            // add class-path input field and remove-item button to the class-path list
+            $( "#add-class-path-button" ).click( function() {
+                $( "#class-path-list" ).append( '<li class="ui-state-default">' +
                                                    '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
                                                    '<input type="text" class="item-list-input" value="">' +
                                                    '<input type="button" class="item-list-remove-button" value="X">' +
-                                               '</li>' );
+                                                '</li>' );
             });
+
+            // add end-point input field and remove-item button to the end-point list
             $( "#add-end-points-button" ).click( function() {
                 $( "#end-points-list" ).append( '<li class="ui-state-default">' +
                         '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
@@ -41,26 +71,26 @@
                         '<input type="button" class="item-list-remove-button" value="X">' +
                         '</li>' );
             });
-        });
-        $(function() {
+
+            // remove the item from the list when the associated button is pressed
             $(".item-list-remove-button").live( "click", function() {
                 $(this).parent().remove();
             });
-        });
-        $(function() {
-           $( "#add-return-type-button" ).click( function() {
-              $( "#return-type-list" ).append( '<li class="ui-state-default">' +
-                                                   '<input type="text" class="item-list-input" value="">' +
-                                                   '<input type="button" id="remove-return-type-button" value="X">' +
-                                               '</li>' );
-              $( "#add-return-type-button" ).hide();
-           });
-        });
-        $( function() {
-           $( "#remove-return-type-button" ).live( "click", function() {
-               $(this).parent().remove();
-               $( "#add-return-type-button" ).show();
-           });
+
+            // allows the user to add a return type; once clicked, hides itself
+            $( "#add-return-type-button" ).click( function() {
+                $( "#return-type-list" ).append( '<li class="ui-state-default">' +
+                                                       '<input type="text" class="item-list-input" value="">' +
+                                                       '<input type="button" id="remove-return-type-button" value="X">' +
+                                                   '</li>' );
+                $( "#add-return-type-button" ).hide();
+            });
+
+            // allows the user to remove the return type; once clicked shows the add-return-type button
+            $( "#remove-return-type-button" ).live( "click", function() {
+                $(this).parent().remove();
+                $( "#add-return-type-button" ).show();
+            });
         });
     </script>
 
@@ -81,7 +111,7 @@
     </ul>
 
     <div id="list-diffusers">
-        <p>List of diffusers?</p>
+        <dl id="diffuser-list"></dl>
     </div>
     <div id="create-diffuser">
         <form id="create-diffuser-form">
@@ -105,6 +135,12 @@
             </div>
             <div class="form-element">
                 <p id="serializer-name">Serializer Name:</p>
+                <select id="serializer-name-list">
+                    <option>persistence_xml</option>
+                    <option>persistence_json</option>
+                    <option>persistence_key_value</option>
+                    <option>object_presistence</option>
+                </select>
             </div>
         </form>
     </div>

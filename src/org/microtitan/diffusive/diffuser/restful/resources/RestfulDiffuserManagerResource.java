@@ -310,48 +310,6 @@ public class RestfulDiffuserManagerResource {
 	}
 	
 	/**
-	 * Creates the diffuser if it doesn't already exist and crafts the response. Decouples the way the information is sent from
-	 * the creation of the diffuser and the response
-	 * @param serializer The {@link Serializer} used to serialize/deserialize objects
-	 * @param clientEndpoints The URI of the end-points to which result requests can be sent
-	 * @param classPaths The URI of the end-points which can act as a class path. In other words,
-	 * these end-points can return a {@link Class} object.
-	 * @param returnTypeClassName The class name of the returned type 
-	 * @param containingClassName The name of the {@link Class} containing the method to execute
-	 * @param methodName The name of the method to execute
-	 * @param argumentTypes The parameter types (fully qualified class names) that form part of the method's signature
-	 * @return The diffuser ID (signature) of the diffusive method associated with the newly created diffuser.
-	 */
-	private String create( final Serializer serializer,
-						   final List< URI > clientEndpoints,
-						   final List< URI > classPaths,
-						   final String returnTypeClassName,
-						   final String containingClassName,
-						   final String methodName,
-						   final List< String > argumentTypes )
-	{
-		// create the diffuser method signature to be used as the key for the diffuser
-		final String signature = DiffuserSignature.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );
-
-		// only create the diffuser if it hasn't alread been created
-		if( !diffusers.containsKey( signature ) )
-		{
-			// create the diffuser
-			final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
-			
-			// add the diffuser to the map of diffusers
-			final ClassLoader classLoader = classLoaderFactory.create( RestfulDiffuserManagerResource.class.getClassLoader(), signature, classPaths );
-			diffusers.put( signature, new DiffuserEntry( diffuser, classLoader ) );
-			
-			// add the diffuser to the keyed diffuser repository, along with its signature.
-			// this is needed for nested diffusion where Javassist method interceptor uses
-			// the repository to point the method calls to the diffuser's runObject(...) method
-			KeyedDiffuserRepository.getInstance().putDiffuser( signature, diffuser );
-		}
-		return signature;
-	}
-
-	/**
 	 * Creates a {@link RestfulDiffuser} using the information specified in the {@link CreateDiffuserRequest}
 	 * object. The basic information needed by the diffusers is:
 	 * <ul>
@@ -371,7 +329,7 @@ public class RestfulDiffuserManagerResource {
 	 * URI that resolved to this create method.
 	 */
 	@PUT
-	@Consumes( MediaType.APPLICATION_XML )
+	@Consumes( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON } )
 	@Produces( MediaType.APPLICATION_ATOM_XML )
 	public Response create( @Context final UriInfo uriInfo, final CreateDiffuserRequest request )
 	{
@@ -404,6 +362,48 @@ public class RestfulDiffuserManagerResource {
 		return response;
 	}
 	
+	/**
+	 * Creates the diffuser if it doesn't already exist and crafts the response. Decouples the way the information is sent from
+	 * the creation of the diffuser and the response
+	 * @param serializer The {@link Serializer} used to serialize/deserialize objects
+	 * @param clientEndpoints The URI of the end-points to which result requests can be sent
+	 * @param classPaths The URI of the end-points which can act as a class path. In other words,
+	 * these end-points can return a {@link Class} object.
+	 * @param returnTypeClassName The class name of the returned type 
+	 * @param containingClassName The name of the {@link Class} containing the method to execute
+	 * @param methodName The name of the method to execute
+	 * @param argumentTypes The parameter types (fully qualified class names) that form part of the method's signature
+	 * @return The diffuser ID (signature) of the diffusive method associated with the newly created diffuser.
+	 */
+	private String create( final Serializer serializer,
+						   final List< URI > clientEndpoints,
+						   final List< URI > classPaths,
+						   final String returnTypeClassName,
+						   final String containingClassName,
+						   final String methodName,
+						   final List< String > argumentTypes )
+	{
+		// create the diffuser method signature to be used as the key for the diffuser
+		final String signature = DiffuserSignature.createId( returnTypeClassName, containingClassName, methodName, argumentTypes );
+	
+		// only create the diffuser if it hasn't alread been created
+		if( !diffusers.containsKey( signature ) )
+		{
+			// create the diffuser
+			final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
+			
+			// add the diffuser to the map of diffusers
+			final ClassLoader classLoader = classLoaderFactory.create( RestfulDiffuserManagerResource.class.getClassLoader(), signature, classPaths );
+			diffusers.put( signature, new DiffuserEntry( diffuser, classLoader ) );
+			
+			// add the diffuser to the keyed diffuser repository, along with its signature.
+			// this is needed for nested diffusion where Javassist method interceptor uses
+			// the repository to point the method calls to the diffuser's runObject(...) method
+			KeyedDiffuserRepository.getInstance().putDiffuser( signature, diffuser );
+		}
+		return signature;
+	}
+
 	/**
 	 * Returns information about the diffuser represented by the specified signature.
 	 * @param uriInfo Information about the request URI and the JAX-RS application.
@@ -927,7 +927,7 @@ public class RestfulDiffuserManagerResource {
 
 			// create the entry and it to the feed 
 			final Entry feedEntry = Atom.createEntry( diffuserUri, key, date );
-			feedEntry.setSummaryAsHtml( "<p>RESTful Diffuser for: " + key + "</p>" );
+			feedEntry.setSummaryAsHtml( "<html><p>RESTful Diffuser for: " + key + "</p></html>" );
 			feed.addEntry( feedEntry );
 		}
 		
