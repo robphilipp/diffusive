@@ -212,8 +212,11 @@ ul.sortable li input.item-list-input
 {
     position: relative;
     bottom: 5px;
-    background-color: #deedf7;
-    border-style: none;
+    /*background-color: #deedf7;*/
+    /*border-style: none;*/
+    border-width: 1px;
+    border-style: solid;
+    border-color: gray;
     padding: 3px;
     width: 85%;
 }

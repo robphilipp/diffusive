@@ -41,7 +41,7 @@
                             '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
                             '</dd>' );
                 })
-            }, "xml" );
+            }, "xml" );//.error( function() { alert( 'failed to load diffuser list' ) } );
 
             $.get( serializersUri, function( xml ) {
                 $(xml).find( "entry" ).each( function( i ) {
@@ -53,36 +53,35 @@
                     }
                 });
 
-            }, "xml" );
+            }, "xml" );//.error( function() { alert( 'failed to load serializer names' ) } );
 
             // make the item-lists (arguments, end-points, class-paths) sortable through drag and drop
             $( ".sortable" ).sortable();
-            $( ".sortable" ).disableSelection();
 
             // add argument input field and remove-item button to the method's argument list
             $( "#add-arg-type-button" ).click( function() {
-                $( "#method-argument-list" ).append( '<li class="ui-state-default">' +
+                $( "#method-argument-list" ).append( '<li>' +
                         '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
                         '<input type="text" class="item-list-input" value="">' +
-                        '<input type="button" class="item-list-remove-button" value="X">' +
+                        '<input type="button" class="item-list-remove-button" value="x">' +
                         '</li>' );
             });
 
             // add class-path input field and remove-item button to the class-path list
             $( "#add-class-path-button" ).click( function() {
-                $( "#class-path-list" ).append( '<li class="ui-state-default">' +
+                $( "#class-path-list" ).append( '<li>' +
                         '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
                         '<input type="text" class="item-list-input" value="">' +
-                        '<input type="button" class="item-list-remove-button" value="X">' +
+                        '<input type="button" class="item-list-remove-button" value="x">' +
                         '</li>' );
             });
 
             // add end-point input field and remove-item button to the end-point list
             $( "#add-end-points-button" ).click( function() {
-                $( "#end-points-list" ).append( '<li class="ui-state-default">' +
+                $( "#end-points-list" ).append( '<li>' +
                         '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
                         '<input type="text" class="item-list-input" value="">' +
-                        '<input type="button" class="item-list-remove-button" value="X">' +
+                        '<input type="button" class="item-list-remove-button" value="x">' +
                         '</li>' );
             });
 
@@ -93,7 +92,7 @@
 
             // allows the user to add a return type; once clicked, hides itself
             $( "#add-return-type-button" ).click( function() {
-                $( "#return-type-list" ).append( '<li class="ui-state-default">' +
+                $( "#return-type-list" ).append( '<li>' +
                         '<input type="text" class="item-list-input" value="">' +
                         '<input type="button" id="remove-return-type-button" value="X">' +
                         '</li>' );
@@ -103,6 +102,21 @@
             // allows the user to remove the return type; once clicked shows the add-return-type button
             $( "#remove-return-type-button" ).live( "click", function() {
                 $(this).parent().remove();
+                $( "#add-return-type-button" ).show();
+            });
+
+            // resets the create-diffuser form
+            $( "#create-diffuser-reset-button" ).click( function() {
+                // grab the closest form
+                var $form = $(this).closest( "form");
+
+                // sets all the form's text input fields to empty
+                $form.find( "input[type=text]" ).val( "" );
+
+                // removes all the form's input fields from the lists
+                $form.find( "input[class=item-list-input]" ).parent().remove();
+
+                // adds the add-return-type button back, in case it was gone
                 $( "#add-return-type-button" ).show();
             });
         });
@@ -155,6 +169,10 @@
                         <!--<option>persistence_key_value</option>-->
                         <!--<option>object_presistence</option>-->
                     </select>
+                </div>
+                <div>
+                    <input type="button" id="create-diffuser-submit-button" value="Create">
+                    <input type="button" id="create-diffuser-reset-button" value="Reset">
                 </div>
             </form>
         </div>
