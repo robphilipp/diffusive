@@ -33,11 +33,25 @@
             //          <summary type="html">&lt;html&gt;&lt;p&gt;RESTful Diffuser for: org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result&lt;/p&gt;&lt;/html&gt;</summary>
             //     </entry>
             //  </feed>
+            // <serializer>persistence_xml</serializer>
+            // <strategy>org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy</strategy>
+            // <classPaths></classPaths>
+            // <loadThreshold>0.75</loadThreshold>
+            // <maxRedundancy>20</maxRedundancy>
+            // <pollingTimeout>50</pollingTimeout>
+            // <pollingTimeUnit>MILLISECONDS</pollingTimeUnit>
             $.get( diffusersUri, function( xml ) {
                 $(xml).find( "entry").each( function( i ) {
                     $( "#diffuser-list" ).append( '<dt>' + $( this ).find( "title" ).text() + '</dt>' );
                     $( "#diffuser-list" ).append( '<dd><p>' +
                             '<a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
+                            '<p>Strategy: ' + $( this ).find( "strategy" ).text() + '</p>' +
+                            '<p>End Points: ' + $( this ).find( "endPoints" ).text() + '</p>' +
+                            '<p>Serializer: ' + $( this ).find( "serializer" ).text() + '</p>' +
+                            '<p>Load Threshold: ' + $( this ).find( "loadThreshold" ).text() + '</p>' +
+                            '<p>Maximum Redundancy: ' + $( this ).find( "maxRedundancy" ).text() + '</p>' +
+                            '<p>Polling Time-Out: ' + $( this ).find( "pollingTimeout" ).text() + ' ms</p>' +
+                            '<p>Class Paths: ' + $( this ).find( "classPaths" ).text() + '</p>' +
                             '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
                             '</dd>' );
                 })
@@ -168,7 +182,7 @@
                 var endPoints = getValues( "#end-points-list" );
                 var serializerName = getSerializerName();
                 var request = JSON.stringify( new CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) );
-                alert( request );
+                //alert( request );
                 $.ajax({
                     url: diffusersUri,
                     type: "PUT",

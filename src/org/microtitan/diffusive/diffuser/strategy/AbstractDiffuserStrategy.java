@@ -77,6 +77,16 @@ public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 		return endpoints.size();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy#getEndpointList()
+	 */
+	@Override
+	public final List< URI > getEndpointList()
+	{
+		return endpoints;
+	}
+	
 	/**
 	 * Returns the end-point with the specified index
 	 * @param index The index for which to return the end-point

@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -52,9 +53,11 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.abdera.model.Content;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.log4j.Logger;
+import org.freezedry.persistence.XmlPersistence;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
 import org.microtitan.diffusive.classloaders.RestfulClassLoader;
@@ -64,6 +67,7 @@ import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserInfo;
 import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.diffuser.restful.client.RestfulDiffuserManagerClient;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
@@ -337,8 +341,8 @@ public class RestfulDiffuserManagerResource {
 		final String key = create( request.getSerializer(), 
 								   request.getClientEndpointsUri(), 
 								   request.getClassPathsUri(),
-								   request.getReturnTypeClassName(),
-								   request.getContainingClassName(), 
+								   request.getReturnTypeClass(),
+								   request.getContainingClass(), 
 								   request.getMethodName(), 
 								   request.getArgumentTypes() );
 
@@ -920,14 +924,21 @@ public class RestfulDiffuserManagerResource {
 		final Feed feed = Atom.createFeed( baseUri, "get-diffuser-list", date, baseUri );
 
 		// add an entry for each diffuser
-		for( String key : diffusers.keySet() )
+//		for( String key : diffusers.keySet() )
+		for( Map.Entry< String, DiffuserEntry > entry : diffusers.entrySet() )
 		{
 			// create URI that links to the diffuser
+			final String key = entry.getKey();
 			final URI diffuserUri = baseUriBuilder.clone().path( key ).build();
 
 			// create the entry and it to the feed 
 			final Entry feedEntry = Atom.createEntry( diffuserUri, key, date );
-			feedEntry.setSummaryAsHtml( "<html><p>RESTful Diffuser for: " + key + "</p></html>" );
+
+			// grab the diffuser's infomation as xml
+			final StringWriter writer = new StringWriter();
+			new XmlPersistence().write( new RestfulDiffuserInfo( entry.getValue().getDiffuser() ), writer );
+			feedEntry.setContent( writer.getBuffer().toString(), Content.Type.XML );
+
 			feed.addEntry( feedEntry );
 		}
 		

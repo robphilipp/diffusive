@@ -32,6 +32,11 @@ public interface DiffuserStrategy {
 	List< URI > getEndpoints();
 	
 	/**
+	 * @return The {@link List} of all the end-points that have been registered with this strategy.
+	 */
+	List< URI > getEndpointList();
+	
+	/**
 	 * @return true if the strategy has no end points
 	 */
 	boolean isEmpty();

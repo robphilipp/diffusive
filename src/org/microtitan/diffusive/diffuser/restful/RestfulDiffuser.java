@@ -17,6 +17,7 @@ package org.microtitan.diffusive.diffuser.restful;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +30,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
+import org.freezedry.persistence.XmlPersistence;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.AbstractDiffuser;
 import org.microtitan.diffusive.diffuser.LocalDiffuser;
@@ -39,6 +43,7 @@ import org.microtitan.diffusive.diffuser.restful.response.ExecuteDiffuserRespons
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
+import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
 
 /**
@@ -436,5 +441,20 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		buffer.append( "Strategy: " + strategy.getClass().getName() + Constants.NEW_LINE );
 		buffer.append( "  " + strategy.toString() );
 		return buffer.toString();
+	}
+	
+	public static void main( String...args ) throws JAXBException
+	{
+		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.PERSISTENCE_XML.getName() );
+		
+		final List< URI > endpoints = Arrays.asList( URI.create( "http://192.168.1.5:8182/diffusers" ), URI.create( "http://192.168.1.4:8182/diffusers" ) );
+		final DiffuserStrategy strategy = new RandomDiffuserStrategy( endpoints, 314 );
+		
+		final List< URI > classPaths = Arrays.asList( URI.create( "http://192.168.1.5:8182/classpath" ), URI.create( "http://192.168.1.4:8182/classpath" ) );
+		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, 0.75 );
+		
+		final StringWriter writer = new StringWriter();
+		new XmlPersistence().write( new RestfulDiffuserInfo( diffuser ), writer );
+		System.out.println( writer.getBuffer().toString() );
 	}
 }
