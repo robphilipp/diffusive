@@ -87,7 +87,7 @@
 
             // remove the item from the list when the associated button is pressed
             $(".item-list-remove-button").live( "click", function() {
-                $(this).parent().remove();
+                $( this ).parent().remove();
             });
 
             // allows the user to add a return type; once clicked, hides itself
@@ -101,14 +101,14 @@
 
             // allows the user to remove the return type; once clicked shows the add-return-type button
             $( "#remove-return-type-button" ).live( "click", function() {
-                $(this).parent().remove();
+                $( this ).parent().remove();
                 $( "#add-return-type-button" ).show();
             });
 
             // resets the create-diffuser form
             $( "#create-diffuser-reset-button" ).click( function() {
-                // grab the closest form
-                var $form = $(this).closest( "form");
+                // grab the form used for creating the diffuser
+                var $form = $( "#create-diffuser-form" );
 
                 // sets all the form's text input fields to empty
                 $form.find( "input[type=text]" ).val( "" );
@@ -119,10 +119,68 @@
                 // adds the add-return-type button back, in case it was gone
                 $( "#add-return-type-button" ).show();
             });
+
+            function getValues( listId ) {
+                var argElems = $( listId ).find( ".item-list-input" ).toArray();
+                var arguments = [];
+                for( var i = 0; i < argElems.length; ++i ) {
+                    arguments.push( $(argElems[ i ]).val() );
+                }
+                return arguments;
+            };
+
+            function getReturnType() {
+                var argElems = $( "#return-type-list" ).find( ".item-list-input" ).toArray();
+                var argument = "void";
+                if( argElems.length > 0 ) {
+                    argument = $(argElems[ 0 ]).val()
+                }
+                return argument;
+            };
+
+            function getSerializerName() {
+                var serializerName = $( "#serializer-name-list" ).val();
+                if( serializerName === null ) {
+                    serializerName = "persistence_xml";
+                }
+                return serializerName;
+            }
+
+            function CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) {
+                this.containingClassName = containingClass;
+                this.methodName = methodName;
+                this.returnTypeClassName = returnType;
+                this.argumentTypes = methodArgs;
+                this.classPaths = classPaths;
+                this.serializerType = serializerName;
+                this.clientEndpoints = endPoints;
+            };
+
+            // submits the form to the server
+            $( "#create-diffuser-form" ).submit( function() {
+
+                // grab the forms fields
+                var containingClass = $( "#containing-class-input" ).val();
+                var methodName = $( "#method-name-input" ).val();
+                var methodArgs = getValues( "#method-argument-list" );
+                var returnType = getReturnType();
+                var classPaths = getValues( "#class-path-list" );
+                var endPoints = getValues( "#end-points-list" );
+                var serializerName = getSerializerName();
+                var request = JSON.stringify( new CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) );
+                alert( request );
+                $.ajax({
+                    url: diffusersUri,
+                    type: "PUT",
+                    data: request,
+                    dataType: "json",
+                    contentType: "application/json"
+                });
+            });
         });
     </script>
 
-    <title>Diffusive Management</title>
+    <title>Restful Diffuser Manager</title>
 </head>
 
 <body>
@@ -148,8 +206,7 @@
                     <p class="note">This should be the fully-qualified name of the Java class containing the method.</p>
                     <p id="method-name">Method Name: <input type="text" id="method-name-input"></p>
                     <p id="method-arguments"><input type="button" id="add-arg-type-button" value="+"> Method Arguments</p>
-                    <ul class="sortable" id="method-argument-list">
-                    </ul>
+                    <ul class="sortable" id="method-argument-list"></ul>
                     <p id="return-type"><input type="button" id="add-return-type-button" value="+"> Return Type</p>
                     <ul class="sortable" id="return-type-list"></ul>
                 </div>
@@ -163,15 +220,10 @@
                 </div>
                 <div class="form-element">
                     <p id="serializer-name">Serializer Name:</p>
-                    <select id="serializer-name-list">
-                        <!--<option>persistence_xml</option>-->
-                        <!--<option>persistence_json</option>-->
-                        <!--<option>persistence_key_value</option>-->
-                        <!--<option>object_presistence</option>-->
-                    </select>
+                    <select id="serializer-name-list"></select>
                 </div>
                 <div>
-                    <input type="button" id="create-diffuser-submit-button" value="Create">
+                    <input type="submit" id="create-diffuser-submit-button" value="Create">
                     <input type="button" id="create-diffuser-reset-button" value="Reset">
                 </div>
             </form>

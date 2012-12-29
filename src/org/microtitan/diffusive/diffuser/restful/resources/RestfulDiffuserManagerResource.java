@@ -337,8 +337,8 @@ public class RestfulDiffuserManagerResource {
 		final String key = create( request.getSerializer(), 
 								   request.getClientEndpointsUri(), 
 								   request.getClassPathsUri(),
-								   request.getReturnTypeClass(),
-								   request.getContainingClass(), 
+								   request.getReturnTypeClassName(),
+								   request.getContainingClassName(), 
 								   request.getMethodName(), 
 								   request.getArgumentTypes() );
 

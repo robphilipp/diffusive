@@ -116,9 +116,9 @@ public class CreateDiffuserRequest {
 												final String...argumentTypes )
 	{
 		final CreateDiffuserRequest request = new CreateDiffuserRequest();
-		request.setContainingClass( className )
+		request.setContainingClassName( className )
 			   .setMethodName( methodName )
-			   .setReturnTypeClass( returnTypeClassName )
+			   .setReturnTypeClassName( returnTypeClassName )
 			   .setArgumentTypes( Arrays.asList( argumentTypes ) )
 			   .setClassPaths( classPaths );
 		return request;
@@ -127,7 +127,7 @@ public class CreateDiffuserRequest {
 	/**
 	 * @return the fully qualified class name of the class containing the method to diffuse
 	 */
-	public String getContainingClass()
+	public String getContainingClassName()
 	{
 		return containingClassName;
 	}
@@ -137,7 +137,7 @@ public class CreateDiffuserRequest {
 	 * @param className The fully qualified class name of the class containing the method to diffuse
 	 * @return This object to be used for chaining
 	 */
-	public CreateDiffuserRequest setContainingClass( final String className )
+	public CreateDiffuserRequest setContainingClassName( final String className )
 	{
 		this.containingClassName = className;
 		return this;
@@ -157,12 +157,12 @@ public class CreateDiffuserRequest {
 		return this;
 	}
 	
-	public String getReturnTypeClass()
+	public String getReturnTypeClassName()
 	{
 		return returnTypeClassName;
 	}
 	
-	public CreateDiffuserRequest setReturnTypeClass( final String returnClass )
+	public CreateDiffuserRequest setReturnTypeClassName( final String returnClass )
 	{
 		this.returnTypeClassName = returnClass;
 		return this;
