@@ -45,6 +45,12 @@ public interface DiffuserStrategy extends Copyable< DiffuserStrategy >{
 	void setEndpointList( final List< URI > endpoints );
 	
 	/**
+	 * Appends the specified end-points to the end of the current end-point list
+	 * @param endpoints The end-points to append to the current list of end-points
+	 */
+	void appendEndpoints( final List< URI > endpoints );
+	
+	/**
 	 * @return true if the strategy has no end points
 	 */
 	boolean isEmpty();

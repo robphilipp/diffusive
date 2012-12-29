@@ -77,7 +77,7 @@ public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 	{
 		this.endpoints = new ArrayList<>( strategy.endpoints );
 		this.weights = new ArrayList<>( strategy.weights );
-		this.weightSum = new Double( strategy.weightSum );
+		this.weightSum = Double.NaN;
 	}
 
 	
@@ -106,7 +106,25 @@ public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 	@Override
 	public final void setEndpointList( final List< URI > endpoints )
 	{
-		this.endpoints = endpoints;
+		this.endpoints.clear();
+		this.weights.clear();
+		for( URI uri : endpoints )
+		{
+			addEndpoint( uri );
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy#appendEndpointList(java.util.List)
+	 */
+	@Override
+	public final void appendEndpoints( final List< URI > endpoints )
+	{
+		for( URI uri : endpoints )
+		{
+			addEndpoint( uri );
+		}
 	}
 	
 	/**
@@ -234,6 +252,7 @@ public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 	{
 		return ( endpoints == null || endpoints.isEmpty() );
 	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
