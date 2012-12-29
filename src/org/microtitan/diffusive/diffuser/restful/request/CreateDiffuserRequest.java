@@ -20,18 +20,33 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
+import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
+import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory.SerializerType;
+import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 
+/**
+ * A request containing the information needed by the {@link RestfulDiffuserServer} to create a 
+ * new {@link RestfulDiffuser}. This method contains all the information needed to construct the
+ * {@link DiffuserSignature}, and create the strategy with its end-points.
+ *  
+ * @author Robert Philipp
+ */
 @XmlRootElement
 public class CreateDiffuserRequest {
 	
+	@XmlElement
 	private String containingClassName;
 	private String methodName;
+	@XmlElement
 	private String returnTypeClassName;
 	private List< String > argumentTypes;
 	private List< String > classPaths;
@@ -116,9 +131,9 @@ public class CreateDiffuserRequest {
 												final String...argumentTypes )
 	{
 		final CreateDiffuserRequest request = new CreateDiffuserRequest();
-		request.setContainingClassName( className )
+		request.setContainingClass( className )
 			   .setMethodName( methodName )
-			   .setReturnTypeClassName( returnTypeClassName )
+			   .setReturnTypeClass( returnTypeClassName )
 			   .setArgumentTypes( Arrays.asList( argumentTypes ) )
 			   .setClassPaths( classPaths );
 		return request;
@@ -127,7 +142,7 @@ public class CreateDiffuserRequest {
 	/**
 	 * @return the fully qualified class name of the class containing the method to diffuse
 	 */
-	public String getContainingClassName()
+	public String getContainingClass()
 	{
 		return containingClassName;
 	}
@@ -135,9 +150,9 @@ public class CreateDiffuserRequest {
 	/**
 	 * Sets the fully qualified class name of the class containing the method to diffuse
 	 * @param className The fully qualified class name of the class containing the method to diffuse
-	 * @return This object to be used for chaining
+	 * @return This {@link CreateDiffuserRequest} object for chaining
 	 */
-	public CreateDiffuserRequest setContainingClassName( final String className )
+	public CreateDiffuserRequest setContainingClass( final String className )
 	{
 		this.containingClassName = className;
 		return this;
@@ -151,34 +166,60 @@ public class CreateDiffuserRequest {
 		return methodName;
 	}
 	
+	/**
+	 * Sets the name of the method which to diffuse
+	 * @param methodName The name of the method which to diffuse
+	 * @return This {@link CreateDiffuserRequest} object for chaining
+	 */
 	public CreateDiffuserRequest setMethodName( final String methodName )
 	{
 		this.methodName = methodName;
 		return this;
 	}
 	
-	public String getReturnTypeClassName()
+	/**
+	 * @return The fully-qualified {@link Class} name of the return object
+	 */
+	public String getReturnTypeClass()
 	{
 		return returnTypeClassName;
 	}
 	
-	public CreateDiffuserRequest setReturnTypeClassName( final String returnClass )
+	/**
+	 * Sets the fully-qualified {@link Class} name of the return object
+	 * @param returnClassName the fully-qualified {@link Class} name of the return object
+	 * @return This {@link CreateDiffuserRequest} object for chaining
+	 */
+	public CreateDiffuserRequest setReturnTypeClass( final String returnClassName )
 	{
-		this.returnTypeClassName = returnClass;
+		this.returnTypeClassName = returnClassName;
 		return this;
 	}
 	
+	/**
+	 * @return The list of fully-qualified {@link Class} names of the method's arguments
+	 */
 	public List< String > getArgumentTypes()
 	{
 		return argumentTypes;
 	}
 	
+	/**
+	 * Sets the list of fully-qualified {@link Class} names of the method's arguments
+	 * @param argumentTypes The list of fully-qualified {@link Class} names of the method's arguments
+	 * @return This {@link CreateDiffuserRequest} object for chaining
+	 */
 	public CreateDiffuserRequest setArgumentTypes( final List< String > argumentTypes )
 	{
 		this.argumentTypes = argumentTypes;
 		return this;
 	}
 	
+	/**
+	 * Adds a method argument, represented as the argument's fully-qualified {@link Class} name.   
+	 * @param argumentType The argument's fully-qualified {@link Class} name
+	 * @return This {@link CreateDiffuserRequest} object for chaining
+	 */
 	public CreateDiffuserRequest appendArgumentType( final String argumentType )
 	{
 		if( argumentTypes == null )
@@ -189,17 +230,32 @@ public class CreateDiffuserRequest {
 		return this;
 	}
 
+	/**
+	 * @return A list of the addresses to which the {@link RestfulDiffuser} will look to load {@link Class}
+	 * objects it cannot find locally.
+	 */
 	public List< String > getClassPaths()
 	{
 		return classPaths;
 	}
 	
+	/**
+	 * Sets the list of the addresses to which the {@link RestfulDiffuser} will look to load {@link Class}
+	 * objects it cannot find locally.
+	 * @param classPaths The list of the addresses to which the {@link RestfulDiffuser} will look to load {@link Class}
+	 * objects it cannot find locally.
+	 * @return This {@link CreateDiffuserRequest} object for chaining
+	 */
 	public CreateDiffuserRequest setClassPaths( final List< String > classPaths )
 	{
 		this.classPaths = classPaths;
 		return this;
 	}
-	
+
+	/**
+	 * @return A list of the {@link URI} to which the {@link RestfulDiffuser} will look to load {@link Class}
+	 * objects it cannot find locally.
+	 */
 	public List< URI > getClassPathsUri()
 	{
 		final List< URI > uri = new ArrayList<>();
@@ -209,7 +265,14 @@ public class CreateDiffuserRequest {
 		}
 		return uri;
 	}
-	
+
+	/**
+	 * Adds an address to which the {@link RestfulDiffuser} will look to load {@link Class}
+	 * objects it cannot find locally.
+	 * @param classPath An addresses to which the {@link RestfulDiffuser} will look to load {@link Class}
+	 * objects it cannot find locally.
+	 * @return This {@link CreateDiffuserRequest} object for chaining
+	 */
 	public CreateDiffuserRequest appendClassPath( final String classPath )
 	{
 		if( classPaths == null )
@@ -219,28 +282,52 @@ public class CreateDiffuserRequest {
 		classPaths.add( classPath );
 		return this;
 	}
-	
+
+	/**
+	 * @return The name of the {@link Serializer} as represented by the {@link SerializerFactory}
+	 * @see SerializerFactory.SerializerType
+	 */
 	public String getSerializerType()
 	{
 		return serializerType;
 	}
 	
+	/**
+	 * @return a {@link Serializer} retrieved from the {@link SerializerFactory} based on the currently
+	 * set value of the serializer type (held in {@link #serializerType}).
+	 * @see #getSerializerType()
+	 */
 	public Serializer getSerializer()
 	{
 		return SerializerFactory.getInstance().createSerializer( serializerType );
 	}
 	
+	/**
+	 * Sets the name of the {@link Serializer} as represented by the {@link SerializerFactory}
+	 * @param serializer The name of the {@link Serializer} as represented by the {@link SerializerFactory}
+	 * @return This {@link CreateDiffuserRequest} object for chaining
+	 */
 	public CreateDiffuserRequest setSerializerType( final String serializer )
 	{
 		this.serializerType = serializer;
 		return this;
 	}
-	
+
+	/**
+	 * @return A list of addresses to which the {@link RestfulDiffuser} will send methods to be executed.
+	 * Note that these end-points are handed to the {@link DiffuserStrategy}, which will hand the {@link Diffuser}
+	 * end-points when requested.
+	 */
 	public List< String > getClientEndpoints()
 	{
 		return clientEndpoints;
 	}
 	
+	/**
+	 * @return A list of {@link URI} to which the {@link RestfulDiffuser} will send methods to be executed.
+	 * Note that these end-points are handed to the {@link DiffuserStrategy}, which will hand the {@link Diffuser}
+	 * end-points when requested.
+	 */
 	public List< URI > getClientEndpointsUri()
 	{
 		final List< URI > uri = new ArrayList<>();
@@ -251,12 +338,30 @@ public class CreateDiffuserRequest {
 		return uri;
 	}
 	
+	/**
+	 * Sets the list of addresses to which the {@link RestfulDiffuser} will send methods to be executed.
+	 * Note that these end-points are handed to the {@link DiffuserStrategy}, which will hand the {@link Diffuser}
+	 * end-points when requested.
+	 * @param clientEndpoints The list of addresses to which the {@link RestfulDiffuser} will send methods to be executed.
+	 * Note that this end-points are handed to the {@link DiffuserStrategy}, which will hand the {@link Diffuser}
+	 * end-points when requested.
+	 * @return This {@link CreateDiffuserRequest} object for chaining
+	 */
 	public CreateDiffuserRequest setClientEndpoints( final List< String > clientEndpoints )
 	{
 		this.clientEndpoints = clientEndpoints;
 		return this;
 	}
-	
+
+	/**
+	 * Adds an addresses to which the {@link RestfulDiffuser} will send methods to be executed.
+	 * Note that the end-point is handed to the {@link DiffuserStrategy}, which will hand the {@link Diffuser}
+	 * end-points when requested.
+	 * @param clientEndpoint An addresses to which the {@link RestfulDiffuser} will send methods to be executed.
+	 * Note that the end-point is handed to the {@link DiffuserStrategy}, which will hand the {@link Diffuser}
+	 * end-points when requested.
+	 * @return This {@link CreateDiffuserRequest} object for chaining
+	 */
 	public CreateDiffuserRequest appendClientEndpoints( final String clientEndpoint )
 	{
 		if( clientEndpoints == null )
