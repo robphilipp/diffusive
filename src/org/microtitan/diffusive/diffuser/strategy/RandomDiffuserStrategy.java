@@ -62,6 +62,16 @@ public class RandomDiffuserStrategy extends AbstractDiffuserStrategy {
 		this( new ArrayList< URI >() );
 	}
 	
+	/**
+	 * Copy constructor
+	 * @param strategy The {@link RandomDiffuserStrategy} to copy
+	 */
+	public RandomDiffuserStrategy( final RandomDiffuserStrategy strategy )
+	{
+		super( strategy );
+		this.random = new Random( DEFAULT_SEED );
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy#getEndpoint()
@@ -77,6 +87,16 @@ public class RandomDiffuserStrategy extends AbstractDiffuserStrategy {
 		
 		// return the URI that is at that index
 		return Arrays.asList( getEndpoint( index ) );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.freezedry.persistence.copyable.Copyable#getCopy()
+	 */
+	@Override
+	public RandomDiffuserStrategy getCopy()
+	{
+		return new RandomDiffuserStrategy( this );
 	}
 
 }

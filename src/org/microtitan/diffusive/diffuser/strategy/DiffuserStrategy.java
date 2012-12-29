@@ -18,12 +18,14 @@ package org.microtitan.diffusive.diffuser.strategy;
 import java.net.URI;
 import java.util.List;
 
+import org.freezedry.persistence.copyable.Copyable;
+
 /**
  * Interface that defines the strategy for selecting an end-point to which to send the run request.
  * 
  * @author Robert Philipp
  */
-public interface DiffuserStrategy {
+public interface DiffuserStrategy extends Copyable< DiffuserStrategy >{
 
 	/**
 	 * @return A list of end-point to which to send the next run/execute request. Each subsequent call
@@ -35,6 +37,12 @@ public interface DiffuserStrategy {
 	 * @return The {@link List} of all the end-points that have been registered with this strategy.
 	 */
 	List< URI > getEndpointList();
+	
+	/**
+	 * Sets the end-point list, overwriting the existing end-point list
+	 * @param endpoints The new list of end-points
+	 */
+	void setEndpointList( final List< URI > endpoints );
 	
 	/**
 	 * @return true if the strategy has no end points

@@ -31,8 +31,8 @@ import org.microtitan.diffusive.Constants;
  */
 public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 
-	private final List< URI > endpoints;
-	private final List< Double > weights;
+	private List< URI > endpoints;
+	private List< Double > weights;
 	private Double weightSum = Double.NaN;
 	
 	/**
@@ -70,6 +70,18 @@ public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 	}
 	
 	/**
+	 * Copy constructor
+	 * @param strategy The {@link AbstractDiffuserStrategy} to copy
+	 */
+	protected AbstractDiffuserStrategy( final AbstractDiffuserStrategy strategy )
+	{
+		this.endpoints = new ArrayList<>( strategy.endpoints );
+		this.weights = new ArrayList<>( strategy.weights );
+		this.weightSum = new Double( strategy.weightSum );
+	}
+
+	
+	/**
 	 * @return The number of end-points helds by this strategy
 	 */
 	public final int getNumEndpoints()
@@ -85,6 +97,16 @@ public abstract class AbstractDiffuserStrategy implements DiffuserStrategy {
 	public final List< URI > getEndpointList()
 	{
 		return endpoints;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy#setEndpointList(java.util.List)
+	 */
+	@Override
+	public final void setEndpointList( final List< URI > endpoints )
+	{
+		this.endpoints = endpoints;
 	}
 	
 	/**

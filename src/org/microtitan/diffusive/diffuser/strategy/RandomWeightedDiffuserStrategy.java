@@ -65,6 +65,16 @@ public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 		this( new HashMap< URI, Double >() );
 	}
 	
+	/**
+	 * Copy constructor
+	 * @param strategy The {@link RandomWeightedDiffuserStrategy} to copy
+	 */
+	public RandomWeightedDiffuserStrategy( final RandomWeightedDiffuserStrategy strategy )
+	{
+		super( strategy );
+		this.random = new Random( DEFAULT_SEED );
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy#getEndpoint()
@@ -137,5 +147,15 @@ public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 								String.format( "%6.4f", strategy.getWeight( entry.getKey() ) / strategy.getWeightSum() ) + 
 								")" );
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.freezedry.persistence.copyable.Copyable#getCopy()
+	 */
+	@Override
+	public RandomWeightedDiffuserStrategy getCopy()
+	{
+		return new RandomWeightedDiffuserStrategy( this );
 	}
 }

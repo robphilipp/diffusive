@@ -393,8 +393,13 @@ public class RestfulDiffuserManagerResource {
 		// only create the diffuser if it hasn't alread been created
 		if( !diffusers.containsKey( signature ) )
 		{
+			// copy and update the strategy
+			final DiffuserStrategy strategy = diffuserStrategy.getCopy();
+			strategy.setEndpointList( clientEndpoints );
+			
 			// create the diffuser
-			final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
+//			final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, diffuserStrategy, classPaths, loadThreshold );
+			final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, loadThreshold );
 			
 			// add the diffuser to the map of diffusers
 			final ClassLoader classLoader = classLoaderFactory.create( RestfulDiffuserManagerResource.class.getClassLoader(), signature, classPaths );
