@@ -8,6 +8,7 @@
     <script src="scripts/jquery-1.8.3.js"></script>
     <script src="scripts/ui/jquery-ui-1.9.2.custom.js"></script>
     <script src="scripts/plugins/jquery.validate.js"></script>
+    <script src="scripts/getDiffuserList.js"></script>
     <script type="text/javascript">
         $(function() {
             $( "#tabs" ).tabs();
@@ -15,51 +16,52 @@
         $( document ).ready( function()
         {
 //            var serverUri = "";
-            var serverUri = "http://192.168.1.4:8182";
+            var serverUri = "http://192.168.1.5:8182";
             var diffusersUri = serverUri + "/diffusers";
             var serializersUri = diffusersUri + "/serializers";
-            // request the list of diffusers (atom feed) from the diffuser server
-            // <feed xmlns="http://www.w3.org/2005/Atom">
-            //     <id>get-diffuser-list</id>
-            //     <title type="text">get-diffuser-list</title>
-            //     <updated>2012-12-27T21:04:12.694Z</updated>
-            //     <link href="http://192.168.1.5:8182/diffusers" rel="self"></link>
-            //     <generator uri="http://192.168.1.5:8182/diffusers" version="0.1">org.microtitan.diffusive.diffuser.restful.RestfulDiffuser</generator>
-            //     <entry>
-            //          <id>org.microtitan.tests.threaded.task:call()-org.microtitan.tests.threaded.Result</id><
-            //          title type="text">org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result</title>
-            //          <updated>2012-12-27T21:04:12.694Z</updated>
-            //          <published>2012-12-27T21:04:12.694Z</published>
-            //          <link href="http://192.168.1.5:8182/diffusers/org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result" rel="self"></link>
-            //          <summary type="html">&lt;html&gt;&lt;p&gt;RESTful Diffuser for: org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result&lt;/p&gt;&lt;/html&gt;</summary>
-            //     </entry>
-            //  </feed>
-            // <serializer>persistence_xml</serializer>
-            // <strategy>org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy</strategy>
-            // <classPaths></classPaths>
-            // <loadThreshold>0.75</loadThreshold>
-            // <maxRedundancy>20</maxRedundancy>
-            // <pollingTimeout>50</pollingTimeout>
-            // <pollingTimeUnit>MILLISECONDS</pollingTimeUnit>
-            $.get( diffusersUri, function( xml ) {
-                $(xml).find( "entry").each( function( i ) {
-                    $( "#diffuser-list" ).append( '<dt>' + $( this ).find( "title" ).text() + '</dt>' );
-                    $( "#diffuser-list" ).append( '<dd><p>' +
-                            '<a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
-                            '<p>Strategy: ' + $( this ).find( "strategy" ).text() + '</p>' +
-                            '<p>End Points: ' + $( this ).find( "endPoints" ).text() + '</p>' +
-                            '<p>Serializer: ' + $( this ).find( "serializer" ).text() + '</p>' +
-                            '<p>Load Threshold: ' + $( this ).find( "loadThreshold" ).text() + '</p>' +
-                            '<p>Maximum Redundancy: ' + $( this ).find( "maxRedundancy" ).text() + '</p>' +
-                            '<p>Polling Time-Out: ' + $( this ).find( "pollingTimeout" ).text() + ' ms</p>' +
-                            '<p>Class Paths: ' + $( this ).find( "classPaths" ).text() + '</p>' +
-                            '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
-                            '</dd>' );
-                })
-            }, "xml" );//.error( function() { alert( 'failed to load diffuser list' ) } );
+//            // request the list of diffusers (atom feed) from the diffuser server
+//            // <feed xmlns="http://www.w3.org/2005/Atom">
+//            //     <id>get-diffuser-list</id>
+//            //     <title type="text">get-diffuser-list</title>
+//            //     <updated>2012-12-27T21:04:12.694Z</updated>
+//            //     <link href="http://192.168.1.5:8182/diffusers" rel="self"></link>
+//            //     <generator uri="http://192.168.1.5:8182/diffusers" version="0.1">org.microtitan.diffusive.diffuser.restful.RestfulDiffuser</generator>
+//            //     <entry>
+//            //          <id>org.microtitan.tests.threaded.task:call()-org.microtitan.tests.threaded.Result</id><
+//            //          title type="text">org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result</title>
+//            //          <updated>2012-12-27T21:04:12.694Z</updated>
+//            //          <published>2012-12-27T21:04:12.694Z</published>
+//            //          <link href="http://192.168.1.5:8182/diffusers/org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result" rel="self"></link>
+//            //          <summary type="html">&lt;html&gt;&lt;p&gt;RESTful Diffuser for: org.microtitan.tests.threaded.Task:call()-org.microtitan.tests.threaded.Result&lt;/p&gt;&lt;/html&gt;</summary>
+//            //     </entry>
+//            //  </feed>
+//            // <serializer>persistence_xml</serializer>
+//            // <strategy>org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy</strategy>
+//            // <classPaths></classPaths>
+//            // <loadThreshold>0.75</loadThreshold>
+//            // <maxRedundancy>20</maxRedundancy>
+//            // <pollingTimeout>50</pollingTimeout>
+//            // <pollingTimeUnit>MILLISECONDS</pollingTimeUnit>
+//            $.get( diffusersUri, function( xml ) {
+//                $(xml).find( "entry").each( function() {
+//                    $( "#diffuser-list" ).append( '<dt>' + $( this ).find( "title" ).text() + '</dt>' );
+//                    $( "#diffuser-list" ).append( '<dd><p>' +
+//                            '<a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
+//                            '<p>Strategy: ' + $( this ).find( "strategy" ).text() + '</p>' +
+//                            '<p>End Points: ' + $( this ).find( "endPoints" ).text() + '</p>' +
+//                            '<p>Serializer: ' + $( this ).find( "serializer" ).text() + '</p>' +
+//                            '<p>Load Threshold: ' + $( this ).find( "loadThreshold" ).text() + '</p>' +
+//                            '<p>Maximum Redundancy: ' + $( this ).find( "maxRedundancy" ).text() + '</p>' +
+//                            '<p>Polling Time-Out: ' + $( this ).find( "pollingTimeout" ).text() + ' ms</p>' +
+//                            '<p>Class Paths: ' + $( this ).find( "classPaths" ).text() + '</p>' +
+//                            '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
+//                            '</dd>' );
+//                })
+//            }, "xml" );//.error( function() { alert( 'failed to load diffuser list' ) } );
+            getDiffuserList( diffusersUri, "#diffuser-list" );
 
             $.get( serializersUri, function( xml ) {
-                $(xml).find( "entry" ).each( function( i ) {
+                $(xml).find( "entry" ).each( function() {
                     var option = $( this ).find( "title" ).text();
                     if( option === "persistence_xml" ) {
                         $( "#serializer-name-list" ).append( '<option selected>' + option + '</option>' );
@@ -74,22 +76,50 @@
             $( ".sortable" ).sortable();
 
             // set up the validator
-            $("#create-diffuser-form").validate();
+            $("#create-diffuser-form").validate({
+                submitHandler: function() {
+                    // grab the forms fields
+                    var containingClass = $( "#containing-class-input" ).val();
+                    var methodName = $( "#method-name-input" ).val();
+                    var methodArgs = getValues( "#method-argument-list" );
+                    var returnType = getReturnType();
+                    var classPaths = getValues( "#class-path-list" );
+                    var endPoints = getValues( "#end-points-list" );
+                    var serializerName = getSerializerName();
+                    var request = JSON.stringify( new CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) );
+                    $.ajax({
+                        url: diffusersUri,
+                        type: "PUT",
+                        data: request,
+                        dataType: "xml",
+                        contentType: "application/json; charset=UTF-8",
+                        error: function( jqXhr, textStatus, errorThrown ) {
+                            alert( textStatus + ": " + errorThrown );
+                        }
+                    });
+                },
+
+                // don't show the validation messages, the fields turn red when
+                // invalid anyway
+                errorPlacement: function( error, element ) {
+                    error.appendTo( function() {} );
+                }
+            });
 
             // validator override for the class-name
             jQuery.validator.addMethod( "class-name", function( value, element ) {
                 return value.match( /^([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*$/ );
-            }, "Please enter a valid Java class name." );
+            }, "Invalid Java class name." );
 
             // validator override for the method-name
             jQuery.validator.addMethod( "method-name", function( value, element ) {
                 return value.match( /^[a-zA-Z_$][a-zA-Z\d_$]*$/ );
-            }, "Please enter a valid Java method name." );
+            }, "Invalid Java method name." );
 
             // validator override for the method-name
             jQuery.validator.addMethod( "variable-name", function( value, element ) {
                 return value.match( /^([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*$/ );
-            }, "Please enter a valid Java variable name." );
+            }, "Invalid Java variable name." );
 
             // add argument input field and remove-item button to the method's argument list
             $( "#add-arg-type-button" ).click( function() {
@@ -190,26 +220,29 @@
             };
 
             // submits the form to the server
-            $( "#create-diffuser-form" ).submit( function() {
-
-                // grab the forms fields
-                var containingClass = $( "#containing-class-input" ).val();
-                var methodName = $( "#method-name-input" ).val();
-                var methodArgs = getValues( "#method-argument-list" );
-                var returnType = getReturnType();
-                var classPaths = getValues( "#class-path-list" );
-                var endPoints = getValues( "#end-points-list" );
-                var serializerName = getSerializerName();
-                var request = JSON.stringify( new CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) );
-                //alert( request );
-                $.ajax({
-                    url: diffusersUri,
-                    type: "PUT",
-                    data: request,
-                    dataType: "json",
-                    contentType: "application/json"
-                });
-            });
+//            $( "#create-diffuser-form" ).submit( function() {
+//
+//                // grab the forms fields
+//                var containingClass = $( "#containing-class-input" ).val();
+//                var methodName = $( "#method-name-input" ).val();
+//                var methodArgs = getValues( "#method-argument-list" );
+//                var returnType = getReturnType();
+//                var classPaths = getValues( "#class-path-list" );
+//                var endPoints = getValues( "#end-points-list" );
+//                var serializerName = getSerializerName();
+//                var request = JSON.stringify( new CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) );
+////                alert( request );
+//                $.ajax({
+//                    url: diffusersUri,
+//                    type: "PUT",
+//                    data: request,
+//                    dataType: "xml",
+//                    contentType: "application/json; charset=UTF-8",
+//                    error: function( jqXhr, textStatus, errorThrown ) {
+//                        alert( textStatus + ": " + errorThrown );
+//                    }
+//                });
+//            });
         });
     </script>
 
@@ -265,9 +298,10 @@
         </div>
         <div id="tabs-3">
             <p>And what to put here?</p>
+            <embed type="text/html" src="../../docs/diffusive_web/WebContent/overview_guide.html"></embed>
         </div>
     </div>
 </article>
 
 </body>
-</html>                   
+</html>

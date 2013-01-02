@@ -23,36 +23,6 @@ header
     padding-left: 10px;
 }
 
-nav
-{
-	position: absolute;
-	left: 250px;
-    top: 25px;
-	font-size: 1em;
-	font-family: sans-serif;
-}
-
-nav a:link
-{
-    color: white;
-    background-color: #284B7E;
-    padding: 3px 13px 3px 13px;
-    border: solid 1px #3c71be;
-    border-radius: 3px;
-}
-
-nav a:visited
-{
-    color: #437DD4;
-}
-
-nav a:hover
-{
-    background-color: #0F4DA8;
-    box-shadow: 0px 0px 10px 5px white;
-    text-decoration: none;
-}
-
 article 
 {
 	position: absolute;
@@ -67,22 +37,6 @@ article
     border: solid 2px #3c71be;
 	border-radius: 10px;
     z-index: -1;
-}
-
-#toc
-{
-	position: fixed;
-    overflow: auto;
-	left: 5px;
-	top: 80px;
-	width: 225px;
-    background-color: white;
-    font-family: calibri;
-	line-height: 1.3em;
-    padding: 0px 5px 5px 5px;
-    border: solid 2px #3c71be;
-    border-radius: 10px;
-    z-index: 10;
 }
 
 footer 
@@ -138,14 +92,6 @@ p.image, #image
 	padding: 10px 10px 10px 10px;
 }
 
-p.overview_toc, #overview_toc
-{
-    font-family: sans-serif;
-    font-size: 1.1em;
-	font-weight: bold;
-	color: #052F6D;
-    border-bottom: solid 1px #437DD4;
-}
 p.note, #note
 {
     font-family: sans-serif;
@@ -190,7 +136,6 @@ ul.sortable
     list-style-type: none;
     margin: 0;
     padding: 0;
-    /*width: 50%;*/
 }
 
 ul.sortable li
@@ -207,56 +152,37 @@ ul.sortable li span
     margin-left: -1.3em;
 }
 
-ul.sortable li input.item-list-input, input[type=text]
+input[type=text]
 {
     position: relative;
-    bottom: 5px;
-    /*background-color: #deedf7;*/
-    /*border-style: none;*/
     border-width: 1px;
     border-style: solid;
     border-color: gray;
     padding: 3px;
-    /*width: 85%;*/
 }
 
-ul.sortable li input.item-list-input.error, #containing-class-input.error, #method-name-input.error
+ul.sortable li input.item-list-input
 {
-    background-color: rgba(255, 0, 0, 0.14);
+    position: relative;
+    bottom: 5px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: gray;
+    padding: 3px;
+}
+
+input.error, ul.sortable li input.item-list-input.error
+{
+    background-color: rgba(255, 228, 233, 0.99);
+    border-color: red;
+    border-style: solid;
+    border-width: 1px;
 }
 
 ul.sortable li input.item-list-remove-button, #remove-return-type-button
 {
     position: relative;
     bottom: 5px;
-}
-
-ul.overview_toc_list {
-	list-style-type: none; 
-	font-family: sans-serif;
-	font-size:0.95em;
-	padding-left: 5px;
-}
-
-ul.overview_toc_list a
-{
-    color: #052F6D;
-    padding-left: 2px;
-    padding-right: 2px;
-}
-
-ul.overview_toc_list a:hover
-{
-    border-radius: 2px;
-    border-left: solid 1px #052F6D;
-    border-right: solid 1px #052F6D;
-    text-decoration: none;
-;
-}
-
-ul.overview_toc_list a:visited
-{
-    color: #437DD4;
 }
 
 b.class
