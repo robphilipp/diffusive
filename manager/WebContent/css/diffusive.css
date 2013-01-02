@@ -55,12 +55,11 @@ nav a:hover
 
 article 
 {
-	position: fixed;
-    overflow: auto;
+	position: absolute;
 	left: 250px;
 	top: 80px;
 	width: 730px;
-    height: 750px;
+    /*height: 750px;*/
 	background-color: #fff;
 	font-family: calibri;
 	line-height: 1.1em;
@@ -191,7 +190,7 @@ ul.sortable
     list-style-type: none;
     margin: 0;
     padding: 0;
-    width: 50%;
+    /*width: 50%;*/
 }
 
 ul.sortable li
@@ -208,7 +207,7 @@ ul.sortable li span
     margin-left: -1.3em;
 }
 
-ul.sortable li input.item-list-input
+ul.sortable li input.item-list-input, input[type=text]
 {
     position: relative;
     bottom: 5px;
@@ -218,7 +217,12 @@ ul.sortable li input.item-list-input
     border-style: solid;
     border-color: gray;
     padding: 3px;
-    width: 85%;
+    /*width: 85%;*/
+}
+
+ul.sortable li input.item-list-input.error, #containing-class-input.error, #method-name-input.error
+{
+    background-color: rgba(255, 0, 0, 0.14);
 }
 
 ul.sortable li input.item-list-remove-button, #remove-return-type-button

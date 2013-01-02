@@ -69,6 +69,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	public static final String ARRAY_IDENTIFIER = "[";
 	
 	// regular expression for matching a parsing the diffusive signature
+	// TODO maybe need to change the regex for the class name to: ([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*
 	private static final String VALID_NAME = "[a-zA-Z]+[\\w]*";
 	private static final String PRIMITIVE_ARRAY = createPrimitiveArray( ENCODED_ARRAY_IDENTIFIER );
 	private static final String OBJECT_ARRAY = createObjectArray( ENCODED_ARRAY_IDENTIFIER, VALID_NAME );
