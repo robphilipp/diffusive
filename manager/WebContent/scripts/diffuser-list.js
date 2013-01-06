@@ -46,10 +46,10 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
         }
 
         // create the new list
-        $(xml).find( "entry").each( function() {
-            diffuserList.append( '<dt>' + $( this ).find( "title" ).text() + '</dt>' );
-            diffuserList.append( '<dd><p>' +
-                '<a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
+        $( xml).find( "entry").each( function() {
+            diffuserList.append( '<dt class="diffuser-signature">' + $( this ).find( "title" ).text() + '</dt>' );
+            diffuserList.append( '<dd>' +
+                '<p><a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
                 '<p>Strategy: ' + $( this ).find( "strategy" ).text() + '</p>' +
                 '<p>End Points: ' + $( this ).find( "endPoints" ).text() + '</p>' +
                 '<p>Serializer: ' + $( this ).find( "serializer" ).text() + '</p>' +
@@ -60,5 +60,11 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
                 '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
                 '</dd>' );
         })
+
+        // set the toggle of the diffuser data
+        $( ".diffuser-signature" ).click( function() {
+            $( this ).next().toggle();
+        });
+
     }, "xml" ).error( function() { alert( 'failed to load diffuser list' ) } );
 }

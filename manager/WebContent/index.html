@@ -5,6 +5,11 @@
     <link rel="stylesheet" type="text/css" href="themes/jquery-ui-1.9.2.custom.css">
     <link rel="stylesheet" type="text/css" href="css/diffusive.css">
 
+    <style>
+        .diffuser-signature { color:red; margin:5px; cursor:pointer; }
+        .diffuser-signature:hover { background:yellow; }
+    </style>
+
     <script src="scripts/jquery-1.8.3.js"></script>
     <script src="scripts/ui/jquery-ui-1.9.2.custom.js"></script>
     <script src="scripts/plugins/jquery.validate.js"></script>
@@ -23,6 +28,10 @@
 
             // grab the list of diffusers from the server and place it in the diffuser-list tab
             getDiffuserList( diffusersUri, "#diffuser-list" );
+            $( ".description-title" ).click( function() {
+
+                $( this ).next().toggle();
+            });
 
             // grab the list of the serializer names from the server and place them in the select UI element
             getSerializerList( serializersUri, "#serializer-name-list", "persistence_xml" );
@@ -110,7 +119,7 @@
             });
 
             // remove the item from the list when the associated button is pressed
-            $(".item-list-remove-button").live( "click", function() {
+            $( ".item-list-remove-button" ).live( "click", function() {
                 $( this ).parent().remove();
             });
 
@@ -201,6 +210,10 @@
         </ul>
 
         <div id="list-diffusers">
+            <dl id="test-description">
+                <dt class="description-title">This is a title</dt>
+                <dd><p>This is the text 1</p><p>This is the text 2</p></dd>
+            </dl>
             <dl id="diffuser-list"></dl>
         </div>
         <div id="create-diffuser">
