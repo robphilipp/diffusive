@@ -220,3 +220,31 @@ td
 	border-color: #EBEBEB;
 	padding: 5px 15px 5px 5px;
 }
+
+.diffuser-signature
+{
+    font-weight: normal;
+    font-family: sans-serif;
+    font-size: 1em;
+    color: #437DD4;
+    background-color: #bcdeff;
+    border-color: #437DD4;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;;
+    padding: 5px 5px 5px 5px;
+    margin:5px;
+    cursor:pointer;
+}
+
+.diffuser-signature:hover
+{
+    color: #bcdeff;
+    background-color: #437DD4;
+    border-color: #bcdeff;
+}
+
+.diffuser-remove-button
+{
+    margin-right: 10px;
+}

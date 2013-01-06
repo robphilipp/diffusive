@@ -47,8 +47,8 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
 
         // create the new list
         $( xml).find( "entry").each( function() {
-            diffuserList.append( '<dt class="diffuser-signature">' + $( this ).find( "title" ).text() + '</dt>' );
-            diffuserList.append( '<dd>' +
+            diffuserList.append( '<dt class="diffuser-signature"><input type="button" class="diffuser-remove-button" value="x">' + $( this ).find( "title" ).text() + '</dt>' );
+            diffuserList.append( '<dd class="diffuser-details" hidden="true">' +
                 '<p><a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
                 '<p>Strategy: ' + $( this ).find( "strategy" ).text() + '</p>' +
                 '<p>End Points: ' + $( this ).find( "endPoints" ).text() + '</p>' +
@@ -65,6 +65,22 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
         $( ".diffuser-signature" ).click( function() {
             $( this ).next().toggle();
         });
+
+        // set up the ability to delete diffusers
+        $( ".diffuser-remove-button" ).click( function( e ) {
+            $.ajax({
+                url: diffusersUri + "/" + $(this ).parent().text(),
+                type: "DELETE",
+                dataType: "xml",
+                success: function( data, textStatus, jqXHR ) {
+                    getDiffuserList( diffusersUri, "#diffuser-list" );
+                },
+                error: function( jqXhr, textStatus, errorThrown ) {
+                    alert( textStatus + ": " + errorThrown );
+                }
+            });
+            e.stopPropagation();
+        })
 
     }, "xml" ).error( function() { alert( 'failed to load diffuser list' ) } );
 }
