@@ -10,12 +10,14 @@
     <script src="scripts/plugins/jquery.validate.js"></script>
     <script src="scripts/diffuser-list.js"></script>
     <script src="scripts/serializer-list.js"></script>
+    <script src="scripts/diffuser-form.js"></script>
     <script type="text/javascript">
-        $(function() {
-            $( "#tabs" ).tabs();
-        });
-        $( document ).ready( function()
-        {
+        $( document ).ready( function() {
+
+            $(function() {
+                $( "#tabs" ).tabs();
+            });
+
 //            var serverUri = "";
             var serverUri = "http://192.168.1.5:8182";
             var diffusersUri = serverUri + "/diffusers";
@@ -34,157 +36,192 @@
             // make the item-lists (arguments, end-points, class-paths) sortable through drag and drop
             $( ".sortable" ).sortable();
 
-            // set up the validator
-            $("#create-diffuser-form" ).validate({
-                submitHandler: function() {
-                    // grab the forms fields
-                    var containingClass = $( "#containing-class-input" ).val();
-                    var methodName = $( "#method-name-input" ).val();
-                    var methodArgs = getValues( "#method-argument-list" );
-                    var returnType = getReturnType();
-                    var classPaths = getValues( "#class-path-list" );
-                    var endPoints = getValues( "#end-points-list" );
-                    var serializerName = getSerializerName();
-                    var request = JSON.stringify( new CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) );
-                    $.ajax({
-                        url: diffusersUri,
-                        type: "PUT",
-                        data: request,
-                        dataType: "xml",
-                        contentType: "application/json; charset=UTF-8",
-                        success: function( data, textStatus, jqXHR ) {
-                            resetCreateDiffuserForm();
-                            getDiffuserList( diffusersUri, "#diffuser-list" );
-                            $( "#tabs" ).tabs( "select", 0 );
-                        },
-                        error: function( jqXhr, textStatus, errorThrown ) {
-                            alert( textStatus + ": " + errorThrown );
-                        }
-                    });
-                    return false;
-                },
-
-                // don't show the validation messages, the fields turn red when
-                // invalid anyway
-                errorPlacement: function( error, element ) {
-                    error.appendTo( function() {} );
+            var diffuserForm = new DiffuserForm( "create-diffuser-form", diffusersUri, {
+                successCallback : function( data, textStatus, jqXHR ) {
+                    getDiffuserList( diffusersUri, "#diffuser-list" );
+                    $( "#tabs" ).tabs( "select", 0 );
                 }
             });
 
-            // validator override for the class-name
-            jQuery.validator.addMethod( "class-name", function( value, element ) {
-                return value.match( /^([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*$/ );
-            }, "Invalid Java class name." );
-
-            // validator override for the method-name
-            jQuery.validator.addMethod( "method-name", function( value, element ) {
-                return value.match( /^[a-zA-Z_$][a-zA-Z\d_$]*$/ );
-            }, "Invalid Java method name." );
-
-            // validator override for the method-name
-            jQuery.validator.addMethod( "variable-name", function( value, element ) {
-                return value.match( /^([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*$/ );
-            }, "Invalid Java variable name." );
-
-            // add argument input field and remove-item button to the method's argument list
-            $( "#add-arg-type-button" ).click( function() {
-                $( "#method-argument-list" ).append( '<li>' +
-                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
-                        '<input type="text" class="item-list-input variable-name" value="" size="55">' +
-                        '<input type="button" class="item-list-remove-button" value="x">' +
-                        '</li>' );
-            });
-
-            // add class-path input field and remove-item button to the class-path list
-            $( "#add-class-path-button" ).click( function() {
-                $( "#class-path-list" ).append( '<li>' +
-                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
-                        '<input type="text" class="item-list-input url" value="" size="55">' +
-                        '<input type="button" class="item-list-remove-button" value="x">' +
-                        '</li>' );
-            });
-
-            // add end-point input field and remove-item button to the end-point list
-            $( "#add-end-points-button" ).click( function() {
-                $( "#end-points-list" ).append( '<li>' +
-                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
-                        '<input type="text" class="item-list-input url" value="" size="55">' +
-                        '<input type="button" class="item-list-remove-button" value="x">' +
-                        '</li>' );
-            });
-
-            // remove the item from the list when the associated button is pressed
-            $( ".item-list-remove-button" ).live( "click", function() {
-                $( this ).parent().remove();
-            });
-
-            // allows the user to add a return type; once clicked, hides itself
-            $( "#add-return-type-button" ).click( function() {
-                $( "#return-type-list" ).append( '<li>' +
-                        '<input type="text" class="item-list-input variable-name" value=""  size="55">' +
-                        '<input type="button" id="remove-return-type-button" value="x">' +
-                        '</li>' );
-                $( "#add-return-type-button" ).hide();
-            });
-
-            // allows the user to remove the return type; once clicked shows the add-return-type button
-            $( "#remove-return-type-button" ).live( "click", function() {
-                $( this ).parent().remove();
-                $( "#add-return-type-button" ).show();
-            });
-
-            // resets the create-diffuser form and add the handler
-            function resetCreateDiffuserForm() {
-
-                // grab the form used for creating the diffuser
-                var $form = $( "#create-diffuser-form" );
-
-                // sets all the form's text input fields to empty
-                $form.find( "input[type=text]" ).val( "" );
-
-                // removes all the form's input fields from the lists
-                $form.find( "input[class=item-list-input]" ).parent().remove();
-
-                // adds the add-return-type button back, in case it was gone
-                $( "#add-return-type-button" ).show();
-            }
-            $( "#create-diffuser-reset-button" ).click( resetCreateDiffuserForm() );
-
-            function getValues( listId ) {
-                var argElems = $( listId ).find( ".item-list-input" ).toArray();
-                var arguments = [];
-                for( var i = 0; i < argElems.length; ++i ) {
-                    arguments.push( $(argElems[ i ]).val() );
-                }
-                return arguments;
-            };
-
-            function getReturnType() {
-                var argElems = $( "#return-type-list" ).find( ".item-list-input" ).toArray();
-                var argument = "void";
-                if( argElems.length > 0 ) {
-                    argument = $(argElems[ 0 ]).val()
-                }
-                return argument;
-            };
-
-            function getSerializerName() {
-                var serializerName = $( "#serializer-name-list" ).val();
-                if( serializerName === null ) {
-                    serializerName = "persistence_xml";
-                }
-                return serializerName;
-            }
-
-            function CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) {
-                this.containingClassName = containingClass;
-                this.methodName = methodName;
-                this.returnTypeClassName = returnType;
-                this.argumentTypes = methodArgs;
-                this.classPaths = classPaths;
-                this.serializerType = serializerName;
-                this.clientEndpoints = endPoints;
-            };
+//            // set up the validator
+//            $("#create-diffuser-form" ).validate({
+//                submitHandler: function() {
+//                    $.ajax({
+//                        context: diffuserForm,
+//                        url: diffusersUri,
+//                        type: "PUT",
+//                        data: diffuserForm.asJson(),
+//                        dataType: "xml",
+//                        contentType: "application/json; charset=UTF-8",
+//                        success: function( data, textStatus, jqXHR ) {
+//                            diffuserForm.resetForm();
+//                            getDiffuserList( diffusersUri, "#diffuser-list" );
+//                            $( "#tabs" ).tabs( "select", 0 );
+//                        },
+//                        error: function( jqXhr, textStatus, errorThrown ) {
+//                            alert( textStatus + ": " + errorThrown );
+//                        }
+//                    });
+//                    return false;
+//                },
+//
+//                // don't show the validation messages, the fields turn red when
+//                // invalid anyway
+//                errorPlacement: function( error, element ) {
+//                    error.appendTo( function() {} );
+//                }
+//            });
+//
+//            $("#create-diffuser-form" ).validate({
+//                submitHandler: function() {
+//                    // grab the forms fields
+//                    var containingClass = $( "#containing-class-input" ).val();
+//                    var methodName = $( "#method-name-input" ).val();
+//                    var methodArgs = getValues( "#method-argument-list" );
+//                    var returnType = getReturnType();
+//                    var classPaths = getValues( "#class-path-list" );
+//                    var endPoints = getValues( "#end-points-list" );
+//                    var serializerName = getSerializerName();
+//                    var request = JSON.stringify( new CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) );
+//                    $.ajax({
+//                        url: diffusersUri,
+//                        type: "PUT",
+//                        data: request,
+//                        dataType: "xml",
+//                        contentType: "application/json; charset=UTF-8",
+//                        success: function( data, textStatus, jqXHR ) {
+//                            resetCreateDiffuserForm();
+//                            getDiffuserList( diffusersUri, "#diffuser-list" );
+//                            $( "#tabs" ).tabs( "select", 0 );
+//                        },
+//                        error: function( jqXhr, textStatus, errorThrown ) {
+//                            alert( textStatus + ": " + errorThrown );
+//                        }
+//                    });
+//                    return false;
+//                },
+//
+//                // don't show the validation messages, the fields turn red when
+//                // invalid anyway
+//                errorPlacement: function( error, element ) {
+//                    error.appendTo( function() {} );
+//                }
+//            });
+//
+//            // validator override for the class-name
+//            jQuery.validator.addMethod( "class-name", function( value, element ) {
+//                return value.match( /^([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*$/ );
+//            }, "Invalid Java class name." );
+//
+//            // validator override for the method-name
+//            jQuery.validator.addMethod( "method-name", function( value, element ) {
+//                return value.match( /^[a-zA-Z_$][a-zA-Z\d_$]*$/ );
+//            }, "Invalid Java method name." );
+//
+//            // validator override for the method-name
+//            jQuery.validator.addMethod( "variable-name", function( value, element ) {
+//                return value.match( /^([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*$/ );
+//            }, "Invalid Java variable name." );
+//
+//            // add argument input field and remove-item button to the method's argument list
+//            $( "#add-arg-type-button" ).click( function() {
+//                $( "#method-argument-list" ).append( '<li>' +
+//                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
+//                        '<input type="text" class="item-list-input variable-name" value="" size="55">' +
+//                        '<input type="button" class="item-list-remove-button" value="x">' +
+//                        '</li>' );
+//            });
+//
+//            // add class-path input field and remove-item button to the class-path list
+//            $( "#add-class-path-button" ).click( function() {
+//                $( "#class-path-list" ).append( '<li>' +
+//                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
+//                        '<input type="text" class="item-list-input url" value="" size="55">' +
+//                        '<input type="button" class="item-list-remove-button" value="x">' +
+//                        '</li>' );
+//            });
+//
+//            // add end-point input field and remove-item button to the end-point list
+//            $( "#add-end-points-button" ).click( function() {
+//                $( "#end-points-list" ).append( '<li>' +
+//                        '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
+//                        '<input type="text" class="item-list-input url" value="" size="55">' +
+//                        '<input type="button" class="item-list-remove-button" value="x">' +
+//                        '</li>' );
+//            });
+//
+//            // remove the item from the list when the associated button is pressed
+//            $( ".item-list-remove-button" ).live( "click", function() {
+//                $( this ).parent().remove();
+//            });
+//
+//            // allows the user to add a return type; once clicked, hides itself
+//            $( "#add-return-type-button" ).click( function() {
+//                $( "#return-type-list" ).append( '<li>' +
+//                        '<input type="text" class="item-list-input variable-name" value=""  size="55">' +
+//                        '<input type="button" id="remove-return-type-button" value="x">' +
+//                        '</li>' );
+//                $( "#add-return-type-button" ).hide();
+//            });
+//
+//            // allows the user to remove the return type; once clicked shows the add-return-type button
+//            $( "#remove-return-type-button" ).live( "click", function() {
+//                $( this ).parent().remove();
+//                $( "#add-return-type-button" ).show();
+//            });
+//
+//            // resets the create-diffuser form and add the handler
+//            function resetCreateDiffuserForm() {
+//
+//                // grab the form used for creating the diffuser
+//                var $form = $( "#create-diffuser-form" );
+//
+//                // sets all the form's text input fields to empty
+//                $form.find( "input[type=text]" ).val( "" );
+//
+//                // removes all the form's input fields from the lists
+//                $form.find( "input[class=item-list-input]" ).parent().remove();
+//
+//                // adds the add-return-type button back, in case it was gone
+//                $( "#add-return-type-button" ).show();
+//            }
+//            $( "#create-diffuser-reset-button" ).click( resetCreateDiffuserForm() );
+//
+//            function getValues( listId ) {
+//                var argElems = $( listId ).find( ".item-list-input" ).toArray();
+//                var arguments = [];
+//                for( var i = 0; i < argElems.length; ++i ) {
+//                    arguments.push( $(argElems[ i ]).val() );
+//                }
+//                return arguments;
+//            };
+//
+//            function getReturnType() {
+//                var argElems = $( "#return-type-list" ).find( ".item-list-input" ).toArray();
+//                var argument = "void";
+//                if( argElems.length > 0 ) {
+//                    argument = $(argElems[ 0 ]).val()
+//                }
+//                return argument;
+//            };
+//
+//            function getSerializerName() {
+//                var serializerName = $( "#serializer-name-list" ).val();
+//                if( serializerName === null ) {
+//                    serializerName = "persistence_xml";
+//                }
+//                return serializerName;
+//            }
+//
+//            function CreateDiffuserRequest( containingClass, methodName, methodArgs, returnType, classPaths, endPoints, serializerName ) {
+//                this.containingClassName = containingClass;
+//                this.methodName = methodName;
+//                this.returnTypeClassName = returnType;
+//                this.argumentTypes = methodArgs;
+//                this.classPaths = classPaths;
+//                this.serializerType = serializerName;
+//                this.clientEndpoints = endPoints;
+//            };
         });
     </script>
 
@@ -212,6 +249,7 @@
                 <div class="form-element">
                     <p id="containing-class-name">Containing Class Name:
                         <input type="text" id="containing-class-input" class="required class-name" size="55"/></p>
+                        <!--<input pattern="^([a-zA-Z_$][a-zA-Z\d_$]*\.)*[a-zA-Z_$][a-zA-Z\d_$]*$" id="containing-class-input" required size="55"/></p>-->
                     <p class="note">This should be the fully-qualified name of the Java class containing the method.</p>
                     <p id="method-name">Method Name:
                         <input type="text" id="method-name-input" class="required method-name" size="35"/></p>
