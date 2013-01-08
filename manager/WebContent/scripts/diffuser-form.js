@@ -152,6 +152,7 @@ function DiffuserForm( formId, diffusersUri, settings ) {
 
         // removes all the form's input fields from the lists
         $( "." + listItemClass ).remove();
+        $( "." + listItemInputClass ).parent().remove();
 
         // adds the add-return-type button back, in case it was gone
         $( "#" + config.addReturnTypeButtonId ).show();
