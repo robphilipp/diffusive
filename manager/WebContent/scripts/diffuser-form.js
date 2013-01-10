@@ -141,19 +141,19 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
         $( this ).parent().remove();
     });
 
-    // allows the user to add a return type; once clicked, hides itself
+    // allows the user to add a return type; once clicked, disables itself
     $( "#" + config.addReturnTypeButtonId ).click( function() {
         $( "#" + config.returnTypeId ).append( '<li>' +
             '<input type="text" class="' + listItemInputClass + ' ' + variableName + '" value=""  size="55">' +
             '<input type="button" id="' + config.removeReturnTypeButtonId + '" value="x">' +
             '</li>' );
-        $( "#" + config.addReturnTypeButtonId ).hide();
+        $( "#" + config.addReturnTypeButtonId ).attr( "disabled", "disabled" );
     });
 
-    // allows the user to remove the return type; once clicked shows the add-return-type button
+    // allows the user to remove the return type; once clicked enables the add-return-type button
     $( "#" + config.removeReturnTypeButtonId ).live( "click", function() {
         $( this ).parent().remove();
-        $( "#" + config.addReturnTypeButtonId ).show();
+        $( "#" + config.addReturnTypeButtonId ).removeAttr( "disabled" );
     });
 
 
@@ -162,10 +162,9 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
     //
 
     /**
-     * Creates the diffuser form
+     * Creates the diffuser form HTML code and adds the div specified as the method argument to the containing function
      */
     function createDiffuserForm() {
-        //
         // create the fist div containing the signature information
         var $div = $( "<div></div>" ).addClass( formElementName );
 
