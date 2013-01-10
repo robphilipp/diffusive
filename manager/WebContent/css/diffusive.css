@@ -161,9 +161,15 @@ input[type=text]
     padding: 3px;
 }
 
+#add-arg-type-button, #add-return-type-button, #add-class-path-button, #add-end-points-button
+{
+    margin-right: 5px;
+}
+
 ul.sortable li input.item-list-input
 {
     position: relative;
+    left: 10px;
     bottom: 5px;
     border-width: 1px;
     border-style: solid;
@@ -182,6 +188,7 @@ input.error, ul.sortable li input.item-list-input.error
 ul.sortable li input.item-list-remove-button, #remove-return-type-button
 {
     position: relative;
+    left: 10px;
     bottom: 5px;
 }
 

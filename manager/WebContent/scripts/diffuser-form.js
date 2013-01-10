@@ -3,9 +3,10 @@
  * Date: 1/7/13
  * Time: 9:08 AM
  */
-function DiffuserForm( formId, diffusersUri, settings ) {
+function DiffuserForm( parentId, diffusersUri, settings ) {
 
     var config = {
+        formId : "create-diffuser-form",
         containingClassId : "containing-class-input",
         methodNameId : "method-name-input",
         returnTypeId : "return-type-list",
@@ -24,9 +25,10 @@ function DiffuserForm( formId, diffusersUri, settings ) {
 
         addEndpointButtonId : "add-end-points-button",
 
-        createDiffuserResetButtonId : "create-diffuser-reset-button",
+        submitButtonId: "create-diffuser-submit-button",
+        resetButtonId : "create-diffuser-reset-button",
 
-        successCallback: function( data, textStatus, jqXHR ) {}
+        successCallback: function() {}
     };
 
     // private constants used only internally
@@ -40,12 +42,29 @@ function DiffuserForm( formId, diffusersUri, settings ) {
     var className = "class-name";
     var methodName = "method-name";
     var variableName = "variable-name";
+    var serializerName = "serializer-name";
+
+    var returnType = "return-type";
+    var classPaths = "class-paths";
+    var endPoints = "end-points";
+
+    var formElementName = "form-element";
 
     // merge the configuration items specified in the function and the default ones
     $.extend( config, settings );
 
+    //
+    // create the diffuser form
+    //
+    var $form = $( "<form></form>", { "id": config.formId } );
+
+    createDiffuserForm();
+
+    // make the item-lists (arguments, end-points, class-paths) sortable through drag and drop
+    $( ".sortable" ).sortable();
+
     // set up the validator
-    $( "#" + formId ).validate({
+    $( "#" + config.formId ).validate({
         submitHandler: function() {
             $.ajax({
                 url: diffusersUri,
@@ -66,13 +85,13 @@ function DiffuserForm( formId, diffusersUri, settings ) {
 
         // don't show the validation messages, the fields turn red when
         // invalid anyway
-        errorPlacement: function( error, element ) {
+        errorPlacement: function( error ) {
             error.appendTo( function() {} );
         }
     });
 
     // add the handler for resetting the form
-    $( "#" + config.createDiffuserResetButtonId ).click( function() { resetDiffuserForm() } );
+    $( "#" + config.resetButtonId ).click( function() { resetDiffuserForm() } );
 
     // validator override for the class-name
     jQuery.validator.addMethod( className, function( value )
@@ -137,13 +156,86 @@ function DiffuserForm( formId, diffusersUri, settings ) {
         $( "#" + config.addReturnTypeButtonId ).show();
     });
 
+
+    //
+    // METHODS
+    //
+
+    /**
+     * Creates the diffuser form
+     */
+    function createDiffuserForm() {
+        //
+        // create the fist div containing the signature information
+        var $div = $( "<div></div>" ).addClass( formElementName );
+
+        // containing class name and note
+        var $para = $( "<p>Containing Class Name: </p>", { id: config.containingClassId } );
+        $( "<input>", { id: config.containingClassId, type: "text" } ).addClass( "required " + className ).appendTo( $para );
+        $para.appendTo( $div );
+        $( "<p>This should be the fully-qualified name of the Java class containing the method.</p>" ).addClass( "note" ).appendTo( $div );
+
+        // method name
+        $para = $( "<p>Method Name: </p>", { id: config.methodNameId } );
+        $( "<input>", { id: config.methodNameId, type: "text" } ).addClass( "required " + methodName ).appendTo( $para );
+        $para.appendTo( $div );
+
+        // method arguments
+        $para = $( "<p></p>", { id: config.methodNameId } );
+        $( "<input>", { type: "button", id: config.addArgTypeButtonId, value: "+" } ).appendTo( $para );
+        $para.append( "Method Arguments" );
+        $( "<ul></ul>", { id: config.methodArgListId } ).addClass( "sortable" ).appendTo( $para );
+        $para.appendTo( $div );
+
+        // return type
+        $para = $( "<p></p>", { id: returnType } );
+        $( "<input>", { type: "button", id: config.addReturnTypeButtonId, value: "+" } ).appendTo( $para );
+        $para.append( "Return Type" );
+        $( "<ul></ul>", { id: config.returnTypeId } ).addClass( "sortable" ).appendTo( $para );
+        $para.appendTo( $div );
+
+        $div.appendTo( $form );
+
+        // div holding the class paths
+        $div = $( "<div></div>" ).addClass( formElementName );
+        $para = $( "<p></p>", { id: classPaths } );
+        $( "<input>", { type: "button", id: config.addClassPathButtonId, value: "+" } ).appendTo( $para );
+        $para.append( "Class-Path" );
+        $( "<ul></ul>", { id: config.classPathListId } ).addClass( "sortable" ).appendTo( $para );
+        $para.appendTo( $div );
+        $div.appendTo( $form );
+
+        // div holding the additional endpoints
+        $div = $( "<div></div>" ).addClass( formElementName );
+        $para = $( "<p></p>", { id: endPoints } );
+        $( "<input>", { type: "button", id: config.addEndpointButtonId, value: "+" } ).appendTo( $para );
+        $para.append( "Additional Diffuser End-Points" );
+        $( "<ul></ul>", { id: config.endPointListId } ).addClass( "sortable" ).appendTo( $para );
+        $para.appendTo( $div );
+        $div.appendTo( $form );
+
+        // div containing the serializer name and option selection
+        $div = $( "<div></div>" ).addClass( formElementName );
+        $( "<p>Serializer Name: </p>", { id: serializerName } ).appendTo( $div );
+        $( "<select></select>", { id: config.serializerId } ).appendTo( $div );
+        $div.appendTo( $form );
+
+        // div containing the buttons
+        $div = $( "<div></div>" );
+        $( "<input>", { type: "submit", id: config.submitButtonId, value: "Create" } ).appendTo( $div );
+        $( "<input>", { type: "button", id: config.resetButtonId, value: "Reset" } ).appendTo( $div );
+        $div.appendTo( $form );
+
+        $form.appendTo( "#" + parentId );
+    }
+
     /**
      * resets the create-diffuser form and add the handler
      */
     function resetDiffuserForm() {
 
         // grab the form used for creating the diffuser
-        var $form = $( "#" + formId );
+//        var $form = $( "#" + config.formId );
 
         // sets all the form's text input fields to empty
         $( "#" + config.containingClassId ).val( "" );
@@ -206,7 +298,7 @@ function DiffuserForm( formId, diffusersUri, settings ) {
             clientEndpoints : getValues( config.endPointListId )
         };
         return JSON.stringify( formValues );
-    };
+    }
 
     // the exposed diffuser form methods
     return {
