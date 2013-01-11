@@ -40,10 +40,6 @@ public class Task implements Callable< Result >, Serializable {
 		double result = 0;
 		for( int i = 0; i < 10_000; ++i )
 		{
-//			for( int j = 0; j < numInnerLoops; ++j )
-//			{
-//				result += i / ( j + 1 );
-//			}
 			result += loop( new int[] {numInnerLoops, i} );
 		}
 		return new Result( result, numInnerLoops, id );
