@@ -178,7 +178,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " + getDiffuser + " );\n" );
 					
 					// the actual Diffusive call
-					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );";
+					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $args );";
 					code.append( "    $_ = ($r)" + diffusiveCall );
 				}
 				else
@@ -190,7 +190,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " + getDiffuser + " );\n" );
 					
 					// the actual Diffusive call
-					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $$ );";
+					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $args );";
 					code.append( "    $_ = ($r)" + diffusiveCall );
 				}
 				

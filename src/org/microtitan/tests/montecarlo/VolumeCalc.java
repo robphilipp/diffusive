@@ -22,6 +22,7 @@ import java.util.Random;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.microtitan.diffusive.annotations.Diffusive;
 
 /**
  * Monte Carlo volume calculator for {@link Cube} objects.
@@ -53,7 +54,8 @@ public class VolumeCalc {
 	 * @param maxIterations The maximum number of iterations
 	 * @return The volume of the {@link #cube} from the simulation
 	 */
-	public double calcVolume( final long seed, final long maxIterations )
+	@Diffusive
+	public double calcVolume( final Long seed, final Long maxIterations )
 	{
 		final long start = System.currentTimeMillis();
 
@@ -100,7 +102,7 @@ public class VolumeCalc {
 		final List< Double > volumes = new ArrayList<>();
 		for( int i = 0; i < numSimulations; ++i )
 		{
-			volumes.add( calcVolume( i, maxIterations ) );
+			volumes.add( calcVolume( (long)i, maxIterations ) );
 		}
 		return volumes;
 	}
@@ -149,7 +151,7 @@ public class VolumeCalc {
 		final VolumeCalc calc = new VolumeCalc( cube, new Cube( 4.0, 4.0, 4.0, 4.0 ) );
 
 		final long start = System.currentTimeMillis();
-		final List< Double > volumes = calc.calcVolumes( 10, 10_000_000 );
+		final List< Double > volumes = calc.calcVolumes( 100, 10_000_000 );
 		final double elapsedTime = (double)(System.currentTimeMillis() - start) / 1000;
 
 		System.out.println( "Volume: " + mean( volumes ) + " +- " + variance( volumes ) + " (" + elapsedTime + " s)" );
