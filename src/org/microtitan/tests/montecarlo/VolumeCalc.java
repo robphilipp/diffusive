@@ -151,7 +151,7 @@ public class VolumeCalc {
 		final VolumeCalc calc = new VolumeCalc( cube, new Cube( 4.0, 4.0, 4.0, 4.0 ) );
 
 		final long start = System.currentTimeMillis();
-		final List< Double > volumes = calc.calcVolumes( 100, 10_000_000 );
+		final List< Double > volumes = calc.calcVolumes( 1, 10_000_000 );
 		final double elapsedTime = (double)(System.currentTimeMillis() - start) / 1000;
 
 		System.out.println( "Volume: " + mean( volumes ) + " +- " + variance( volumes ) + " (" + elapsedTime + " s)" );

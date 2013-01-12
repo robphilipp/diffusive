@@ -19,6 +19,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
+import org.freezedry.persistence.XmlPersistence;
+
 /**
  * Cube whose "lower left-hand side" sits on the origin.
  * 
@@ -35,9 +40,12 @@ public class Cube {
 	public Cube( final List< Double > dimensions )
 	{
 		this.dimensions = new ArrayList<>();
-		for( double dimension : dimensions )
+		if( dimensions != null )
 		{
-			this.dimensions.add( Math.abs( dimension ) );
+			for( double dimension : dimensions )
+			{
+				this.dimensions.add( Math.abs( dimension ) );
+			}
 		}
 	}
 	
@@ -133,5 +141,24 @@ public class Cube {
 			volume *= dimension;
 		}
 		return volume;
+	}
+	
+	public static void main( String...args )
+	{
+		// set the logging level
+		DOMConfigurator.configure( "log4j.xml" );
+		Logger.getRootLogger().setLevel( Level.DEBUG );
+
+		final Cube cube = new Cube( 2.0, 2.0, 2.0, 2.0 );
+
+		final XmlPersistence persistence = new XmlPersistence();
+		persistence.write( cube, "cube.xml" );
+		Cube newCube = persistence.read( Cube.class, "cube.xml" );
+		System.out.println( newCube );
+		
+		final VolumeCalc calc = new VolumeCalc( cube, new Cube( 4.0, 4.0, 4.0, 4.0 ) );
+		persistence.write( calc, "volume_calc.xml" );
+		VolumeCalc newCalc = persistence.read( VolumeCalc.class, "volume_calc.xml" );
+		System.out.println( newCalc );
 	}
 }

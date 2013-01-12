@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.microtitan.diffusive.Constants;
 
 /**
  * Monte Carlo volume calculator for {@link Cube} objects that threads the calculation
@@ -116,7 +117,13 @@ public class ThreadedVolumeCalc extends VolumeCalc {
 		}
 		catch( ExecutionException e )
 		{
-			throw new IllegalStateException( e );
+			final StringBuffer message = new StringBuffer();
+			message.append( "Error: volumes=" + Constants.NEW_LINE );
+			for( double volume : volumes )
+			{
+				message.append( "  " + volume );
+			}
+			throw new IllegalStateException( message.toString(), e );
 		}
 		finally
 		{
