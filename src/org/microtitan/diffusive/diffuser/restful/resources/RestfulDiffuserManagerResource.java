@@ -83,6 +83,7 @@ import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
 import org.microtitan.diffusive.diffuser.strategy.load.TaskCpuLoadCalc;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
+import org.microtitan.diffusive.utils.ReflectionUtils;
 
 /**
  * Use the {@link RestfulDiffuserManagerClient} for testing this resource against the server, which is
@@ -595,10 +596,11 @@ public class RestfulDiffuserManagerResource {
 		
 		// grab the return type class, which may need to come from a remote source
 		final Class< ? > returnType = getClass( diffuserId.getReturnTypeClassName(), signature );
-
+		
 		// create the task that will be submitted to the executor service to run
 		final DiffuserTask task = new DiffuserTask( diffuserId.getMethodName(), 
 													arguments,
+//													diffuserId.getArgumentTypes(),
 													returnType,
 													deserializedObject, 
 													diffuser,
@@ -651,15 +653,25 @@ public class RestfulDiffuserManagerResource {
 	 */
 	private synchronized Class< ? > getClass( final String classname, final String signature )
 	{
+//		// if the specified class name represents a primitive, then return than, otherwise begin the search for the 
+//		// class through the various class loaders
+		Class< ? > clazz = getPrimitive( classname );
+//		if( clazz != null )
+//		{
+//			return clazz;
+//		}
+		
 		// attempt to get the class for the specified class name, and if that fails, create and use
 		// a URL class loader with the diffuser's specific class paths, and whose parent class loader
 		// is the same class loader as loaded this class.
-		Class< ? > clazz = null;
         try
         {
-	        clazz = Class.forName( classname );
+//	        clazz = Class.forName( classname );
+//        	clazz = ReflectionUtils.wrapPrimitive( ReflectionUtils.getClazz( classname ) );
+        	clazz = ReflectionUtils.getClazz( classname );
         }
-		catch( ClassNotFoundException e )
+//		catch( ClassNotFoundException e )
+        catch( IllegalArgumentException e )
 		{
 			// log the fact that we couldn't load the class from the system class path,
 			// and that we're going to use the URL class loader to attempt to load the class
@@ -672,7 +684,7 @@ public class RestfulDiffuserManagerResource {
 				message.append( "  Class Loader: " + this.getClass().getClassLoader().getClass().getName() + Constants.NEW_LINE );
 				message.append( "  System Class Path: " + Constants.NEW_LINE );
 				message.append( "    " + System.getProperty( "java.class.path" ) );
-				LOGGER.info( message.toString() );
+				LOGGER.info( message.toString(), e );
 			}
 			
 			try
@@ -744,6 +756,50 @@ public class RestfulDiffuserManagerResource {
 			}
 		}
 		return clazz;
+	}
+	
+	/**
+	 * Returns the primitive {@link Class} object if the specified class name represents
+	 * a primitive type; otherwise, returns <code>null</code>
+	 * @param classname The name of the class (or primitive) for which to retrieve the {@link Class}
+	 * @return the primitive {@link Class} object if the specified class name represents
+	 * a primitive type; otherwise, returns <code>null</code>
+	 */
+	private Class< ? > getPrimitive( final String classname )
+	{
+		if( Integer.TYPE.toString().equals( classname ) )
+		{
+			return Integer.TYPE;
+		}
+		if( Double.TYPE.toString().equals( classname ) )
+		{
+			return Double.TYPE;
+		}
+		if( Float.TYPE.toString().equals( classname ) )
+		{
+			return Float.TYPE;
+		}
+		if( Long.TYPE.toString().equals( classname ) )
+		{
+			return Long.TYPE;
+		}
+		if( Short.TYPE.toString().equals( classname ) )
+		{
+			return Short.TYPE;
+		}
+		if( Boolean.TYPE.toString().equals( classname ) )
+		{
+			return Boolean.TYPE;
+		}
+		if( Character.TYPE.toString().equals( classname ) )
+		{
+			return Character.TYPE;
+		}
+		if( Byte.TYPE.toString().equals( classname ) )
+		{
+			return Byte.TYPE;
+		}
+		return null;
 	}
 	
 	/**
@@ -1235,6 +1291,7 @@ public class RestfulDiffuserManagerResource {
 		private final Diffuser diffuser;
 		private final String methodName;
 		private final Object[] arguments;
+//		private final List< String > argumentTypes;
 		private final DiffuserLoadCalc loadCalc;
 		
 		/**
@@ -1249,6 +1306,7 @@ public class RestfulDiffuserManagerResource {
 		 */
 		public DiffuserTask( final String methodName,
 							 final List< ? super Object > arguments,
+//							 final List< Class< ? > > argumentTypes,
 							 final Class< ? > returnType,
 							 final Object deserializedObject,
 							 final Diffuser diffuser,
@@ -1260,6 +1318,11 @@ public class RestfulDiffuserManagerResource {
 			this.methodName = methodName;
 			this.arguments = arguments.toArray( new Object[ 0 ] );
 			this.loadCalc = loadCalc;
+//			this.argumentTypes = new ArrayList<>();
+//			for( Class< ? > type : argumentTypes )
+//			{
+//				this.argumentTypes.add( type.getName() );
+//			}
 		}
 
 		/*
@@ -1270,6 +1333,7 @@ public class RestfulDiffuserManagerResource {
 		public Object call()
 		{
 			return diffuser.runObject( loadCalc.getLoad(), returnType, deserializedObject, methodName, arguments );
+//			return diffuser.runObject( loadCalc.getLoad(), returnType, deserializedObject, methodName, argumentTypes, arguments );
 		}
 	}
 	

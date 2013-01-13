@@ -302,7 +302,15 @@ public class RestfulDiffuser extends AbstractDiffuser {
 					{
 						final DiffuserSignature diffuserId = DiffuserSignature.parse( executeResponseCopy.getSignature() );
 						final Class< ? > clazz = diffuserId.getClazz();
-						return client.getResult( returnType, clazz, methodName, executeResponseCopy.getRequestId(), serializer );
+						final List< Class< ? > > argumentTypes = diffuserId.getArgumentTypes();
+						if( argumentTypes != null && !argumentTypes.isEmpty() )
+						{
+							return client.getResult( returnType, clazz, methodName, argumentTypes, executeResponseCopy.getRequestId(), serializer );
+						}
+						else
+						{
+							return client.getResult( returnType, clazz, methodName, executeResponseCopy.getRequestId(), serializer );
+						}
 					}
 				};
 				futures.add( executor.submit( task ) );

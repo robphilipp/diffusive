@@ -38,6 +38,19 @@ public class ReflectionUtils {
 		TYPE_MAP.put( boolean.class.getName(), boolean.class );
 	}
 	
+	private static Map< Class< ? >, Class< ? > > WRAP_MAP = new HashMap<>();
+	static {
+		WRAP_MAP.put( void.class, Void.class );
+		WRAP_MAP.put( int.class, Integer.class );
+		WRAP_MAP.put( short.class, Short.class );
+		WRAP_MAP.put( long.class, Long.class );
+		WRAP_MAP.put( double.class, Double.class );
+		WRAP_MAP.put( float.class, Float.class );
+		WRAP_MAP.put( byte.class, Byte.class );
+		WRAP_MAP.put( char.class, Character.class );
+		WRAP_MAP.put( boolean.class, Boolean.class );
+	}
+	
 	private static Map< String, Class< ? > > ENCODED_TYPE_MAP = new HashMap<>();
 	static {
 		ENCODED_TYPE_MAP.put( "I", int.class );
@@ -54,6 +67,7 @@ public class ReflectionUtils {
 	 * Utility method that returns the {@link Class} object for the specified class name.
 	 * @param className The name of the {@link Class} for which to return the {@link Class} object.
 	 * @return the {@link Class} object for the specified class name.
+	 * @throws IllegalArgumentException
 	 */
 	public static Class< ? > getClazz( final String className )
 	{
@@ -107,5 +121,31 @@ public class ReflectionUtils {
 			throw new IllegalArgumentException( message, e );
 		}
 		return clazz;
+	}
+	
+	/**
+	 * If the specified {@link Class} is a primitive, then this function will return the wrapped
+	 * version. For example, if the specified {@link Class} is {@code int.class} or {@code Integer.TYPE}
+	 * this method will return {@code Integer.class}
+	 * @param clazz The {@link Class} to wrap
+	 * @return The specified {@link Class} or the wrapped version of the {@link Class} if it is a primitive
+	 */
+	public static Class< ? > wrapPrimitive( final Class< ? > clazz )
+	{
+		if( WRAP_MAP.containsKey( clazz ) )
+		{
+			return WRAP_MAP.get( clazz ); 
+		}
+		else
+		{
+			return clazz;
+		}
+	}
+	
+	public static void main( String...args )
+	{
+		System.out.println( double.class.getName() );
+		System.out.println( Double.TYPE.getName() );
+		System.out.println( getClazz( "double" ) );
 	}
 }
