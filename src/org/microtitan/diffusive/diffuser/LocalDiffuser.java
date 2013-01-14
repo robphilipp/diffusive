@@ -16,11 +16,10 @@
 package org.microtitan.diffusive.diffuser;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.utils.CollectionUtils;
 
 /**
  * Executes the specified method on the specified object in the local process.
@@ -33,24 +32,41 @@ public class LocalDiffuser extends AbstractDiffuser {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(double, java.lang.Class, java.lang.Object, java.lang.String, java.lang.Object[])
+	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(double, java.lang.Class, java.lang.Object, java.lang.String, java.lang.Class<?>[], java.lang.Object[])
 	 */
 	@Override
-	public Object runObject( final double laod, final Class< ? > returnType, final Object object, final String methodName, final Object...arguments )
+	public Object runObject( final double laod, final Class< ? > returnType, final Object object, final String methodName, final Class< ? >[] argTypes, final Object...arguments )
 	{
-		final Class< ? > clazz = object.getClass();
-		
-		// grab the array of parameter types so that we know the signature of the method we want to call
-		Class< ? >[] params = null;
-		if( arguments != null && arguments.length > 0 )
+		// check to make sure that if argTypes and arguments aren't both empty or null, that they 
+		// have the same number of elements.
+		if( !CollectionUtils.sizesMatch( argTypes, arguments ) )
 		{
-			final List< Class< ? > > parameterTypes = new ArrayList<>();
-			for( Object argument : arguments )
+			final StringBuffer message = new StringBuffer();
+			message.append( "The number of arguments and argument types for the method do not match." + Constants.NEW_LINE );
+			message.append( Constants.NEW_LINE );
+			message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
+			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+			message.append( "  Arguments: " );
+			if( arguments.length > 0 )
 			{
-				parameterTypes.add( argument.getClass() );
+				for( int i = 0; i < arguments.length; ++i )
+				{
+					message.append( Constants.NEW_LINE + "    " + arguments[ i ].getClass().getName() );
+					if( argTypes[ i ].isPrimitive() )
+					{
+						message.append( " (primitive)" );
+					}
+				}
 			}
-			params = parameterTypes.toArray( new Class< ? >[ 0 ] );
+			else
+			{
+				message.append( "[none]" );
+			}
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
 		}
+		
+		final Class< ? > clazz = object.getClass();
 		
 		// attempt to call the method
 		Object returnResult = null;
@@ -58,7 +74,7 @@ public class LocalDiffuser extends AbstractDiffuser {
 		try
 		{
 			// grab the method and invoke it, if the method doesn't exist, then an exception is thrown
-			returnValue = clazz.getMethod( methodName, params ).invoke( object, arguments );
+			returnValue = clazz.getMethod( methodName, argTypes ).invoke( object, arguments );
 			if( returnType.isPrimitive() )
 			{
 				returnResult = returnValue;
@@ -109,9 +125,9 @@ public class LocalDiffuser extends AbstractDiffuser {
 			message.append( "  Class of Object to Run: " + object.getClass().getName() + Constants.NEW_LINE );
 			message.append( "  Name of Method to Run: " + methodName + Constants.NEW_LINE );
 			message.append( "  Method Arguments: " );
-			if( params != null )
+			if( argTypes != null )
 			{
-				for( Class< ? > param : params )
+				for( Class< ? > param : argTypes )
 				{
 					message.append( Constants.NEW_LINE + "    " + param.getName() );
 				}

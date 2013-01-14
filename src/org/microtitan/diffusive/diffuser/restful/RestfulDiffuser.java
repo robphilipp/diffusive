@@ -17,7 +17,6 @@ package org.microtitan.diffusive.diffuser.restful;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +33,6 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
-import org.freezedry.persistence.XmlPersistence;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.AbstractDiffuser;
 import org.microtitan.diffusive.diffuser.LocalDiffuser;
@@ -43,8 +41,8 @@ import org.microtitan.diffusive.diffuser.restful.response.ExecuteDiffuserRespons
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
-import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
+import org.microtitan.diffusive.utils.CollectionUtils;
 
 /**
  * A diffuser that uses REST to diffuser methods to remote RESTful diffusers, or runs the task locally.
@@ -106,11 +104,40 @@ public class RestfulDiffuser extends AbstractDiffuser {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(double, java.lang.Class, java.lang.Object, java.lang.String, java.lang.Object[])
+	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(double, java.lang.Class, java.lang.Object, java.lang.String, java.lang.Class<?>[], java.lang.Object[])
 	 */
 	@Override
-	public Object runObject( final double load, final Class< ? > returnType, final Object object, final String methodName, final Object... arguments )
+	public Object runObject( final double load, final Class< ? > returnType, final Object object, final String methodName, final Class< ? >[] argTypes, final Object... arguments )
 	{
+		// check to make sure that if argTypes and arguments aren't both empty or null, that they 
+		// have the same number of elements.
+		if( !CollectionUtils.sizesMatch( argTypes, arguments ) )
+		{
+			final StringBuffer message = new StringBuffer();
+			message.append( "The number of arguments and argument types for the method do not match." + Constants.NEW_LINE );
+			message.append( Constants.NEW_LINE );
+			message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
+			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+			message.append( "  Arguments: " );
+			if( arguments.length > 0 )
+			{
+				for( int i = 0; i < arguments.length; ++i )
+				{
+					message.append( Constants.NEW_LINE + "    " + arguments[ i ].getClass().getName() );
+					if( argTypes[ i ].isPrimitive() )
+					{
+						message.append( " (primitive)" );
+					}
+				}
+			}
+			else
+			{
+				message.append( "[none]" );
+			}
+			LOGGER.error( message.toString() );
+			throw new IllegalArgumentException( message.toString() );
+		}
+		
 		// if the load is less than the threshold, then we can compute this task locally, or if there are no
 		// end-points to which to diffuse the task further. Otherwise, the task is diffused to an end-point
 		// based on the strategy that selects the end-point
@@ -133,12 +160,16 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				message.append( Constants.NEW_LINE );
 				message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
 				message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-				message.append( "  Argument Types: " );
+				message.append( "  Arguments: " );
 				if( arguments != null && arguments.length > 0 )
 				{
-					for( final Object argument : arguments )
+					for( int i = 0; i < arguments.length; ++i )
 					{
-						message.append( Constants.NEW_LINE + "    " + argument.getClass().getName() );
+						message.append( Constants.NEW_LINE + "    " + arguments[ i ].getClass().getName() );
+						if( argTypes[ i ].isPrimitive() )
+						{
+							message.append( " (primitive)" );
+						}
 					}
 				}
 				else
@@ -150,7 +181,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 			}
 			
 			// execute the method on the local diffuser
-			result = new LocalDiffuser().runObject( load, returnType, object, methodName, arguments );
+			result = new LocalDiffuser().runObject( load, returnType, object, methodName, argTypes, arguments );
 		}
 		else
 		{
@@ -164,12 +195,16 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				message.append( Constants.NEW_LINE );
 				message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
 				message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-				message.append( "  Argument Types: " );
+				message.append( "  Arguments: " );
 				if( arguments.length > 0 )
 				{
-					for( final Object argument : arguments )
+					for( int i = 0; i < arguments.length; ++i )
 					{
-						message.append( Constants.NEW_LINE + "    " + argument.getClass().getName() );
+						message.append( Constants.NEW_LINE + "    " + arguments[ i ].getClass().getName() );
+						if( argTypes[ i ].isPrimitive() )
+						{
+							message.append( " (primitive)" );
+						}
 					}
 				}
 				else
@@ -205,13 +240,9 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	
 				// create the diffuser on the server
 				final int numArguments = (arguments == null ? 0 : arguments.length);
-				final Class< ? >[] argumentTypes = new Class< ? >[ numArguments ];
-				for( int i = 0; i < numArguments; ++i )
-				{
-					argumentTypes[ i ] = arguments[ i ].getClass();
-				}
+
 				/*final CreateDiffuserResponse response = */
-				client.createDiffuser( classPaths, returnType, object.getClass(), methodName, argumentTypes );
+				client.createDiffuser( classPaths, returnType, object.getClass(), methodName, argTypes );
 				
 				// execute the method on the diffuser
 				ExecuteDiffuserResponse executeResponse = null;
@@ -256,7 +287,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 								message.append( "  Argument Types: " + Constants.NEW_LINE );
 								for( int i = 0; i < numArguments; ++i )
 								{
-									message.append( "    " + argumentTypes[ i ].getName() + Constants.NEW_LINE );
+									message.append( "    " + argTypes[ i ].getName() + Constants.NEW_LINE );
 								}
 								message.append( "  Return Type: " + returnType.getName() + Constants.NEW_LINE );
 								message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
@@ -267,9 +298,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 							}
 						}
 						
-						final List< Class< ? > > argTypes = Arrays.asList( argumentTypes );
 						final String serializerName = SerializerFactory.getSerializerName( serializer.getClass() );
-						executeResponse = client.executeMethod( returnType, object.getClass(), methodName, argTypes, serializedArgs, out.toByteArray(), serializerName );
+						executeResponse = client.executeMethod( returnType, object.getClass(), methodName, Arrays.asList( argTypes ), serializedArgs, out.toByteArray(), serializerName );
 					}
 				}
 				catch( IOException e )
@@ -282,7 +312,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 					message.append( "  Argument Types: " + (numArguments == 0 ? "[none]" : "" ) + Constants.NEW_LINE );
 					for( int i = 0; i < numArguments; ++i )
 					{
-						message.append( "    " + argumentTypes[ i ].getName() + Constants.NEW_LINE );
+						message.append( "    " + argTypes[ i ].getName() + Constants.NEW_LINE );
 					}
 					message.append( "  Return Type: " + returnType.getName() + Constants.NEW_LINE );
 					message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
@@ -453,16 +483,16 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	
 	public static void main( String...args ) throws JAXBException
 	{
-		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.PERSISTENCE_XML.getName() );
-		
-		final List< URI > endpoints = Arrays.asList( URI.create( "http://192.168.1.5:8182/diffusers" ), URI.create( "http://192.168.1.4:8182/diffusers" ) );
-		final DiffuserStrategy strategy = new RandomDiffuserStrategy( endpoints, 314 );
-		
-		final List< URI > classPaths = Arrays.asList( URI.create( "http://192.168.1.5:8182/classpath" ), URI.create( "http://192.168.1.4:8182/classpath" ) );
-		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, 0.75 );
-		
-		final StringWriter writer = new StringWriter();
-		new XmlPersistence().write( new RestfulDiffuserInfo( diffuser ), writer );
-		System.out.println( writer.getBuffer().toString() );
+//		final Serializer serializer = SerializerFactory.getInstance().createSerializer( SerializerFactory.SerializerType.PERSISTENCE_XML.getName() );
+//		
+//		final List< URI > endpoints = Arrays.asList( URI.create( "http://192.168.1.5:8182/diffusers" ), URI.create( "http://192.168.1.4:8182/diffusers" ) );
+//		final DiffuserStrategy strategy = new RandomDiffuserStrategy( endpoints, 314 );
+//		
+//		final List< URI > classPaths = Arrays.asList( URI.create( "http://192.168.1.5:8182/classpath" ), URI.create( "http://192.168.1.4:8182/classpath" ) );
+//		final RestfulDiffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, 0.75 );
+//		
+//		final StringWriter writer = new StringWriter();
+//		new XmlPersistence().write( new RestfulDiffuserInfo( diffuser ), writer );
+//		System.out.println( writer.getBuffer().toString() );
 	}
 }

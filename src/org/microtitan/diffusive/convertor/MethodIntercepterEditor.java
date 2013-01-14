@@ -71,8 +71,6 @@ public class MethodIntercepterEditor extends ExprEditor {
 	 */
 	public MethodIntercepterEditor( final String baseSignature )
 	{
-//		this.isUseSignature = ( baseSignature != null && !baseSignature.isEmpty() );
-//		if( isUseSignature )
 		if( DiffuserSignature.isValid( baseSignature ) )
 		{
 			diffuserId = DiffuserSignature.parse( baseSignature );
@@ -128,7 +126,6 @@ public class MethodIntercepterEditor extends ExprEditor {
 			// with the diffuser that is responsible for calling the method, and that means the method came from a remote 
 			// address space, and shouldn't be diffused. however, if the signatures aren't equal, then it is valid to be 
 			// diffused as a nested diffusion.
-			// TODO does the check for nested diffusion have to be recursive? if so, how to do that with this framework
 			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null && !isBaseMethod( className, methodName ) )
 			{
 				// write the code to replace the method call with a Diffusive call
@@ -178,7 +175,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " + getDiffuser + " );\n" );
 					
 					// the actual Diffusive call
-					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $args );";
+					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $sig, $args );";
 					code.append( "    $_ = ($r)" + diffusiveCall );
 				}
 				else
@@ -190,7 +187,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " + getDiffuser + " );\n" );
 					
 					// the actual Diffusive call
-					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $args );";
+					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $sig, $args );";
 					code.append( "    $_ = ($r)" + diffusiveCall );
 				}
 				

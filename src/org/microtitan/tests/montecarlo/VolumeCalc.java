@@ -55,7 +55,7 @@ public class VolumeCalc {
 	 * @return The volume of the {@link #cube} from the simulation
 	 */
 	@Diffusive
-	public double calcVolume( final Long seed, final Long maxIterations )
+	public double calcVolume( final long seed, final long maxIterations )
 	{
 		final long start = System.currentTimeMillis();
 
@@ -151,7 +151,7 @@ public class VolumeCalc {
 		final VolumeCalc calc = new VolumeCalc( cube, new Cube( 4.0, 4.0, 4.0, 4.0 ) );
 
 		final long start = System.currentTimeMillis();
-		final List< Double > volumes = calc.calcVolumes( 1, 10_000_000 );
+		final List< Double > volumes = calc.calcVolumes( 10, 10_000_000 );
 		final double elapsedTime = (double)(System.currentTimeMillis() - start) / 1000;
 
 		System.out.println( "Volume: " + mean( volumes ) + " +- " + variance( volumes ) + " (" + elapsedTime + " s)" );

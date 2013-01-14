@@ -1,0 +1,23 @@
+
+syntax: glob
+Diffusive_v*
+bin/*
+dist/*
+.classpath
+.project
+.settings/*
+docs/paper/*.aux
+docs/paper/*.bbl
+docs/paper/*.blg
+docs/paper/*.dvi
+docs/paper/*.log
+docs/paper/*.out
+docs/paper/*.pdf
+docs/paper/*.tcp
+docs/paper/*.tps
+docs/diffusive_web/.idea*
+
+doc/*
+syntax: glob
+
+syntax: regexp

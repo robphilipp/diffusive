@@ -51,6 +51,15 @@ public class ReflectionUtils {
 		WRAP_MAP.put( boolean.class, Boolean.class );
 	}
 	
+	// invert the wrapped map
+	private static Map< Class< ? >, Class< ? > > UNWRAP_MAP = new HashMap<>();
+	static {
+		for( Map.Entry< Class< ? >, Class< ? > > entry : WRAP_MAP.entrySet() )
+		{
+			UNWRAP_MAP.put( entry.getValue(), entry.getKey() );
+		}
+	}
+	
 	private static Map< String, Class< ? > > ENCODED_TYPE_MAP = new HashMap<>();
 	static {
 		ENCODED_TYPE_MAP.put( "I", int.class );
@@ -143,6 +152,25 @@ public class ReflectionUtils {
 	}
 
 	/**
+	 * If the specified {@link Class} is a wrapped primitive, then this function will return the primitive
+	 * version. For example, if the specified {@link Class} is {@code Integer.class} this method will return 
+	 * {@code int.class} or equivalently, or {@code Integer.TYPE}
+	 * @param clazz The {@link Class} to unwrap
+	 * @return The specified {@link Class} or the primitive version of the {@link Class} if it is a wrapped primitive
+	 */
+	public static Class< ? > unwrapPrimitive( final Class< ? > clazz )
+	{
+		if( UNWRAP_MAP.containsKey( clazz ) )
+		{
+			return UNWRAP_MAP.get( clazz ); 
+		}
+		else
+		{
+			return clazz;
+		}
+	}
+
+	/**
 	 * Casts the specified object to the specified class, taking care of the special case where the
 	 * specified clazz is a primitive. 
 	 * @param clazz The {@link Class} to which to cast the object
@@ -159,4 +187,49 @@ public class ReflectionUtils {
 		}
 		return clazz.cast( object );
 	}
+
+	/**
+	 * Returns the primitive {@link Class} object if the specified class name represents
+	 * a primitive type; otherwise, returns <code>null</code>
+	 * @param classname The name of the class (or primitive) for which to retrieve the {@link Class}
+	 * @return the primitive {@link Class} object if the specified class name represents
+	 * a primitive type; otherwise, returns <code>null</code>
+	 */
+	public static Class< ? > getPrimitive( final String classname )
+	{
+		if( Integer.TYPE.toString().equals( classname ) )
+		{
+			return Integer.TYPE;
+		}
+		if( Double.TYPE.toString().equals( classname ) )
+		{
+			return Double.TYPE;
+		}
+		if( Float.TYPE.toString().equals( classname ) )
+		{
+			return Float.TYPE;
+		}
+		if( Long.TYPE.toString().equals( classname ) )
+		{
+			return Long.TYPE;
+		}
+		if( Short.TYPE.toString().equals( classname ) )
+		{
+			return Short.TYPE;
+		}
+		if( Boolean.TYPE.toString().equals( classname ) )
+		{
+			return Boolean.TYPE;
+		}
+		if( Character.TYPE.toString().equals( classname ) )
+		{
+			return Character.TYPE;
+		}
+		if( Byte.TYPE.toString().equals( classname ) )
+		{
+			return Byte.TYPE;
+		}
+		return null;
+	}
+	
 }

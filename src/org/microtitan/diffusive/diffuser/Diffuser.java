@@ -74,6 +74,8 @@ public interface Diffuser {
 	 * forward the task.
 	 * @param object The object on which to make the method call given by the specified method name
 	 * @param methodName The name of the method to call on the object
+	 * @param argType The type of the argument. This is necessary to preserve primitive arguments which
+	 * would otherwise be automatically autoboxed.
 	 * @param argument The argument to be passed to the method. Typically the implementing class will
 	 * use reflection to determine the {@link Method}, and so the parameter type will be used as part
 	 * of the signature. 
@@ -81,7 +83,12 @@ public interface Diffuser {
 	 * @see #runObject(Object, String)
 	 * @see #runObject(Object, String, Object...)
 	 */
-	Object runObject( final double load, final Class< ? > returnType, final Object object, final String methodName, final Object argument );
+	Object runObject( final double load, 
+					  final Class< ? > returnType, 
+					  final Object object, 
+					  final String methodName, 
+					  final Class< ? > argType, 
+					  final Object argument );
 	
 	/**
 	 * Runs the specified method on the specified object.
@@ -94,6 +101,8 @@ public interface Diffuser {
 	 * forward the task.
 	 * @param object The object on which to make the method call given by the specified method name
 	 * @param methodName The name of the method to call on the object
+	 * @param argTypes The types of the arguments. This is necessary to preserve primitive arguments which
+	 * would otherwise be automatically autoboxed.
 	 * @param arguments The arguments to be passed to the method. Typically the implementing class will
 	 * use reflection to determine the {@link Method}, and so the parameter types will be used as part
 	 * of the signature. 
@@ -101,5 +110,10 @@ public interface Diffuser {
 	 * @see #runObject(Object, String)
 	 * @see #runObject(Object, String, Object)
 	 */
-	Object runObject( final double load, final Class< ? > returnType, final Object object, final String methodName, final Object...arguments );
+	Object runObject( final double load, 
+					  final Class< ? > returnType, 
+					  final Object object, 
+					  final String methodName, 
+					  final Class< ? >[] argTypes, 
+					  final Object...arguments );
 }
