@@ -38,7 +38,7 @@ public class ObjectSerializer implements Serializer {
 	 * @see org.microtitan.diffusive.diffuser.serializer.Serializer#serialize(java.lang.Object, java.io.OutputStream)
 	 */
 	@Override
-	public void serialize( final Object object, final OutputStream output )
+	public synchronized void serialize( final Object object, final OutputStream output )
 	{
 		try( final ObjectOutputStream out = new ObjectOutputStream( output ) )
 		{
@@ -61,7 +61,7 @@ public class ObjectSerializer implements Serializer {
 	 * @see org.microtitan.diffusive.diffuser.serializer.Serializer#deserialize(java.io.InputStream)
 	 */
 	@Override
-	public < T > T deserialize( final InputStream input, final Class< T > clazz ) 
+	public synchronized < T > T deserialize( final InputStream input, final Class< T > clazz ) 
 	{
 		// read the input stream into an object. we use the the (apache commons-io) ClassLoaderObjectInputStream
 		// to read the object because we need to be able to use the same class loader that loaded the class in

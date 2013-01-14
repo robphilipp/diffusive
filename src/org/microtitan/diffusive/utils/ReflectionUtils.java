@@ -143,7 +143,7 @@ public class ReflectionUtils {
 	}
 
 	/**
-	 * Casts the specified object to the specified class, taking care of the specifial case where the
+	 * Casts the specified object to the specified class, taking care of the special case where the
 	 * specified clazz is a primitive. 
 	 * @param clazz The {@link Class} to which to cast the object
 	 * @param object The object which to cast to the {@link Class}
@@ -153,7 +153,7 @@ public class ReflectionUtils {
 	public static < T > T cast( final Class< ? extends T > clazz, final Object object )
 	{
 		final Class< ? > primitiveClazz = WRAP_MAP.get( clazz );
-		if( primitiveClazz != null && primitiveClazz.equals( object.getClass() ) && !clazz.equals( void.class ) )
+		if( primitiveClazz != null && primitiveClazz.equals( object.getClass() ) ) //&& !clazz.equals( void.class ) )
 		{
 			return (T)object;
 		}

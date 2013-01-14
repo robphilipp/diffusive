@@ -52,7 +52,7 @@ public class PersistenceSerializer implements Serializer {
 	 * @see org.microtitan.diffusive.diffuser.serializer.Serializer#serialize(java.lang.Object, java.io.OutputStream)
 	 */
 	@Override
-	public void serialize( final Object object, final OutputStream output )
+	public synchronized void serialize( final Object object, final OutputStream output )
 	{
 		// convert the OutputStream to a Writer
 		try( final OutputStreamWriter out = new OutputStreamWriter( output ) )
@@ -82,7 +82,7 @@ public class PersistenceSerializer implements Serializer {
 	 * @see org.microtitan.diffusive.diffuser.serializer.Serializer#deserialize(java.io.InputStream, java.lang.Class)
 	 */
 	@Override
-	public < T > T deserialize( final InputStream input, final Class< T > clazz )
+	public synchronized < T > T deserialize( final InputStream input, final Class< T > clazz )
 	{
 		T object = null;
 		// convert the InputStream to a Reader

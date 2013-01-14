@@ -31,6 +31,7 @@ public interface Serializer {
 	/**
 	 * Serializes a Java object and places it into the specified {@link OutputStream} for transporting 
 	 * across the network.
+	 * <p>NOTE that implementations of this method should be thread safe.
 	 * @param object The {@link Object} to serialize
 	 * @param output The {@link OutputStream} into which the object is serialized
 	 */
@@ -39,6 +40,7 @@ public interface Serializer {
 	/**
 	 * Reads a Java object representation from the specified {@link InputStream} and creates and 
 	 * returns the fully constructed Java object of the specified type.
+	 * <p>NOTE that implementations of this method should be thread safe.
 	 * @param input The {@link InputStream} from which to read the object representation.
 	 * @param clazz The {@link Class} type of the object to be read and returned
 	 * @return The Java object represented in the {@link InputStream}
