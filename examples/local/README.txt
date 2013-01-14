@@ -20,7 +20,7 @@ Starting the Diffusive Server
 1. change to the distribution's "jars" directory
 2. run the following command from the command-line (but first put it all on one line)
 
-   java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/local/diffuser_server/ --class-path=../examples/example_0.2.0.jar
+   java -jar Diffusive_Server_0.2.1.jar --config-dir=../examples/local/diffuser_server/ --class-path=../examples/example_0.2.1.jar
 
 
 Run the Diffusive Launcher
@@ -38,4 +38,4 @@ Run the Diffusive Launcher
 2. change to the distribution's "jars" directory
 3. run the following command from the command-line (but first put it all on one line)
 
-   java -jar Diffusive_Launcher_0.2.0.jar --config-dir=../examples/local/launcher/ --execute-class=org.microtitan.tests.threaded.MultiThreadedCalc --class-path=../examples/example_0.2.0.jar
+   java -jar Diffusive_Launcher_0.2.1.jar --config-dir=../examples/local/launcher/ --execute-class=org.microtitan.tests.montecarlo.ThreadedVolumeCalc --class-path=../examples/example_0.2.1.jar

@@ -28,14 +28,21 @@ Starting the Local RESTful Diffusive Server
 1. change to the distribution's "jars" directory
 2. run the following command from the command-line (but first put it all on one line)
 
-   java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/remote_single/diffuser_server/ --class-path=../examples/example_0.2.0.jar
+   java -jar Diffusive_Server_0.2.1.jar --config-dir=../examples/remote_single/diffuser_server/ --class-path=../examples/example_0.2.1.jar
 
 Starting the Remote RESTful Diffuser Server
 -------------------------------------------
 1. On your remote machine, change to the distribution's "jars" directory
-2. run the following command from the command-line (but first put it all on one line)
+2. Run the following command from the command-line (but first put it all on one line)
 
-   java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/remote_single/remote_diffuser_server/
+   java -jar Diffusive_Server_0.2.1.jar --config-dir=../examples/remote_single/remote_diffuser_server/
+   
+   Alternatively, if you would like to the run the remote server on the same box, you can issue the following
+   command (instead of the one above)
+   
+   java -jar Diffusive_Server_0.2.1.jar --config-dir=../examples/remote_single/remote_diffuser_server/ --server-uri=http://your.ip.address:8183
+   
+   where you tell the RESTful diffuser server to run on port 8183 instead of port 8182. 
 
 Run the Diffusive Launcher
 --------------------------
@@ -63,4 +70,4 @@ Run the Diffusive Launcher
 3. change to the distribution's "jars" directory
 4. run the following command from the command-line (but first put it all on one line)
 
-   java -jar Diffusive_Launcher_0.2.0.jar --config-dir=../examples/remote_single/launcher/ --execute-class=org.microtitan.tests.threaded.MultiThreadedCalc --class-path=../examples/example_0.2.0.jar
+   java -jar Diffusive_Launcher_0.2.1.jar --config-dir=../examples/remote_single/launcher/ --execute-class=org.microtitan.tests.montecarlo.ThreadedVolumeCalc --class-path=../examples/example_0.2.1.jar

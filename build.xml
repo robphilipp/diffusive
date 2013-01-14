@@ -53,7 +53,7 @@
 	<!-- 
 		FreezeDry (serialization)
 	-->
-	<property name="freezedry" value="FreezeDry_0.2.5.jar" />
+	<property name="freezedry" value="FreezeDry_0.2.6.jar" />
 	<property name="json" value="json-20120228.jar" />
 
 	<!-- 

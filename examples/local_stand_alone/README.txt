@@ -10,4 +10,4 @@ files for the application-attached diffuser and its strategy.
 
 1. change to the distribution's "jars" directory
 2. run the following command from the command-line (but first put it all on one line)
-   java -jar Diffusive_Launcher_0.2.0.jar --config-dir=../examples/local_stand_alone/launcher/ --execute-class=org.microtitan.tests.threaded.MultiThreadedCalc --class-path=../examples/example_0.2.0.jar
+   java -jar Diffusive_Launcher_0.2.1.jar --config-dir=../examples/local_stand_alone/launcher/ --execute-class=org.microtitan.tests.montecarlo.ThreadedVolumeCalc --class-path=../examples/example_0.2.1.jar
