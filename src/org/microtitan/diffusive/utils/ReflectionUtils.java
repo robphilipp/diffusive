@@ -141,11 +141,22 @@ public class ReflectionUtils {
 			return clazz;
 		}
 	}
-	
-	public static void main( String...args )
+
+	/**
+	 * Casts the specified object to the specified class, taking care of the specifial case where the
+	 * specified clazz is a primitive. 
+	 * @param clazz The {@link Class} to which to cast the object
+	 * @param object The object which to cast to the {@link Class}
+	 * @return The object cast to the specified {@link Class} type
+	 */
+	@SuppressWarnings( "unchecked" )
+	public static < T > T cast( final Class< ? extends T > clazz, final Object object )
 	{
-		System.out.println( double.class.getName() );
-		System.out.println( Double.TYPE.getName() );
-		System.out.println( getClazz( "double" ) );
+		final Class< ? > primitiveClazz = WRAP_MAP.get( clazz );
+		if( primitiveClazz != null && primitiveClazz.equals( object.getClass() ) && !clazz.equals( void.class ) )
+		{
+			return (T)object;
+		}
+		return clazz.cast( object );
 	}
 }

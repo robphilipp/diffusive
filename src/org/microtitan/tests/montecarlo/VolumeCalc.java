@@ -55,7 +55,7 @@ public class VolumeCalc {
 	 * @return The volume of the {@link #cube} from the simulation
 	 */
 	@Diffusive
-	public Double calcVolume( final Long seed, final Long maxIterations )
+	public double calcVolume( final Long seed, final Long maxIterations )
 	{
 		final long start = System.currentTimeMillis();
 

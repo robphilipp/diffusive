@@ -44,6 +44,7 @@ import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.XmlPersistenceSerializer;
+import org.microtitan.diffusive.utils.ReflectionUtils;
 import org.microtitan.tests.Bean;
 
 import com.sun.jersey.api.client.Client;
@@ -530,7 +531,7 @@ public class RestfulDiffuserManagerClient {
 		// construct the signature from the specified parameters
 		final String signature = DiffuserSignature.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
 		
-		return returnTypeClazz.cast( getResult( signature, requestId, serializer ) );
+		return ReflectionUtils.cast( returnTypeClazz, getResult( signature, requestId, serializer ) );
 	}
 
 	/**
