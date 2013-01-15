@@ -157,7 +157,6 @@ public class RestfulDiffuserServer {
 												  final String diffuserManagerContentPath )
 	{		
 		// create the static handler that points to the "diffuser manager" content
-//		final StaticHttpHandler handler = new StaticHttpHandler( diffuserManagerContentPath ); 
 		final StaticHttpHandler handler = new StaticHttpHandler( diffuserManagerContentPath, 
 																 diffuserManagerContentPath + DIFFUSER_MANAGER_IMAGES,
 																 diffuserManagerContentPath + DIFFUSER_MANAGER_SCRIPTS,
@@ -166,7 +165,6 @@ public class RestfulDiffuserServer {
 
 		// add the static content path to the http server under the specified resource
 		// i.e.  http://ip.address:port/[diffuserManagerResource]
-//		server.getServerConfiguration().addHttpHandler( handler, diffuserManagerResource ); 
 		server.getServerConfiguration().addHttpHandler( handler, diffuserManagerResource, 
 																 DIFFUSER_MANAGER_IMAGES,
 																 DIFFUSER_MANAGER_SCRIPTS,
