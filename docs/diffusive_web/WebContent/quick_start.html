@@ -12,22 +12,23 @@
     <script src="scripts/toc-creator.js"></script>
     <script src="scripts/sizing.js"></script>
 
-    <script src="scripts/jquery-1.8.2.js"></script>
+    <script src="scripts/jquery-1.8.3.js"></script>
     <script>
         var tocBounds = { minWidth: 100, maxWidth: 225, minHeight: 400, maxHeight: 400 };
         var articleBounds = { minWidth: 100, maxWidth: 775, minHeight: 400, maxHeight: 1000 };
         $(document).ready( function() {
-
-            // syntax highlighting for the code
-            SyntaxHighlighter.defaults['gutter'] = false;
-            SyntaxHighlighter.defaults['toolbar'] = false;
-            SyntaxHighlighter.all();
 
             // create the table of contents
             createToc( "Contents" );
 
             // adjust the article window size
             adjustSizes( tocBounds, articleBounds );
+
+            // syntax highlighting for the code
+            SyntaxHighlighter.defaults['gutter'] = false;
+            SyntaxHighlighter.defaults['toolbar'] = false;
+            SyntaxHighlighter.all();
+
         }, false );
 
         window.onresize = function() {
