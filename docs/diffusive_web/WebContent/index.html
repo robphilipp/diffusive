@@ -5,6 +5,9 @@
     <link rel="stylesheet" type="text/css" href="themes/jquery-ui-1.9.2.custom.css">
     <link rel="stylesheet" type="text/css" href="diffusive.css"/>
 
+    <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shCore.css" />
+    <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shThemeEclipse.css" />
+
     <script src="scripts/jquery-1.8.3.js"></script>
     <script src="scripts/ui/jquery-ui-1.9.2.custom.js"></script>
 
@@ -32,16 +35,15 @@
             adjustSizes( tocBounds, articleBounds );
         };
 
-        // syntax highlighting for the code
-        SyntaxHighlighter.defaults['gutter'] = false;
-        SyntaxHighlighter.defaults['toolbar'] = false;
-        SyntaxHighlighter.all();
-
         $(function() {
             $( "#tabs" ).tabs();
-            $( "#accordion" ).accordion( { autoHeight: false } );
+            $( "#accordion" ).accordion( { autoHeight: false, header: "h3", collapsible: true, active: false } );
             $( "#whats-new-accordion" ).accordion( { autoHeight: false } );
         });
+
+        // syntax highlighting for the code
+        SyntaxHighlighter.all( { 'gutter': 'false', 'toolbar': 'false', '': 'none' } );
+
     </script>
 
     <title>Diffusive</title>
@@ -76,14 +78,88 @@
         Importantly, that means that you define the way your code executes, and then configure Diffusive to distribute
         the code in a way that makes sense for the problem you're trying to solve.</p>
 
+    <h3 id="highlights"><a href="#goals">Working with Diffusive</a></h3>
+        <div id="accordion" class="my-accordion">
+            <h3>Any Method Can Be Distributed</h3>
+            <div>
+                <p>You don't need to implement the equivalent of a <b class="class">Task</b> interfaces.
+                    <b>Any</b> method, with <b>any</b> signature, anywhere in your code can be distributed.
+                    Some examples are listed below:</p>
+                    <pre class="brush:java">
+                        public double calc( long seed, long maxIterations ) { ... }
+                        public void doOp( ParamSet params, int options ) { ... }
+                        public Result minimize( List< Param > params, int[] options ) { ... }
+                        public Result< Double > calc() { ... }
+                    </pre>
+            </div>
 
+            <h3>Simply Mark the Methods You Want Distributed</h3>
+            <div>
+                <p>Methods are marked for distribution using the <b class="class">@Diffusive</b> annotation.
+                    It's that simple! Marking a method means that when it is called, its execution will be distributed
+                    to a remote location.</p>
+                    <pre class="brush:java">
+                        @Diffusive public double calc( long seed, long maxIterations ) { ... }
+                        @Diffusive public void doOp( ParamSet params, int options ) { ... }
+                        @Diffusive public Result minimize( List< Param > params, int[] options ) { ... }
+                        @Diffusive public Result< Double > calc() { ... }
+                    </pre>
+            </div>
+
+            <h3>Build a Network of Diffusers</h3>
+            <div>
+                <p><em>Diffusers</em> are the things that are responsible for executing a request, distributing that
+                request to another <em>diffuser</em>, or creating a new <em>diffuser</em> to which to distribute the
+                the request. All you need to do is tell the diffusers to what end-points they can distribute work.</p>
+                <p><img src="images/star_network.png"></p>
+            </div>
+
+            <h3>Don't Worry about Pre-Deploying Class Files</h3>
+            <div>
+                <p>You don't need to pre-deploy the <b class="class">class</b> files to any of the compute nodes.
+                    <b>Diffusive</b> will load the <b class="class">Class</b> objects it needs at runtime. And you can
+                    configure where the diffusers' remote class paths.</p>
+            </div>
+
+            <h3>Enjoy an Open Topology</h3>
+            <div>
+                <p>The topology of the network of nodes can be anything that can be represented as a directed graph. Topologies
+                    can be tailored to solve specific problems.
+                </p>
+            </div>
+
+            <h3>Diffusers Can Diffuse (Easy Map-Reduce)</h3>
+            <div>
+                <p>Because all <b>Diffusers</b> are equal, there is no difference between diffusers accepting an execution task
+                    and a diffusers requesting an execution task. This allows a distributed method to further distribute
+                    methods. In other words, you can do <a href="overview_guide.html#multi_layered">nested diffusion</a>, and
+                    therefore, easily implement map-reduce.
+                </p>
+            </div>
+
+            <h3>The Diffuser Network is Dynamic</h3>
+            <div>
+                <p>Method execution is distributed to a network of nodes that can be configured or added and removed
+                    dynamically.
+                </p>
+            </div>
+
+            <h3>RESTful API</h3>
+            <div>
+                <p>Communication between nodes uses a RESTful API.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <h3 id="advantages"><a href="#goals">Advantages Diffusive</a></h3>
     <div id="tabs" class="my-tabs">
         <ul>
             <li><a href="#scales-naturally">Scales Naturally</a></li>
             <li><a href="#what-is-it">Low Impact On Code</a></li>
             <li><a href="#honors-execution">Honors Execution Logic</a></li>
             <li><a href="#debug-locally">Debug Locally</a></li>
-            <li><a href="#highlights">Highlights</a></li>
+            <!--<li><a href="#highlights">Highlights</a></li>-->
         </ul>
 
         <!--<h3 id="diffusion"><a href="#goals">Scales Naturally</a></h3>-->
@@ -135,58 +211,72 @@
                 be related to the distribute execution.</p>
         </div>
 
-        <div id="highlights">
-           <div id="accordion" class="my-accordion">
-                <h3>Any Method Can Be Diffused (Distributed)</h3>
-                <div>
-                    <p>There are no <b class="class">Task</b> (or similar) interfaces to implement. <b>Any</b> method, with
-                        <b>any</b> signature can be diffused (distributed).
-                    </p>
-                </div>
+        <!--<div id="highlights">-->
+           <!--<div id="accordion" class="my-accordion">-->
+                <!--<h3>Any Method Can Be Distributed</h3>-->
+                <!--<div>-->
+                    <!--<p>You don't need to implement the equivalent of a <b class="class">Task</b> interfaces.-->
+                        <!--<b>Any</b> method, with <b>any</b> signature, anywhere in your code can be distributed.-->
+                        <!--Some examples are listed below:</p>-->
+                    <!--<pre class="brush:java">-->
+                        <!--public double calc( long seed, long maxIterations ) { ... }-->
+                        <!--public void doOp( ParamSet params, int options ) { ... }-->
+                        <!--public Result minimize( List< Param > params, int[] options ) { ... }-->
+                        <!--public Result< Double > calc() { ... }-->
+                    <!--</pre>-->
+                <!--</div>-->
 
-                <h3>To Diffuse (Distribute) a Method, Simply Mark the Method</h3>
-                <div>
-                    <p>Methods are marked for diffusion (distribution) using the <b class="class">@Diffusive</b> annotation.
-                        That's all. It's that simple!</p>
-                </div>
+                <!--<h3>Simply Mark the Methods You Want Distributed</h3>-->
+                <!--<div>-->
+                    <!--<p>Methods are marked for distribution using the <b class="class">@Diffusive</b> annotation.-->
+                        <!--It's that simple! Marking the methods from the previous example means that when any of-->
+                        <!--the methods are called, their execution will be distributed to a remote location for-->
+                        <!--execution.</p>-->
+                    <!--<pre class="brush:java">-->
+                        <!--@Diffusive public double calc( long seed, long maxIterations ) { ... }-->
+                        <!--@Diffusive public void doOp( ParamSet params, int options ) { ... }-->
+                        <!--@Diffusive public Result minimize( List< Param > params, int[] options ) { ... }-->
+                        <!--@Diffusive public Result< Double > calc() { ... }-->
+                    <!--</pre>-->
+                <!--</div>-->
 
-                <h3>Don't Worry about Pre-Deploying Class Files</h3>
-                <div>
-                    <p>You don't need to pre-deploy the <b class="class">class</b> files to any of the compute nodes.
-                        <b>Diffusive</b> will load the <b class="class">Class</b>es it needs at runtime from the requesting
-                        diffuser, or from a location you configure.
-                    </p>
-                </div>
+                <!--<h3>Don't Worry about Pre-Deploying Class Files</h3>-->
+                <!--<div>-->
+                    <!--<p>You don't need to pre-deploy the <b class="class">class</b> files to any of the compute nodes.-->
+                        <!--<b>Diffusive</b> will load the <b class="class">Class</b>es it needs at runtime from the requesting-->
+                        <!--diffuser, or from a location you configure.-->
+                    <!--</p>-->
+                <!--</div>-->
 
-                <h3>Enjoy an Open Topology</h3>
-                <div>
-                    <p>The topology of the network of nodes can be anything that can be represented as a directed graph. Topologies
-                        can be tailored to solve specific problems.
-                    </p>
-                </div>
+                <!--<h3>Enjoy an Open Topology</h3>-->
+                <!--<div>-->
+                    <!--<p>The topology of the network of nodes can be anything that can be represented as a directed graph. Topologies-->
+                        <!--can be tailored to solve specific problems.-->
+                    <!--</p>-->
+                <!--</div>-->
 
-                <h3>Diffusers Can Diffuse (Easy Map-Reduce)</h3>
-                <div>
-                    <p>Because all <b>Diffusers</b> are equal, there is no difference between diffusers accepting an execution task
-                        and a diffusers requesting an execution task. This allows a distributed method to further distribute
-                        methods. In other words, you can do <a href="overview_guide.html#multi_layered">nested diffusion</a>, and
-                        therefore, easily implement map-reduce.
-                    </p>
-                </div>
+                <!--<h3>Diffusers Can Diffuse (Easy Map-Reduce)</h3>-->
+                <!--<div>-->
+                    <!--<p>Because all <b>Diffusers</b> are equal, there is no difference between diffusers accepting an execution task-->
+                        <!--and a diffusers requesting an execution task. This allows a distributed method to further distribute-->
+                        <!--methods. In other words, you can do <a href="overview_guide.html#multi_layered">nested diffusion</a>, and-->
+                        <!--therefore, easily implement map-reduce.-->
+                    <!--</p>-->
+                <!--</div>-->
 
-                <h3>The Diffuser Network is Dynamic</h3>
-                <div>
-                    <p>Method execution is distributed to a network of nodes that can be configured or added and removed
-                        dynamically.
-                    </p>
-                </div>
+                <!--<h3>The Diffuser Network is Dynamic</h3>-->
+                <!--<div>-->
+                    <!--<p>Method execution is distributed to a network of nodes that can be configured or added and removed-->
+                        <!--dynamically.-->
+                    <!--</p>-->
+                <!--</div>-->
 
-                <h3>RESTful API</h3>
-                <div>
-                <p>Communication between nodes uses a RESTful API.</p>
-                </div>
-            </div>
-        </div>
+                <!--<h3>RESTful API</h3>-->
+                <!--<div>-->
+                <!--<p>Communication between nodes uses a RESTful API.</p>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
     </div>
     <h3 id="more_info"><a href="#goals">More Information</a></h3>
     <p>For a more complete description of diffusive programming and the reference implementation, please see the
