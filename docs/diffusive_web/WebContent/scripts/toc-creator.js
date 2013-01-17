@@ -5,38 +5,18 @@
  *
  * Use the function "createToc(...)" at the bottom of the file. The other functions are intended to be "private"
  *
+ * Creates an unordered list (<ul class="nav-list></ul>) containing list-items that hold the table of contents
+ * and places the unordered list into the specified <div>
+ *
  * Makes the following assumptions:
  * 1. Each header has an ID which is used as the tag (#name) to jump to that part of the page
+ * 2. Each header has a value (content) that will be displayed in the TOC
  *
  * Use the CSS to define how the TOC is placed and displayed. I use these to put the TOC on the side
  * and keep it there during scrolling.
  *
- // makes the box to hold the TOC and keeps it fixed at that position
- #toc
- {
-     position: fixed;
-     left: 10px;
-     top: 145px;
-     width: 155px;
-     background-color: #fff;
-     font-family: calibri;
-     padding: 0px 5px 5px 5px;
-     border-color: #EBEBEB;
-     border-style: solid;
-     border-width: 1px;
-     z-index: 10;
- }
-
- // the styling for the TOC title
- p.overview_toc, #overview_toc
- {
-     font-style: italic;
-     color: #C67171;
-     margin-bottom: 0px;
- }
-
  // allows for the lists to be nested and the font size decreases for each nesting level
- ul.overview_toc_list {
+ ul.nav-list {
         list-style-type: none;
         font-family: calibri;
         font-size:0.9em;
@@ -58,7 +38,7 @@ function $grabHeaders()
     }
     else
     {
-        var elements = document.getElementsByTagName( "*" );
+        var elements = document.getElementsByTagName( "h*" );
         if ( elements )
         {
             var j = 0;
@@ -75,6 +55,33 @@ function $grabHeaders()
         }
     }
     return headers;
+}
+
+/**
+ * Returns the element based on the class name
+ * @param searchTag The element containing the tag to narrow the search scope
+ * @param className The name of the class to be found
+ * @return {*} The first element found that has the specified class name
+ */
+function $getElementByClassName( searchTag, className ) {
+    var elements = [];
+    if( document.querySelectorAll ) {
+         return document.querySelectorAll( searchTag + "." + className )[0];
+    }
+    else {
+        elements = document.getElementsByTagName( searchTag );
+        if ( elements )
+        {
+            var j = 0;
+            for ( var i = 0, len = elements.length; i < len; ++i )
+            {
+                if ( elements[ i ].className.toLowerCase() === className )
+                {
+                    return elements[ i ];
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -99,17 +106,31 @@ function $getHeaderLevel( header )
 }
 
 /**
- * Recursive method for creating a nested list holding the list of contents
+ * Recursive method for creating a nested list holding the table of contents
  * @param headers The list of header elements
  * @param index The current index into the list of headers
  * @param level The current level of the header being processed
  * @param parent The parent element (unordered list) to which to add the items
+ * @param depth The depth of the headers for which to create a table of contents
+ * @param title The title that appears at the top of the TOC
  * @return {*} The current index processed (this is needed when a nested list is complete)
  */
-function $createTocList( headers, index, level, parent )
+function $createTocList( headers, index, level, parent, depth, title )
 {
+    if( level > depth ) {
+        return index;
+    }
+
     var unorderedList = document.createElement( "ul" );
-    unorderedList.setAttribute( "class", "overview_toc_list" );
+    unorderedList.setAttribute( "class", "nav nav-list" );
+
+    // create the title paragraph
+    if( title ) {
+        var tocTitle = document.createElement( "li" );
+        tocTitle.setAttribute( "class", "nav-header" );
+        tocTitle.innerHTML = title;
+        unorderedList.appendChild( tocTitle );
+    }
 
     var i = index;
     for ( var len = headers.length; i < len; ++i )
@@ -126,7 +147,7 @@ function $createTocList( headers, index, level, parent )
         else if ( headerLevel > level )
         {
             // create new list--this is a sub-list
-            i = $createTocList( headers, i, headerLevel, unorderedList );
+            i = $createTocList( headers, i, headerLevel, unorderedList, depth );
         }
         else
         {
@@ -136,6 +157,7 @@ function $createTocList( headers, index, level, parent )
                 // create the link to the section in the html doc
                 var link = document.createElement( "a" );
                 link.setAttribute( "href", "#" + headerId.toString() );
+                link.setAttribute( "class", "scroll-offset" );
                 link.innerHTML = header.getElementsByTagName( "a" )[ 0 ].innerHTML;
 
                 // create the list item and add it to the list
@@ -179,32 +201,23 @@ function $findMinMaxHeaders( headers )
 /**
  * MAIN FUNCTION: call this one. Makes the following assumptions:
  * 1. Each header has an ID which is used as the tag (#name) to jump to that part of the page
+ * 2. Each header has a value (content) that will be displayed in the TOC
+ * @param divClassName The class name of the div element into which the TOC list will be placed
+ * @param depth The depth of the nesting in the TOC. For example, if the depth is 3, then there
+ * will be three levels of headers placed in the TOC.
  * @param title The title to appear at the top of the content list
  */
-function createToc( title )
+function createToc( divClassName, depth, title )
 {
-    // create a document fragment to avoid reflow as we add the elements to the toc
-    var frag = document.createDocumentFragment();
+    depth = depth || 6;
 
-    // create the toc div
-    var tocDiv = document.createElement( "div" );
-    tocDiv.setAttribute( "id", "toc" );
-    frag.appendChild( tocDiv );
-
-    // create the title paragraph
-    var tocTitle = document.createElement( "p" );
-    tocTitle.setAttribute( "class", "overview_toc" );
-    tocTitle.innerHTML = title;
-    tocDiv.appendChild( tocTitle );
+    // grab the div that holds the toc list
+    var tocDiv = $getElementByClassName( "div", divClassName );
 
     // recursively build the list
     var headers = $grabHeaders();
     var levels = $findMinMaxHeaders( headers );
-    $createTocList( headers, 0, levels[ 0 ], tocDiv );
-
-    // add the TOC div to the document
-//    document.body.appendChild( frag );
-    document.body.insertBefore( frag, document.getElementsByTagName( 'article' )[ 0 ] );
+    $createTocList( headers, 0, levels[ 0 ], tocDiv, depth + levels[ 0 ], title );
 
     // return the div element for reference
     return tocDiv;
