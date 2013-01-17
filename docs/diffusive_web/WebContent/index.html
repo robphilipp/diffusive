@@ -37,12 +37,31 @@
 
         $(function() {
             $( "#tabs" ).tabs();
-            $( "#accordion" ).accordion( { autoHeight: false, header: "h3", collapsible: true, active: false } );
+            $( "#accordion" ).accordion( {
+                autoHeight: false,
+//                heightStyle: "fill",
+                header: "h3",
+                collapsible: true,
+                active: false
+            } );
             $( "#whats-new-accordion" ).accordion( { autoHeight: false } );
         });
 
         // syntax highlighting for the code
-        SyntaxHighlighter.all( { 'gutter': 'false', 'toolbar': 'false', '': 'none' } );
+        SyntaxHighlighter.all( {
+            "gutter": false,
+            "toolbar": false
+        } );
+
+        function scrollToDiv(element,navheight){
+            var offset = element.offset();
+            var offsetTop = offset.top;
+            var totalScroll = offsetTop-navheight;
+
+            $('body,html').animate({
+                scrollTop: totalScroll
+            }, 500);
+        }
 
     </script>
 
@@ -80,7 +99,7 @@
 
     <h3 id="highlights"><a href="#goals">Working with Diffusive</a></h3>
         <div id="accordion" class="my-accordion">
-            <h3>Any Method Can Be Distributed</h3>
+            <h3>any method can be distributed</h3>
             <div>
                 <p>You don't need to implement the equivalent of a <b class="class">Task</b> interfaces.
                     <b>Any</b> method, with <b>any</b> signature, anywhere in your code can be distributed.
@@ -93,7 +112,7 @@
                     </pre>
             </div>
 
-            <h3>Simply Mark the Methods You Want Distributed</h3>
+            <h3>simply mark the methods you want distributed</h3>
             <div>
                 <p>Methods are marked for distribution using the <b class="class">@Diffusive</b> annotation.
                     It's that simple! Marking a method means that when it is called, its execution will be distributed
@@ -106,53 +125,93 @@
                     </pre>
             </div>
 
-            <h3>Build a Network of Diffusers</h3>
+            <h3>build a network of diffusers</h3>
             <div>
-                <p><em>Diffusers</em> are the things that are responsible for executing a request, distributing that
-                request to another <em>diffuser</em>, or creating a new <em>diffuser</em> to which to distribute the
-                the request. All you need to do is tell the diffusers to what end-points they can distribute work.</p>
+                <p><em>Diffusers</em> are responsible for:
+                <ul>
+                    <li>executing a request</li>
+                    <li>distributing that request to another <em>diffuser</em>, or</li>
+                    <li>creating a new <em>diffuser</em> to which to distribute that request</li>
+                </ul>
+                This means that you can build a network of diffusers simply by giving each diffuser a set of end-points
+                to which it can forward requests.</p>
                 <p><img src="images/star_network.png"></p>
+                <p>The topology of the diffuser network can be anything that can be represented as a directed graph.
+                    Which means that you can design a topologies tailored to solve your specific problems.</p>
             </div>
 
-            <h3>Don't Worry about Pre-Deploying Class Files</h3>
+            <h3>no need to pre-deploy class files</h3>
             <div>
-                <p>You don't need to pre-deploy the <b class="class">class</b> files to any of the compute nodes.
-                    <b>Diffusive</b> will load the <b class="class">Class</b> objects it needs at runtime. And you can
-                    configure where the diffusers' remote class paths.</p>
+                <p>To allow dynamic and generic distributed computing you want to allow the <em>diffusers</em> to send
+                    work to any physical or virtual compute node. And you want this to happen dynamically--which means
+                    you may not know which nodes will be part of your computation before you start.</p>
+                <p><em>Diffusive</em> understands that and manages the load of <b class="class">java.lang.Class</b>
+                    objects for you. That means you don't have to worry about pre-deploying your class or JAR files.
+                    And you can configure where <em>diffusers</em> go to get their class objects.</p>
             </div>
 
-            <h3>Enjoy an Open Topology</h3>
+            <h3>nested diffusion</a></h3>
             <div>
-                <p>The topology of the network of nodes can be anything that can be represented as a directed graph. Topologies
-                    can be tailored to solve specific problems.
-                </p>
+                <p>Because all <em>diffusers</em> behave the same way, there is no difference between diffusers that
+                    accept work and those that distribute work. This means that if a method marked <b class="tt">@Diffusive</b>
+                    calls another method marked <b class="tt">@Diffusive</b> then the first method will be distributed
+                    to a remote diffuser, and the second method will be further distributed by that same remote diffuser.</p>
+                <pre class="brush:java">
+                    @Diffusive
+                    public double calcMeanValues( Map< String, List< Double > > values ) {
+                        meanValues.put( entry.getKey(), calcMean( entry.getValue() ) );
+                    }
+
+                    @Diffusive
+                    public double calcMean( Collection< Double > values ) { ... }
+            </pre>
+                <p>In this example, a call to marked <b class="class">calcMeanValues(...)</b> will be distributed to a
+                    remote diffuser. Because the <b class="class">calcMean(...)</b> method is also marked, a call to it
+                    will get distributed to another remote diffuser.</p>
+
+                <p>Allowing marked methods to call other marked methods is called
+                    <a href="overview_guide.html#multi_layered">nested diffusion</a>. As an aside, you can
+                    easily implement a simple map-reduce through nested diffusion.</p>
+
             </div>
 
-            <h3>Diffusers Can Diffuse (Easy Map-Reduce)</h3>
+            <h3>recursive diffusion</a></h3>
             <div>
-                <p>Because all <b>Diffusers</b> are equal, there is no difference between diffusers accepting an execution task
-                    and a diffusers requesting an execution task. This allows a distributed method to further distribute
-                    methods. In other words, you can do <a href="overview_guide.html#multi_layered">nested diffusion</a>, and
-                    therefore, easily implement map-reduce.
-                </p>
+                <p>With nested diffusion a marked method calls another marked method. What happens when a marked method
+                    calls itself?</p>
+                <pre class="brush:java">
+                    @Diffusive
+                    public double recursiveMethod( double value ) {
+                        value = // updated value
+                        if( value > MAX_VALUE ) {
+                            return value;
+                        }
+                        return recursiveMethod( value );
+                    }
+                </pre>
+                <p>In this example, the first call to <b class="class">recursiveMethod(...)</b> will cause the execution
+                    of that method to be distributed. On the remote node, the call to itself, which is a marked method,
+                    will cause the execution of that call to be distributed. And so it will continue until the control
+                    logic puts a stop to it. If appropriately threaded, this could allow the walking of networks with
+                    a simple recursive algorithm.</p>
             </div>
 
-            <h3>The Diffuser Network is Dynamic</h3>
+            <h3>diffuser networks are dynamic</h3>
             <div>
-                <p>Method execution is distributed to a network of nodes that can be configured or added and removed
-                    dynamically.
-                </p>
+                <p>Nodes that can be configured, added, and removed dynamically.</p>
             </div>
 
-            <h3>RESTful API</h3>
+            <h3>uses a REST API</h3>
             <div>
-                <p>Communication between nodes uses a RESTful API.</p>
+                <p>Communication between nodes uses a REST API. This means that writing management and monitoring
+                    tools becomes much easier. In fact, we are currently constructing a web application to manage
+                    and monitor the diffusers and servers.</p>
             </div>
         </div>
     </div>
 
 
-    <h3 id="advantages"><a href="#goals">Advantages Diffusive</a></h3>
+    <h3 id="advantages"><a href="#goals">Advantages of Diffusive</a></h3>
     <div id="tabs" class="my-tabs">
         <ul>
             <li><a href="#scales-naturally">Scales Naturally</a></li>
@@ -174,7 +233,7 @@
                 The ink slowly diffuses through the water until the concentration of ink is about equal throughout the
                 glass. </p>
 
-            <p><b>Diffusive Programming</b> allows computational tasks to <em>diffuse</em> naturally throughout the
+            <p><em>Diffusive</em> allows computational tasks to <em>diffuse</em> naturally throughout the
                 network of available computing resources.
                 This provides an organic load-balancing approach that doesn't require specialized
                 resources to manage the distribution of the work. And because of this, development and deployment using
@@ -196,10 +255,10 @@
         <!--<h3 id="unassuming"><a href="#goals">Honors Your Execution Logic</a></h3>-->
         <div id="honors-execution">
             <p class="key-point">Diffusive programming honors your execution logic.</p>
-            <p>Diffusive programming assumes that the execution logic you defined in your code is the way you'd like your
+            <p><em>Diffusive</em> programming assumes that the execution logic you defined in your code is the way you'd like your
                 code to execute. If your code is sequential for a stretch, because order matters, and then becomes concurrent,
-                diffusive programming honors that order. Your code defines the order in which it executes, but the diffusive
-                framework takes care of distributing the work.</p>
+                <em>diffusive</em> honors that order. Your code defines the order in which it executes, and the <em>diffusive
+                framework</em> takes care of distributing the work.</p>
         </div>
 
         <!--<h3 id="generic"><a href="#goals">Debug Locally</a></h3>-->

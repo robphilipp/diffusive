@@ -168,12 +168,14 @@ p.paramount {
 }
 
 p.key-point {
-    color: white;
-    -moz-box-shadow: 0px 0px 5px #c8ebcc;
-    -webkit-box-shadow: 0px 0px 5px #c8ebcc;
-    box-shadow: 0px 0px 5px #6b8afe;
+    color: #123aff;
+    /*-moz-box-shadow: 0px 0px 5px #c8ebcc;*/
+    /*-webkit-box-shadow: 0px 0px 5px #c8ebcc;*/
+    /*box-shadow: 0px 0px 5px #6b8afe;*/
+    /*border: 1px solid #123aff;*/
+    /*border-color: #123aff;*/
     border-radius: 5px;
-    background-color: #6b8afe;
+    background-color: rgba(107, 138, 254, 0.30);
     padding: 5px 5px 5px 15px;
 }
 
