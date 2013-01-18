@@ -15,6 +15,10 @@ footer {
     height: 30px;
 }
 
+.no-show {
+    visibility: collapse;
+}
+
 p.image, #image
 {
 	padding: 10px 10px 10px 10px;

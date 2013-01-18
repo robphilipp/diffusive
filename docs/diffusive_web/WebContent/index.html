@@ -52,7 +52,20 @@
     <script src="scripts/scroll-adjust.js"></script>
     <script src="scripts/setup.js"></script>
     <script>
-        setup();
+        $(document).ready( function() {
+
+            $(function() {
+                $( "#accordion" ).accordion( {
+                    autoHeight: false,
+                    header: "h3",
+                    collapsible: true,
+                    active: false
+                } );
+                $( "#whats-new-accordion" ).accordion( { autoHeight: false } );
+            });
+
+            setup();
+        }, false );
     </script>
 
     <title>Diffusive</title>
@@ -93,11 +106,11 @@
             </div>
         </div>
         <div class="span9">
-            <h3 id="goals"><a href="#goals" class="scroll-offset">Diffusive</a></h3>
+            <h3 id="goals" class="no-show"><a href="#goals" class="scroll-offset">Diffusive</a></h3>
             <p><b>Diffusive</b> is a truly <em>distributed</em>, distributed-computing framework based on diffusion. Through Diffusive,
                 you can distribute the execution of any method simply by marking it with <b class="class">@Diffusive</b>.
                 Execution is distributed to a network of computing resources by <em>diffusers</em> to
-                <em>diffusers</em>. A <em>Diffuser</em> can either execute the method, or pass it on to
+                <em>diffusers</em>. A <em>diffuser</em> can either execute the method, or pass it on to
                 another <em>diffusers</em> (which it may have just created).</p>
 
             <p>The beauty of Diffusive is that you don't have to change your code to use it (except for the annotations).
@@ -224,10 +237,8 @@
                     <li><a href="#what-is-it">Low Impact On Code</a></li>
                     <li><a href="#honors-execution">Honors Execution Logic</a></li>
                     <li><a href="#debug-locally">Debug Locally</a></li>
-                    <!--<li><a href="#highlights">Highlights</a></li>-->
                 </ul>
 
-                <!--<h3 id="diffusion"><a href="#goals">Scales Naturally</a></h3>-->
                 <div id="scales-naturally">
                     <p class="key-point">In diffusive programming your computation scales naturally.</p>
                     <p>In <a href="http://en.wikipedia.org/wiki/Distributed_computing"><em>distributed computing</em></a> we want to
@@ -246,7 +257,6 @@
                         <em>diffusive</em> is easier.</p>
                 </div>
 
-                <!--<h3 id="what_it_is"><a href="#goals">Low Impact to Your Code</a></h3>-->
                 <div id="what-is-it">
                     <p class="key-point">Diffusive programming doesn't require you to change your code.</p>
                     <p>Writing code that runs reliably on one machine and across many machines is difficult. Most distributed computing
@@ -258,16 +268,18 @@
                         use of the actor-based API is often necessary.</p>
                 </div>
 
-                <!--<h3 id="unassuming"><a href="#goals">Honors Your Execution Logic</a></h3>-->
                 <div id="honors-execution">
                     <p class="key-point">Diffusive programming honors your execution logic.</p>
                     <p><em>Diffusive</em> programming assumes that the execution logic you defined in your code is the way you'd like your
                         code to execute. If your code is sequential for a stretch, because order matters, and then becomes concurrent,
                         <em>diffusive</em> honors that order. Your code defines the order in which it executes, and the <em>diffusive
                             framework</em> takes care of distributing the work.</p>
+                    <p class="key-point">Diffusive allows you to separate your execution logic from your distribution logic.</p>
+                    <p>This separation of the execution logic from the distribution logic is quite powerful. Recall how simple it was
+                        to write algorithms for nested or recursive diffusion. And how that, for example, provides a natural way to
+                        write a distributed map-reduce algorithm.</p>
                 </div>
 
-                <!--<h3 id="generic"><a href="#goals">Debug Locally</a></h3>-->
                 <div id="debug-locally">
                     <p class="key-point">Diffusive programming allows you to debug most of your code locally.</p>
                     <p>Suppose that your could run the same code completely locally or in a distributed manner <em>without</em> changing
@@ -280,7 +292,7 @@
             <h3 id="more_info"><a href="#goals" class="scroll-offset">More Information</a></h3>
             <p>For a more complete description of diffusive programming and the reference implementation, please see the
                 <a href="overview_guide.html">the detailed overview</a> or download the
-                <a href="https://sourceforge.net/projects/diffusive/files/diffusive_programming.pdf">Diffusive Programming</a>
+                <a href="https://sourceforge.net/projects/diffusive/files/diffusive_programming.pdf">Diffusive Programming<img src="images/pdficon_small.png"> </a>
                 paper.</p>
 
             <h3 id="whats_new"><a href="#goals" class="scroll-offset">What's New</a></h3>

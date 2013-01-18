@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang=en>
+<html lang=en xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset=utf-8>
 
@@ -52,7 +52,26 @@
     <script src="scripts/scroll-adjust.js"></script>
     <script src="scripts/setup.js"></script>
     <script>
-        setup();
+        $(document).ready( function() {
+
+            $(function() {
+                $( "#principles-accordion" ).accordion( {
+                    autoHeight: false,
+                    header: "h3",
+                    collapsible: true,
+                    active: false
+                } );
+                $( "#nature-optim-accordion" ).accordion( {
+                    autoHeight: false,
+                    header: "h3",
+                    collapsible: true,
+                    active: false
+                } );
+                $( "#whats-new-accordion" ).accordion( { autoHeight: false } );
+            });
+
+            setup();
+        }, false );
     </script>
 
     <title>Overview of Diffusive</title>
@@ -96,55 +115,114 @@
         </div>
 
         <div class="span9">
-            <h2 id="overview"><a href="#overview" class="scroll-offset">Overview</a></h2>
-            <p>The goal of <b>Diffusive Programming</b> is to make distributed computing easier by separating
-            the execution logic from the distribution logic. <em>Diffusive programming</em>, defined by a set of six principles,
-            is an approach for performing method-level, task-oriented distributed computing. In <em>diffusive programming</em>,
-            any method can be <em>marked</em> for distribution, regardless of its signature. And <em>marking</em> a method is
-            necessary and sufficient for its execution to be distributed. Distribution of tasks occurs through a network of nodes
-            that can accept tasks and execute them, or forward them on. Nodes executing a task, load the required resources as needed,
-            and cache them. The topology of the network of nodes can be anything that can be represented as a directed graph.
-            Topologies can be tailored to solve specific problems. <em>Diffusive</em> is a Java reference implementation of the
-            six principles that define <em>diffusive programming</em>.</p>
+            <h2 id="overview" class="no-show"><a href="#overview" class="scroll-offset">Diffusive</a></h2>
+            <p><strong>Diffusive</strong> makes distributed computing easier by drawing on a few interesting concepts from
+                nature and complex systems.</p>
+            <p>Nature often provides quite elegant solutions to very difficult problems. An interesting aspect of the
+                solutions nature provides is their stochastic nature. </p>
 
-            <h2 id="introduction"><a href="#overview" class="scroll-offset">Introduction</a></h2>
-            <p>Task-oriented distributed computing allows independent computational tasks to be distributed to multiple computing nodes,
-            presumably to execute in parallel. This approach can reduce the overall compute time of a set of independent tasks. For
-            example, in quantitative finance, one may desire to calculate risk metrics for each financial instrument contained in a
-            large portfolio. When the calculation of the desired risk metrics for each instrument is independent of the calculation
-            for all other instruments, the risk metrics of each instrument can be calculated independently. In this case, we can speed
-            up the risk metrics calculation for the portfolio by spreading these independent tasks over many compute nodes at once,
-            and then collecting the results.</p>
+            <div id="nature-optim-accordion" class="my-accordion">
+                <h3>diffusion</h3>
+                <div>
+                    <p class="key-point">Diffusive is based on the idea of diffusion.</p>
+                    <p><a href="http://en.wikipedia.org/wiki/Diffusion">Diffusion</a> is the process by which matter or energy
+                        spreads to equalize the concentration in the available space. Diffusion occurs
+                        as particles (or energy) move from areas of higher concentration (or energy) to lower ones. At an atomic level,
+                        you can imagine (although its not quite correct) balls bouncing around in some large volume. In areas
+                        where there are many balls, a ball is more likely to collide with another ball and get pushed to
+                        some new location. When a ball is in an area
+                        with fewer balls, it is less likely to collide with another ball and will remain in this area longer.
+                        Over time, the balls will spread so that they are equally likely collide with another ball regardless
+                        of where they are. In other words, the concentration of the balls with be the same (on average) in
+                        the entire container.
+                    </p>
+                    <p>Diffusive uses this idea for distributing work. The diffuser network is equivalent to a discretized
+                        volume. A computational task is the equivalent to a particle. Each diffuser can perform the task,
+                        or if it is busy, it can pass the task to another diffuser. The movement of tasks to areas of high
+                        work-load, to areas of low work-loads occurs through the natural process of diffusion.</p>
+                </div>
+                <h3>annealing</h3>
+                <div>
+                    <p class="key-point">Simulated annealing is a global optimization method based on the physical process
+                        of annealing.</p>
+                    <p><a href="http://en.wikipedia.org/wiki/Simulated_annealing">Simulated annealing</a> is based on the
+                        physical process of the annealing of metals. When metals cool faster than the time it takes the
+                        them to reach their crystalline (low energy state) state, they form into a micro-crystalline
+                        structure. These metals are harder, but more brittle, than when in their respective crystalline
+                        structure.</p>
+                    <p>Quenching hot metals in oil is often used to harden the metals. And reheating them and allowing them
+                        to cool more slowly softens them.</p>
+                    <p>An infinitely hot metal is equally likely to be found in any of its energy states. At temperatures
+                        lower than infinity, the metal is more likely to be in a low energy state. And therefore, on average
+                        it will spend more time in a low energy state. As the temperature is lowered, it "locks" the metal
+                        out of the higher energy states.</p>
+                    <p>If the metal is cooled too quickly, it may become trapped in a higher energy (micro-crystalline) state.
+                        On the other hand, if the metal is cooled at a slow enough rate, on average it will be in a low
+                        energy state, and the metal will attain a low energy (crystal) state.</p>
+                    <p>In a manner similar to quenching metals, traditional gradient descent methods get "stuck" in local
+                        minima when attempting to find the minimum of a complex, highly-dimensional objective function. These
+                        methods only select solutions that minimize the object function at each step, trapping them.
+                        Simulated annealing is based on the notion that slowly cooling metals find their low energy state.
+                        A simulated annealer allows the optimization step to pick a worse solution with a probability
+                        depending on it's "temperature", and an expanded available set of solutions before the "temperature"
+                        is again lowered.</p>
+                </div>
 
-            <p>Typically this type of distribution is performed by a distribution middleware. In many cases, the application makes calls to
-            the middleware's application programming interface (API). The computational task may be represented by an object whose class
-            implements an interface that represents a <em>compute task</em> as defined by the middleware. Including middleware API calls in the
-            application code couples the application to the middleware. And more concerning, the application is now polluted with code used to
-            distribute execution to remote compute nodes. Clearly, with careful design, much of that distribution logic can be hidden behind
-            wrappers that allow the application logic to interact with an abstract compute engine, instead. And, the compute engine could be
-            implemented to execute locally or remotely. But even this approach doesn't overcome the constraints imposed by the requirement
-            that computational tasks implement a specific interface.</p>
+                <h3>genetics and evolution</h3>
+                <div>
+                    <p class="key-point"><a href="http://en.wikipedia.org/wiki/Genetic_algorithm">Genetic algorithms</a>
+                        is a global optimization method based on genetics and evolution.</p>
+                    <p>Genetic algorithms are based on the evolutionary process of genetic mutations and natural selection.
+                        Over time the environment and replication errors cause an organisms genetic material to change (mutate).
+                        That organism's offspring inherits it's genetic material from its parents. And it is that genetic material
+                        that what defines the new organism. Mutations to the genetic material may be manifest in physical
+                        changes to that organism. Under natural pressures, those changes may allow the organism to be more
+                        success, and have more offspring, or less successful, and have less offspring, or die. The genetic
+                        material of an organism that is more likely to have offspring, is more likely to persist.</p>
+                    <p>The breeding of dogs over the past 10,000 years to have characteristics we desire is a powerful
+                        example of this process.</p>
+                    <p>In a manner similar to evolution and genetics, genetic algorithms approach the problem of optimization
+                        of mathematical functions through this idea. When using a genetic algorithm, you effectively define
+                        the genetic material as the set of parameters. For a large population of solutions, these parameters
+                        are then mutated with certain probability, solutions' genetic material are combined, the best
+                        solutions are kept, the worst are killed off. This process repeats.</p>
+                </div>
 
-            <p>Distribution middleware may also require deployment of certain resources (dynamic libraries, class files, etc) to the
-            compute nodes <em>before</em> they can execute remote requests. This requires careful synchronization of versioned resources.
-            And this renders the compute nodes generic, only insofar as the required resources have been deployed to that node.</p>
+                <!--<h3>neural networks</h3>-->
+                <!--<div>-->
+                <!--</div>-->
 
-            <p><em>Diffusive programming</em> is based on a set of six principles intended to facilitate the development of task-oriented
-            distributed applications. it is an approach for performing task-oriented distributed computing that allows the execution of
-            individual methods to be distributed. Any method can be distributed, regardless of its signature. And aside from specifying
-            that a method is to be distributed, no further code changes are required. Furthermore, <em>Diffusive programming</em> allows
-            the application code to define the execution logic (i.e. the order and concurrency of the execution threads) without having
-            to explicitly implement how tasks are distributed---the implementation of the <em>diffusive programming</em> principles
-            manages the distribution of <em>marked</em> methods.
+            </div>
 
-            <p>The next section, <a href="#principles_of_diffusive_programming" class="scroll-offset">Principles of Diffusive Programming</a>, provides a
-            concise version of the principles and defines additional terms used throughout the rest of the paper. The subsections that
-            follow the list of principles describe each principle in more detail. With the principles defined
-            and explained, section <a href="#diffusion_patterns" class="scroll-offset">Diffusion Patterns</a>, puts forth a few network
-            topologies, or patterns, that are possible through diffusive programming. And section
-            <a href="#reference_implementation" class="scroll-offset">Reference Implementation</a>,  describes <em>Diffusive</em>, the Java reference
-            implementation of the <em>diffusive programming principles</em>. Finally, section <a href="#future_work" class="scroll-offset">Future Work</a>,
-            presents future work to be done on diffusive.</p>
+            <!--<p>The goal of <b>Diffusive Programming</b> is to make distributed computing easier by separating-->
+            <!--the execution logic from the distribution logic. <em>Diffusive programming</em>, defined by a set of six principles,-->
+            <!--is an approach for performing method-level, task-oriented distributed computing. In <em>diffusive programming</em>,-->
+            <!--any method can be <em>marked</em> for distribution, regardless of its signature. And <em>marking</em> a method is-->
+            <!--necessary and sufficient for its execution to be distributed. Distribution of tasks occurs through a network of nodes-->
+            <!--that can accept tasks and execute them, or forward them on. Nodes executing a task, load the required resources as needed,-->
+            <!--and cache them. The topology of the network of nodes can be anything that can be represented as a directed graph.-->
+            <!--Topologies can be tailored to solve specific problems. <em>Diffusive</em> is a Java reference implementation of the-->
+            <!--six principles that define <em>diffusive programming</em>.</p>-->
+
+            <h2 id="introduction"><a href="#overview" class="scroll-offset">Diffusive Programming</a></h2>
+            <p>Task-oriented distributed computing allows independent computational tasks to be distributed to multiple computing nodes.
+            Executing in parallel can reduce the overall compute time for a set of independent tasks.</p>
+
+            <p>Typically this type of distribution is performed by a distribution middleware. To make use of the middleware,
+                the application must use the middleware's published API. In space-based approaches, the computational tasks
+                must be cast into tasks, implementing the equivalent of a <code>Task</code> interface that exposes the equivalent
+                of an <code>execute(...)</code> method. In an actor-based approach, computational tasks must adhere to the
+                Actor-based model. In Diffusive, you merely need to mark a method, and when it is called, it will be
+                distributed.</p>
+
+            <p>In most cases, distributed computing requires us to refactor existing code to adhere to the middleware, and
+                deal with task-ordering issues which our execution logic hadn't originally been written to handle. In Diffusive
+                you are free to define the execution logic--concurrency, sequential, mixed--as you like, and Diffusive
+                will honor it.</p>
+
+            <p>Diffusive programming is defined a set of <a href="#principles_of_diffusive_programming" class="scroll-offset">principles</a>
+                that no longer require us to change our code merely to distribute it, and allow us to focus on the concurrency
+                at the application level, where it belongs.</p>
 
             <!--
 
@@ -152,14 +230,14 @@
 
              -->
             <h2 id="principles_of_diffusive_programming"><a href="#overview" class="scroll-offset">Diffusive Principles</a></h2>
-            <em>Diffusive programming</em> is based on six principles that define a framework for performing task-oriented
-            distributed computing. The six principles are ordered. They build on each other, progressing from the action of
+            <em>Diffusive programming</em> is based on a set of principles that define an approach for performing distributed
+            computing. These principles are ordered. They build on each other, progressing from the action of
             distributing the code to the deployment and configuration of the computation nodes.
 
             <!--
                 The Principles
              -->
-            <div id="accordion" class="my-accordion">
+            <div id="principles-accordion" class="my-accordion">
                 <!-- marking -->
                 <h3>marking</h3>
                 <div>
@@ -333,16 +411,9 @@
             Finally, the principle of <em>generic computing</em> requires that a diffuser be able to receive (and send) resources
             needed to execute a task, allowing tasks to be diffused to other nodes dynamically and executed.</p>
 
-            <p>Because any diffuser network that can be represented as a directed graph is possible to construct, there are an
+            <p>Because it is possible to construct any diffuser network that can be represented as a directed graph, there are an
             infinite number of patters in which these networks can be constructed. And furthermore, their dynamic nature also
-            allows the networks to evolve over time. In the next subsections I describe three illustrative patterns that solve
-            specific problems.</p>
-
-            <p>Finally, it is important to emphasize that it is the <em>marking</em> principle and the <em>location hiding</em>
-            principle that require the diffusive framework to provide a mechism for intercepting <em>marked</em> method calls and
-            handing them to the (local) diffuser assigned to the application. It is that (local) diffuser that then takes care of
-            diffusing the execution of the <em>marked</em> method to other remote diffusers for execution. Therefore, all the
-            topologies have this characteristic in common.</p>
+            allows the networks to evolve over time.</p>
 
             <!--
                 Layered
