@@ -1,8 +1,9 @@
-header, nav, footer, article {display:block;}
+header, nav, footer, article {
+    display:block;
+}
 
 body {
-    font-family: calibri;
-    font-size: 11pt;
+    background-color: #151515;
 }
 
 footer {
@@ -14,73 +15,9 @@ footer {
     height: 30px;
 }
 
-h2, h2 a {
-	padding: 10px 10px 0px 0px;
-	font-size: 14pt;
-    /*font-family: calibri;*/
-    /*border-bottom: solid 1px #cecece;*/
-}
-
-h3, h3 a {
-    color: gray;
-    padding: 10px 10px 0px 0px;
-	font-size: 12pt;
-	/*border-bottom: solid 1px #cecece;*/
-}
-
-h4, h4 a:link {
-    padding: 10px 10px 0px 0px;
-	font-size: 11pt;
-    /*border-bottom: solid 1px #cecece;*/
-}
-
-h5, h5 a:link {
-	font-size: 11pt;
-}
-
-dt {
-	font-weight: bold;
-    font-family: sans-serif;
-    font-size: 0.9em;
-    color: #646464;
-	/*background-color: #437DD4;*/
-	padding: 10px 10px 10px 10px;
-}
-
-dd
-{
-    /*border-left: solid 1px #cecece;*/
-    -moz-box-shadow: 0px 0px 5px gray;
-    -webkit-box-shadow: 0px 0px 5px gray;
-    box-shadow: 0px 0px 5px gray;
-    /*border-right: solid 1px #6A94D4;*/
-    border-radius: 5px;
-    /*background-color: #f5f5f5;*/
-    padding: 5px 5px 5px 15px;
-}
-
 p.image, #image
 {
 	padding: 10px 10px 10px 10px;
-}
-
-p.overview_toc, #overview_toc
-{
-    font-family: sans-serif;
-    font-size: 1.1em;
-	font-weight: bold;
-	color: gray;
-    border-bottom: solid 1px #cecece;
-}
-
-p.paramount {
-    color: #695947;
-    -moz-box-shadow: 0px 0px 5px #ebd2a7;
-    -webkit-box-shadow: 0px 0px 5px #ebd2a7;
-    box-shadow: 0px 0px 5px #ebd2a7;
-    border-radius: 5px;
-    background-color: #f5dbaf;
-    padding: 5px 5px 5px 15px;
 }
 
 p.key-point {
@@ -95,30 +32,6 @@ p.key-point {
     padding: 5px 5px 5px 15px;
 }
 
-a {
-	color: #241c1c;
-}
-
-a:link {
-	text-decoration: none;
-	color: #2038d1;
-}
-
-a:visited {
-	text-decoration: none;
-	color: #2272a6;
-}
-
-a:active {
-	text-decoration: none;
-	color: red;
-}
-
-a:hover {
-	text-decoration: underline;
-	color: #2035b8;
-}
-
 b.class
 {
 	color: #0F4DA8;
@@ -131,34 +44,10 @@ b.tt
     font-family: monospace;
 }
 
-th
-{
-	font-weight: bold;
-	font-size: .9em;
-	text-align: left;
-	background-color: #F2F2F2;
-	padding: 5px 5px 5px 5px;
-	border: 1px;
-	border-style: solid;
-	border-color: #EBEBEB;
-}
-
-td
-{
-	vertical-align: text-top;
-	font-size: .9em;
-	text-align: left;
-	line-height: 1.3em;
-	border: 1px;
-	border-bottom-style: solid;
-	border-color: #EBEBEB;
-	padding: 5px 15px 5px 5px;
-}
-
-.my-tabs .ui-tabs-nav li, .my-accordion .ui-accordion-header  {
-    font-size: 1.0em;
-    font-family: calibri;
-}
+/*.my-tabs .ui-tabs-nav div p, .my-accordion .ui-accordion-header  {*/
+    /*font-size: 0.9em;*/
+    /*font-family: calibri;*/
+/*}*/
 
 
 /*
