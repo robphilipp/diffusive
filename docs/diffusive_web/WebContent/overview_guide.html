@@ -8,7 +8,6 @@
     <meta name="author" content="Robert Philipp">
 
     <link rel="stylesheet" type="text/css" href="themes/jquery-ui-1.9.2.custom.css">
-    <link rel="stylesheet" type="text/css" href="diffusive.css"/>
 
     <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shCore.css" />
     <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shThemeEclipse.css" />
@@ -32,6 +31,7 @@
         }
     </style>
     <link href="scripts/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="diffusive.css"/>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -122,25 +122,6 @@
                 solutions nature provides is their stochastic nature. </p>
 
             <div id="nature-optim-accordion" class="my-accordion">
-                <h3>diffusion</h3>
-                <div>
-                    <p class="key-point">Diffusive is based on the idea of diffusion.</p>
-                    <p><a href="http://en.wikipedia.org/wiki/Diffusion">Diffusion</a> is the process by which matter or energy
-                        spreads to equalize the concentration in the available space. Diffusion occurs
-                        as particles (or energy) move from areas of higher concentration (or energy) to lower ones. At an atomic level,
-                        you can imagine (although its not quite correct) balls bouncing around in some large volume. In areas
-                        where there are many balls, a ball is more likely to collide with another ball and get pushed to
-                        some new location. When a ball is in an area
-                        with fewer balls, it is less likely to collide with another ball and will remain in this area longer.
-                        Over time, the balls will spread so that they are equally likely collide with another ball regardless
-                        of where they are. In other words, the concentration of the balls with be the same (on average) in
-                        the entire container.
-                    </p>
-                    <p>Diffusive uses this idea for distributing work. The diffuser network is equivalent to a discretized
-                        volume. A computational task is the equivalent to a particle. Each diffuser can perform the task,
-                        or if it is busy, it can pass the task to another diffuser. The movement of tasks to areas of high
-                        work-load, to areas of low work-loads occurs through the natural process of diffusion.</p>
-                </div>
                 <h3>annealing</h3>
                 <div>
                     <p class="key-point">Simulated annealing is a global optimization method based on the physical process
@@ -170,9 +151,8 @@
 
                 <h3>genetics and evolution</h3>
                 <div>
-                    <p class="key-point"><a href="http://en.wikipedia.org/wiki/Genetic_algorithm">Genetic algorithms</a>
-                        is a global optimization method based on genetics and evolution.</p>
-                    <p>Genetic algorithms are based on the evolutionary process of genetic mutations and natural selection.
+                    <p class="key-point">A genetic algorithm is a global optimization method based on genetics and evolution.</p>
+                    <p><a href="http://en.wikipedia.org/wiki/Genetic_algorithm">Genetic algorithms</a> are based on the evolutionary process of genetic mutations and natural selection.
                         Over time the environment and replication errors cause an organisms genetic material to change (mutate).
                         That organism's offspring inherits it's genetic material from its parents. And it is that genetic material
                         that what defines the new organism. Mutations to the genetic material may be manifest in physical
@@ -192,6 +172,29 @@
                 <!--<div>-->
                 <!--</div>-->
 
+                <h3>diffusion</h3>
+                <div>
+                    <p class="key-point">Diffusive distributes work through diffusion.</p>
+                    <p><a href="http://en.wikipedia.org/wiki/Diffusion">Diffusion</a> is a process by which matter or energy
+                        (as in heat) are transported in mass, though not through bulk motion. In diffusion matter or energy
+                        spread to equalize the concentration in the available space. Diffusion occurs
+                        as particles (or energy) move in a random walk resulting in the spreading of matter or energy
+                        from areas of higher concentration (or energy) to areas of lower concentration.
+                    </p>
+                    <p>In Diffusive, computational tasks are equivalent to a particle, and the load on a particular compute
+                        node (a diffuser) represents the concentration of computational tasks. When a task is sent to a
+                        diffuser that has a high concentration of tasks, the diffuser will forward that task to another
+                        diffuser at random (depending on the diffuser strategy). Through this process, tasks are spread
+                        to areas of lower concentration--essentially, tasks are diffused through the network of diffusers.</p>
+                </div>
+
+                <h3>self organization</h3>
+                <div>
+                    <p>In nature we often find that complex patterns emerge out of many simply-interaction agents (things).
+                        When many agents interact with their environment and each other through simple rules, the patterns
+                        that emerge spontaneously--<a href="http://en.wikipedia.org/wiki/Self-organization">self organized</a>--often
+                        seem counter intuitive.</p>
+                </div>
             </div>
 
             <!--<p>The goal of <b>Diffusive Programming</b> is to make distributed computing easier by separating-->
@@ -544,7 +547,7 @@
             <p>The <em>Diffusive</em> reference implementation is a Java-based framework that implements the <em>diffusive</em>
             principles. Aspects of <em>Diffusive</em> are specific to its implementation, and could be implemented in other ways.
             For example, in <em>Diffusive</em> methods are <em>marked</em> through the use of annotations. In particular, a
-            <em>diffusive</em> method is annotated with \textsf{@Diffusive}. However, it would have been possible to allow
+            <em>diffusive</em> method is annotated with <b class="class">@Diffusive</b>. However, it would have been possible to allow
             methods to be marked through a configuration file that holds a list of <em>markers</em> represented by their
             fully qualified method names. (For example, the fully qualified method name could be represented by the
             fully qualified class name with the method name appended with a &quot;.&quot;, such as

@@ -2,9 +2,9 @@ header, nav, footer, article {
     display:block;
 }
 
-body {
-    background-color: #151515;
-}
+/*body {*/
+    /*background-color: #151515;*/
+/*}*/
 
 footer {
     text-align: center;
