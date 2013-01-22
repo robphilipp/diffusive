@@ -107,21 +107,22 @@
         </div>
         <div class="span9">
             <h3 id="goals" class="no-show"><a href="#goals" class="scroll-offset">Diffusive</a></h3>
-            <p><b>Diffusive</b> is a truly <em>distributed</em>, distributed-computing framework based on diffusion. Through Diffusive,
-                you can distribute the execution of any method simply by marking it with <b class="class">@Diffusive</b>.
-                Execution is distributed to a network of computing resources by <em>diffusers</em> to
-                <em>diffusers</em>. A <em>diffuser</em> can either execute the method, or pass it on to
-                another <em>diffusers</em> (which it may have just created).</p>
+            <p><b>Diffusive</b> is a truly <em>distributed</em>, distributed-computing framework based on diffusion.
+                Diffusive is a Java-based framework that provides the capability to distribute the execution of any
+                Java method simply by marking it with <code>@Diffusive</code>. That method is distributed to a network
+                of computing resources. The resources responsible for executing or further distributing that method
+                are called <em>diffusers</em>. Similar to Actor-based frameworks, a <em>diffuser</em> can either
+                execute the method, or pass it on to another <em>diffusers</em>.</p>
 
-            <p>The beauty of Diffusive is that you don't have to change your code to use it (except for the annotations).
-                Importantly, that means that you define the way your code executes, and then configure Diffusive to distribute
-                the code in a way that makes sense for the problem you're trying to solve.</p>
+            <p>The beauty of Diffusive is that you don't have to change your code to use it.
+                Importantly, you define the way your code executes, and let Diffusive manage how the execution is distributed
+                across the network of diffusers.</p>
 
             <h3 id="highlights"><a href="#goals" class="scroll-offset">Working with Diffusive</a></h3>
             <div id="accordion" class="my-accordion">
                 <h3>any method can be distributed</h3>
                 <div>
-                    <p>You don't need to implement the equivalent of a <b class="class">Task</b> interfaces.
+                    <p>You don't need to implement the equivalent of a <code>Task</code> interfaces.
                         <b>Any</b> method, with <b>any</b> signature, anywhere in your code can be distributed.
                         Some examples are listed below:</p>
                     <pre class="brush:java">
@@ -134,7 +135,7 @@
 
                 <h3>simply mark the methods you want distributed</h3>
                 <div>
-                    <p>Methods are marked for distribution using the <b class="class">@Diffusive</b> annotation.
+                    <p>Methods are marked for distribution using the <code>@Diffusive</code> annotation.
                         It's that simple! Marking a method means that when it is called, its execution will be distributed
                         to a remote location.</p>
                     <pre class="brush:java">
@@ -165,7 +166,7 @@
                     <p>To allow dynamic and generic distributed computing you want to allow the <em>diffusers</em> to send
                         work to any physical or virtual compute node. And you want this to happen dynamically--which means
                         you may not know which nodes will be part of your computation before you start.</p>
-                    <p><em>Diffusive</em> understands that and manages the load of <b class="class">java.lang.Class</b>
+                    <p><em>Diffusive</em> understands that and manages the load of <code>java.lang.Class</code>
                         objects for you. That means you don't have to worry about pre-deploying your class or JAR files.
                         And you can configure where <em>diffusers</em> go to get their class objects.</p>
                 </div>
@@ -173,8 +174,8 @@
                 <h3>nested diffusion</a></h3>
                 <div>
                     <p>Because all <em>diffusers</em> behave the same way, there is no difference between diffusers that
-                        accept work and those that distribute work. This means that if a method marked <b class="tt">@Diffusive</b>
-                        calls another method marked <b class="tt">@Diffusive</b> then the first method will be distributed
+                        accept work and those that distribute work. This means that if a method marked <code>@Diffusive</code>
+                        calls another method marked <code>@Diffusive</code> then the first method will be distributed
                         to a remote diffuser, and the second method will be further distributed by that same remote diffuser.</p>
                     <pre class="brush:java">
                         @Diffusive
@@ -185,8 +186,8 @@
                         @Diffusive
                         public double calcMean( Collection< Double > values ) { ... }
                     </pre>
-                    <p>In this example, a call to marked <b class="class">calcMeanValues(...)</b> will be distributed to a
-                        remote diffuser. Because the <b class="class">calcMean(...)</b> method is also marked, a call to it
+                    <p>In this example, a call to marked <code>calcMeanValues(...)</code> will be distributed to a
+                        remote diffuser. Because the <code>calcMean(...)</code> method is also marked, a call to it
                         will get distributed to another remote diffuser.</p>
 
                     <p>Allowing marked methods to call other marked methods is called
@@ -209,7 +210,7 @@
                         return recursiveMethod( value );
                     }
                 </pre>
-                    <p>In this example, the first call to <b class="class">recursiveMethod(...)</b> will cause the execution
+                    <p>In this example, the first call to <code>recursiveMethod(...)</code> will cause the execution
                         of that method to be distributed. On the remote node, the call to itself, which is a marked method,
                         will cause the execution of that call to be distributed. And so it will continue until the control
                         logic puts a stop to it. If appropriately threaded, this could allow the walking of networks with
@@ -261,8 +262,8 @@
                     <p class="key-point">Diffusive programming doesn't require you to change your code.</p>
                     <p>Writing code that runs reliably on one machine and across many machines is difficult. Most distributed computing
                         frameworks require you to modify your code to use their framework. For example, in many task-oriented systems
-                        all computational tasks must be wrapped into the equivalent of a <b class="class">Task</b> interface that defines
-                        some sort of an <b class="class">execute(...)</b> method. Space-based approaches often require your code to
+                        all computational tasks must be wrapped into the equivalent of a <code>Task</code> interface that defines
+                        some sort of an <code>execute(...)</code> method. Space-based approaches often require your code to
                         write the task into a <em>space</em> and then poll a <em>space</em> for the result. In
                         <a href="http://arxiv.org/ftp/arxiv/papers/1008/1008.1459.pdf">Actor</a> based distributed computing, extensive
                         use of the actor-based API is often necessary.</p>
@@ -302,13 +303,13 @@
                     <p>This is first version that allows users to run Diffusive from the distribution JAR files, and to separate the
                         application (to diffuse) from the distribution JARs. Previous version required Diffusive to be run from an IDE.</p>
                     <ol>
-                        <li>Developed command-line interfaces for <b class="class">DiffuserLauncher</b>, and for the
-                            <b class="class">RestfulDiffuserServer</b>. These new interfaces allow you the ability to set various options
+                        <li>Developed command-line interfaces for <code>DiffuserLauncher</code>, and for the
+                            <code>RestfulDiffuserServer</code>. These new interfaces allow you the ability to set various options
                             and configuration items. To get more details, execute the jars from the command-line with the <b class="tt">--help</b>
-                            option: <br><b class="class">java -jar Diffusive_Launcher_0.2.0.jar --help</b></li> or
-                        <br><b class="class">java -jar Diffusive_Server_0.2.0.jar --help</b>
-                        <li>Developed command-line interfaces for the XML configuration objects: <b class="class">RestfulDiffuserConfigXml</b>
-                            and the <b class="class">RestfulDiffuserServerConfigXml</b> that can generate and validated configuration files.</li>
+                            option: <br><code>java -jar Diffusive_Launcher_0.2.0.jar --help</code></li> or
+                        <br><code>java -jar Diffusive_Server_0.2.0.jar --help</code>
+                        <li>Developed command-line interfaces for the XML configuration objects: <code>RestfulDiffuserConfigXml</code>
+                            and the <code>RestfulDiffuserServerConfigXml</code> that can generate and validated configuration files.</li>
                         <li>Added three examples with increasing complexity:
                             <ol>
                                 <li>A stand-alone local diffuser that allows you to run diffusive without starting a diffuser server.</li>
@@ -320,8 +321,8 @@
                         </li>
                         <li>Fixed a bug related to the loading of class files that were neither in the JAR, or in the JAR's manifest's
                             <b class="tt">Class-Path</b> (which wasn't so easy). This is needed so that JAR files containing the user's
-                            application can be run and loaded for <b class="class">RestfulClassLoader</b> and
-                            <b class="class">RestfulDiffuserClassLoader</b>.</li>
+                            application can be run and loaded for <code>RestfulClassLoader</code> and
+                            <code>RestfulDiffuserClassLoader</code>.</li>
                         <li>Improved some JAX-RS exception mapping. Not yet at the point I'd like it to be.</li>
                     </ol>
                 </div>
@@ -331,10 +332,10 @@
                     <p>Updated the configuration files so that it can be run locally right out of the box (based on suggestion
                         from Anteneh Nurlien).</p>
                     <ol>
-                        <li>Updated the configuration files so that <b class="class">restful_server_config.xml</b> and
-                            <b class="class">random_diffuser_strategy.xml</b> don't have any end-points. This allows
+                        <li>Updated the configuration files so that <code>restful_server_config.xml</code> and
+                            <code>random_diffuser_strategy.xml</code> don't have any end-points. This allows
                             diffusive test cases to be run locally without any configuration. Just run the
-                            <b class="class">RestfulDiffusiveServer</b> class, and then the <b class="class">DiffusiveLauncher</b>
+                            <code>RestfulDiffusiveServer</code> class, and then the <code>DiffusiveLauncher</code>
                             class, and it should run.</li>
                         <li>Fixed bug that prevented diffusive from running when no end-points were specified in the
                             configuration files.</li>
@@ -349,10 +350,10 @@
                         <li>Modified Diffusive's server and diffuser configuration classes to load an XML file containing
                             the basic configuration properties. As part of this, add XML files for configuring the diffuser
                             strategy. This allows the diffuser strategy to be specified in diffuser configuration XML file.
-                            Now the diffuser server can be configured from <b class="class">restful_server_config.xml</b>,
-                            the diffusers can be configured from <b class="class">restful_diffuser_config.xml</b>, and the
-                            diffuser strategies can be configured from <b class="class">random_diffuser_strategy.xml</b>
-                            and <b class="class">random_weighted_diffuser_strategy.xml</b></li>
+                            Now the diffuser server can be configured from <code>restful_server_config.xml</code>,
+                            the diffusers can be configured from <code>restful_diffuser_config.xml</code>, and the
+                            diffuser strategies can be configured from <code>random_diffuser_strategy.xml</code>
+                            and <code>random_weighted_diffuser_strategy.xml</code></li>
                         <li>Updated FreezeDry from version 0.2.2 to version 0.2.4 (see
                             <a href="http://freezedried.sourceforge.net/overview_guide.html#whats_new">FreezeDry updates</a>
                             for more details).</li>

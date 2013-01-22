@@ -15,6 +15,9 @@ footer {
     height: 30px;
 }
 
+code {
+    color: darkblue;
+}
 .no-show {
     visibility: collapse;
 }
