@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang=en xmlns="http://www.w3.org/1999/html">
+<html lang=en xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset=utf-8>
 
@@ -55,13 +55,7 @@
         $(document).ready( function() {
 
             $(function() {
-                $( "#principles-accordion" ).accordion( {
-                    autoHeight: false,
-                    header: "h3",
-                    collapsible: true,
-                    active: false
-                } );
-                $( "#nature-optim-accordion" ).accordion( {
+                $( "#principles-accordion, #patterns-accordion" ).accordion( {
                     autoHeight: false,
                     header: "h3",
                     collapsible: true,
@@ -116,86 +110,113 @@
 
         <div class="span9">
             <h2 id="overview" class="no-show"><a href="#overview" class="scroll-offset">Diffusive</a></h2>
-            <p><strong>Diffusive</strong> makes distributed computing easier by drawing on a few interesting concepts from
-                nature and complex systems.</p>
-            <p>Nature often provides quite elegant solutions to very difficult problems. An interesting aspect of the
-                solutions nature provides is their stochastic nature. </p>
+            <p>Nature often provides quite elegant solutions to very difficult problems. An interesting aspect of these
+                solutions is their stochastic approach towards some "optimal" state. It is this interplay between a
+                random walk through state space and a selection process that acts as a guiding force.</p>
+            <p>When nature's approaches are applied to numerical optimization problems their implementation is usually
+                significantly simpler than the implementation of more traditional optimization algorithms.</p>
+            <p><strong>Diffusive</strong> borrows its key design aspects from nature's solutions to provide a
+                set of natural behaviors, based on simple constructs, that overcome difficult and complex challenges
+                in distributed computing. The use of
+                these simple constructs makes the development of distributed applications easier, less intrusive to
+                the existing code base or the application's logic, and easier to debug.</p>
 
-            <div id="nature-optim-accordion" class="my-accordion">
-                <h3>annealing</h3>
-                <div>
-                    <p class="key-point">Simulated annealing is a global optimization method based on the physical process
-                        of annealing.</p>
-                    <p><a href="http://en.wikipedia.org/wiki/Simulated_annealing">Simulated annealing</a> is based on the
-                        physical process of the annealing of metals. When metals cool faster than the time it takes the
-                        them to reach their crystalline (low energy state) state, they form into a micro-crystalline
-                        structure. These metals are harder, but more brittle, than when in their respective crystalline
-                        structure.</p>
-                    <p>Quenching hot metals in oil is often used to harden the metals. And reheating them and allowing them
-                        to cool more slowly softens them.</p>
-                    <p>An infinitely hot metal is equally likely to be found in any of its energy states. At temperatures
-                        lower than infinity, the metal is more likely to be in a low energy state. And therefore, on average
-                        it will spend more time in a low energy state. As the temperature is lowered, it "locks" the metal
-                        out of the higher energy states.</p>
-                    <p>If the metal is cooled too quickly, it may become trapped in a higher energy (micro-crystalline) state.
-                        On the other hand, if the metal is cooled at a slow enough rate, on average it will be in a low
-                        energy state, and the metal will attain a low energy (crystal) state.</p>
-                    <p>In a manner similar to quenching metals, traditional gradient descent methods get "stuck" in local
-                        minima when attempting to find the minimum of a complex, highly-dimensional objective function. These
-                        methods only select solutions that minimize the object function at each step, trapping them.
-                        Simulated annealing is based on the notion that slowly cooling metals find their low energy state.
-                        A simulated annealer allows the optimization step to pick a worse solution with a probability
-                        depending on it's "temperature", and an expanded available set of solutions before the "temperature"
-                        is again lowered.</p>
-                </div>
+            <!--<p class="key-point">Complex behavior can arise spontaneously from a large number of simply-interacting elements.</p>-->
 
-                <h3>genetics and evolution</h3>
-                <div>
-                    <p class="key-point">A genetic algorithm is a global optimization method based on genetics and evolution.</p>
-                    <p><a href="http://en.wikipedia.org/wiki/Genetic_algorithm">Genetic algorithms</a> are based on the evolutionary process of genetic mutations and natural selection.
-                        Over time the environment and replication errors cause an organisms genetic material to change (mutate).
-                        That organism's offspring inherits it's genetic material from its parents. And it is that genetic material
-                        that what defines the new organism. Mutations to the genetic material may be manifest in physical
-                        changes to that organism. Under natural pressures, those changes may allow the organism to be more
-                        success, and have more offspring, or less successful, and have less offspring, or die. The genetic
-                        material of an organism that is more likely to have offspring, is more likely to persist.</p>
-                    <p>The breeding of dogs over the past 10,000 years to have characteristics we desire is a powerful
-                        example of this process.</p>
-                    <p>In a manner similar to evolution and genetics, genetic algorithms approach the problem of optimization
-                        of mathematical functions through this idea. When using a genetic algorithm, you effectively define
-                        the genetic material as the set of parameters. For a large population of solutions, these parameters
-                        are then mutated with certain probability, solutions' genetic material are combined, the best
-                        solutions are kept, the worst are killed off. This process repeats.</p>
-                </div>
-
-                <!--<h3>neural networks</h3>-->
+            <!--<div id="nature-optim-accordion" class="my-accordion">-->
+                <!--<h3>annealing</h3>-->
                 <!--<div>-->
+                    <!--<p class="key-point">Simulated annealing is a global optimization method based on the physical process-->
+                        <!--of annealing.</p>-->
+                    <!--<p><a href="http://en.wikipedia.org/wiki/Simulated_annealing">Simulated annealing</a> is based on the-->
+                        <!--physical process of the annealing of metals. When metals cool faster than the time it takes the-->
+                        <!--them to reach their crystalline (low energy state) state, they form into a micro-crystalline-->
+                        <!--structure. These metals are harder, but more brittle, than when in their respective crystalline-->
+                        <!--structure.</p>-->
+                    <!--<p>Quenching hot metals in oil is often used to harden the metals. And reheating them and allowing them-->
+                        <!--to cool more slowly softens them.</p>-->
+                    <!--<p>An infinitely hot metal is equally likely to be found in any of its energy states. At temperatures-->
+                        <!--lower than infinity, the metal is more likely to be in a low energy state. And therefore, on average-->
+                        <!--it will spend more time in a low energy state. As the temperature is lowered, it "locks" the metal-->
+                        <!--out of the higher energy states.</p>-->
+                    <!--<p>If the metal is cooled too quickly, it may become trapped in a higher energy (micro-crystalline) state.-->
+                        <!--On the other hand, if the metal is cooled at a slow enough rate, on average it will be in a low-->
+                        <!--energy state, and the metal will attain a low energy (crystal) state.</p>-->
+                    <!--<p>In a manner similar to quenching metals, traditional gradient descent methods get "stuck" in local-->
+                        <!--minima when attempting to find the minimum of a complex, highly-dimensional objective function. These-->
+                        <!--methods only select solutions that minimize the object function at each step, trapping them.-->
+                        <!--Simulated annealing is based on the notion that slowly cooling metals find their low energy state.-->
+                        <!--A simulated annealer allows the optimization step to pick a worse solution with a probability-->
+                        <!--depending on it's "temperature", and an expanded available set of solutions before the "temperature"-->
+                        <!--is again lowered.</p>-->
                 <!--</div>-->
 
-                <h3>diffusion</h3>
-                <div>
-                    <p class="key-point">Diffusive distributes work through diffusion.</p>
-                    <p><a href="http://en.wikipedia.org/wiki/Diffusion">Diffusion</a> is a process by which matter or energy
-                        (as in heat) are transported in mass, though not through bulk motion. In diffusion matter or energy
-                        spread to equalize the concentration in the available space. Diffusion occurs
-                        as particles (or energy) move in a random walk resulting in the spreading of matter or energy
-                        from areas of higher concentration (or energy) to areas of lower concentration.
-                    </p>
-                    <p>In Diffusive, computational tasks are equivalent to a particle, and the load on a particular compute
-                        node (a diffuser) represents the concentration of computational tasks. When a task is sent to a
-                        diffuser that has a high concentration of tasks, the diffuser will forward that task to another
-                        diffuser at random (depending on the diffuser strategy). Through this process, tasks are spread
-                        to areas of lower concentration--essentially, tasks are diffused through the network of diffusers.</p>
-                </div>
+                <!--<h3>genetics and evolution</h3>-->
+                <!--<div>-->
+                    <!--<p class="key-point">A genetic algorithm is a global optimization method based on genetics and evolution.</p>-->
+                    <!--<p><a href="http://en.wikipedia.org/wiki/Genetic_algorithm">Genetic algorithms</a> are based on the evolutionary process of genetic mutations and natural selection.-->
+                        <!--Over time the environment and replication errors cause an organisms genetic material to change (mutate).-->
+                        <!--That organism's offspring inherits it's genetic material from its parents. And it is that genetic material-->
+                        <!--that what defines the new organism. Mutations to the genetic material may be manifest in physical-->
+                        <!--changes to that organism. Under natural pressures, those changes may allow the organism to be more-->
+                        <!--success, and have more offspring, or less successful, and have less offspring, or die. The genetic-->
+                        <!--material of an organism that is more likely to have offspring, is more likely to persist.</p>-->
+                    <!--<p>The breeding of dogs over the past 10,000 years to have characteristics we desire is a powerful-->
+                        <!--example of this process.</p>-->
+                    <!--<p>In a manner similar to evolution and genetics, genetic algorithms approach the problem of optimization-->
+                        <!--of mathematical functions through this idea. When using a genetic algorithm, you effectively define-->
+                        <!--the genetic material as the set of parameters. For a large population of solutions, these parameters-->
+                        <!--are then mutated with certain probability, solutions' genetic material are combined, the best-->
+                        <!--solutions are kept, the worst are killed off. This process repeats.</p>-->
+                <!--</div>-->
 
-                <h3>self organization</h3>
-                <div>
-                    <p>In nature we often find that complex patterns emerge out of many simply-interaction agents (things).
-                        When many agents interact with their environment and each other through simple rules, the patterns
-                        that emerge spontaneously--<a href="http://en.wikipedia.org/wiki/Self-organization">self organized</a>--often
-                        seem counter intuitive.</p>
-                </div>
-            </div>
+                <!--&lt;!&ndash;<h3>neural networks</h3>&ndash;&gt;-->
+                <!--&lt;!&ndash;<div>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+                <!--<h3>diffusion</h3>-->
+                <!--<div>-->
+                    <!--<p class="key-point">Diffusive distributes work through diffusion.</p>-->
+                    <!--<p><a href="http://en.wikipedia.org/wiki/Diffusion">Diffusion</a> is a process by which matter or energy-->
+                        <!--(as in heat) are transported in mass, though not through bulk motion. In diffusion matter or energy-->
+                        <!--spread to equalize the concentration in the available space. Diffusion occurs-->
+                        <!--as particles (or energy) move in a random walk resulting in the spreading of matter or energy-->
+                        <!--from areas of higher concentration (or energy) to areas of lower concentration.-->
+                    <!--</p>-->
+                    <!--<p>In Diffusive, computational tasks are equivalent to a particle, and the load on a particular compute-->
+                        <!--node (a diffuser) represents the concentration of computational tasks. When a task is sent to a-->
+                        <!--diffuser that has a high concentration of tasks, the diffuser will forward that task to another-->
+                        <!--diffuser at random (depending on the diffuser strategy). Through this process, tasks are spread-->
+                        <!--to areas of lower concentration--essentially, tasks are diffused through the network of diffusers.</p>-->
+                <!--</div>-->
+
+                <!--<h3>self organization</h3>-->
+                <!--<div>-->
+                    <!--<p class="key-point">Diffusive can behave in a similar manner to a self-organizing biological systems.</p>-->
+                    <!--<p>In nature we often find that complex patterns emerge out of many simply-interaction agents (things).-->
+                        <!--When many agents interact with their environment and each other through simple rules, the patterns-->
+                        <!--may emerge spontaneously in a <a href="http://en.wikipedia.org/wiki/Self-organization">self organizing</a>-->
+                        <!--manner. One key characteristic of self-organizing systems is that they are dissipative, requiring-->
+                        <!--an input energy to self-organize.</p>-->
+                    <!--<p>In biological systems, self-organizing principles found in simpler systems may also be driven by-->
+                        <!--environmental pressures. In evolutionary terms, natural selection may play an important role in-->
+                        <!--determining the success or failure of more complex self-organizing systems--such as cells.-->
+                        <!--<a href="http://www.academia.edu/393211/Self-organization_Natural_Selection_and_Evolution_Cellular_Hardware_and_Genetic_Software">[1]</a></p>-->
+                    <!--<p>Termite mounds grow through self organization of termites without a central planning committee.-->
+                        <!--<a href="http://www.amazon.com/Self-Organization-Biological-Systems-Princeton-Complexity/dp/0691116245">[2, p380]</a>-->
+                        <!--Simulations of flocking birds are remarkably similar to their physical counterpart when each simulated-->
+                        <!--bird obeys only a simple set of three rules. Another example are the polygonal cells formed in-->
+                        <!--Benard convection when heating a thin heated layer.</p>-->
+                    <!--<p>In Diffusive, the <code>Strategy</code> classes responsible for the diffusion of tasks to a connected-->
+                        <!--diffuser provide the rules with which diffusers interact to distribute work. The influx of tasks-->
+                        <!--from the application represents the input of energy, which is dissipated as tasks are completed.-->
+                        <!--The adjustment of tasks through feedback or supervised learning can provide the natural selection-->
+                        <!--that drives the self-organized diffuser network toward its goal.</p>-->
+                <!--</div>-->
+            <!--</div>-->
+
+            <!--<p><br> An interesting aspect of these solutions is their stochastic nature, and that their implementation is usually-->
+                <!--significantly simpler than more traditional optimization algorithms.</p>-->
 
             <!--<p>The goal of <b>Diffusive Programming</b> is to make distributed computing easier by separating-->
             <!--the execution logic from the distribution logic. <em>Diffusive programming</em>, defined by a set of six principles,-->
@@ -207,25 +228,39 @@
             <!--Topologies can be tailored to solve specific problems. <em>Diffusive</em> is a Java reference implementation of the-->
             <!--six principles that define <em>diffusive programming</em>.</p>-->
 
-            <h2 id="introduction"><a href="#overview" class="scroll-offset">Diffusive Programming</a></h2>
-            <p>Task-oriented distributed computing allows independent computational tasks to be distributed to multiple computing nodes.
-            Executing in parallel can reduce the overall compute time for a set of independent tasks.</p>
+            <!--
+                Introduction
+            -->
+            <!--<h2 id="introduction"><a href="#overview" class="scroll-offset">Diffusive Programming</a></h2>-->
+            <!--<p>The goal of <em>diffusive programming</em> is make distributed computing easier--from design to development-->
+                <!--to troubleshooting to deployment. <strong>Diffusive</strong> achieves this by adhering to a set of principles-->
+                <!--designed to make the development of distributed applications more natural. Largely <em>diffusive</em> achieves-->
+                <!--this by making it easy to distributed <strong>any</strong> method, honoring the execution ordering defined-->
+                <!--in your code, and providing a natural load balancing mechanism through the diffusion of tasks in the-->
+                <!--diffuser network.</p>-->
 
-            <p>Typically this type of distribution is performed by a distribution middleware. To make use of the middleware,
-                the application must use the middleware's published API. In space-based approaches, the computational tasks
-                must be cast into tasks, implementing the equivalent of a <code>Task</code> interface that exposes the equivalent
-                of an <code>execute(...)</code> method. In an actor-based approach, computational tasks must adhere to the
-                Actor-based model. In Diffusive, you merely need to mark a method, and when it is called, it will be
-                distributed.</p>
+            <!--<div id="task-oriented-accordion" class="my-accordion">-->
+            <!--<h3>task-oriented distributed computing</h3>-->
+            <!--<div>-->
+                <!--<p>Task-oriented distributed computing allows independent computational tasks to be distributed to multiple computing nodes.-->
+                    <!--Executing in parallel can reduce the overall compute time for a set of independent tasks.</p>-->
 
-            <p>In most cases, distributed computing requires us to refactor existing code to adhere to the middleware, and
-                deal with task-ordering issues which our execution logic hadn't originally been written to handle. In Diffusive
-                you are free to define the execution logic--concurrency, sequential, mixed--as you like, and Diffusive
-                will honor it.</p>
+                <!--<p>Typically this type of distribution is performed by a distribution middleware. To make use of the middleware,-->
+                    <!--the application must use the middleware's published API. In space-based approaches, the computational tasks-->
+                    <!--must be cast into tasks, implementing the equivalent of a <code>Task</code> interface that exposes the equivalent-->
+                    <!--of an <code>execute(...)</code> method. In an actor-based approach, computational tasks must adhere to the-->
+                    <!--Actor-based model. In Diffusive, you merely need to mark a method, and when it is called, it will be-->
+                    <!--distributed.</p>-->
 
-            <p>Diffusive programming is defined a set of <a href="#principles_of_diffusive_programming" class="scroll-offset">principles</a>
-                that no longer require us to change our code merely to distribute it, and allow us to focus on the concurrency
-                at the application level, where it belongs.</p>
+                <!--<p>In most cases, distributed computing requires us to refactor existing code to adhere to the middleware, and-->
+                    <!--deal with task-ordering issues which our execution logic hadn't originally been written to handle. In Diffusive-->
+                    <!--you are free to define the execution logic--concurrency, sequential, mixed--as you like, and Diffusive-->
+                    <!--will honor it.</p>-->
+            <!--</div>-->
+
+            <!--<p>Diffusive programming is defined by a set of <a href="#principles_of_diffusive_programming" class="scroll-offset">principles</a>-->
+                <!--that no longer require us to change our code merely to distribute it, and allow us to focus on the concurrency-->
+                <!--at the application level, where it belongs.</p>-->
 
             <!--
 
@@ -233,9 +268,15 @@
 
              -->
             <h2 id="principles_of_diffusive_programming"><a href="#overview" class="scroll-offset">Diffusive Principles</a></h2>
-            <em>Diffusive programming</em> is based on a set of principles that define an approach for performing distributed
-            computing. These principles are ordered. They build on each other, progressing from the action of
-            distributing the code to the deployment and configuration of the computation nodes.
+            <p>The goal of <em>diffusive programming</em> is make distributed computing easier--from design to development
+                to troubleshooting to deployment. <strong>Diffusive</strong> achieves this by adhering to a set of principles
+                designed to make the development of distributed applications more natural. Largely <em>diffusive</em> achieves
+                this by making it easy to distributed <strong>any</strong> method, honoring the execution ordering defined
+                in your code, and providing a natural load balancing mechanism through the diffusion of tasks in the
+                diffuser network.</p>
+            <!--<em>Diffusive programming</em> is based on a set of principles that define an approach for performing distributed-->
+            <!--computing. These principles are ordered. They build on each other, progressing from the action of-->
+            <!--distributing the code to the deployment and configuration of the computation nodes.-->
 
             <!--
                 The Principles
@@ -244,10 +285,13 @@
                 <!-- marking -->
                 <h3>marking</h3>
                 <div>
-                    <p>A method can be marked for remote execution. The act of <em>marking</em>, alone, is
+                    <p class="key-point">A method can be marked for remote execution. The act of <em>marking</em>, alone, is
                         sufficient and necessary for a method to be executed on a remote location and have the results returned.</p>
 
-                    <p class="definition key-point"><em>Definition</em>: A <b>diffusive method</b> is a method that has been <em>marked</em>.</p>
+                    <!--<p class="key-point">A <b>diffusive method</b> is a method that has been <em>marked</em>.</p>-->
+                    <p><span class="label label-info">Definition</span>
+                        A <b>diffusive method</b> is a method that has been <em>marked</em>.
+                    </p>
 
                     <p><em>Diffusive programming</em> allows the execution of individual methods to be distributed. <em>Marking</em> a
                         method is the act of specifying that a specific method is to be distributed. How a method is <em>marked</em> is
@@ -258,7 +302,7 @@
                         executed has a defined signature (and return type).</p>
 
                     <p>The way a method is marked, to become a <em>diffusive</em> method, depends on the implementation of this principle.
-                        For example, the reference implementation written in Java currently uses the <b class="class">@Diffusive</b> annotation
+                        For example, the reference implementation written in Java currently uses the <code>@Diffusive</code> annotation
                         to mark methods. However, it
                         could just as easily allow the fully qualified method names to be specified in a configuration file instead.</p>
                 </div>
@@ -266,12 +310,15 @@
                 <!-- location hiding -->
                 <h3>location hiding</h3>
                 <div>
-                    <p>Code calling a <em>diffusive</em> method does not, and can not, know on which
+                    <p class="key-point">Code calling a <em>diffusive</em> method does not, and can not, know on which
                         resource that method was executed. This helps keep code <em>cohesive</em> by removing distribution logic
                         from the application.</p>
-                    <p class="definition key-point"><em>Definition</em>: A <b>diffuser</b> is what executes a <em>diffusive</em> method.</p>
+                    <p><span class="label label-info">Definition</span>
+                        A <b>diffuser</b> is what executes a <em>diffusive</em> method.</p>
 
-                    <p class="definition key-point"><em>Definition</em>: A <b>diffused method</b> is a <em>diffusive</em> method that was
+                    <p>
+                        <span class="label label-info">Definition</span>
+                        A <b>diffused method</b> is a <em>diffusive</em> method that was
                         executed by a <em>diffuser</em>.</p>
 
                     <p><em>Marking</em> a method tells the diffusive framework that that method is to be executed in a distributed manner.
@@ -295,10 +342,11 @@
                 <!-- failure resolution -->
                 <h3>best-efforts failure resolution</h3>
                 <div>
-                    <p>A <em>diffuser</em> will attempt to recover from a
+                    <p class="key-point">A <em>diffuser</em> will attempt to recover from a
                         <em>diffusive failure</em>. If the <em>diffuser</em> is unable to recover, it will transfer error
                         handling to a specified handler or report the error as a local error.</p>
-                    <p class="definition key-point"><em>Definition</em>: A <b>diffusive failure</b> is a the failure of a remote
+                    <p><span class="label label-info">Definition</span>
+                        A <b>diffusive failure</b> is a the failure of a remote
                         <em>diffuser</em> to execute a <em>diffusive</em> method, or the loss of connectivity to a remote
                         <em>diffuser</em>.</p>
 
@@ -331,10 +379,8 @@
                 <!-- generic computation engine -->
                 <h3>generic computation</h3>
                 <div>
-                    <p>Any <em>diffusive</em> method can be executed by any <em>diffuser</em>. A <em>diffuser</em> need not
+                    <p class="key-point">Any <em>diffusive</em> method can be executed by any <em>diffuser</em>. A <em>diffuser</em> need not
                         be configured with resources prior to the request to execute a method.</p>
-
-                    <p class="key-point"></p>
 
                     <p>The principle of <em>generic computation</em> provides that any method can be executed on a <em>diffuser</em>
                         without out the need to deploy the resource needed to execute that diffused method. Simply put, the shared object
@@ -354,11 +400,9 @@
                 <!-- indistinguishablity -->
                 <h3>indistinguishability</h3>
                 <div>
-                    <p>A <em>diffuser</em> is responsible for executing any <em>diffusive</em> method, and it is also responsible
+                    <p class="key-point">A <em>diffuser</em> is responsible for executing any <em>diffusive</em> method, and it is also responsible
                     for <em>diffusing</em> methods to other <em>diffusers</em>. This implies that a <em>diffuser</em> must be
                     able to act both as a client and and as a server.</p>
-
-                    <p class="key-point"></p>
 
                     <p>The principle of <em>indistinguishability</em> means that a <em>diffuser</em> must be able to receive requests to
                         execute, and at the same time be able to <em>diffuse</em> (forward) those requests to another <em>diffuser</em>. In other
@@ -373,14 +417,16 @@
                 <!-- open topology -->
                 <h3>open topology</h3>
                 <div>
-                    <p><em>Diffusers</em> can be connected in any topology that can represented as a directed graph. Each node
+                    <p class="key-point"><em>Diffusers</em> can be connected in any topology that can represented as a directed graph. Each node
                     in the directed graph represents a <em>diffuser</em>. Each directed edge represents a connection from one
                     <em>diffuser</em> to another. The direction of the edge represents the direction of the <em>diffusion</em>.
                     And, each <em>diffuser</em> may contains connections to a set of other <em>diffusers</em>.</p>
 
-                    <p class="definition key-point"><em>Definition</em>: A <b>diffuser network</b> is a set of connected <em>diffusers</em>.</p>
+                    <p><span class="label label-info">Definition</span>
+                        A <b>diffuser network</b> is a set of connected <em>diffusers</em>.</p>
 
-                    <p class="definition key-point"><em>Definition</em>: Suppose we have two <em>diffusers</em>, <b><em>A</em></b> and <b><em>B</em></b>. We say
+                    <p><span class="label label-info">Definition</span>
+                        Suppose we have two <em>diffusers</em>, <b><em>A</em></b> and <b><em>B</em></b>. We say
                         that <b><em>B</em></b> is an <b>end-point</b> of <b><em>A</em></b>, if <b><em>A</em></b> <em>diffuses</em> methods to
                         <b><em>B</em></b>.</p>
 
@@ -405,137 +451,230 @@
 
              -->
             <h2 id="diffusion_patterns"><a href="#overview" class="scroll-offset">Diffusion Patterns</a></h2>
-            <p><em>Diffusion patterns</em> are made possible by the last three diffusive programming principles: generic computing;
-            indistinguishability, and open topology. Together, these three principles make the statement that <em>diffusers</em>
-            form building blocks that can be connected as directed graphs. The principle of <em>open topology</em> requires that
-            a diffuser be connected to zero or more end-points to which it can diffuse execution of a method. The principle of
-            <em>indistinguishability</em> states that each end-point, itself, must be a diffuser. This means that that diffuser
-            itself is connected to zero or more other end-points. And, therefore, it can receive tasks as well as diffuse them.
-            Finally, the principle of <em>generic computing</em> requires that a diffuser be able to receive (and send) resources
-            needed to execute a task, allowing tasks to be diffused to other nodes dynamically and executed.</p>
+            <p>The <em>open topology</em> principle gives rise to the notion of <em>diffusive patterns.</em> Diffusers
+                can be connected together as a network where each diffuser executes or forwards work. The topology of
+                a diffuser network and the strategies used for determining how work is distributed form a
+                <strong>diffusion pattern</strong>. Diffusion patterns provide templates that can be used to solve
+                various types of problems.</p>
+            <div class="alert">
+                <h4>Warning</h4>
+                A diffuser network is a not a physical network. Connecting one diffuser to another means
+                configuring the diffusers' end-points.
+            </div>
 
-            <p>Because it is possible to construct any diffuser network that can be represented as a directed graph, there are an
-            infinite number of patters in which these networks can be constructed. And furthermore, their dynamic nature also
-            allows the networks to evolve over time.</p>
+
+            <div id="patterns-accordion" class="my-accordion">
+                <!-- single layered -->
+                <h3>single layered</h3>
+                <div>
+                    <p>Many distributed computing tasks can simply be split up into independent units of work, sent out
+                        to a compute node, and have the results processed in the application. In such cases, a simple
+                        single-layered diffuser pattern may suffice.</p>
+                    <p class="image" id="figure_single_layered" class="scroll-offset">
+                        <img src="images/single_layer.png" title="Single Layer Diffuser Network Topology"/></p>
+                    <p>In the single-layered pattern is the application-attached diffuser is connected to a set of remote
+                        diffusers. The remote diffusers only execute code, but do not forward work, even if their load
+                        is high, or even if they make a call to another diffusive method.</p>
+                    <p>A variation of this pattern that provides a natural load balancing mechanism is to connect the
+                        each remote diffuser to one or more of the other remote diffusers. In this case, when a diffuser
+                        has a high load it can forward it to another diffuser, which can execute the work or forward
+                        the work again.</p>
+                    <p class="image" id="figure_single_layered_connected" class="scroll-offset">
+                        <img src="images/single_layer_connected.png" title="Single Layer Diffuser Network Topology"/></p>
+                    <p>In these figure, the blue circles are the remote <em>diffusers</em> and the red circle is the
+                        application-attached diffuser.</p>
+
+                </div>
+
+                <!-- multi layered -->
+                <h3>multi layered</h3>
+                <div>
+                    <p>A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern.
+                        Applications that perform nested diffusion--a diffused method calling other diffused methods--benefit
+                        from this type of topology.</p>
+                    <p class="image" id="figure_multi_layered">
+                        <img src="images/multi_layer.png" title="Multi-Layer Diffuser Network Topologies"/>
+                    </p>
+                    <p>Nested diffusion is a natural consequence for problems where individual tasks are distributed can
+                        be represented in a hierarchical pattern. For example if you have groups of tasks that return
+                        results to the application for further, and potentially complex processing, causing the application
+                        to become a bottleneck. In these cases, you can distribute individual groups of work to the
+                        "first layer" of remote nodes. These remote nodes then distribute individual tasks to a "second
+                        layer" of remote nodes. When the nodes in the "second layer" complete their tasks, the nodes
+                        in the "first layer"  process the results and return them to the application. In this way, the
+                        application is no longer the bottleneck.</p>
+                </div>
+
+                <!-- redundant -->
+                <h3>redundant</h3>
+                <div>
+                    <p>In distributed computing it is not uncommon that a task fails to complete. A compute node may have crashed or
+                        lost network connectivity with the collective. Or some mysterious set of events placed the execution of the task
+                        in an unusual, never-to-be-repeated-until-a-demo state that prevented its completion. In cases where the completion
+                        of each individual task is required to occur at least once in a given time period, we can send redundant tasks to
+                        different compute nodes, and use the first result from each individual task to come back.</p>
+                    <p>Diffusive can be configured to send redundant tasks.</p>
+                </div>
+
+                <!-- connected -->
+                <h3>connected</h3>
+                <div>
+                    <p>The connected pattern provides a general purpose diffuser network providing a flexible topology on
+                        which applications can diffuse work. Having all--or most--diffusers connected to each other,
+                        provides natural load balancing, allows nested diffusion, and recursive diffusion.
+                        </p>
+                </div>
+
+                <!-- learning -->
+                <h3>learning</h3>
+                <div>
+                    <p>The connected pattern provides a general purpose diffuser network providing a flexible topology on
+                        which applications can diffuse work. Implicit in this pattern is that the <code>Strategy</code> used
+                        to diffuse work chooses remote diffusers with fixed probabilities. But since hardware may differ
+                        across the diffuser network, these probabilities can be adjusted to send work to more capable
+                        hardware with higher probability.</p>
+                    <p>In cases where similar types of processes are run repeatedly, these probabilities can be adjusted
+                        through an algorithm that sets the probabilities such that the overall execution time is minimized.</p>
+                </div>
+
+                <!-- recursive -->
+                <h3>recursive</h3>
+                <div>
+                </div>
+
+            </div>
+
+            <!--<p><em>Diffusion patterns</em> are made possible by the last three diffusive programming principles: generic computing;-->
+            <!--indistinguishability, and open topology. Together, these three principles make the statement that <em>diffusers</em>-->
+            <!--form building blocks that can be connected as directed graphs. The principle of <em>open topology</em> requires that-->
+            <!--a diffuser be connected to zero or more end-points to which it can diffuse execution of a method. The principle of-->
+            <!--<em>indistinguishability</em> states that each end-point, itself, must be a diffuser. This means that that diffuser-->
+            <!--itself is connected to zero or more other end-points. And, therefore, it can receive tasks as well as diffuse them.-->
+            <!--Finally, the principle of <em>generic computing</em> requires that a diffuser be able to receive (and send) resources-->
+            <!--needed to execute a task, allowing tasks to be diffused to other nodes dynamically and executed.</p>-->
+
+            <!--<p>Because it is possible to construct any diffuser network that can be represented as a directed graph, there are an-->
+            <!--infinite number of patters in which these networks can be constructed. And furthermore, their dynamic nature also-->
+            <!--allows the networks to evolve over time.</p>-->
 
             <!--
                 Layered
              -->
-            <h3 id="layered"><a href="#overview" class="scroll-offset">Layered</a></h3>
-            <p>The layered topology is the simplest, and most similar to many distributed middleware solutions. In this topology,
-            the diffuser collocated with the application, which we will call the <em>application-attached diffuser</em>, is connected
-            to a set of end-points, which we call the <em>remote diffusers</em>. The application-attached diffuser, depending on
-            the specifics of its configuration, is responsible for distributing the tasks to the the remote diffusers. The remote
-            diffusers execute the task and return the results to the application-attached diffuser, which returns the results to
-            the application\footnote{In the discussion about the reference implementation, <em>Diffusive</em>, I'll provide details
-            on how these steps can be implemented.}.</p>
+            <!--<h3 id="layered"><a href="#overview" class="scroll-offset">Layered</a></h3>-->
+            <!--<p>The layered topology is the simplest, and most similar to many distributed middleware solutions. In this topology,-->
+            <!--the diffuser collocated with the application, which we will call the <em>application-attached diffuser</em>, is connected-->
+            <!--to a set of end-points, which we call the <em>remote diffusers</em>. The application-attached diffuser, depending on-->
+            <!--the specifics of its configuration, is responsible for distributing the tasks to the the remote diffusers. The remote-->
+            <!--diffusers execute the task and return the results to the application-attached diffuser, which returns the results to-->
+            <!--the application\footnote{In the discussion about the reference implementation, <em>Diffusive</em>, I'll provide details-->
+            <!--on how these steps can be implemented.}.</p>-->
 
-            <h4 id="single_layered"><a href="#overview" class="scroll-offset">Single Layered</a></h4>
-            <p>The <a href="#figure_single_layered" class="scroll-offset">figure below</a> shows the simplest topology---a single layered diffuser network. In this figure, the circles label with
-            <b><em>D</em></b> are <em>diffusers</em>, the square at the bottom label with <b><em>A</em></b> is the application containing
-            the methods to be diffused. In this topology, the application-attached diffuser is responsible for distributing the tasks
-            to the remote diffusers. The remote diffusers execute their assigned task and return the result to the application-attached
-            diffuser, which then returns it to the application.</p>
+            <!--<h4 id="single_layered"><a href="#overview" class="scroll-offset">Single Layered</a></h4>-->
+            <!--<p>The <a href="#figure_single_layered" class="scroll-offset">figure below</a> shows the simplest topology---a single layered diffuser network. In this figure, the circles label with-->
+            <!--<b><em>D</em></b> are <em>diffusers</em>, the square at the bottom label with <b><em>A</em></b> is the application containing-->
+            <!--the methods to be diffused. In this topology, the application-attached diffuser is responsible for distributing the tasks-->
+            <!--to the remote diffusers. The remote diffusers execute their assigned task and return the result to the application-attached-->
+            <!--diffuser, which then returns it to the application.</p>-->
 
-            <p class="image" id="figure_single_layered" class="scroll-offset">
-                <img src="images/topology_single_layer.png" title="Single Layer Diffuser Network Topology"/>
-            </p>
+            <!--<p class="image" id="figure_single_layered" class="scroll-offset">-->
+                <!--<img src="images/topology_single_layer.png" title="Single Layer Diffuser Network Topology"/>-->
+            <!--</p>-->
 
-            <p>Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at
-            this point that any implementation must address the strategy used to distribute the tasks amongst the
-            diffusers---local and remote. The reference implementation <em>Diffusive</em> provides a <b class="class">Strategy</b>
-            interface that can be implemented to provide a specific strategy based on CPU load, number of executing threads,
-            weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance
-            characteristics of the diffusive network.</p>
+            <!--<p>Although not covered in the diffusive principles, because it is an implementation detail, it is worth noting at-->
+            <!--this point that any implementation must address the strategy used to distribute the tasks amongst the-->
+            <!--diffusers---local and remote. The reference implementation <em>Diffusive</em> provides a <b class="class">Strategy</b>-->
+            <!--interface that can be implemented to provide a specific strategy based on CPU load, number of executing threads,-->
+            <!--weighting, or some other scheme. Clearly, the implementation of such a strategy will effect the performance-->
+            <!--characteristics of the diffusive network.</p>-->
 
-            <h4 id="multi_layered"><a href="#overview" class="scroll-offset">Multi-Layered</a></h4>
-            <p>A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is
-            shown in the <a href="#figure_multi_layered" class="scroll-offset">figure below</a>, which is effectively map-reduce. Implementations of the
-            diffusive principles that allow nested method <em>marking</em> allow tasks to be diffused that, themselves, contain
-            sub-tasks that are to be diffused. This type of topology can dramatically improve the performance of calculations
-            that can be represented as tasks of sub-tasks. An
-            illustrative example is a calculation that is composed of a set of independent calculations, where each of these
-            independent calculations are themselves composed of a set of independent calculations.</p>
+            <!--<h4 id="multi_layered"><a href="#overview" class="scroll-offset">Multi-Layered</a></h4>-->
+            <!--<p>A natural extension of the single-layered diffuser pattern is a multi-layered diffuser pattern. One such pattern is-->
+            <!--shown in the <a href="#figure_multi_layered" class="scroll-offset">figure below</a>, which is effectively map-reduce. Implementations of the-->
+            <!--diffusive principles that allow nested method <em>marking</em> allow tasks to be diffused that, themselves, contain-->
+            <!--sub-tasks that are to be diffused. This type of topology can dramatically improve the performance of calculations-->
+            <!--that can be represented as tasks of sub-tasks. An-->
+            <!--illustrative example is a calculation that is composed of a set of independent calculations, where each of these-->
+            <!--independent calculations are themselves composed of a set of independent calculations.</p>-->
 
-            <p class="image" id="figure_multi_layered">
-                <img src="images/topology_multi_layer.png" title="Multi-Layer Diffuser Network Topologies"/>
-            </p>
+            <!--<p class="image" id="figure_multi_layered">-->
+                <!--<img src="images/topology_multi_layer.png" title="Multi-Layer Diffuser Network Topologies"/>-->
+            <!--</p>-->
 
-            <p>As more concrete example, suppose that we want to calculate the expected losses due to borrower default for a large
-            mortgage portfolio using a Monte Carlo simulation. The calculation of expected loss for each mortgage is independent,
-            and therefore the expected loss for each mortgage can be easily distributed. Additionally, for each mortgage we want
-            to calculate the loss over a large number of scenarios from which we calculate the expected loss. (Assume that
-            the scenarios are generated according to some distribution, and so the expectation value is the weighted-average of the
-            loss along each scenario in the distribution.) The loss for each scenario can be calculated independently, and se we
-            can distribute the scenario calculations as well.</p>
+            <!--<p>As more concrete example, suppose that we want to calculate the expected losses due to borrower default for a large-->
+            <!--mortgage portfolio using a Monte Carlo simulation. The calculation of expected loss for each mortgage is independent,-->
+            <!--and therefore the expected loss for each mortgage can be easily distributed. Additionally, for each mortgage we want-->
+            <!--to calculate the loss over a large number of scenarios from which we calculate the expected loss. (Assume that-->
+            <!--the scenarios are generated according to some distribution, and so the expectation value is the weighted-average of the-->
+            <!--loss along each scenario in the distribution.) The loss for each scenario can be calculated independently, and se we-->
+            <!--can distribute the scenario calculations as well.</p>-->
 
-            <p>We can think of this as <em>nested</em> distribution. The loss calculation for each mortgage can be thought of as a
-            task. And each task is distributed to a remote location for execution. Each task, however, is composed of subtasks--the
-            calculation of loss for each scenario--and these subtasks are further distributed to remote locations for execution.
-            This approach is illustrated in the <a href="#figure_multi_layered" class="scroll-offset">multi-layered topology figure</a>.</p>
+            <!--<p>We can think of this as <em>nested</em> distribution. The loss calculation for each mortgage can be thought of as a-->
+            <!--task. And each task is distributed to a remote location for execution. Each task, however, is composed of subtasks--the-->
+            <!--calculation of loss for each scenario--and these subtasks are further distributed to remote locations for execution.-->
+            <!--This approach is illustrated in the <a href="#figure_multi_layered" class="scroll-offset">multi-layered topology figure</a>.</p>-->
 
-            <p>In diffusive programming, we would <em>mark</em> the methods representing the tasks, and we would also <em>mark</em>
-            the methods representing the subtasks. Because the tasks are marked, they are diffused to a remote diffuser. When the
-            remote diffuser executes the task, it comes across the <em>marked</em> subtasks, and therefore diffuses the subtasks
-            further.</p>
+            <!--<p>In diffusive programming, we would <em>mark</em> the methods representing the tasks, and we would also <em>mark</em>-->
+            <!--the methods representing the subtasks. Because the tasks are marked, they are diffused to a remote diffuser. When the-->
+            <!--remote diffuser executes the task, it comes across the <em>marked</em> subtasks, and therefore diffuses the subtasks-->
+            <!--further.</p>-->
 
             <!--
                 Redundant
              -->
-            <h3 id="redundant"><a href="#overview" class="scroll-offset">Redundant</a></h3>
-            <p>In distributed computing it is not uncommon that a task fails to complete. A compute node may have crashed or
-            lost network connectivity with the collective. Or some mysterious set of events placed the execution of the task
-            in an unusual, never-to-be-repeated-until-a-demo state that prevented its completion. In cases where the completion
-            of each individual task is required to occur at least once in a given time period, we could send redundant tasks to
-            different compute nodes, and use the first result from each individual task to come back.</p>
+            <!--<h3 id="redundant"><a href="#overview" class="scroll-offset">Redundant</a></h3>-->
+            <!--<p>In distributed computing it is not uncommon that a task fails to complete. A compute node may have crashed or-->
+            <!--lost network connectivity with the collective. Or some mysterious set of events placed the execution of the task-->
+            <!--in an unusual, never-to-be-repeated-until-a-demo state that prevented its completion. In cases where the completion-->
+            <!--of each individual task is required to occur at least once in a given time period, we could send redundant tasks to-->
+            <!--different compute nodes, and use the first result from each individual task to come back.</p>-->
 
-            <p>The principles of <em>generic computation</em> and <em>location hiding</em> mean the the implementation of the
-            diffusive principles hides this from the application. The application configuration would be the only change to the
-            application's execution. Furthermore, it turns out that this redundancy is quite straight forward to implement
-            through the user of the <b class="class">Strategy</b> interface. By having the <b class="class">Strategy</b> return a
-            set of endpoints, rather than a single one, the same tasks can be sent to all the end-points in a set. The first
-            result to return is passed to the application, and the rest are either ignored, or cancelled.</p>
+            <!--<p>The principles of <em>generic computation</em> and <em>location hiding</em> mean the the implementation of the-->
+            <!--diffusive principles hides this from the application. The application configuration would be the only change to the-->
+            <!--application's execution. Furthermore, it turns out that this redundancy is quite straight forward to implement-->
+            <!--through the user of the <b class="class">Strategy</b> interface. By having the <b class="class">Strategy</b> return a-->
+            <!--set of endpoints, rather than a single one, the same tasks can be sent to all the end-points in a set. The first-->
+            <!--result to return is passed to the application, and the rest are either ignored, or cancelled.</p>-->
 
             <!--
                 Learning
              -->
-            <h3 id="learning"><a href="#overview" class="scroll-offset">Learning</a></h3>
-            <p>Not all servers are created equal. For purposes of distributed computing, I focus on three important differences:</p>
-            <ul>
-                <li>Execution capacity</li>
-                <li>File input-output (I/O) capacity</li>
-                <li>Network I/O capacity</li>
-            </ul>
+            <!--<h3 id="learning"><a href="#overview" class="scroll-offset">Learning</a></h3>-->
+            <!--<p>Not all servers are created equal. For purposes of distributed computing, I focus on three important differences:</p>-->
+            <!--<ul>-->
+                <!--<li>Execution capacity</li>-->
+                <!--<li>File input-output (I/O) capacity</li>-->
+                <!--<li>Network I/O capacity</li>-->
+            <!--</ul>-->
 
-            <p>Execution capacity describes the available processing capacity of the server. (I am referring to a physical
-            server in these examples. However, the arguments apply equally as well if the servers are virtualized, but roughly
-            guarantee a certain execution capacity.) All else equal, servers with a higher processor and core count will provide
-            higher execution capacity. Clearly there are many other factors that determine the execution capacity of a server. And,
-            therefore, when distributing execution tasks, having information about the execution capacity of a server helps determine
-            the optimal amount of work to distribute to that server relative to other servers.</p>
+            <!--<p>Execution capacity describes the available processing capacity of the server. (I am referring to a physical-->
+            <!--server in these examples. However, the arguments apply equally as well if the servers are virtualized, but roughly-->
+            <!--guarantee a certain execution capacity.) All else equal, servers with a higher processor and core count will provide-->
+            <!--higher execution capacity. Clearly there are many other factors that determine the execution capacity of a server. And,-->
+            <!--therefore, when distributing execution tasks, having information about the execution capacity of a server helps determine-->
+            <!--the optimal amount of work to distribute to that server relative to other servers.</p>-->
 
-            <p>As an oversimplified example, suppose that you have two servers available to which tasks can be sent: server <b><em>A</em></b>
-            and server <b><em>B</em></b>. If the server <b><em>A</em></b> has four processors and server <b><em>B</em></b> has only one
-            processor, then if the servers are otherwise the same, you would expect  that server <b><em>A</em></b> can process about
-            four times as much work as server <b><em>B</em></b>. If the tasks involve writing a large amount of data to a distributed
-            data base, then it may be necessary to consider differences in the servers' file I/O or network I/O capacity when
-            determining the optimal distribution of tasks.</p>
+            <!--<p>As an oversimplified example, suppose that you have two servers available to which tasks can be sent: server <b><em>A</em></b>-->
+            <!--and server <b><em>B</em></b>. If the server <b><em>A</em></b> has four processors and server <b><em>B</em></b> has only one-->
+            <!--processor, then if the servers are otherwise the same, you would expect  that server <b><em>A</em></b> can process about-->
+            <!--four times as much work as server <b><em>B</em></b>. If the tasks involve writing a large amount of data to a distributed-->
+            <!--data base, then it may be necessary to consider differences in the servers' file I/O or network I/O capacity when-->
+            <!--determining the optimal distribution of tasks.</p>-->
 
-            <p>To account for the differences in the capacity of a server to perform tasks, one can use a <b class="class">Strategy</b>
-            that takes in to account weighting factors assigned to each server. These weighting factors would be configured to represent
-            the capacity of the node to perform specific sets of tasks. And the <b class="class">Strategy</b> would select servers for
-            tasks based on their weighting. For example, if server <b><em>A</em></b> had four processors and server <b><em>B</em></b>
-            has only one processor, we may configure server <b><em>A</em></b>'s weight to be four, and server <b><em>B</em></b>'s
-            weight to be 1. The <b classs="class">Strategy</b> would use these weights to send about for times as many tasks, on average,
-            to server <b><em>A</em></b> than to the server <b><em>B</em></b>.</p>
+            <!--<p>To account for the differences in the capacity of a server to perform tasks, one can use a <b class="class">Strategy</b>-->
+            <!--that takes in to account weighting factors assigned to each server. These weighting factors would be configured to represent-->
+            <!--the capacity of the node to perform specific sets of tasks. And the <b class="class">Strategy</b> would select servers for-->
+            <!--tasks based on their weighting. For example, if server <b><em>A</em></b> had four processors and server <b><em>B</em></b>-->
+            <!--has only one processor, we may configure server <b><em>A</em></b>'s weight to be four, and server <b><em>B</em></b>'s-->
+            <!--weight to be 1. The <b classs="class">Strategy</b> would use these weights to send about for times as many tasks, on average,-->
+            <!--to server <b><em>A</em></b> than to the server <b><em>B</em></b>.</p>-->
 
-            <p>The assignment of these relative weights to each server can be automated in cases where the same type of processing is
-            performed repeatedly. This type of automation can be achieved through the use of a <b class="class">Strategy</b> that
-            adjusts the weights and the logs them. Once the overall execution of the process is complete, the application-attached
-            diffuser makes an associate of the overall execution time (possibly scaled to the number of similar tasks) with those
-            weights. The next time the process is run, <b class="class">Strategy</b> uses this information---weight-to-server
-            assignments and the execution time of that combination---to again adjust the weighting factors according to some
-            optimization algorithm.</p>
+            <!--<p>The assignment of these relative weights to each server can be automated in cases where the same type of processing is-->
+            <!--performed repeatedly. This type of automation can be achieved through the use of a <b class="class">Strategy</b> that-->
+            <!--adjusts the weights and the logs them. Once the overall execution of the process is complete, the application-attached-->
+            <!--diffuser makes an associate of the overall execution time (possibly scaled to the number of similar tasks) with those-->
+            <!--weights. The next time the process is run, <b class="class">Strategy</b> uses this information---weight-to-server-->
+            <!--assignments and the execution time of that combination---to again adjust the weighting factors according to some-->
+            <!--optimization algorithm.</p>-->
 
 
             <!--
