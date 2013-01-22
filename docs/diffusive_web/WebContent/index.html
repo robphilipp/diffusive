@@ -112,7 +112,7 @@
                 Java method simply by marking it with <code>@Diffusive</code>. That method is distributed to a network
                 of computing resources. The resources responsible for executing or further distributing that method
                 are called <em>diffusers</em>. Similar to Actor-based frameworks, a <em>diffuser</em> can either
-                execute the method, or pass it on to another <em>diffusers</em>.</p>
+                execute the method, or pass it on to other <em>diffusers</em>.</p>
 
             <p>The beauty of Diffusive is that you don't have to change your code to use it.
                 Importantly, you define the way your code executes, and let Diffusive manage how the execution is distributed
@@ -158,41 +158,51 @@
                     to which it can forward requests.</p>
                     <p><img src="images/star_network.png"></p>
                     <p>The topology of the diffuser network can be anything that can be represented as a directed graph.
-                        Which means that you can design a topologies tailored to solve your specific problems.</p>
+                        Which means that you can design topologies tailored to solve your specific problems.</p>
                 </div>
 
                 <h3>no need to pre-deploy class files</h3>
                 <div>
-                    <p>To allow dynamic and generic distributed computing you want to allow the <em>diffusers</em> to send
-                        work to any physical or virtual compute node. And you want this to happen dynamically--which means
-                        you may not know which nodes will be part of your computation before you start.</p>
-                    <p><em>Diffusive</em> understands that and manages the load of <code>java.lang.Class</code>
+                    <p>A dynamic and generic distributed computing environment provides the ability to send any
+                        work to any physical or virtual compute node at any time. For the distribution of work to be truly
+                        dynamic means you may not know which nodes will be part of your computation before you start.</p>
+                    <p><em>Diffusive</em> understands that and manages the loading of <code>java.lang.Class</code>
                         objects for you. That means you don't have to worry about pre-deploying your class or JAR files.
                         And you can configure where <em>diffusers</em> go to get their class objects.</p>
                 </div>
 
                 <h3>nested diffusion</a></h3>
                 <div>
-                    <p>Because all <em>diffusers</em> behave the same way, there is no difference between diffusers that
+                    <p>All <em>diffusers</em> behave the same way--there is no difference between diffusers that
                         accept work and those that distribute work. This means that if a method marked <code>@Diffusive</code>
                         calls another method marked <code>@Diffusive</code> then the first method will be distributed
                         to a remote diffuser, and the second method will be further distributed by that same remote diffuser.</p>
                     <pre class="brush:java">
                         @Diffusive
                         public double calcMeanValues( Map< String, List< Double > > values ) {
-                            meanValues.put( entry.getKey(), calcMean( entry.getValue() ) );
+                            for( Map.Entry< String, List< Double > > entry : values.entrySet() ) {
+                                meanValues.put( entry.getKey(), calcMean( entry.getValue() ) );
+                            }
                         }
 
                         @Diffusive
                         public double calcMean( Collection< Double > values ) { ... }
                     </pre>
                     <p>In this example, a call to marked <code>calcMeanValues(...)</code> will be distributed to a
-                        remote diffuser. Because the <code>calcMean(...)</code> method is also marked, a call to it
-                        will get distributed to another remote diffuser.</p>
+                        remote diffuser. Because the <code>calcMean(...)</code> method is also marked, when the method
+                        executing on the remote diffuser a calls it, it will get further distributed to another
+                        remote diffuser.</p>
 
-                    <p>Allowing marked methods to call other marked methods is called
-                        <a href="overview_guide.html#multi_layered">nested diffusion</a>. As an aside, you can
-                        easily implement a simple map-reduce through nested diffusion.</p>
+                    <p class="image"><img src="images/nested_diffusion_example.png"></p>
+
+                    <p><span class="label label-info">Definition</span>
+                        <b>Nested diffusion</b> occurs when a <em>marked</em> method calls another <em>marked</em> method.
+                    </p>
+
+
+                    <div class="alert">
+                        <strong>Note</strong> that you can easily implement a simple map-reduce through nested diffusion.
+                    </div>
 
                 </div>
 
@@ -211,10 +221,13 @@
                     }
                 </pre>
                     <p>In this example, the first call to <code>recursiveMethod(...)</code> will cause the execution
-                        of that method to be distributed. On the remote node, the call to itself, which is a marked method,
-                        will cause the execution of that call to be distributed. And so it will continue until the control
-                        logic puts a stop to it. If appropriately threaded, this could allow the walking of networks with
-                        a simple recursive algorithm.</p>
+                        of that method to be distributed to a remote node. On that remote node, the call to itself,
+                        which is a marked method, will cause the execution of that call to be distributed. And so it
+                        will continue until the control logic puts a stop to it. If appropriately threaded, this could
+                        allow the walking of networks with a simple recursive algorithm.</p>
+
+                    <p class="image"><img src="images/recursive_diffusion_example.png"></p>
+
                 </div>
 
                 <h3>diffuser networks are dynamic</h3>
