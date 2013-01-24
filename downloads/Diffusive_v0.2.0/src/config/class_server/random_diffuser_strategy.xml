@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<RandomDiffuserStrategyConfigXml>
-	<clientEndpoints>
-		<endPoint>http://[hostname|ip_address]:8182/diffusers</endPoint>
-	</clientEndpoints>
-	<randomSeed>0</randomSeed>
-</RandomDiffuserStrategyConfigXml>
