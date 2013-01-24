@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<RestfulDiffuserServerConfigXml>
+	<loadThreshold>0.75</loadThreshold>
+	<strategyConfigClassName>org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml</strategyConfigClassName>
+	<strategyConfigFile>../examples/remote_single/remote_diffuser_server/random_diffuser_strategy.xml</strategyConfigFile>
+</RestfulDiffuserServerConfigXml>
