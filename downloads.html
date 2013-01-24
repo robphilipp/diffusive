@@ -1,9 +1,174 @@
 <!DOCTYPE html>
-<html>
+<html lang=en>
 <head>
-    <title></title>
+    <meta charset=utf-8>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Diffusive programming highlights">
+    <meta name="author" content="Robert Philipp">
+
+    <link rel="stylesheet" type="text/css" href="themes/jquery-ui-1.9.2.custom.css">
+
+    <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shCore.css" />
+    <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shThemeEclipse.css" />
+
+    <!-- Le styles -->
+    <link href="scripts/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            position: relative;
+            padding-top: 81px;
+            padding-bottom: 20px;
+        }
+        div.sidebar-nav {
+            background: white;
+            border: none;
+            padding: 5px 0;
+        }
+        ul.header-nav-bar {
+            padding-left: 5px;
+            padding-top: 35px;
+        }
+    </style>
+    <link href="scripts/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="diffusive.css"/>
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script src="scripts/jquery-1.8.3.js"></script>
+    <script src="scripts/ui/jquery-ui-1.9.2.custom.js"></script>
+
+    <!-- Code Syntax Highlighting -->
+    <script src="scripts/syntax_highlight/shCore.js"></script>
+    <script src="scripts/syntax_highlight/shBrushJava.js"></script>
+
+    <!-- Twitter bootstrap -->
+    <script src="scripts/bootstrap/js/bootstrap.js"></script>
+
+    <script src="scripts/toc-creator.js"></script>
+    <script src="scripts/scroll-adjust.js"></script>
+    <script src="scripts/setup.js"></script>
+    <script>
+        $(document).ready( function() {
+
+            $(function() {
+                $( "#download-accordion" ).accordion( { autoHeight: false } );
+            });
+
+            // set up, but no toc
+            setup( -1 );
+        }, false );
+    </script>
+
+    <title>Diffusive Downloads</title>
 </head>
+
+<!--<body data-spy="scroll" data-target=".sidebar-nav">-->
 <body>
-    <a href="downloads/Diffusive_v0.2.0.zip" target="_blank">Diffusive version 0.2.0 (zip)</a>
+
+<nav class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#"><img src="images/web_banner.png"></a>
+            <div class="nav-collapse collapse">
+                <ul class="nav header-nav-bar">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="overview_guide.html">Overview</a></li>
+                    <li><a href="quick_start.html">Quick Start</a></li>
+                    <li><a href="javadoc/index.html" target="tab">Java Docs</a></li>
+                    <li><a href="https://github.com/robphilipp/diffusive" target="tab">Code (git)</a></li>
+                    <li><a href="https://github.com/robphilipp/diffusive/wiki" target="tab">Wiki</a></li>
+                    <li><a href="https://github.com/robphilipp/diffusive/issues" target="tab">Tickets</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span1">
+            <div class="well sidebar-nav">
+                <!-- toc-creator will add the list of contents here -->
+            </div>
+        </div>
+        <div class="span9">
+            <h3 id="whats_new">Downloads</h3>
+            <div id="download-accordion" class="my-accordion">
+                <h4>Version 0.2.0</h4>
+                <div>
+                    <p class="download">Download: <a href="downloads/Diffusive_v0.2.0.zip" target="_blank">Diffusive version 0.2.0 (zip)</a></p>
+                    <p>This is first version that allows users to run Diffusive from the distribution JAR files, and to separate the
+                        application (to diffuse) from the distribution JARs. Previous version required Diffusive to be run from an IDE.</p>
+                    <ol>
+                        <li>Developed command-line interfaces for <code>DiffuserLauncher</code>, and for the
+                            <code>RestfulDiffuserServer</code>. These new interfaces allow you the ability to set various options
+                            and configuration items. To get more details, execute the jars from the command-line with the <b class="tt">--help</b>
+                            option: <br><code>java -jar Diffusive_Launcher_0.2.0.jar --help</code></li> or
+                        <br><code>java -jar Diffusive_Server_0.2.0.jar --help</code>
+                        <li>Developed command-line interfaces for the XML configuration objects: <code>RestfulDiffuserConfigXml</code>
+                            and the <code>RestfulDiffuserServerConfigXml</code> that can generate and validated configuration files.</li>
+                        <li>Added three examples with increasing complexity:
+                            <ol>
+                                <li>A stand-alone local diffuser that allows you to run diffusive without starting a diffuser server.</li>
+                                <li>A local diffuser example that runs a local RESTful diffuser server and the diffuser launcher on
+                                    the same machine.</li>
+                                <li>A single remote example that runs a local RESTful diffuser server to provide class resources, a remote
+                                    RESTful diffuser server to perform the execution, and a local diffuser launcher.</li>
+                            </ol>
+                        </li>
+                        <li>Fixed a bug related to the loading of class files that were neither in the JAR, or in the JAR's manifest's
+                            <b class="tt">Class-Path</b> (which wasn't so easy). This is needed so that JAR files containing the user's
+                            application can be run and loaded for <code>RestfulClassLoader</code> and
+                            <code>RestfulDiffuserClassLoader</code>.</li>
+                        <li>Improved some JAX-RS exception mapping. Not yet at the point I'd like it to be.</li>
+                    </ol>
+                </div>
+
+                <h4>Version 0.1.3</h4>
+                <div>
+                    <p class="download">Download: <a href="downloads/Diffusive_v0.1.3.zip" target="_blank">Diffusive version 0.1.3 (zip)</a></p>
+                    <p>Updated the configuration files so that it can be run locally right out of the box (based on suggestion
+                        from Anteneh Nurlien).</p>
+                    <ol>
+                        <li>Updated the configuration files so that <code>restful_server_config.xml</code> and
+                            <code>random_diffuser_strategy.xml</code> don't have any end-points. This allows
+                            diffusive test cases to be run locally without any configuration. Just run the
+                            <code>RestfulDiffusiveServer</code> class, and then the <code>DiffusiveLauncher</code>
+                            class, and it should run.</li>
+                        <li>Fixed bug that prevented diffusive from running when no end-points were specified in the
+                            configuration files.</li>
+                    </ol>
+                </div>
+
+                <h4>Version 0.1.2</h4>
+                <div>
+                    <p>Main change is the new capability to configure diffusers from XML files. Also small updates to
+                        incorporate fixes and added features from <a href="http://freezedried.sourceforge.net">FreezeDry</a>.</p>
+                    <ol>
+                        <li>Modified Diffusive's server and diffuser configuration classes to load an XML file containing
+                            the basic configuration properties. As part of this, add XML files for configuring the diffuser
+                            strategy. This allows the diffuser strategy to be specified in diffuser configuration XML file.
+                            Now the diffuser server can be configured from <code>restful_server_config.xml</code>,
+                            the diffusers can be configured from <code>restful_diffuser_config.xml</code>, and the
+                            diffuser strategies can be configured from <code>random_diffuser_strategy.xml</code>
+                            and <code>random_weighted_diffuser_strategy.xml</code></li>
+                        <li>Updated FreezeDry from version 0.2.2 to version 0.2.4 (see
+                            <a href="http://freezedried.sourceforge.net/overview_guide.html#whats_new">FreezeDry updates</a>
+                            for more details).</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

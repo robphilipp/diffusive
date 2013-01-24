@@ -29,13 +29,17 @@ p.image, #image
 
 p.key-point {
     color: #3b88ad;
-    /*-moz-box-shadow: 0px 0px 5px #c8ebcc;*/
-    /*-webkit-box-shadow: 0px 0px 5px #c8ebcc;*/
-    /*box-shadow: 0px 0px 5px #6b8afe;*/
     border: 1px solid #3b88ad;
-    /*border-color: #3b88ad;*/
     border-radius: 5px;
     background-color: rgba(60, 137, 173, 0.2 );
+    padding: 5px 5px 5px 15px;
+}
+
+p.download {
+    color: #39ad59;
+    border: 1px solid #39ad59;
+    border-radius: 5px;
+    background-color: rgba(57, 173, 89, 0.20);
     padding: 5px 5px 5px 15px;
 }
 
