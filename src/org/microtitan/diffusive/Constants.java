@@ -17,6 +17,8 @@ package org.microtitan.diffusive;
 
 
 /**
+ * Basic constants used throughout the code.
+ * 
  * @author Robert Philipp
  */
 public class Constants {
