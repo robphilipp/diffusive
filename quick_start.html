@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang=en xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset=utf-8>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Diffusive programming highlights">
+    <meta name="author" content="Robert Philipp">
+
+    <link rel="stylesheet" type="text/css" href="themes/jquery-ui-1.9.2.custom.css">
+
+    <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shCore.css" />
+    <link rel="stylesheet" type="text/css" href="scripts/syntax_highlight/shThemeEclipse.css" />
+
+    <!-- Le styles -->
+    <link href="scripts/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            position: relative;
+            padding-top: 81px;
+            padding-bottom: 20px;
+        }
+        div.sidebar-nav {
+            background: white;
+            border: none;
+            padding: 5px 0;
+        }
+        ul.header-nav-bar {
+            padding-left: 5px;
+            padding-top: 35px;
+        }
+    </style>
+    <link href="scripts/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="diffusive.css"/>
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script src="scripts/jquery-1.8.3.js"></script>
+    <script src="scripts/ui/jquery-ui-1.9.2.custom.js"></script>
+
+    <!-- Code Syntax Highlighting -->
+    <script src="scripts/syntax_highlight/shCore.js"></script>
+    <script src="scripts/syntax_highlight/shBrushJava.js"></script>
+    <script src="scripts/syntax_highlight/shBrushXml.js"></script>
+
+    <!-- Twitter bootstrap -->
+    <script src="scripts/bootstrap/js/bootstrap.js"></script>
+
+    <script src="scripts/toc-creator.js"></script>
+    <script src="scripts/scroll-adjust.js"></script>
+    <script src="scripts/setup.js"></script>
+    <script>
+        $(document).ready( function() {
+            setup( 4 );
+        }, false );
+    </script>
+
+    <title>Diffusive Quick Start</title>
+</head>
+
+<body>
+<nav class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#"><img src="images/web_banner.png"></a>
+            <div class="nav-collapse collapse">
+                <ul class="nav header-nav-bar">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="overview_guide.html" target="tab">Overview</a></li>
+                    <li><a href="javadocs/index.html" target="tab">Java Docs</a></li>
+                    <li><a href="https://sourceforge.net/p/diffusive/code/" target="tab">Code (hg)</a></li>
+                    <li><a href="https://sourceforge.net/projects/diffusive/files/" target="tab">Downloads</a></li>
+                    <li><a href="https://sourceforge.net/p/diffusive/wiki/Home/" target="tab">Wiki</a></li>
+                    <li><a href="https://sourceforge.net/p/diffusive/tickets/" target="tab">Tickets</a></li>
+                    <li><a href="https://sourceforge.net/p/diffusive/discussion/" target="tab">Discussion</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+<div class="row-fluid">
+<div class="span3">
+    <div class="well sidebar-nav">
+        <!-- toc-creator will add the list of contents here -->
+    </div>
+</div>
+<div class="span9">
+<!--
+
+	Participate
+
+ -->
+<h2 id="participate"><a href="#participate" class="scroll-offset">Participate</a></h2>
+<p>The <b>Diffusive</b> reference implementation works, but is still in development. There are still a number of
+items and features to be implemented for the base version. And there are a number of enhancements that ought to
+be developed regarding deployment and management of the diffusive network. So if you find you like Diffusive, please
+participate (contact: <a href="mailto:rob.philipp@gmail.com?Subject=Contributing%20to%20Diffusive">Rob Philipp</a>).</p>
+
+<p>For a more complete description of diffusive programming and the reference implementation, please see the
+<a href="overview_guide.html" class="scroll-offset">the Overview</a> or download the
+<a href="https://sourceforge.net/projects/diffusive/files/diffusive_programming.pdf">Diffusive Programming</a> paper.</p>
+
+<!-- 
+
+	Getting Started
+
+ -->
+<h2 id="getting_started"><a href="#participate" class="scroll-offset">Getting Started</a></h2>
+<p>The next sections describe how to work with Diffusive in its current state. As Diffusive evolves, many of the
+idiosyncrasies of the current state will be removed, and it will become much easier to work with and use. For now,
+however, as I heard someone say: &quot;<em>it is what it is, and if it were different, it'd be different</em>&quot;.</p> 
+
+<!--
+    Running the Examples
+-->
+<h3 id="running_examples"><a href="#participate" class="scroll-offset">Running the Examples</a></h3>
+<p>New to Diffusive version 0.2.0 are a set of examples that you can run with minimal configuration. There are three
+examples:</p>
+<dl>
+    <!-- local, stand-alone -->
+    <dt>Local, Stand-Alone Diffusion</dt>
+    <dd>
+        This is the first, and simplest example, and should run without any modification. In this example, you launch
+        the example application by using the <b class="class">DiffusiveLauncher</b>, and the methods marked
+        <b class="class">@Diffusive</b> in the <b class="class">org.microtitan.tests.threaded.Task</b> will be diffused
+        to a local diffuser, by the application-attached diffuser.
+    </dd>
+
+    <!-- local -->
+    <dt>Local Diffusion</dt>
+    <dd>
+        This second example builds on the first. Although, in this example, everything runs on a local machine, you will
+        actually diffuse code to a diffuser running in a separate process. By configuring your application-attached
+        diffuser differently, and launching a <b class="class">RestfulDiffuserServer</b>, the diffusive method in the
+        <b class="class">org.microtitan.tests.threaded.Task</b> will be diffused to the RESTful diffuser server.
+    </dd>
+
+    <!-- remote, single -->
+    <dt>Single, Remote Diffusion</dt>
+    <dd>
+        This third example builds on the first two by adding a <b class="class">RestfulDiffuserServer</b> running on a
+        different machine. The diffusive method in the  <b class="class">org.microtitan.tests.threaded.Task</b> will now
+        be diffused to the remote RESTful diffuser server. Additionally, the local RESTful diffuser server will provide
+        the remote RESTful diffuser server the <b class="class">Class</b> object it needs to deserialize and execute
+        the diffused method.
+    </dd>
+</dl>
+
+<p>The <b class="tt">examples</b> subdirectory of the distribution directory contains the configuration files for these
+three examples, a <b class="tt">README.txt</b> file for each example, and the JAR file containing the example code that
+is to be run using Diffusive. In the next sections we give steps to run the examples.</p>
+
+<!-- Local, Stand-Alone Diffusion -->
+<h4 id="local_stand_alone_diffusion"><a href="#participate" class="scroll-offset">Local, Stand-Alone Diffusion Example</a></h4>
+<p>Recall that in this example we will launch the example application by using the <b class="class">DiffusiveLauncher</b>,
+    and the methods marked <b class="class">@Diffusive</b> in the <b class="class">org.microtitan.tests.threaded.Task</b>
+    will be diffused to a local diffuser, by the application-attached diffuser.</p>
+
+<p>The configuration files for the local, stand-alone diffusion example can be found in the
+    <b class="tt">Diffusive_vX.Y.Z/examples/local_stand_alone</b> directory. This directory contains a subdirectory <b class="tt">launcher</b>
+    and a <b class="tt">README.txt</b>. The subdirectory has two files: <b class="tt">restful_diffuser_config.xml</b> and
+    <b class="class">random_diffuser_strategy.xml</b>. The first file is the configuration file used by the
+    <b class="class">DiffusiveLauncher</b> to set the strategy, the object serializer, and end-points used by the
+application-attached diffuser. In this example, we don't need to alter either of these configuration files.</p>
+
+<p>To run this example:</p>
+<ol>
+    <li>Change to the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory</li>
+    <li>Type <b class="tt">java -jar Diffusive_Launcher_0.2.0.jar --config-dir=../examples/local_stand_alone/launcher/
+                                                                  --execute-class=org.microtitan.tests.threaded.MultiThreadedCalc
+                                                                  --class-path=../examples/example_0.2.0.jar</b></li>
+</ol>
+
+<p>The end of your output should look something like this. <img src="images/local_stand_alone_results.png"> Make sure that
+out of the 20 tasks run, all completed.</p>
+
+<p>Now let's turn to the command-line options in step 2.</p>
+<dl>
+    <dt>--config-dir</dt>
+    <dd>This option tells the diffusive launcher where to find the configuration files. In this case, we have specified
+        that <b>relative</b> to the <b class="tt">jars</b> directory, the configuration files are up one directory and in the
+        <b class="tt">examples/local_stand_alone/launcher</b> directory.
+    </dd>
+
+    <dt>--execute-class</dt>
+    <dd>This option tells the diffusive launcher in which class the application's <b class="class">main(...)</b> method
+        can be found. The "application" is the application you wish to execute through Diffusive. In this case, we are
+        executing the multi-thread calc test application <b class="class">org.microtitan.tests.threaded.MultiThreadedCalc</b>.
+    </dd>
+
+    <dt>--class-path</dt>
+    <dd>This option tells the diffusive launcher where to find the classes that are part of the application to be executed,
+        and which are not part of the diffusive distribution.<br><br>
+        It is important to point out that you <b>must</b> use this option, and not the standard option <b class="tt">-cp</b>
+        (or <b class="tt">-classpath</b>), and not the class path environment variable when specifying where to find
+        the application classes.<br><br>
+        Recall that when running a Java application, which is packaged in a JAR, using the command<br>
+        <b class="tt">java -jar Diffusive_Launcher_0.2.0.jar</b><br>
+        the class path used by Java to load classes is the one
+        specified in the JAR file's manifest (the Class-Path attribute). If you ran the command<br>
+        <b class="tt">java -cp directory/to/nowhere -jar Diffusive_Launcher_0.2.0.jar</b><br>
+        Java will ignore the class path
+        you specified on the command-line. In fact, it will ignore <b>all</b> other class path settings. (See, for example,
+        <a href="http://docs.oracle.com/javase/7/docs/technotes/tools/windows/java.html">Oracle's Java launcher documentation</a>.
+        Specifically, see the documentation for the "-jar" option: "When you use this option, the JAR
+        file is the source of all user classes, and other user class path settings are ignored.")
+    </dd>
+</dl>
+
+<p>For a full list of the diffuser launcher's command-line options, type<br>
+<b class="tt">java -jar Diffusive_Launcher_0.2.0.jar --help</b></p>
+
+<!-- Local Diffusion -->
+<h4 id="local_diffusion"><a href="#participate" class="scroll-offset">Local Diffusion Example</a></h4>
+<p>Recall that in this example, although all processes will run on our local machine, we will diffuse methods to a RESTful
+    diffuser server running in a separate process than the process from which we launched our application. Accordingly,
+    this example will be slightly more complex and require us to make a few modifications to the diffusive launcher's
+    configuration files. And, we'll have to start up a RESTful diffuser server first, before we launch the example
+    application.</p>
+
+<p>The configuration files for the local diffusion example can be found in the <b class="tt">Diffusive_vX.Y.Z/examples/local</b>
+    directory. This directory contains two subdirectories <b class="tt">launcher</b> and <b class="tt">diffuser_server</b>,
+    and a <b class="tt">README.txt</b>.</p>
+
+<p>The <b class="tt">launcher</b> directory contains the same configuration files as in the local, stand-alone example.
+    However, we want diffusive launcher to diffuse methods to the RESTful diffuser server running in a
+    separate process. To achieve this, we'll have to modify its strategy configuration file,
+    <b class="class">random_diffuser_strategy.xml</b>,by specifying the end-point (IP address) for the RESTful
+    diffuser server.</p>
+
+<p>The <b class="tt">diffuser_server</b> subdirectory contains the configuration files for the RESTful diffuser server.
+    Because the RESTful diffuser server will run on the local machine, and won't diffuse
+    methods any further, we won't have to modify any of its configuration files for this example.</p>
+
+<p>To run this example:</p>
+<ol>
+    <li>Change to the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory</li>
+    <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory, type<br>
+        <b class="tt">java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/local/diffuser_server/
+                                                           --class-path=../examples/example_0.2.0.jar</b><br>
+        to start the RESTful diffuser server.
+    </li>
+    <li>Replace the text, "<b class="tt">your.ip.address</b>", with your IP address (or domain name), in the
+        configuration file <b class="class">launcher/random_diffuser_strategy.xml</b>. Do not use
+        "<b class="tt">localhost</b>" as your IP address.
+        <pre class="brush: xml; highlight: 4">
+            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+            <RandomDiffuserStrategyConfigXml>
+                <clientEndpoints>
+                    <endPoint>http://your.ip.address:8182/diffusers</endPoint>
+                </clientEndpoints>
+                <randomSeed>3141592653</randomSeed>
+            </RandomDiffuserStrategyConfigXml>
+        </pre>
+    </li>
+    <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory, type<br>
+        <b class="tt">java -jar Diffusive_Launcher_0.2.0.jar --config-dir=../examples/local/launcher/
+                                                             --execute-class=org.microtitan.tests.threaded.MultiThreadedCalc
+                                                             --class-path=../examples/example_0.2.0.jar</b><br>
+        to launch the example application.
+    </li>
+</ol>
+
+<p>The end of your output should look something like this. <img src="images/local_results.png"> Make sure that
+    out of the 20 tasks run, all completed. And best of all, notice that how much slower your application ran! Using
+    the local diffuser, the runtime was about 4.3 seconds. Now using the RESTful diffuser, we're at 7.8 seconds! We're
+    well on our way to maximizing our execution time! Well,
+    that's the overhead of serializing/deserializing the methods' objects and the results. You'll also have noticed that
+    the terminal window from which you started the RESTful diffuser server spit out some logs.</p>
+
+<p>You're on a roll. Now for the more complicated example!</p>
+
+<!-- Single, Remote Diffusion -->
+<h4 id="single_remote_diffusion"><a href="#participate" class="scroll-offset">Single, Remote Diffusion Example</a></h4>
+<p>Recall that in this example we'll be diffusing a method from our local machine to a remote machine. This example is the
+    most complex of the three examples. There are a fair number of things that can go wrong that may prevent the example
+    from working properly. So we'll try to give you the tools to get basic troubleshooting information that will help
+    you separate your configuration or system/network problems from any bad code in Diffusive.</p>
+
+<p>The configuration files for this example are located in the <b class="tt">Diffusive_vX.Y.Z/examples/remote_single</b>
+    directory. This directory contains three subdirectories <b class="tt">launcher</b>, <b class="tt">diffuser_server</b>,
+    and <b class="tt">remote_diffuser_server</b>. It contains one <b class="tt">README.txt</b> file.</p>
+
+<p>The local RESTful diffuser server in this example is slightly different from its purpose in the previous, local diffusion,
+    example. In the local diffusion example, the application-attached diffuser diffused methods to it. In this example,
+    the application-attached diffuser diffuses methods to the remote RESTful diffuser server, and the local RESTful
+    diffuser server provides the <b class="class">Class</b> objects to the remote diffuser server.</p>
+
+<p>To run this example:</p>
+<dl>
+    <dt>Start the RESTful Diffuser Server on the local machine</dt>
+    <dd>
+        <ol>
+            <li>On your local machine, change to the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory</li>
+            <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory on your local machine, type<br>
+                <b class="tt">java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/remote_single/diffuser_server/
+                    --class-path=../examples/example_0.2.0.jar</b><br>
+                to start the local RESTful diffuser server.
+            </li>
+        </ol>
+    </dd>
+
+    <dt>Start the RESTful Diffuser Server on the remote machine</dt>
+    <dd>
+        <ol>
+            <li>On your remote machine, change to the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory</li>
+            <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory on your remote machine, type<br>
+                <b class="tt">java -jar Diffusive_Server_0.2.0.jar --config-dir=../examples/remote_single/remote_diffuser_server/</b><br>
+                to start the remote RESTful diffuser server.
+            </li>
+        </ol>
+        <p>Notice that we don't add the class path to the example code when we start the remote diffuser server. Recall that
+        the local RESTful diffuser server will provide the <b class="class">Class</b> objects.</p>
+    </dd>
+
+    <dt>Run the Diffuser Launcher on the local machine.</dt>
+    <dd>
+        <ol>
+            <li>Replace the text, "<b class="tt">ip.address.of.remote.machine</b>", with the IP address (or domain name) of
+                the remote machine, in the configuration file <b class="class">launcher/random_diffuser_strategy.xml</b>
+                located on your local machine.
+                <pre class="brush: xml; highlight: 4">
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                    <RandomDiffuserStrategyConfigXml>
+                        <clientEndpoints>
+                            <endPoint>http://ip.address.of.remote.machine:8182/diffusers</endPoint>
+                        </clientEndpoints>
+                        <randomSeed>3141592653</randomSeed>
+                    </RandomDiffuserStrategyConfigXml>
+                </pre>
+            </li>
+            <li>Replace the text, "<b class="tt">your.ip.address</b>", with your IP address (or domain name), in the
+                configuration file <b class="class">launcher/restful_server_config.xml</b> located on your local machine.
+                Do not use "<b class="tt">localhost</b>" as your IP address.
+                <pre class="brush: xml; highlight: 4">
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                    <RestfulDiffuserConfigXml>
+                        <classPathList>
+                            <classPath>http://your.ip.address:8182/classpath</classPath>
+                        </classPathList>
+                        <loadThreshold>0.75</loadThreshold>
+                        <serializerName>persistence_xml</serializerName>
+                        <strategyConfigClassName>org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml</strategyConfigClassName>
+                        <strategyConfigFile>../examples/remote_single/launcher/random_diffuser_strategy.xml</strategyConfigFile>
+                    </RestfulDiffuserConfigXml>
+                </pre>
+            </li>
+            <li>From the <b class="tt">Diffusive_vX.Y.Z/jars</b> directory on your local machine, launch the example
+                application by typing:<br>
+                <b class="tt">java -jar Diffusive_Launcher_0.2.0.jar --config-dir=../examples/remote_single/launcher/
+                                                                     --execute-class=org.microtitan.tests.threaded.MultiThreadedCalc
+                                                                     --class-path=../examples/example_0.2.0.jar</b><br>
+            </li>
+        </ol>
+    </dd>
+</dl>
+
+<p>The end of your output should look something like this. <img src="images/remote_single_results.png"> Make sure that
+    out of the 20 tasks run, all completed.</p>
+
+<p>If everything ran correctly, then congratulations! You ran this, and are well on your way to become a proficient diffuser!
+If, on the other hand, you had problems, then there are a couple quick things you can try.</p>
+
+<h5 id="single_remote_diffusion_troubleshooting"><a href="#participate" class="scroll-offset">Troubleshooting</a></h5>
+<dl>
+    <dt>Connectivity Issues</dt>
+    <dd><p>If Diffusive just hangs an then times out (and spews error message on one of your three terminal windows) you
+        could have connection issues. For example, you may have a firewall running on one of your machines that doesn't
+        allow port 8182, or external connections, or neither. You can test this. Recall that the diffusers are RESTful
+        web services. So, we attempt to can connect to them through our browser.</p>
+        <ol>
+            <li>Lets try to connect to the RESTful diffuser server on the remote machine. Open a browser, and type<br>
+                <b class="tt">http://ip.address.of.remote.machine:8182/diffusers</b><br>
+                And you should get back something like this<br>
+                <img src="images/remote_server_diffuser_list.png"><br>
+                This ensures that you can connect to your remote diffuser server.
+            </li>
+            <li>Now we want to make sure that you can get from your remote diffuser server to you local diffuser server.
+                This is important because the remote diffuser server needs to get the <b class="class">Class</b> objects from
+                the local diffuser so that it can deserialize the objects coming to it from your application-attached diffuser.
+                So we do the same thing, except from you remote machine, open a browser and type<br>
+                <b class="tt">http://ip.address.of.local.machine:8182/diffusers</b><br>
+                and you should see a similar item.
+            </li>
+        </ol>
+    </dd>
+
+    <dt>Class Path Issues</dt>
+    <dd><p>Recall that the remote diffuser server relies on the class path end-point specified in the laucher's configuration
+        file. In our case, the remote diffuser server calls the local diffuser server to ask for the <b class="class">Class</b>
+        objects. If the local diffuser server can't locate the class requested by the remote diffuser server, then we
+        have a problem.</p>
+
+        <p>You can test this in a similar manner as we tested for connectivity. From a browser on your local machine, type<br>
+            <b class="tt">http://ip.address.of.local.machine:8182/classpath/org.microtitan.tests.threaded.MultiThreadedCalc</b><br>
+            and you should get back something like this<br>
+            <img src="images/multi_calc_class_bytes.png"><br>
+            Repeat this for the following classes:
+            <ol>
+                <li><b class="tt">org.microtitan.tests.threaded.Task</b></li>
+                <li><b class="tt">org.microtitan.tests.threaded.Result</b></li>
+            </ol>
+        </p>
+
+        <p>If you did NOT have connectivity problems, then repeat the above tests from the remote server.</p>
+    </dd>
+
+    <dt>Recheck you configuration files</dt>
+    <dd><p>Maybe you miss-typed an IP address or switched your local and remote IP addresses.</p></dd>
+</dl>
+
+<p>If neither of these turn out to be the issue, then set the log-level to <b class="tt">DEBUG</b> through the command-line
+    option, <b class="tt">--log-level=DEBUG</b> for the launcher and the two servers and retry. Maybe the logs will give
+    you some nugget of information.</p>
+
+<p>If still nothing works. Don't get frustrated. Rather, <a href="mailto:rob.philipp@gmail.com?subject=Diffusive Help">send me</a>
+    an email and I'll try to help trouble shoot.</p>
+
+<!--
+	Build Environment
+ -->
+<h3 id="build_environment"><a href="#participate" class="scroll-offset">Build Environment</a></h3>
+
+<!-- Minimum Requirements -->
+<h4 id="minimim_requirements"><a href="#participate" class="scroll-offset">Minimum Requirements</a></h4>
+<p>Diffusive requires Java 7.</p>
+
+<!-- External Dependencies -->
+<h4 id="external_dependencies"><a href="#participate" class="scroll-offset">External Dependencies</a></h4>
+The Diffusive reference implementation has a number of dependencies on other open-source projects. These dependencies can
+be found under the distribution directory's <b class="tt">jars/dependencies</b> directory.
+<dl>
+	<!-- Javassist -->
+	<dt>Javassist</dt>
+	<dd>
+		Javassist is a byte-code engineering library that is core to Diffusive. Recall that methods are diffused based
+		on the annotation <b class="class">@Diffusive</b>. Javassist finds those annotations at class-load time and replaces
+		all method calls to these annotated methods with a call to the diffuser instead.
+		<ul>
+			<li>javassist.jar</li>
+		</ul>
+	</dd>
+	
+	<!-- Jersey -->
+	<dt>Jersey and Grizzly</dt>
+	<dd>
+		Diffusive uses REST to manage diffusers and communicate between them. Jersey is a JSR-311 (JAX-RS) implementation
+		that provides convenient binding between the resource address and methods that handle them. And Grizzly is an 
+		in process HTTP server and client that Diffusive uses for issuing and handling HTTP requests.
+		<ul>
+			<li>grizzly-framework-2.2.1.jar</li>
+			<li>grizzly-http-2.2.1.jar</li>
+			<li>grizzly-http-server-2.2.1.jar</li>
+			<li>jersey-client-1.12.jar</li>
+			<li>jersey-core-1.12.jar</li>
+			<li>jersey-grizzly2-1.12.jar</li>
+			<li>jersey-server-1.12.jar</li>
+			<li>jsr311-api-1.1.1.jar</li>
+		</ul>
+	</dd>
+	
+	<!-- Abdera -->
+	<dt>Abdera v1.1.2</dt>
+	<dd>
+		Diffusive uses REST to manage diffusers and communicate between them. The messages flying back and forth are
+		Atom formated XML and Diffusive uses Abdera for creating and parsing the Atom messages.
+		<ul>
+			<li>abdera-core-1.1.2.jar</li>
+			<li>abdera-i18n-1.1.2.jar</li>
+			<li>abdera-parser-1.1.2.jar</li>
+			<li>axiom-api-1.2.10.jar</li>
+			<li>axiom-impl-1.2.10.jar</li>
+			<li>commons-logging-1.0.4.jar</li>
+		</ul>
+	</dd>
+	
+	<!-- FreezeDry for serialization -->
+	<dt>FreezeDry</dt>
+	<dd>
+		In order to send objects across the network, Diffusive must serialize them. How Diffusive serializes the objects
+		is configurable. Currently Diffusive allows serialization using Java's default serialization, and alternatively
+		using <a href="http://freezedried.sourceforge.net">FreezeDry</a>. Java's default approach requires that all classes 
+		to be serialized implement <b class="class">Serializable</b> and have a no-arg constructor. FreezeDry is a bit 
+		more flexible and requires neither of these, but is an alpha, and from time to time you may run into bugs.
+		<ul>
+			<li>FreezeDry_0.2.5.jar</li>
+			<li>json-20120228.jar</li>
+		</ul>
+	</dd>
+	
+	<!-- Testing, Logging, Streams -->
+	<dt>Logging, Unit Tests, and Streams</dt>
+	<dd>
+		Diffusive has a few additional dependencies for basic functions.
+		<ul>
+			<li>junit-4.8.1.jar</li>
+			<li>log4j-1.2.15.jar</li>
+			<li>commons-io-2.4.jar</li>
+		</ul>
+	</dd>
+
+    <!-- Command-Line interface for the launcher, server, and xml configuration objects -->
+    <dt>Command-Line Interface</dt>
+    <dd>
+        The <b class="class">DiffusiveLauncher</b>, the <b class="class">RestfulDiffuserServer</b> have
+        a command-line interface that allows options and configuration items to be specified when running
+        the distribution JARs (<b class="class">Diffusive_Launcher_x.y.z.jar</b> and <b class="class">Diffusive_Server_x.y.z.jar</b>)
+        from a command-line. The XML configuration objects <b class="class">RestfulDiffuserConfigXml</b> and
+        <b class="class">RestfulDiffuserServerConfigXml</b> also have a command-line interface that allows you to
+        generate and validate configuration files. But at this time, these are only available through the IDE.
+        <ul>
+            <li>jopt-simple-4.3.jar</li>
+        </ul>
+    </dd>
+	
+</dl>
+
+<!-- 
+	Configuring Diffusive
+ -->
+<h3 id="configuring_diffusive"><a href="#participate" class="scroll-offset">Configuring Diffusive</a></h3>
+<p>Given its current-state idiosyncrasies, configuration of Diffusive is accomplished through Java source files that are
+are compiled with the build. (See <a href="#configuration_idiosyncrasy" class="scroll-offset">configuration idiosyncrasy</a>.) There are two
+parts of Diffusive the must be configured: the diffuser configuration; and, the diffuser-server configuration. In the
+next two subsections we describe the purpose and elements of both configurations.</p>
+
+<p>Recall that, although all diffusers are the same, the application-attached diffuser is the diffuser to which <em>diffusive</em>
+methods are dispatched. It is the application-attached diffuser that then distributes the method call to remote diffusers. To do
+this, the application-attached diffuser must know which to which remote diffusers it can send methods--in other words, it must
+know its end-points and its diffusion strategy. It must also know which serialization mechanism to use. And, it must be able to
+supply the remote diffuser with a set of class paths from which the remote diffuser can load classes. This configuration is
+covered in the next section, <a href="#default_diffuser_configuration" class="scroll-offset">Default Diffuser Configuration</a></p>
+
+<p>Recall also that to communicate with a RESTful diffuser, you must launch a diffuser server (<b class="class">RestfulDiffuserServer</b>). 
+The diffuser server provides two services. It provides access to the diffusers. And, it provides access to the <b class="class">Class</b>
+objects needed by the remote diffuser's class loader. The <b class="class">RestfulDiffuserServer</b> extends the
+<b class="class">javax.ws.rs.core.Application</b> class and binds to the JAX-RS resources,
+<b class="class">RestfulDiffuserManagerResource</b> for access to the diffusers, and the <b class="class">RestfulClassPathResource</b>
+to allow remote loading of classes. When a new <b class="class">RestfulDiffuserManagerResource</b> is created, it must be handed
+a default set of end-points and a strategy with which to select the end-points. We cover this configuration in the section,
+<a href="#diffuser_server_configuration" class="scroll-offset">Diffuser-Server Configuration</a></p>
+
+<!-- Default Diffuser Configuration -->
+<h4 id="default_diffuser_configuration"><a href="#participate" class="scroll-offset">Default Diffuser Configuration</a></h4>
+  
+<p>When using the <a href="javadocs/index.html?org/microtitan/diffusive/launcher/DiffusiveLauncher.html"><b class="class">DiffusiveLauncher</b></a>
+directly, without extending and customizing it, the only configuration you must perform is related to the:
+<ol>
+	<li>Type of serialization you would like to use for the objects that are transferred over the network.</li>
+	<li>Location of the remote diffusers with which you would like to interact.</li>
+	<li>Class path URI that remote diffusers will look to when attempting to load a class.</li>
+</ol>
+<p>And all this configuration is held in the
+<a href="javadocs/index.html?org/microtitan/diffusive/launcher/config/RestfulDiffuserConfig.html"><b class="class">RestfulDiffuserConfig</b></a>
+class' <b class="class">configure()</b> method.</p>
+
+<pre class="brush:java">
+@DiffusiveConfiguration
+public static final void configure()
+{
+	// 1. create the serializer
+	String serializerName = SerializerFactory.SerializerType.OBJECT.getName();
+	SerializerFactory factory = SerializerFactory.getInstance();
+	Serializer serializer = factory.createSerializer( serializerName );
+
+	// 2. create the diffusion strategy. this holds the end-points (location) of the
+	//    remote diffusers to which annotated methods are diffused, and the strategy
+	//    used to determine the end-point for a diffused call.
+	DiffuserStrategy strategy = createStrategy();
+	
+	// 3. create a list of end-points remote diffusers will look to when attempting
+	//    to load a class
+	List< URI > classPaths = createClassPathList();
+	
+	// IMPORTANT:
+	// create the diffuser and add it to the global diffuser repository. this is
+	// needed because the byte-code engineering framework needs access to the 
+	// diffuser so it can replace the annotated method calls.
+	Diffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, LOAD_THRESHOLD );
+	KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
+}
+</pre>
+
+<p>You may have noticed a set of static variables a the top of the <b class="class">RestfulDiffuserConfig</b> source file.</p>
+
+<pre class="brush:java">
+// holds the list of client endpoints to which diffused methods are sent. the end-point must
+// have a restful diffusive server running that can accept requests.
+public static final List< String > CLIENT_ENDPOINTS = Arrays.asList( "http://192.168.1.4:8182" );
+
+// holds the base URI of the class path that gets passed to the remote diffuser manager 
+// when creating a diffuser. this allows the remote code to load classes from a remote 
+// server. This URI typically points to the host running that is launching the code to be 
+// diffused (since it is that code that has the classes), or some other host that holds 
+// all the required classes (that have been deployed there) and is running a restful 
+// diffuser server
+public static final List< String > CLASSPATH_URI = Arrays.asList( RestfulDiffuserServer.DEFAULT_SERVER_URI );
+
+// the threshold for CPU loads, above which the diffuser will send the tasks to a 
+// remote diffuser, unless of course, there are no client end-points specified. When 
+// the threshold is below the load threshold, the diffuser will call the local diffuser 
+// to execute the tasks.
+public static final double LOAD_THRESHOLD = 0.5;
+</pre>
+
+<p>These variable provide an easy way to set the basic configuration. However, you can update this class to read
+from a file, or do whatever you want. This configuration file can also be changed, and we discuss that and a few
+other basic customizations in the next section.</p>
+
+<!-- Custom Diffuser Configuration -->
+<h4 id="custom_diffuser_configuration"><a href="#participate" class="scroll-offset">Custom Diffuser Configuration</a></h4>
+<p>In most cases the <b class="class">RestfulDiffuserConfig</b> class should provide enough flexibility. However,
+more than likely you'll want to implement a configuration class that reads the configuration from a file (for
+sure I have that on my ToDo list). Although you could simply modify the existing <b class="class">RestfulDiffuserConfig</b>
+class, a more sensible approach is to create a new class that meets your needs, and then tell the 
+<b class="class">DiffusiveLoader</b> object to use that configuration class.</p>
+
+<p>Fortunately, this is quite straightforward. Simply create a new class <b class="class">MyDiffusiveLauncher</b> that
+extends <b class="class">DiffusiveLauncher</b>. In your new launcher, create a main and use the following code.</p>
+
+<pre class="brush:java">
+public class MyDiffusiveLauncher extends DiffusiveLauncher {
+
+	public static void main( String[] args )
+	{
+		// create a loader with that uses your specific configuration class and use
+		// that to create a diffuser launcher
+		List< String > configClasses = Arrays.asList( MyConfigClass.class.getName() );
+		DiffusiveLoader loader = createLoader( configClasses );
+		DiffusiveLauncher launcher = new DiffusiveLauncher( loader );
+
+		final String classNameToRun = // the name of the your application's main class
+		final String[] programArgs = // the program arguments expected by your application
+		launcher.run( classNameToRun, programArgs );
+	}
+}
+</pre>
+
+<p>Notice that we no longer use <b class="class">DiffusiveLauncher</b>'s default, no-arg constructor. Instead,
+we use the <b class="class">DiffusiveLauncher.createLoader(...)</b> method to create a new loader that uses
+your new configuration class instead, and then hand that new loader to the <b class="class">DiffusiveLauncher</b>'s
+constructor. The new configuration class is shown below.</p>
+
+<pre class="brush:java">
+public class MyConfigClass {
+
+	@DiffusiveConfiguration
+	public static final void configure()
+	{
+		// add your configuration code
+		.
+		.
+		.
+		
+		// IMPORTANT: you MUST create the diffuser and add it to the repository
+		// create the diffuser and add it to the global diffuser register
+		Diffuser diffuser = new RestfulDiffuser( serializer, strategy, classPaths, LOAD_THRESHOLD );
+		KeyedDiffuserRepository.getInstance().setDiffuser( diffuser );
+	}
+}
+</pre>
+
+<p>More extensive customizations, such as creating and using a new loader follow the same pattern. Clearly, the
+<b class="class">DiffusiveLauncher</b> could be updated to allow that specification of the configuration class.
+That would be a great contribution.</p>
+
+<!-- Diffuser-Server Configuration -->
+<h4 id="diffuser_server_configuration"><a href="#participate" class="scroll-offset">Diffuser-Server Configuration</a></h4>
+
+<p>When running the <b class="class">RestfulDiffuserServer</b> class' <b class="class">main(...)</b> method without any
+command-line arguments, it uses the default configuration class, <b class="class">RestfulDiffuserServerConfig</b>. In a
+manner similar to the configuration of the application-attached diffuser, the server configuration method(s) are identified
+by the annotation <b class="class">@DiffusiveServerConfiguration</b>. The code below shows the default configuration 
+method.</p>
+
+<pre class="brush:java">
+@DiffusiveServerConfiguration
+public static final void configure()
+{
+	// 1. create a list of end-points that all new diffusers will have
+	List< URI > clientEndpoints = // the list of end-points
+	
+	// 2. create the strategy by which end-ponts are selected
+	DiffuserStrategy strategy = new RandomDiffuserStrategy( clientEndpoints );
+	
+	// 3. IMPORTANT: all configurations MUST add the strategy to the repository
+	// 	  add the strategy to the diffusive-strategy repository
+	KeyedDiffusiveStrategyRepository.getInstance().setValues( strategy, LOAD_THRESHOLD );
+}
+</pre>
+
+<p>The customization of the the diffusive-server configuration can be accomplished by creating a new configuration
+class and specifying it in as a command-line argument when launching the server.</p>
+
+<!-- 
+	Running Diffusive
+ -->
+<h3 id="running_diffusive"><a href="#participate" class="scroll-offset">Running Diffusive</a></h3>
+
+<p>Running Diffusive is pretty straightforward. In this section we'll walk you through running the test cases using
+Eclipse IDE. In this way, you'll be set up for debugging and participating in Diffusive's development.</p>
+
+<ol>
+	<li>Fire up Eclipse on all the machines that will participate and note their IP addresses.</li>
+	<li>In the <b class="class">RestfulDiffuserConfig</b> class, update the end-points to hold all
+		the IP addresses <b>except</b> the box on which you will launch the application.</li>
+	<li>In this example, we won't be doing any nested diffusion, so make sure that the end-points
+		defined in the <b class="class">RestfulDiffuserServerConfig</b> is an empty list. This tells
+		new diffusers that they will run everything locally, and won't diffuse any methods further.</li>
+	<li>Perform the second step on all the machines.</li>
+	<li>Run <b class="class">RestfulDiffuserServer</b> on all the machines without specifying any
+		command-line arguments.</li>
+	<li>Run <b class="class">DiffusiveLauncher</b> on your local box without specifying any command-line
+		arguments.</li>
+</ol>
+
+<p>At this point, the code should be diffusing and your results will soon start coming back. You can adjust the logging levels
+on the remote machines if you would like to see some action.</p>
+
+</div>
+</div>
+</div>
+
+<footer>
+    <p>&copy; Robert Philipp 2012</p>
+</footer>
+</body>
+</html> 
