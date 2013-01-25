@@ -74,11 +74,28 @@ public class ReflectionUtils {
 
 	/**
 	 * Utility method that returns the {@link Class} object for the specified class name.
+	 * If the class name can't be found or loaded, logs the error and throws an {@link IllegalArgumentException}.
+	 * To prevent this method from logging a class-not-found-exception, use {@link #getClazz(String, boolean)}
+	 * with the second argument set to {@code false} 
 	 * @param className The name of the {@link Class} for which to return the {@link Class} object.
 	 * @return the {@link Class} object for the specified class name.
 	 * @throws IllegalArgumentException
+	 * @see {@link #getClazz(String, boolean)}
 	 */
-	public static Class< ? > getClazz( final String className, final boolean...isLoggingEnabled )
+	public static Class< ? > getClazz( final String className )
+	{
+		return getClazz( className, true );
+	}
+	
+	/**
+	 * Utility method that returns the {@link Class} object for the specified class name.
+	 * @param className The name of the {@link Class} for which to return the {@link Class} object.
+	 * @param isLoggingEnabled Set to false if you don't want any logging of exceptions from this
+	 * method if it can't find the class; otherwise set to true.
+	 * @return the {@link Class} object for the specified class name.
+	 * @throws IllegalArgumentException
+	 */
+	public static Class< ? > getClazz( final String className, final boolean isLoggingEnabled )
 	{
 		// check first if the class is a primitive
 		Class< ? > clazz = TYPE_MAP.get( className );
@@ -126,7 +143,7 @@ public class ReflectionUtils {
 		catch( ClassNotFoundException e )
 		{
 			final String message = "Could not instantiate class from specified class name: " + className;
-			if( isLoggingEnabled != null && isLoggingEnabled[ 0 ] ) 
+			if( isLoggingEnabled ) 
 			{
 				LOGGER.error( message, e );
 			}
