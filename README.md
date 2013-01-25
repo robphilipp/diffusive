@@ -2,7 +2,7 @@ Diffusive is a truly distributed, distributed-computing framework based on diffu
 
 The beauty of Diffusive is that you don't have to change your code to use it. Importantly, you define the way your code executes, and let Diffusive manage how the execution is distributed across the network of diffusers.
 
-See http://robphilipp.github.com/diffusive for more detailed information.
+See [the website](http://robphilipp.github.com/diffusive) for more detailed information.
 
 [Diffusive Programming article >>](http://robphilipp.github.com/diffusive/downloads.html)
 
