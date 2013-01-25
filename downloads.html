@@ -103,6 +103,31 @@
         <div class="span9">
             <h3 id="whats_new">Downloads</h3>
             <div id="download-accordion" class="my-accordion">
+                <h4>Version 0.2.1</h4>
+                <div>
+                    <p class="download">Download: <a href="downloads/Diffusive_v0.2.1.zip" target="_blank">Diffusive version 0.2.1 (zip)</a></p>
+                    <p>Version 0.2.0 worked, but apparently only allowed a limited set of methods to be diffused:</p>
+                    <ul>
+                        <li>Methods with object return types</li>
+                        <li>Methods with a single object argument (i.e. not primitive) or an array of arguments.</li>
+                    </ul>
+                    <p>Version 0.2.1 now fixes this and updates FreezeDry to version 0.2.6 which was part of the problem.
+                        At this point, all methods should properly diffuse.</p>
+                    <p>More specifically:</p>
+                    <ol>
+                        <li>Added a new example that has a non-concurrent, current, and diffusive implementation. This
+                            example demonstrates performance from single-thread to multi-threaded to diffusive. See
+                            the <code>ThreadedVolumeCalc</code>.</li>
+                        <li>Fixed bug where methods that had primitive arguments and return types didn't diffuse, and
+                            instead threw an exception.</li>
+                        <li>Fixed bug where multi-argument methods couldn't be diffused, rather they had to be specified
+                            as an array.</li>
+                        <li>Fixed concurrency issues in the <code>PersistenceSerializer</code> and <code>ObjectSerializer</code>
+                            classes.</li>
+                        <li>The diffusers now server up a management console--though this isn't complete.</li>
+                    </ol>
+                </div>
+
                 <h4>Version 0.2.0</h4>
                 <div>
                     <p class="download">Download: <a href="downloads/Diffusive_v0.2.0.zip" target="_blank">Diffusive version 0.2.0 (zip)</a></p>

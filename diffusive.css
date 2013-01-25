@@ -16,8 +16,15 @@ footer {
 }
 
 code {
+    background-color: rgba(2, 2, 255, 0.03);
+    border-color: rgba(2, 2, 255, 0.0);
     color: darkblue;
 }
+
+dt code {
+    color: #800256;
+}
+
 .no-show {
     visibility: collapse;
 }

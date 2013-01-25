@@ -152,13 +152,14 @@ function $createTocList( headers, index, level, parent, depth, title )
         else
         {
             var headerId = header.getAttribute( "id" );
-            if ( headerId !== null )
+            var anchorElements = header.getElementsByTagName( "a" );
+            if ( headerId != null && anchorElements != null && anchorElements.length > 0 )
             {
                 // create the link to the section in the html doc
                 var link = document.createElement( "a" );
                 link.setAttribute( "href", "#" + headerId.toString() );
                 link.setAttribute( "class", "scroll-offset" );
-                link.innerHTML = header.getElementsByTagName( "a" )[ 0 ].innerHTML;
+                link.innerHTML = anchorElements[ 0 ].innerHTML;
 
                 // create the list item and add it to the list
                 var listItem = document.createElement( "li" );
@@ -217,7 +218,7 @@ function createToc( divClassName, depth, title )
     // recursively build the list
     var headers = $grabHeaders();
     var levels = $findMinMaxHeaders( headers );
-    $createTocList( headers, 0, levels[ 0 ], tocDiv, depth + levels[ 0 ], title );
+    $createTocList( headers, 0, levels[ 0 ], tocDiv, 1*depth + 1*levels[ 0 ], title );
 
     // return the div element for reference
     return tocDiv;

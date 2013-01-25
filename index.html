@@ -305,11 +305,35 @@
             <h3 id="more_info"><a href="#goals" class="scroll-offset">More Information</a></h3>
             <p>For a more complete description of diffusive programming and the reference implementation, please see the
                 <a href="overview_guide.html">the detailed overview</a> or download the
-                <a href="https://sourceforge.net/projects/diffusive/files/diffusive_programming.pdf">Diffusive Programming<img src="images/pdficon_small.png"> </a>
+                <a href="downloads/diffusive_programming.pdf">Diffusive Programming<img src="images/pdficon_small.png"> </a>
                 paper.</p>
 
             <h3 id="whats_new"><a href="#goals" class="scroll-offset">What's New</a></h3>
             <div id="whats-new-accordion" class="my-accordion">
+                <h4 id="v0_2_1"><a href="#goals">Version 0.2.1</a></h4>
+                <div>
+                    <p>Version 0.2.0 worked, but apparently only allowed a limited set of methods to be diffused:</p>
+                    <ul>
+                        <li>Methods with object return types</li>
+                        <li>Methods with a single object argument (i.e. not primitive) or an array of arguments.</li>
+                    </ul>
+                    <p>Version 0.2.1 now fixes this and updates FreezeDry to version 0.2.6 which was part of the problem.
+                        At this point, all methods should properly diffuse.</p>
+                    <p>More specifically:</p>
+                    <ol>
+                        <li>Added a new example that has a non-concurrent, current, and diffusive implementation. This
+                            example demonstrates performance from single-thread to multi-threaded to diffusive. See
+                            the <code>ThreadedVolumeCalc</code>.</li>
+                        <li>Fixed bug where methods that had primitive arguments and return types didn't diffuse, and
+                            instead threw an exception.</li>
+                        <li>Fixed bug where multi-argument methods couldn't be diffused, rather they had to be specified
+                            as an array.</li>
+                        <li>Fixed concurrency issues in the <code>PersistenceSerializer</code> and <code>ObjectSerializer</code>
+                            classes.</li>
+                        <li>The diffusers now server up a management console--though this isn't complete.</li>
+                    </ol>
+                </div>
+
                 <h4 id="v0_2_0"><a href="#goals">Version 0.2.0</a></h4>
                 <div>
                     <p>This is first version that allows users to run Diffusive from the distribution JAR files, and to separate the
