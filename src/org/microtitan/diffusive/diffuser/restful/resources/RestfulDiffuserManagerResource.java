@@ -653,16 +653,20 @@ public class RestfulDiffuserManagerResource {
 	 */
 	private synchronized Class< ? > getClass( final String classname, final String signature )
 	{
-		// if the specified class name represents a primitive, then return than, otherwise begin the search for the 
-		// class through the various class loaders
-		Class< ? > clazz = ReflectionUtils.getPrimitive( classname );
-		
+//		// if the specified class name represents a primitive, then return that, otherwise begin the search for the 
+//		// class through the various class loaders
+//		Class< ? > clazz = ReflectionUtils.getPrimitive( classname );
+//		if( clazz != null )
+//		{
+//			return clazz;
+//		}
+		Class< ? > clazz = null;
 		// attempt to get the class for the specified class name, and if that fails, create and use
 		// a URL class loader with the diffuser's specific class paths, and whose parent class loader
 		// is the same class loader as loaded this class.
         try
         {
-        	clazz = ReflectionUtils.getClazz( classname );
+        	clazz = ReflectionUtils.getClazz( classname, false );
         }
         catch( IllegalArgumentException e )
 		{

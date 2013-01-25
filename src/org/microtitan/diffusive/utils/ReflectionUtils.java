@@ -78,7 +78,7 @@ public class ReflectionUtils {
 	 * @return the {@link Class} object for the specified class name.
 	 * @throws IllegalArgumentException
 	 */
-	public static Class< ? > getClazz( final String className )
+	public static Class< ? > getClazz( final String className, final boolean...isLoggingEnabled )
 	{
 		// check first if the class is a primitive
 		Class< ? > clazz = TYPE_MAP.get( className );
@@ -126,7 +126,10 @@ public class ReflectionUtils {
 		catch( ClassNotFoundException e )
 		{
 			final String message = "Could not instantiate class from specified class name: " + className;
-			LOGGER.error( message, e );
+			if( isLoggingEnabled != null && isLoggingEnabled[ 0 ] ) 
+			{
+				LOGGER.error( message, e );
+			}
 			throw new IllegalArgumentException( message, e );
 		}
 		return clazz;
