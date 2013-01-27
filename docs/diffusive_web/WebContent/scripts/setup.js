@@ -1,7 +1,4 @@
 function setup( tocDepth ) {
-    // create the table of contents
-    tocDepth = tocDepth || 3;
-    createToc( "sidebar-nav", tocDepth, "Contents" );
 
     $(function() {
         $( "#tabs" ).tabs();
