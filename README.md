@@ -4,7 +4,7 @@ The beauty of Diffusive is that you don't have to change your code to use it. Im
 
 See [the website](http://robphilipp.github.com/diffusive) for more detailed information.
 
-[Diffusive Programming article >>](http://robphilipp.github.com/diffusive/downloads.html)
+[Diffusive Programming article >>](http://sourceforge.net/projects/diffusive/files/diffusive_programming.pdf)
 
 Diffusive is licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
 
