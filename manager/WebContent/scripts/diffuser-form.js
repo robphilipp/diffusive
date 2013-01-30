@@ -114,7 +114,7 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
         $( "#" + config.methodArgListId ).append( '<li class="' + listItemClass + '">' +
             '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
             '<input type="text" class="' + listItemInputClass + ' ' + variableName + '" value="" size="55">' +
-            '<input type="button" class="' + listItemRemoveButtonClass + '" value="x">' +
+            '<input type="button" class="' + listItemRemoveButtonClass + '" value=" x ">' +
             '</li>' );
     });
 
@@ -123,7 +123,7 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
         $( "#" + config.classPathListId ).append( '<li class="' + listItemClass + '">' +
             '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
             '<input type="text" class="' + listItemInputClass + ' url" value="" size="55">' +
-            '<input type="button" class="' + listItemRemoveButtonClass + '" value="x">' +
+            '<input type="button" class="' + listItemRemoveButtonClass + '" value=" x ">' +
             '</li>' );
     });
 
@@ -132,7 +132,7 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
         $( "#" + config.endPointListId ).append( '<li class="' + listItemClass + '">' +
             '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
             '<input type="text" class="' + listItemInputClass + ' url" value="" size="55">' +
-            '<input type="button" class="' + listItemRemoveButtonClass + '" value="x">' +
+            '<input type="button" class="' + listItemRemoveButtonClass + '" value=" x ">' +
             '</li>' );
     });
 
@@ -145,7 +145,7 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
     $( "#" + config.addReturnTypeButtonId ).click( function() {
         $( "#" + config.returnTypeId ).append( '<li>' +
             '<input type="text" class="' + listItemInputClass + ' ' + variableName + '" value=""  size="55">' +
-            '<input type="button" id="' + config.removeReturnTypeButtonId + '" value="x">' +
+            '<input type="button" id="' + config.removeReturnTypeButtonId + '" value=" x ">' +
             '</li>' );
         $( "#" + config.addReturnTypeButtonId ).attr( "disabled", "disabled" );
     });
@@ -246,7 +246,8 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
         $( "." + listItemInputClass ).parent().remove();
 
         // adds the add-return-type button back, in case it was gone
-        $( "#" + config.addReturnTypeButtonId ).show();
+//        $( "#" + config.addReturnTypeButtonId ).show();
+        $( "#" + config.addReturnTypeButtonId ).removeAttr( "disabled" );
     }
 
     /**
