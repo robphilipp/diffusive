@@ -47,16 +47,19 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
 
         // create the new list
         $( xml ).find( "entry" ).each( function( i ) {
+            var collapseId = "collapse" + (+i);
+            var collapseIconId = "icon" + collapseId;
             diffuserList.append(
                 '<div class="accordion-heading">' +
-                    '<a class="diffuser-signature-title" data-toggle="collapse" data-parent="#accordion2" href="#collapse' + (+i) + '">' +
+                    '<i id="' + collapseIconId + '" class="icon-chevron-right"></i>' +
+                    '<a class="diffuser-signature-title" data-toggle="collapse" data-parent="#accordion2" href="#' + collapseId + '">' +
                         $( this ).find( "title" ).text() +
                     '</a>' +
-                    '<a class="diffuser-remove-button pull-right" href="#"><i class="icon-remove-sign"></i></a>' +
+                    '<a class="diffuser-remove-button pull-right" href="#"><i class="icon-remove"></i></a>' +
                 '</div>'
             );
             diffuserList.append(
-                '<div id="collapse' + (+i) + '" class="collapse">' +
+                '<div id="' + collapseId + '" class="collapse">' +
                     '<div class="accordion-inner">' +
                         '<p><a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
                         '<p>Strategy: ' + $( this ).find( "strategy" ).text() + '</p>' +
@@ -70,15 +73,23 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
                     '</div>' +
                 '</div>'
             );
+
+            $( '#' + collapseId ).on( 'show', function () {
+                $( "#" + collapseIconId ).attr( 'class', 'icon-chevron-down' );
+            })
+
+            $( '#' + collapseId ).on( 'hide', function () {
+                $( "#" + collapseIconId ).attr( 'class', 'icon-chevron-right' );
+            })
         });
 
-        // set the toggle of the diffuser data
-        $( ".diffuser-signature" ).click( function() {
-            $( this ).next().toggle();
-        });
+//        // set the toggle of the diffuser data
+//        $( ".diffuser-signature" ).click( function() {
+//            $( this ).next().toggle();
+//        });
 
         $( ".diffuser-remove-button" ).hover( function() {
-            $( "i", $( this ) ).toggleClass( 'icon-remove' );
+            $( "i", $( this ) ).toggleClass( 'icon-remove-sign' );
         });
 
         // set up the ability to delete diffusers
