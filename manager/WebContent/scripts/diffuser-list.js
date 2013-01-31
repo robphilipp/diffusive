@@ -47,17 +47,35 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
 
         // create the new list
         $( xml ).find( "entry" ).each( function( i ) {
+
+            // the ID of the div holding the information that can be hidden (this is part of a window shade)
             var collapseId = "collapse" + (+i);
+
+            // the ID of the icon on on the left hand side that changes when the diffuser information is hidden
+            // or when it is visible
             var collapseIconId = "icon" + collapseId;
-            diffuserList.append(
-                '<div class="accordion-heading">' +
+
+            // create the header that holds the diffuser signature with:
+            // 1. window shade for the details
+            // 2. diffuser delete button on the right-hand side
+            // 3. alternately shaded from light gray
+            var header = $(
+                '<div class="diffuser-list-header accordion-heading">' +
                     '<i id="' + collapseIconId + '" class="icon-chevron-right"></i>' +
                     '<a class="diffuser-signature-title" data-toggle="collapse" data-parent="#accordion2" href="#' + collapseId + '">' +
-                        $( this ).find( "title" ).text() +
+                    $( this ).find( "title" ).text() +
                     '</a>' +
                     '<a class="diffuser-remove-button pull-right" href="#"><i class="icon-remove"></i></a>' +
                 '</div>'
             );
+            if( (+i) % 2 == 0 ) {
+                header.css( 'background-color', '#ececec' );    // light gray
+            } else {
+                header.css( 'background-color', 'white' );
+            }
+            diffuserList.append( header );
+
+            // create the information that is hidden
             diffuserList.append(
                 '<div id="' + collapseId + '" class="collapse">' +
                     '<div class="accordion-inner">' +
@@ -74,25 +92,23 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
                 '</div>'
             );
 
+            // change the chevron to indicate the information is now shown
             $( '#' + collapseId ).on( 'show', function () {
                 $( "#" + collapseIconId ).attr( 'class', 'icon-chevron-down' );
             })
 
+            // change the chevron to indicate that the information is now hidden
             $( '#' + collapseId ).on( 'hide', function () {
                 $( "#" + collapseIconId ).attr( 'class', 'icon-chevron-right' );
             })
         });
 
-//        // set the toggle of the diffuser data
-//        $( ".diffuser-signature" ).click( function() {
-//            $( this ).next().toggle();
-//        });
-
+        // toggle to remove-diffuser icon when the user hovers over it to show it is active
         $( ".diffuser-remove-button" ).hover( function() {
             $( "i", $( this ) ).toggleClass( 'icon-remove-sign' );
         });
 
-        // set up the ability to delete diffusers
+        // set up the callback to delete diffusers when the user clicks on the remove-diffuser icon
         $( ".diffuser-remove-button" ).click( function( e ) {
             $.ajax({
                 url: diffusersUri + "/" + $( ".diffuser-signature-title", $( this ).parent() ).text(),

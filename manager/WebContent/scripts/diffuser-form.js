@@ -110,32 +110,36 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
     }, "Invalid Java variable name." );
 
     // add argument input field and remove-item button to the method's argument list
-    $( "#" + config.addArgTypeButtonId ).click( function() { addListItem( config.methodArgListId, variableName ) } );
+    $( "#" + config.addArgTypeButtonId ).click( function() {
+        addListItem( config.methodArgListId, variableName, "parameter type (e.g. double, java.lang.String)" )
+    });
     $( "#" + config.addArgTypeButtonId ).hover( function() {
         $( "i", $( this ) ).toggleClass( 'icon-plus-sign' );
     });
 
     // add class-path input field and remove-item button to the class-path list
-    $( "#" + config.addClassPathButtonId ).click( function() { addListItem( config.classPathListId, "url" ) } );
+    $( "#" + config.addClassPathButtonId ).click( function() { addClasspathItem( config.classPathListId ) } );
 
     // add end-point input field and remove-item button to the end-point list
-    $( "#" + config.addEndpointButtonId ).click( function() { addListItem( config.endPointListId, "url" ) } );
+    $( "#" + config.addEndpointButtonId ).click( function() { addEndpointItem( config.endPointListId ) } );
 
     // remove the item from the list when the associated button is pressed
     $( "." + listItemRemoveButtonClass ).live( "click", function() {
-        $( this ).parent().remove();
+        $( this ).parent().parent().remove();
     });
 
-    $( "." + listItemRemoveButtonClass ).live( "hover", function() {
-        $( "i", this ).toggleClass( 'icon-remove-sign' );
-    });
+//    $( "." + listItemRemoveButtonClass ).live( "hover", function() {
+//        $( "i", this ).toggleClass( 'icon-remove-sign' );
+//    });
 
     // allows the user to add a return type; once clicked, disables itself
     $( "#" + config.addReturnTypeButtonId ).click( function() {
         if( !$( this ).attr( "disabled" ) ) {
             $( "#" + config.returnTypeId ).append( '<li>' +
-                '<input type="text" class="' + listItemInputClass + ' ' + variableName + '" value=""  size="55">' +
-                '<a id="' + config.removeReturnTypeButtonId + '" href="#"><i class="icon-remove"></a>' +
+                '<div class="input-append">' +
+                    '<input type="text" class="' + listItemInputClass + ' ' + variableName + '" value=""  size="55">' +
+                    '<button id="' + config.removeReturnTypeButtonId + '" class="btn"><i class="icon-remove"></i></button>' +
+                '</div>' +
                 '</li>' );
             $( "i", this ).toggleClass( 'icon-white' );
             $( "#" + config.removeReturnTypeButtonId ).hover( function() {
@@ -148,7 +152,7 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
     // allows the user to remove the return type; once clicked enables the add-return-type button
     $( "#" + config.removeReturnTypeButtonId ).live( "click", function() {
         $( "i", "#" + config.addReturnTypeButtonId ).toggleClass( 'icon-white' );
-        $( this ).parent().remove();
+        $( this ).parent().parent().remove();
         $( "#" + config.addReturnTypeButtonId ).removeAttr( "disabled" );
     });
 
@@ -166,13 +170,16 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
 
         // containing class name and note
         var $para = $( "<p>Containing Class Name: </p>", { id: config.containingClassId } );
-        $( "<input>", { id: config.containingClassId, type: "text" } ).addClass( "required " + className ).appendTo( $para );
+        $( "<input>", { id: config.containingClassId,
+                        type: "text",
+                        class: "span8",
+                        placeholder: "The fully-qualified name of the Java class containing the method"
+                      } ).addClass( "required " + className ).appendTo( $para );
         $para.appendTo( $div );
-        $( "<p>This should be the fully-qualified name of the Java class containing the method.</p>" ).addClass( "note" ).appendTo( $div );
 
         // method name
         $para = $( "<p>Method Name: </p>", { id: config.methodNameId } );
-        $( "<input>", { id: config.methodNameId, type: "text" } ).addClass( "required " + methodName ).appendTo( $para );
+        $( "<input>", { id: config.methodNameId, type: "text", class: "span5" } ).addClass( "required " + methodName ).appendTo( $para );
         $para.appendTo( $div );
 
         // method arguments
@@ -276,16 +283,37 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
     }
 
     /**
+     * Adds an end-point item to the list of end-points
+     * @param selector The class selector into which the new list item will be appended
+     */
+    function addEndpointItem( selector ) {
+        addListItem( selector, "url", "http://remote.ip.address:8182/diffuser" );
+    }
+
+    /**
+     * Adds an end-point item to the list of end-points
+     * @param selector The class selector into which the new list item will be appended
+     */
+    function addClasspathItem( selector ) {
+        addListItem( selector, "url", "http://remote.ip.address:8182/classpath" );
+    }
+    /**
      * Adds a list item with a sortable handle and a remove button. Intended for the method argument type list,
      * the class path list, and the end-point list
      * @param selector The class selector into which the new list item will be appended
      * @param validationClass The validation type for the text field
+     * @param placeholder The place holder value in the text field
      */
-    function addListItem( selector, validationClass ) {
+    function addListItem( selector, validationClass, placeholder ) {
+        if( !placeholder ) {
+            placeholder = " ";
+        }
         $( "#" + selector ).append( '<li class="' + listItemClass + '">' +
             '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
-            '<input type="text" class="' + listItemInputClass + ' ' + validationClass + '" value="" size="55">' +
-            '<a class="'+ listItemRemoveButtonClass + '" href="#"><i class="icon-remove"></i></a>' +
+            '<div class="input-append">' +
+                '<input type="text" class="' + listItemInputClass + ' ' + validationClass + ' span8" placeholder="' + placeholder + '">' +
+                '<button class="btn '+ listItemRemoveButtonClass + '" type="button"><i class="icon-remove"></i></button>' +
+            '</div>' +
             '</li>' );
     }
 
