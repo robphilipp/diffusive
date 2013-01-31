@@ -110,48 +110,44 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
     }, "Invalid Java variable name." );
 
     // add argument input field and remove-item button to the method's argument list
-    $( "#" + config.addArgTypeButtonId ).click( function() {
-        $( "#" + config.methodArgListId ).append( '<li class="' + listItemClass + '">' +
-            '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
-            '<input type="text" class="' + listItemInputClass + ' ' + variableName + '" value="" size="55">' +
-            '<input type="button" class="' + listItemRemoveButtonClass + '" value=" x ">' +
-            '</li>' );
+    $( "#" + config.addArgTypeButtonId ).click( function() { addListItem( config.methodArgListId, variableName ) } );
+    $( "#" + config.addArgTypeButtonId ).hover( function() {
+        $( "i", $( this ) ).toggleClass( 'icon-plus-sign' );
     });
 
     // add class-path input field and remove-item button to the class-path list
-    $( "#" + config.addClassPathButtonId ).click( function() {
-        $( "#" + config.classPathListId ).append( '<li class="' + listItemClass + '">' +
-            '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
-            '<input type="text" class="' + listItemInputClass + ' url" value="" size="55">' +
-            '<input type="button" class="' + listItemRemoveButtonClass + '" value=" x ">' +
-            '</li>' );
-    });
+    $( "#" + config.addClassPathButtonId ).click( function() { addListItem( config.classPathListId, "url" ) } );
 
     // add end-point input field and remove-item button to the end-point list
-    $( "#" + config.addEndpointButtonId ).click( function() {
-        $( "#" + config.endPointListId ).append( '<li class="' + listItemClass + '">' +
-            '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
-            '<input type="text" class="' + listItemInputClass + ' url" value="" size="55">' +
-            '<input type="button" class="' + listItemRemoveButtonClass + '" value=" x ">' +
-            '</li>' );
-    });
+    $( "#" + config.addEndpointButtonId ).click( function() { addListItem( config.endPointListId, "url" ) } );
 
     // remove the item from the list when the associated button is pressed
     $( "." + listItemRemoveButtonClass ).live( "click", function() {
         $( this ).parent().remove();
     });
 
+    $( "." + listItemRemoveButtonClass ).live( "hover", function() {
+        $( "i", this ).toggleClass( 'icon-remove-sign' );
+    });
+
     // allows the user to add a return type; once clicked, disables itself
     $( "#" + config.addReturnTypeButtonId ).click( function() {
-        $( "#" + config.returnTypeId ).append( '<li>' +
-            '<input type="text" class="' + listItemInputClass + ' ' + variableName + '" value=""  size="55">' +
-            '<input type="button" id="' + config.removeReturnTypeButtonId + '" value=" x ">' +
-            '</li>' );
-        $( "#" + config.addReturnTypeButtonId ).attr( "disabled", "disabled" );
+        if( !$( this ).attr( "disabled" ) ) {
+            $( "#" + config.returnTypeId ).append( '<li>' +
+                '<input type="text" class="' + listItemInputClass + ' ' + variableName + '" value=""  size="55">' +
+                '<a id="' + config.removeReturnTypeButtonId + '" href="#"><i class="icon-remove"></a>' +
+                '</li>' );
+            $( "i", this ).toggleClass( 'icon-white' );
+            $( "#" + config.removeReturnTypeButtonId ).hover( function() {
+                $( "i", this ).toggleClass( 'icon-remove-sign' );
+            });
+        }
+        $( this ).attr( "disabled", "disabled" );
     });
 
     // allows the user to remove the return type; once clicked enables the add-return-type button
     $( "#" + config.removeReturnTypeButtonId ).live( "click", function() {
+        $( "i", "#" + config.addReturnTypeButtonId ).toggleClass( 'icon-white' );
         $( this ).parent().remove();
         $( "#" + config.addReturnTypeButtonId ).removeAttr( "disabled" );
     });
@@ -181,14 +177,14 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
 
         // method arguments
         $para = $( "<p></p>", { id: config.methodNameId } );
-        $( "<input>", { type: "button", id: config.addArgTypeButtonId, value: "+" } ).appendTo( $para );
+        $( '<a id="' + config.addArgTypeButtonId + '" href="#"><i class="icon-plus"></i></a>' ).appendTo( $para );
         $para.append( "Method Arguments" );
         $( "<ul></ul>", { id: config.methodArgListId } ).addClass( "sortable" ).appendTo( $para );
         $para.appendTo( $div );
 
         // return type
         $para = $( "<p></p>", { id: returnType } );
-        $( "<input>", { type: "button", id: config.addReturnTypeButtonId, value: "+" } ).appendTo( $para );
+        $( '<a id="' + config.addReturnTypeButtonId + '" href="#"><i class="icon-plus"></i></a>' ).appendTo( $para );
         $para.append( "Return Type" );
         $( "<ul></ul>", { id: config.returnTypeId } ).addClass( "sortable" ).appendTo( $para );
         $para.appendTo( $div );
@@ -198,7 +194,7 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
         // div holding the class paths
         $div = $( "<div></div>" ).addClass( formElementName );
         $para = $( "<p></p>", { id: classPaths } );
-        $( "<input>", { type: "button", id: config.addClassPathButtonId, value: "+" } ).appendTo( $para );
+        $( '<a id="' + config.addClassPathButtonId + '" href="#"><i class="icon-plus"></i></a>' ).appendTo( $para );
         $para.append( "Class-Path" );
         $( "<ul></ul>", { id: config.classPathListId } ).addClass( "sortable" ).appendTo( $para );
         $para.appendTo( $div );
@@ -207,7 +203,7 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
         // div holding the additional endpoints
         $div = $( "<div></div>" ).addClass( formElementName );
         $para = $( "<p></p>", { id: endPoints } );
-        $( "<input>", { type: "button", id: config.addEndpointButtonId, value: "+" } ).appendTo( $para );
+        $( '<a id="' + config.addEndpointButtonId + '" href="#"><i class="icon-plus"></i></a>' ).appendTo( $para );
         $para.append( "Additional Diffuser End-Points" );
         $( "<ul></ul>", { id: config.endPointListId } ).addClass( "sortable" ).appendTo( $para );
         $para.appendTo( $div );
@@ -233,20 +229,15 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
      */
     function resetDiffuserForm() {
 
-        // grab the form used for creating the diffuser
-//        var $form = $( "#" + config.formId );
-
         // sets all the form's text input fields to empty
         $( "#" + config.containingClassId ).val( "" );
         $( "#" + config.methodNameId ).val( "" );
-//        $( "#" + config.serializerId ).option( config.defaultSerializerName );
 
         // removes all the form's input fields from the lists
         $( "." + listItemClass ).remove();
         $( "." + listItemInputClass ).parent().remove();
 
         // adds the add-return-type button back, in case it was gone
-//        $( "#" + config.addReturnTypeButtonId ).show();
         $( "#" + config.addReturnTypeButtonId ).removeAttr( "disabled" );
     }
 
@@ -282,6 +273,20 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
      */
     function getSerializerName() {
         return $( "#" + config.serializerId ).val() || config.defaultSerializerName;
+    }
+
+    /**
+     * Adds a list item with a sortable handle and a remove button. Intended for the method argument type list,
+     * the class path list, and the end-point list
+     * @param selector The class selector into which the new list item will be appended
+     * @param validationClass The validation type for the text field
+     */
+    function addListItem( selector, validationClass ) {
+        $( "#" + selector ).append( '<li class="' + listItemClass + '">' +
+            '<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>' +
+            '<input type="text" class="' + listItemInputClass + ' ' + validationClass + '" value="" size="55">' +
+            '<a class="'+ listItemRemoveButtonClass + '" href="#"><i class="icon-remove"></i></a>' +
+            '</li>' );
     }
 
     /**

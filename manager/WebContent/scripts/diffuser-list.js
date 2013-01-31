@@ -40,43 +40,58 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
     $.get( diffusersUri, function( xml ) {
 
         // remove the old list and replace it with the new one
-        var diffuserList = $( diffuserListId );
+        var diffuserList = $( "#" + diffuserListId );
         if( diffuserList ) {
             diffuserList.empty();
         }
 
         // create the new list
-        $( xml).find( "entry").each( function() {
-            diffuserList.append( '<dt class="diffuser-signature"><input type="button" class="diffuser-remove-button" value="x">' + $( this ).find( "title" ).text() + '</dt>' );
-            diffuserList.append( '<dd class="diffuser-details" hidden="true">' +
-                '<p><a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
-                '<p>Strategy: ' + $( this ).find( "strategy" ).text() + '</p>' +
-                '<p>End Points: ' + $( this ).find( "endPoints" ).text() + '</p>' +
-                '<p>Serializer: ' + $( this ).find( "serializer" ).text() + '</p>' +
-                '<p>Load Threshold: ' + $( this ).find( "loadThreshold" ).text() + '</p>' +
-                '<p>Maximum Redundancy: ' + $( this ).find( "maxRedundancy" ).text() + '</p>' +
-                '<p>Polling Time-Out: ' + $( this ).find( "pollingTimeout" ).text() + ' ms</p>' +
-                '<p>Class Paths: ' + $( this ).find( "classPaths" ).text() + '</p>' +
-                '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
-                '</dd>' );
-        })
+        $( xml ).find( "entry" ).each( function( i ) {
+            diffuserList.append(
+                '<div class="accordion-heading">' +
+                    '<a class="diffuser-signature-title" data-toggle="collapse" data-parent="#accordion2" href="#collapse' + (+i) + '">' +
+                        $( this ).find( "title" ).text() +
+                    '</a>' +
+                    '<a class="diffuser-remove-button pull-right" href="#"><i class="icon-remove-sign"></i></a>' +
+                '</div>'
+            );
+            diffuserList.append(
+                '<div id="collapse' + (+i) + '" class="collapse">' +
+                    '<div class="accordion-inner">' +
+                        '<p><a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
+                        '<p>Strategy: ' + $( this ).find( "strategy" ).text() + '</p>' +
+                        '<p>End Points: ' + $( this ).find( "endPoints" ).text() + '</p>' +
+                        '<p>Serializer: ' + $( this ).find( "serializer" ).text() + '</p>' +
+                        '<p>Load Threshold: ' + $( this ).find( "loadThreshold" ).text() + '</p>' +
+                        '<p>Maximum Redundancy: ' + $( this ).find( "maxRedundancy" ).text() + '</p>' +
+                        '<p>Polling Time-Out: ' + $( this ).find( "pollingTimeout" ).text() + ' ms</p>' +
+                        '<p>Class Paths: ' + $( this ).find( "classPaths" ).text() + '</p>' +
+                        '<p>Information Request Timestamp: ' + $( this ).find( "published" ).text() + '</p>' +
+                    '</div>' +
+                '</div>'
+            );
+        });
 
         // set the toggle of the diffuser data
         $( ".diffuser-signature" ).click( function() {
             $( this ).next().toggle();
         });
 
+        $( ".diffuser-remove-button" ).hover( function() {
+            $( "i", $( this ) ).toggleClass( 'icon-remove' );
+        });
+
         // set up the ability to delete diffusers
         $( ".diffuser-remove-button" ).click( function( e ) {
             $.ajax({
-                url: diffusersUri + "/" + $(this ).parent().text(),
+                url: diffusersUri + "/" + $( ".diffuser-signature-title", $( this ).parent() ).text(),
                 type: "DELETE",
                 dataType: "xml",
                 success: function( data, textStatus, jqXHR ) {
-                    getDiffuserList( diffusersUri, "#diffuser-list" );
+                    getDiffuserList( diffusersUri, diffuserListId );
                 },
                 error: function( jqXhr, textStatus, errorThrown ) {
-                    alert( textStatus + ": " + errorThrown );
+                    alert( textStatus + ": " + errorThrown + " (URL=" + diffusersUri + "/" + $( ".diffuser-remove-button", $( this ).parent() ).text() + ")" );
                 }
             });
             e.stopPropagation();

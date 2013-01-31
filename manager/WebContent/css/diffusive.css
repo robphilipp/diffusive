@@ -73,10 +73,9 @@ input.error, ul.sortable li input.item-list-input.error
     border-width: 1px;
 }
 
-ul.sortable li input.item-list-remove-button, #remove-return-type-button
-{
+ul.sortable li a.item-list-remove-button, #remove-return-type-button {
     position: relative;
-    left: 10px;
+    left: 13px;
     bottom: 10px;
     /*background-color: rgb(212, 14, 12);*/
     /*border-radius: 10px;*/
@@ -87,9 +86,9 @@ ul.sortable li input.item-list-remove-button, #remove-return-type-button
     font-weight: normal;
     font-family: sans-serif;
     font-size: 1em;
-    color: #437DD4;
-    background-color: #bcdeff;
-    border-color: #437DD4;
+    /*color: #437DD4;*/
+    /*background-color: #bcdeff;*/
+    /*border-color: #437DD4;*/
     border-style: solid;
     border-width: 1px;
     border-radius: 8px;;
@@ -98,16 +97,23 @@ ul.sortable li input.item-list-remove-button, #remove-return-type-button
     cursor:pointer;
 }
 
-.diffuser-signature:hover
-{
-    color: #bcdeff;
-    background-color: #437DD4;
-    border-color: #bcdeff;
+.diffuser-signature:hover {
+    /*color: #bcdeff;*/
+    /*background-color: #437DD4;*/
+    /*border-color: #bcdeff;*/
 }
 
-.diffuser-remove-button
-{
+.diffuser-remove-button {
     margin-right: 10px;
+}
+
+/*.item-list-remove-button {*/
+    /*margin-left: 10px;*/
+/*}*/
+
+input[type="button"][disabled="disabled"] {
+    border: grey;
+    padding: 3px 8px 3px 8px;
 }
 
 footer {
