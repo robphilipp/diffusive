@@ -41,9 +41,9 @@
     <script type="text/javascript">
         $( document ).ready( function() {
 
-            $(function() {
-                $( "#tabs" ).tabs();
-            });
+//            $(function() {
+//                $( "#tabs" ).tabs();
+//            });
 
             var serverUri = "";
 //            var serverUri = "http://192.168.1.8:8182";
@@ -53,7 +53,6 @@
             // grab the list of diffusers from the server and place it in the diffuser-list tab
             getDiffuserList( diffusersUri, "diffuser-list" );
             $( ".description-title" ).click( function() {
-
                 $( this ).next().toggle();
             });
 
@@ -111,23 +110,25 @@
 <div class="container-fluid">
     <div class="row-fluid">
         <div class="span11">
-            <div id="tabs">
-                <ul>
-                    <li><a href="#diffuser-list">Diffuser List</a></li>
-                    <li><a href="#create-diffuser">Create Diffuser</a></li>
-                    <li><a href="#tabs-3">Manage Diffusers</a></li>
+            <div>
+                <!--<div id="tabs">-->
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#diffuser-list" data-toggle="tab">Diffuser List</a></li>
+                    <li><a href="#create-diffuser" data-toggle="tab">Create Diffuser</a></li>
+                    <li><a href="#tabs-3" data-toggle="tab">Manage Diffusers</a></li>
                 </ul>
 
                 <!-- holds the list of the diffuser returned by the diffuser server -->
-                <div id="diffuser-list"></div>
+                <div class="tab-content">
+                    <div class="tab-pane fade in active" id="diffuser-list"></div>
 
-                <!-- holds the tab for creating diffusers -->
-                <div id="create-diffuser"></div>
+                    <!-- holds the tab for creating diffusers -->
+                    <div class="tab-pane fade" id="create-diffuser"></div>
 
-                <!-- will hold the diffuser network graph -->
-                <div id="tabs-3">
-                    <p>And what to put here?</p>
-                    <embed type="text/html" src="../../docs/diffusive_web/WebContent/overview_guide.html"></embed>
+                    <!-- will hold the diffuser network graph -->
+                    <div class="tab-pane fade" id="tabs-3">
+                        <p>And what to put here?</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,5 +136,32 @@
         <div class="span1"></div>
     </div>
 </div>
+
+<!--<div class="container-fluid">-->
+    <!--<div class="row-fluid">-->
+        <!--<div class="span11">-->
+            <!--<div id="tabs">-->
+                <!--<ul>-->
+                    <!--<li><a href="#diffuser-list">Diffuser List</a></li>-->
+                    <!--<li><a href="#create-diffuser">Create Diffuser</a></li>-->
+                    <!--<li><a href="#tabs-3">Manage Diffusers</a></li>-->
+                <!--</ul>-->
+
+                <!--&lt;!&ndash; holds the list of the diffuser returned by the diffuser server &ndash;&gt;-->
+                <!--<div id="diffuser-list"></div>-->
+
+                <!--&lt;!&ndash; holds the tab for creating diffusers &ndash;&gt;-->
+                <!--<div id="create-diffuser"></div>-->
+
+                <!--&lt;!&ndash; will hold the diffuser network graph &ndash;&gt;-->
+                <!--<div id="tabs-3">-->
+                    <!--<p>And what to put here?</p>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; extra space &ndash;&gt;-->
+        <!--<div class="span1"></div>-->
+    <!--</div>-->
+<!--</div>-->
 </body>
 </html>

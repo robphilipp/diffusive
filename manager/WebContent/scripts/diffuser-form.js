@@ -113,9 +113,9 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
     $( "#" + config.addArgTypeButtonId ).click( function() {
         addListItem( config.methodArgListId, variableName, "parameter type (e.g. double, java.lang.String)" )
     });
-    $( "#" + config.addArgTypeButtonId ).hover( function() {
-        $( "i", $( this ) ).toggleClass( 'icon-plus-sign' );
-    });
+//    $( "#" + config.addArgTypeButtonId ).hover( function() {
+//        $( "i", $( this ) ).toggleClass( 'icon-plus-sign' );
+//    });
 
     // add class-path input field and remove-item button to the class-path list
     $( "#" + config.addClassPathButtonId ).click( function() { addClasspathItem( config.classPathListId ) } );
@@ -128,16 +128,16 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
         $( this ).parent().parent().remove();
     });
 
-//    $( "." + listItemRemoveButtonClass ).live( "hover", function() {
-//        $( "i", this ).toggleClass( 'icon-remove-sign' );
-//    });
+    $( "." + listItemRemoveButtonClass ).live( "hover", function() {
+        $( "i", this ).toggleClass( 'icon-remove-sign' );
+    });
 
     // allows the user to add a return type; once clicked, disables itself
     $( "#" + config.addReturnTypeButtonId ).click( function() {
         if( !$( this ).attr( "disabled" ) ) {
             $( "#" + config.returnTypeId ).append( '<li>' +
                 '<div class="input-append">' +
-                    '<input type="text" class="' + listItemInputClass + ' ' + variableName + '" value=""  size="55">' +
+                    '<input type="text" class="' + listItemInputClass + ' ' + variableName + '">' +
                     '<button id="' + config.removeReturnTypeButtonId + '" class="btn"><i class="icon-remove"></i></button>' +
                 '</div>' +
                 '</li>' );
@@ -155,7 +155,6 @@ function DiffuserForm( parentId, diffusersUri, settings ) {
         $( this ).parent().parent().remove();
         $( "#" + config.addReturnTypeButtonId ).removeAttr( "disabled" );
     });
-
 
     //
     // METHODS

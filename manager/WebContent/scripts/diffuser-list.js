@@ -63,7 +63,7 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
                 '<div class="diffuser-list-header accordion-heading">' +
                     '<i id="' + collapseIconId + '" class="icon-chevron-right"></i>' +
                     '<a class="diffuser-signature-title" data-toggle="collapse" data-parent="#accordion2" href="#' + collapseId + '">' +
-                    $( this ).find( "title" ).text() +
+                        $( this ).find( "title" ).text() +
                     '</a>' +
                     '<a class="diffuser-remove-button pull-right" href="#"><i class="icon-remove"></i></a>' +
                 '</div>'

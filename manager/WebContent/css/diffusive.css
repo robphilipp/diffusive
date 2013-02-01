@@ -38,6 +38,7 @@ ul.sortable li span
 {
     position: absolute;
     margin-left: -1.3em;
+    margin-top: 0.5em;
 }
 
 #add-arg-type-button, #add-return-type-button, #add-class-path-button, #add-end-points-button
@@ -84,10 +85,10 @@ input.error, ul.sortable li input.item-list-input.error
     margin-right: 10px;
 }
 
-input[type="button"][disabled="disabled"] {
-    border: grey;
-    padding: 3px 8px 3px 8px;
-}
+/*input[type="button"][disabled="disabled"] {*/
+    /*border: grey;*/
+    /*padding: 3px 8px 3px 8px;*/
+/*}*/
 
 footer {
     text-align: center;
