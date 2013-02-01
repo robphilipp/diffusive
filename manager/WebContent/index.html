@@ -41,29 +41,32 @@
     <script type="text/javascript">
         $( document ).ready( function() {
 
-//            $(function() {
-//                $( "#tabs" ).tabs();
-//            });
-
             var serverUri = "";
 //            var serverUri = "http://192.168.1.8:8182";
-            var diffusersUri = serverUri + "/diffusers";
-            var serializersUri = diffusersUri + "/serializers";
+            var diffuserPath = "/diffusers";
+            var serializerPath = "/serializers";
+            var diffuserUri = serverUri + diffuserPath;
 
             // grab the list of diffusers from the server and place it in the diffuser-list tab
-            getDiffuserList( diffusersUri, "diffuser-list" );
+            getDiffuserList( diffuserUri, "diffuser-list" );
             $( ".description-title" ).click( function() {
                 $( this ).next().toggle();
             });
 
-            // grab the list of the serializer names from the server and place them in the select UI element
-            getSerializerList( serializersUri, "#serializer-name-list", "persistence_xml" );
-
             // create the diffuser form
-            var diffuserForm = new DiffuserForm( "create-diffuser", diffusersUri, {
-                successCallback : function( data, textStatus, jqXHR ) {
-                    getDiffuserList( diffusersUri, "diffuser-list" );
-                    $( "#tabs" ).tabs( "select", 0 );
+            new DiffuserForm( $( "#create-diffuser" ), serverUri, "create-diffuser-form", {
+                formId: "create-diffuser-form-2",
+                successCallback: function( data, textStatus, jqXHR ) {
+                    getDiffuserList( diffuserUri, "diffuser-list" );
+                    $( '#application-tabs a:first' ).tab( 'show' );
+                }
+            });
+
+            new DiffuserForm( $( "#tabs-3" ), serverUri, "create-diffuser-form-2", {
+                formId: "create-diffuser-form-3",
+                successCallback: function( data, textStatus, jqXHR ) {
+                    getDiffuserList( diffuserUri, "diffuser-list" );
+                    $( '#application-tabs a:first' ).tab( 'show' );
                 }
             });
 
@@ -112,7 +115,7 @@
         <div class="span11">
             <div>
                 <!--<div id="tabs">-->
-                <ul class="nav nav-tabs">
+                <ul class="nav nav-tabs" id="application-tabs">
                     <li class="active"><a href="#diffuser-list" data-toggle="tab">Diffuser List</a></li>
                     <li><a href="#create-diffuser" data-toggle="tab">Create Diffuser</a></li>
                     <li><a href="#tabs-3" data-toggle="tab">Manage Diffusers</a></li>
