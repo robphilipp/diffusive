@@ -5,6 +5,9 @@
 # Compiled source #
 ###################
 *.class
+Diffusive_v*
+dist
+bin
 
 # Packages #
 ############
@@ -23,6 +26,10 @@
 *.log
 *.sql
 *.sqlite
+
+# Development environments #
+############################
+.idea/*
 
 # OS generated files #
 ######################

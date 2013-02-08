@@ -79,7 +79,7 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
             diffuserList.append(
                 '<div id="' + collapseId + '" class="collapse">' +
                     '<div class="accordion-inner">' +
-                        '<p><a href=' + $( this ).find( "link" ).attr( "href" ) + ' >Diffuser</a></p>' +
+                        '<p><a href=' + $( this ).find( "link" ).prop( "href" ) + ' >Diffuser</a></p>' +
                         '<p>Strategy: ' + $( this ).find( "strategy" ).text() + '</p>' +
                         '<p>End Points: ' + $( this ).find( "endPoints" ).text() + '</p>' +
                         '<p>Serializer: ' + $( this ).find( "serializer" ).text() + '</p>' +
@@ -94,12 +94,12 @@ function getDiffuserList( diffusersUri, diffuserListId ) {
 
             // change the chevron to indicate the information is now shown
             $( '#' + collapseId ).on( 'show', function () {
-                $( "#" + collapseIconId ).attr( 'class', 'icon-chevron-down' );
+                $( "#" + collapseIconId ).prop( 'class', 'icon-chevron-down' );
             })
 
             // change the chevron to indicate that the information is now hidden
             $( '#' + collapseId ).on( 'hide', function () {
-                $( "#" + collapseIconId ).attr( 'class', 'icon-chevron-right' );
+                $( "#" + collapseIconId ).prop( 'class', 'icon-chevron-right' );
             })
         });
 

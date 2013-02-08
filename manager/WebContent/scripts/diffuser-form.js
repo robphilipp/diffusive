@@ -133,54 +133,54 @@ function DiffuserForm( parent, serverUri, formId, settings ) {
     }, "Invalid Java variable name." );
 
     // add argument input field and remove-item button to the method's argument list
-    $( "#" + config.addArgTypeButtonId ).click( function() {
+    $( document ).on( "click", "#" + config.addArgTypeButtonId, function() {
        $( "#" + config.methodArgListId ).append( createListItem( variableName, "parameter type (e.g. double, java.lang.String)" ) );
     });
-    $( "#" + config.addArgTypeButtonId ).hover( function() {
-        $( "i", $( this ) ).toggleClass( 'icon-plus-sign' );
-    });
+    registerButtonHover( "#" + config.addArgTypeButtonId, 'icon-plus-sign', 'icon-plus' );
 
     // add class-path input field and remove-item button to the class-path list
-//    $( "#" + config.addClassPathButtonId ).click( function() { addClasspathItem( config.classPathListId ) } );
     $( "#" + config.addClassPathButtonId ).click( function() {
         $( "#" + config.classPathListId ).append( createClasspathItem() );
     });
+    registerButtonHover( "#" + config.addClassPathButtonId, 'icon-plus-sign', 'icon-plus' );
 
     // add end-point input field and remove-item button to the end-point list
-//    $( "#" + config.addEndpointButtonId ).click( function() { addEndpointItem( config.endPointListId ) } );
     $( "#" + config.addEndpointButtonId ).click( function() {
         $( "#" +  config.endPointListId ).append( createEndpointItem() );
     });
+    registerButtonHover( "#" + config.addEndpointButtonId, 'icon-plus-sign', 'icon-plus' );
 
     // remove the item from the list when the associated button is pressed
-    $( "." + listItemRemoveButtonClass ).live( "click", function() {
+    $( document ).on( "click", "." + listItemRemoveButtonClass, function() {
         $( this ).parent().parent().remove();
     });
 
-    $( "." + listItemRemoveButtonClass ).live( "hover", function() {
-        $( "i", this ).toggleClass( 'icon-remove-sign' );
+    $( document ).on( "mouseenter", "." + listItemRemoveButtonClass, function() {
+        $( "i", this ).prop( 'class', 'icon-remove-sign' );
+    });
+    $( document ).on( "mouseleave", "." + listItemRemoveButtonClass, function() {
+        $( "i", this ).prop( 'class', 'icon-remove' );
     });
 
     // allows the user to add a return type; once clicked, disables itself
     $( "#" + config.addReturnTypeButtonId ).click( function() {
-        if( !$( this ).attr( "disabled" ) ) {
+        if( !$( this ).prop( "disabled" ) ) {
             $( "#" + config.returnTypeId ).append( '<li>' +
                 '<div class="input-append">' +
                     '<input type="text" class="' + listItemInputClass + ' ' + variableName + '">' +
                     '<button id="' + config.removeReturnTypeButtonId + '" class="btn"><i class="icon-remove"></i></button>' +
                 '</div>' +
                 '</li>' );
-            $( "i", this ).attr( 'class', 'icon-plus icon-white' );
-            $( "#" + config.removeReturnTypeButtonId ).hover( function() {
-                $( "i", this ).toggleClass( 'icon-remove-sign' );
-            });
+            $( "i", this ).toggleClass( 'icon-white', true );
+            registerButtonHover( "#" + config.removeReturnTypeButtonId, 'icon-remove-sign', 'icon-remove' );
         }
-        $( this ).attr( "disabled", "disabled" );
+        $( this ).prop( "disabled", "disabled" );
     });
+    registerButtonHover( "#" + config.addReturnTypeButtonId, 'icon-plus-sign', 'icon-plus' );
 
     // allows the user to remove the return type; once clicked enables the add-return-type button
-    $( "#" + config.removeReturnTypeButtonId ).live( "click", function() {
-        $( "i", "#" + config.addReturnTypeButtonId ).attr( 'class', 'icon-plus' );
+    $( document ).on( "click", "#" + config.removeReturnTypeButtonId, function() {
+        $( "i", "#" + config.addReturnTypeButtonId ).prop( 'class', 'icon-plus' );
         $( this ).parent().parent().remove();
         $( "#" + config.addReturnTypeButtonId ).removeAttr( "disabled" );
     });
@@ -188,6 +188,23 @@ function DiffuserForm( parent, serverUri, formId, settings ) {
     //
     // METHODS
     //
+
+    /**
+     * Registers a "hover" action on the plus signs so that when the user hovers over the plus sign
+     * it changes to a circle plus sign, and back again when the mouse leaves
+     * @param selector The selector of the element containing the icon. The element must contain
+     * and icon <i class='icon-plus'></i> element.
+     * @param enterIcon The icon name for the icon to display when the mouse enters the icon
+     * @param leaveIcon The icon name for the icon to display when the mouse leaves the icon
+     */
+    function registerButtonHover( selector, enterIcon, leaveIcon ) {
+        $( document ).on( "mouseenter", selector, function() {
+            $( "i", $( this ) ).toggleClass( enterIcon, true ).toggleClass( leaveIcon, false );
+        });
+        $( document ).on( "mouseleave", selector, function() {
+            $( "i", $( this ) ).toggleClass( enterIcon, false ).toggleClass( leaveIcon, true );
+        });
+    }
 
     /**
      * Creates the diffuser form HTML code and adds the div specified as the method argument to the containing function
@@ -275,7 +292,7 @@ function DiffuserForm( parent, serverUri, formId, settings ) {
         // removes the return-type text field and adds the add-return-type button back, in case it was gone
         $( "#" + config.removeReturnTypeButtonId ).parent().parent().remove();
         $( "#" + config.addReturnTypeButtonId ).removeAttr( "disabled" );
-        $( "i", "#" + config.addReturnTypeButtonId ).attr( 'class', 'icon-plus' );
+        $( "i", "#" + config.addReturnTypeButtonId ).prop( 'class', 'icon-plus' );
 
         // sets all the form's text input fields to empty
         $( "#" + config.containingClassId ).val( "" );
