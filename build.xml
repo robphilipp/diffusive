@@ -31,10 +31,6 @@
 		set the run configuration files
 	-->
 	<property name="config" value="config"/>
-	<!-- <property name="restful_server_config" value="restful_server_config.xml"/>
-	<property name="restful_diffuser_config" value="restful_diffuser_config.xml"/>
-	<property name="random_diffuser_strategy_config" value="random_diffuser_strategy.xml"/>
-	<property name="random_weighted_diffuser_strategy_config" value="random_weighted_diffuser_strategy.xml"/> -->
 
 	<!-- =====================================================================
 						   D E P E N D E N C I E S
@@ -69,14 +65,17 @@
 	<!-- 
 		Jersey (JSR 311, JAX-RS)
 	-->
-	<property name="grizzly_framework" value="grizzly-framework-2.2.1.jar" />
-	<property name="grizzly_http" value="grizzly-http-2.2.1.jar" />
-	<property name="grizzly_http_server" value="grizzly-http-server-2.2.1.jar" />
-	<property name="jersey_client" value="jersey-client-1.12.jar" />
-	<property name="jersey_core" value="jersey-core-1.12.jar" />
-	<property name="jersey_grizzly" value="jersey-grizzly2-1.12.jar" />
-	<property name="jersey_server" value="jersey-server-1.12.jar" />
-	<property name="jsr311_api" value="jsr311-api-1.1.1.jar" />
+	<property name="grizzly_framework" value="grizzly-framework-2-2.2.19.jar" />
+	<property name="grizzly_http" value="grizzly-http-all-2.2.19.jar" />
+	<property name="jersey-bundle" value="jersey-bundle-1.16.jar" />
+	<property name="jersey_grizzly" value="jersey-grizzly2-1-1.16.jar" />
+	
+	<!--
+		Jersey JSON support (Jackson) 
+	-->
+	<property name="jackson_core" value="jackson-core-asl-1.9.2.jar" />
+	<property name="jackson_jax_rs" value="jackson-jaxrs-1.9.2.jar" />
+	<property name="jackson_mapper" value="jackson-mapper-asl-1.9.2.jar" />
 	
 	<!-- 
 		Javassist (byte-code engineering)
@@ -107,13 +106,14 @@
 	<property name="json-libs" value="json"/>
 	<property name="abdera-libs" value="abdera" />
 	<property name="jersey-libs" value="jersey" />
+	<property name="jersey-json-libs" value="${jersey-libs}/jersey_json" />
 	<property name="javassist-libs" value="javassist" />
 	<property name="commons-io-libs" value="apache_commons_io" />
 	<property name="jar_class_path" value="${dependencies}/${junit} 
-		${dependencies}/${log4j}
-		${dependencies}/${freezedry} 
+		${dependencies}/${log4j} 
+		${dependencies}/${freezedry}  
 		${dependencies}/${json} 
-		${dependencies}/${abdera_core} 
+		${dependencies}/${abdera_core}  
 		${dependencies}/${abdera_i18n} 
 		${dependencies}/${abdera_parser} 
 		${dependencies}/${axiom_api} 
@@ -121,12 +121,11 @@
 		${dependencies}/${commons-logging} 
 		${dependencies}/${grizzly_framework} 
 		${dependencies}/${grizzly_http} 
-		${dependencies}/${grizzly_http_server} 
-		${dependencies}/${jersey_client} 
-		${dependencies}/${jersey_core} 
 		${dependencies}/${jersey_grizzly} 
-		${dependencies}/${jersey_server} 
-		${dependencies}/${jsr311_api} 
+		${dependencies}/${jersey-bundle} 
+		${dependencies}/${jackson_core} 
+		${dependencies}/${jackson_jax_rs} 
+		${dependencies}/${jackson_mapper} 
 		${dependencies}/${javassist} 
 		${dependencies}/${commons_io} 
 		${dependencies}/${jopt_simple}" />
@@ -136,7 +135,7 @@
 		the dependencies at runtime 
 	-->
 	<property name="class_path" value="${junit} 
-										${log4j}
+										${log4j} 
 										${freezedry} 
 										${json} 
 										${abdera_core} 
@@ -147,12 +146,11 @@
 										${commons-logging} 
 										${grizzly_framework} 
 										${grizzly_http} 
-										${grizzly_http_server} 
-										${jersey_client} 
-										${jersey_core} 
 										${jersey_grizzly} 
-										${jersey_server} 
-										${jsr311_api} 
+										${jersey-bundle} 
+										${jackson_core} 
+										${jackson_jax_rs} 
+										${jackson_mapper} 
 										${javassist} 
 										${commons_io} 
 										${jopt_simple}"/>
@@ -193,11 +191,12 @@
 		<copy file="${java-libs}/${jersey-libs}/${grizzly_framework}" todir="${dist}/lib" />
 		<copy file="${java-libs}/${jersey-libs}/${grizzly_http}" todir="${dist}/lib" />
 		<copy file="${java-libs}/${jersey-libs}/${grizzly_http_server}" todir="${dist}/lib" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_client}" todir="${dist}/lib" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_core}" todir="${dist}/lib" />
 		<copy file="${java-libs}/${jersey-libs}/${jersey_grizzly}" todir="${dist}/lib" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_server}" todir="${dist}/lib" />
-		<copy file="${java-libs}/${jersey-libs}/${jsr311_api}" todir="${dist}/lib" />
+		<copy file="${java-libs}/${jersey-libs}/${jersey-bundle}" todir="${dist}/lib" />
+
+		<copy file="${java-libs}/${jersey-json-libs}/${jackson_core}" todir="${dist}/lib" />
+		<copy file="${java-libs}/${jersey-json-libs}/${jackson_jax_rs}" todir="${dist}/lib" />
+		<copy file="${java-libs}/${jersey-json-libs}/${jackson_mapper}" todir="${dist}/lib" />
 		
 		<copy file="${java-libs}/${javassist-libs}/${javassist}" todir="${dist}/lib" />
 
@@ -320,12 +319,12 @@
 			
 			<zipfileset src="${java-libs}/${jersey-libs}/${grizzly_framework}" excludes="META-INF/*" />
 			<zipfileset src="${java-libs}/${jersey-libs}/${grizzly_http}" excludes="META-INF/*" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${grizzly_http_server}" excludes="META-INF/*" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_client}" excludes="META-INF/*" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_core}" excludes="META-INF/*" />
 			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_grizzly}" excludes="META-INF/*" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_server}" excludes="META-INF/*" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jsr311_api}" excludes="META-INF/*" />
+			<zipfileset src="${java-libs}/${jersey-libs}/${jersey-bundle}" excludes="META-INF/*" />
+			
+			<zipfileset src="${java-libs}/${jersey-json-libs}/${jackson_core}" excludes="META-INF/*" />
+			<zipfileset src="${java-libs}/${jersey-json-libs}/${jackson_jax_rs}" excludes="META-INF/*" />
+			<zipfileset src="${java-libs}/${jersey-json-libs}/${jackson_mapper}" excludes="META-INF/*" />
 			
 			<zipfileset src="${java-libs}/${javassist-libs}/${javassist}" excludes="META-INF/*" />
 
@@ -378,12 +377,12 @@
 			
 			<zipfileset src="${java-libs}/${jersey-libs}/${grizzly_framework}" excludes="META-INF/*" />
 			<zipfileset src="${java-libs}/${jersey-libs}/${grizzly_http}" excludes="META-INF/*" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${grizzly_http_server}" excludes="META-INF/*" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_client}" excludes="META-INF/*" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_core}" excludes="META-INF/maven/* META-INF/MANIFEST.MF" />
 			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_grizzly}" excludes="META-INF/maven/* META-INF/MANIFEST.MF" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jersey_server}" excludes="META-INF/maven/* META-INF/MANIFEST.MF" />
-			<zipfileset src="${java-libs}/${jersey-libs}/${jsr311_api}" excludes="META-INF/*" />
+			<zipfileset src="${java-libs}/${jersey-libs}/${jersey-bundle}" excludes="META-INF/*" />
+			
+			<zipfileset src="${java-libs}/${jersey-json-libs}/${jackson_core}" excludes="META-INF/*" />
+			<zipfileset src="${java-libs}/${jersey-json-libs}/${jackson_jax_rs}" excludes="META-INF/*" />
+			<zipfileset src="${java-libs}/${jersey-json-libs}/${jackson_mapper}" excludes="META-INF/*" />
 			
 			<zipfileset src="${java-libs}/${javassist-libs}/${javassist}" excludes="META-INF/*" />
 
@@ -470,8 +469,6 @@
 	<target name="make_release" 
 			depends="make_launcher_jar, make_server_jar, make_example_jar, make_annotations_jar" 
 			description="builds the single and diffusive jars and creates the release structure">
-			<!-- depends="make_launcher_jar, make_server_jar, make_combined_launcher_jar, make_combined_server_jar" 
-			description="builds the single and diffusive jars and creates the release structure"> -->
 		
 		<property name="rel_src" value="src" />
 	
@@ -480,43 +477,19 @@
 		
 		<!-- create the release directory and its subdirectorys: src, single_jar, jars -->
 		<mkdir dir="${release}" />
-		<!-- <mkdir dir="${release}/${single_jar}" /> -->
 		<mkdir dir="${release}/${jars}" />
 		<mkdir dir="${release}/${rel_src}" />
 		
 		<!-- copy the log4j configuration files into the appropriate directories -->
-		<!-- <copy file="log4j.xml" todir="${release}/${single_jar}" /> -->
 		<copy file="log4j.xml" todir="${release}/${jars}" />
 		<copy file="log4j.xml" todir="${release}/${rel_src}" />
 		
 		<!-- copy the run configurations to the top-level directory -->
-		<!-- <copy todir="${release}/${single_jar}/${config}"><fileset dir="${config}" includes="**/*.xml" /></copy> -->
 		<copy todir="${release}/${jars}/${config}"><fileset dir="${config}" includes="**/*.xml" /></copy>
 		<copy todir="${release}/${rel_src}/${config}"><fileset dir="${config}" includes="**/*.xml" /></copy>
 
-		<!-- <copy file="${restful_server_config}" todir="${release}/${single_jar}" />
-		<copy file="${restful_server_config}" todir="${release}/${jars}" />
-		<copy file="${restful_server_config}" todir="${release}/${rel_src}" />
-
-		<copy file="${restful_diffuser_config}" todir="${release}/${single_jar}" />
-		<copy file="${restful_diffuser_config}" todir="${release}/${jars}" />
-		<copy file="${restful_diffuser_config}" todir="${release}/${rel_src}" />
-
-		<copy file="${random_diffuser_strategy_config}" todir="${release}/${single_jar}" />
-		<copy file="${random_diffuser_strategy_config}" todir="${release}/${jars}" />
-		<copy file="${random_diffuser_strategy_config}" todir="${release}/${rel_src}" />
-
-		<copy file="${random_weighted_diffuser_strategy_config}" todir="${release}/${single_jar}" />
-		<copy file="${random_weighted_diffuser_strategy_config}" todir="${release}/${jars}" />
-		<copy file="${random_weighted_diffuser_strategy_config}" todir="${release}/${rel_src}" /> -->
-
 		<!-- copy the this build file to the release src directory -->
 		<copy file="build.xml" todir="${release}/${rel_src}" />
-		
-		<!-- copy the single jar to the single jar release directory -->
-		<!-- <copy file="${dist}/${single_jar}/${launcher_jar_file}" todir="${release}/${single_jar}" />
-		<copy file="${dist}/${single_jar}/${server_jar_file}" todir="${release}/${single_jar}" />
-		<zip destfile="${release}/${single_jar}/${app_name}_${version}.zip" basedir="${release}/${single_jar}" includes="*.*" /> -->
 		
 		<!-- copy the multiple jars to the jars release directory -->
 		<copy file="${dist}/${jars}/${launcher_jar_file}" todir="${release}/${jars}" />
@@ -537,12 +510,12 @@
 		
 		<copy file="${java-libs}/${jersey-libs}/${grizzly_framework}" todir="${release}/${jars}/${dependencies}" />
 		<copy file="${java-libs}/${jersey-libs}/${grizzly_http}" todir="${release}/${jars}/${dependencies}" />
-		<copy file="${java-libs}/${jersey-libs}/${grizzly_http_server}" todir="${release}/${jars}/${dependencies}" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_client}" todir="${release}/${jars}/${dependencies}" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_core}" todir="${release}/${jars}/${dependencies}" />
 		<copy file="${java-libs}/${jersey-libs}/${jersey_grizzly}" todir="${release}/${jars}/${dependencies}" />
-		<copy file="${java-libs}/${jersey-libs}/${jersey_server}" todir="${release}/${jars}/${dependencies}" />
-		<copy file="${java-libs}/${jersey-libs}/${jsr311_api}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-libs}/${jersey-bundle}" todir="${release}/${jars}/${dependencies}" />
+		
+		<copy file="${java-libs}/${jersey-json-libs}/${jackson_core}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-json-libs}/${jackson_jax_rs}" todir="${release}/${jars}/${dependencies}" />
+		<copy file="${java-libs}/${jersey-json-libs}/${jackson_mapper}" todir="${release}/${jars}/${dependencies}" />
 		
 		<copy file="${java-libs}/${javassist-libs}/${javassist}" todir="${release}/${jars}/${dependencies}" />
 
