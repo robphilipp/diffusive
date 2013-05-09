@@ -300,6 +300,7 @@ public class RestfulDiffuserServer {
 
 		final Map< String, Object[] > configClasses = new LinkedHashMap<>();
 		configClasses.put( configClassName, new Object[] { configFileName } );
+		// TODO add the address of the mapping file as a URI (http:// or file://) or should this be a resolver object
 
 		// create and set up the executor service that is used to distribute tasks amongst threads in its thread-pool
 		final ExecutorService executor = RestfulDiffuserManagerResource.createExecutorService( maxThreads );

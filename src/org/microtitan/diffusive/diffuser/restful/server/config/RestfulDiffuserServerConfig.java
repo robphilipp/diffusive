@@ -42,13 +42,16 @@ public class RestfulDiffuserServerConfig {
 	 * the keyed diffuser strategy repository, and then sets the strategy in the repository.
 	 */
 	@DiffusiveServerConfiguration
-	public static final void configure( final String configFileName )
+	public static final void configure( final String configFileName ) // TODO add argument URI to the endpoint mapping
 	{
 		// laod the configuration file
 		final RestfulDiffuserServerConfigXml config = loadConfig( configFileName );
 		
 		// grab the information from the diffuser server configuration object to load the strategy
 		final DiffuserStrategy strategy = loadStrategy( config.getDiffuserStrategyConfigFile(), config.getDiffuserStrategyConfigClass() );
+		
+		// TODO resolve the strategies endpoints based on the mapping information, if specified.
+		// TODO create the resolve method or call a EndpointResolver class (preferred)
 		
 		// grab the load threshold
 		final double loadThreshold = config.getLaodThreshold();
