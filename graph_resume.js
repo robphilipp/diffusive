@@ -3,21 +3,21 @@
  * Date: 3/29/13
  * Time: 8:16 AM
  */
-var GraphLayout = function( width, height, linkDist ) {
+GraphLayout = function( width, height, linkDist ) {
     "use strict";
 
     // constants for accessing the resume data
-    const ROOT = "person";
-    const GROUP = "group";
-    const CATEGORY = "category";
-    const CATEGORIES = "categories";
-    const CHILDREN = "children";
-    const HIDDEN_CHILDREN = "_children";
-    const NAME = "name";
-    const DISPLAY_AS = "displayAs";
-    const ITEMS = "items";
+    var ROOT = "person";
+    var GROUP = "group";
+    var CATEGORY = "category";
+    var CATEGORIES = "categories";
+    var CHILDREN = "children";
+    var HIDDEN_CHILDREN = "_children";
+    var NAME = "name";
+    var DISPLAY_AS = "displayAs";
+    var ITEMS = "items";
 
-    const LINE_WRAP = 35;
+    var LINE_WRAP = 35;
 
     /**
      * Defines how the sub-nodes of the specified categories will be displayed.
@@ -232,7 +232,7 @@ var GraphLayout = function( width, height, linkDist ) {
         }
 
         var firstLine = true;
-        const lineHeight = 13;
+        var lineHeight = 13;
         var index = 0;
         var wordArray = text.split( /\s+/ );
         while( index < wordArray.length ) {
