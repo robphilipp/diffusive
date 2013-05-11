@@ -1,0 +1,397 @@
+{
+    "person":{
+        "name":"Robert Philipp",
+        "displayAs": "Robert Philipp",
+        "address":{"street":"8606 Sinon Street","city":"Annandale", "state":"VA"},
+        "phone":"7036234063",
+        "email":"rob.philipp@gmail.com",
+        "title":"PhD",
+        "categories":[
+            {
+                "name":"companies",
+                "displayAs":"Companies",
+                "items":[
+                    {"id":"101", "name":"Center for Naval Anylses", "location":"Alexandria VA"},
+                    {"id":"102", "name":"AT&T", "location":"Oakton, VA"},
+                    {"id":"103", "name":"Freddie Mac", "location":"McLean, VA"},
+                    {"id":"104", "name":"Synapse Financial Engineering", "location":"Oakton, VA"}
+                ]
+            },
+            {
+                "name":"schools",
+                "displayAs":"Schools",
+                "items":[
+                    {"id":"201", "name":"University of Massachusetts", "abbreviation":"UMass", "location":"Amherst, MA"},
+                    {"id":"202", "name":"University of Illinois", "abbreviation":"U of I", "location":"Urbana, IL"}
+                ]
+            },
+            {
+                "name":"education",
+                "displayAs":"Education",
+                "items":[
+                    {"id":"301", "targets":[{ "id":"201", "type":"school" }], "major":"Physics", "degree":"BS", "honors":"Kum Laude", "start":"1983", "end":"1988"},
+                    {"id":"302", "targets":[{ "id":"202", "type":"school" }], "major":"Physics", "degree":"MS", "start":"1988", "end":"1990"},
+                    {"id":"303", "targets":[{ "id":"202", "type":"school" }], "major":"Physics", "degree":"PhD", "start":"1990", "end":"1994"}
+                ]
+            },
+            {
+                "name":"positions",
+                "displayAs":"Positions",
+                "items":[
+                    {"id":"401",
+                        "short_title":"Sr Member Research Staff",
+                        "title":"Senior Member of Research Staff",
+                        "responsibility":"Analyses of real-world military operations.",
+                        "start":"6/1994", "end":"4/1998",
+                        "targets":[
+                            { "id":"101", "type":"company" },
+                            { "id":"714", "type":"responsibility" },
+                            { "id":"715", "type":"responsibility" },
+                            { "id":"519", "type":"accomplishment" }
+                        ] },
+                    {"id":"402",
+                        "short_title":"Lead Tech Analyst",
+                        "title":"Lead Technical Analyst",
+                        "start":"4/1998", "end":"6/1999",
+                        "targets":[
+                            { "id":"103", "type":"company" },
+                            { "id":"704", "type":"responsibility" },
+                            { "id":"708", "type":"responsibility" },
+                            { "id":"713", "type":"responsibility" },
+                            { "id":"517", "type":"accomplishment" },
+                            { "id":"518", "type":"accomplishment" }
+                        ] },
+                    {"id":"403",
+                        "short_title":"Member Tech Staff",
+                        "title":"Member of Technical Staff",
+                        "start":"6/1999", "end":"1/2000",
+                        "targets":[
+                            { "id":"102", "type":"company" },
+                            { "id":"712", "type":"responsibility" },
+                            { "id":"516", "type":"accomplishment" }
+                        ] },
+                    {"id":"404",
+                        "short_title":"VP, Head of Financial Eng.",
+                        "title":"Vice President and Head of Financial Engineering",
+                        "start":"1/2000", "end":"1/2007",
+                        "targets":[
+                            { "id":"103", "type":"company" },
+                            { "id":"704", "type":"responsibility" },
+                            { "id":"707", "type":"responsibility" },
+                            { "id":"708", "type":"responsibility" },
+                            { "id":"709", "type":"responsibility" },
+                            { "id":"711", "type":"responsibility" },
+                            { "id":"501", "type":"accomplishment" },
+                            { "id":"502", "type":"accomplishment" },
+                            { "id":"503", "type":"accomplishment" },
+                            { "id":"504", "type":"accomplishment" },
+                            { "id":"505", "type":"accomplishment" }
+                        ] },
+                    {"id":"405",
+                        "short_title":"VP, Head of Invst & Cap Mkts IT",
+                        "title":"Vice President and Head of Investments and Capital Markets IT",
+                        "start":"1/2000", "end":"1/2007",
+                        "targets":[
+                            { "id":"103", "type":"company" },
+                            { "id":"705", "type":"responsibility" },
+                            { "id":"706", "type":"responsibility" },
+                            { "id":"711", "type":"responsibility" },
+                            { "id":"513", "type":"accomplishment" },
+                            { "id":"514", "type":"accomplishment" },
+                            { "id":"515", "type":"accomplishment" }
+                        ] },
+                    {"id":"406",
+                        "short_title":"VP, Head of Arch Svcs",
+                        "title":"Vice President and Head of Architecture Services",
+                        "start":"1/2000", "end":"1/2007",
+                        "targets":[
+                            { "id":"103", "type":"company" },
+                            { "id":"702", "type":"responsibility" },
+                            { "id":"711", "type":"responsibility" },
+                            { "id":"508", "type":"accomplishment" },
+                            { "id":"509", "type":"accomplishment" },
+                            { "id":"510", "type":"accomplishment" },
+                            { "id":"511", "type":"accomplishment" },
+                            { "id":"512", "type":"accomplishment" }
+                        ] },
+                    {"id":"407",
+                        "short_title":"CEO, Founder",
+                        "title":"CEO and Co-Founder",
+                        "start":"2009", "end":"2012",
+                        "targets":[
+                            { "id":"104", "type":"company" },
+                            { "id":"701", "type":"responsibility" },
+                            { "id":"703", "type":"responsibility" },
+                            { "id":"710", "type":"responsibility" },
+                            { "id":"506", "type":"accomplishment" },
+                            { "id":"507", "type":"accomplishment" }
+                        ] }
+                ]
+            },
+            {
+                "name":"accomplishments",
+                "displayAs":"Accomplishments",
+                "items":[
+                    {"id":"501",
+                        "description":"Implemented front-office trading analytics application.",
+                        "targets":[
+                            {"id":"601", "type":"skill"},
+                            {"id":"602", "type":"skill"},
+                            {"id":"603", "type":"skill"},
+                            {"id":"604", "type":"skill"},
+                            {"id":"605", "type":"skill"},
+                            {"id":"625", "type":"skill"}
+                        ]},
+                    {"id":"502",
+                        "description":"Implemented first compute-cluster at Freddie Mac for performing portfolio-level analytics.",
+                        "targets":[
+                            {"id":"601", "type":"skill"},
+                            {"id":"605", "type":"skill"},
+                            {"id":"606", "type":"skill"}
+                        ]},
+                    {"id":"503",
+                        "description":"Developed back-propagation neural networks and simulated annealer for sub-second interest-rate model calibration.",
+                        "targets":[
+                            {"id":"602", "type":"skill"},
+                            {"id":"604", "type":"skill"}
+                        ]},
+                    {"id":"504",
+                        "description":"Maintained less than 10% voluntary attrition over 7 years.",
+                        "targets":[
+                            {"id":"610", "type":"skill"},
+                            {"id":"611", "type":"skill"},
+                            {"id":"612", "type":"skill"}
+                        ]},
+                    {"id":"505",
+                        "description":"Developed front-office trading analytics platform replaced Black Rock's AnSer based on trading floor's request.",
+                        "targets":[
+                            {"id":"601", "type":"skill"},
+                            {"id":"602", "type":"skill"},
+                            {"id":"603", "type":"skill"},
+                            {"id":"604", "type":"skill"},
+                            {"id":"605", "type":"skill"},
+                            {"id":"606", "type":"skill"},
+                            {"id":"607", "type":"skill"},
+                            {"id":"608", "type":"skill"},
+                            {"id":"625", "type":"skill"},
+                            {"id":"619", "type":"skill"}
+                        ]},
+                    {"id":"506",
+                        "description":"Developed an extensible and intuitive fixed-income ALM and trading platform.",
+                        "targets":[
+                            {"id":"601", "type":"skill"},
+                            {"id":"602", "type":"skill"},
+                            {"id":"603", "type":"skill"},
+                            {"id":"604", "type":"skill"},
+                            {"id":"605", "type":"skill"},
+                            {"id":"625", "type":"skill"},
+                            {"id":"619", "type":"skill"}
+                        ]
+                    },
+                    {"id":"507",
+                        "description":"Bootstrapped start up through advisory services to Fortune 50 and Big 4 consulting companies.",
+                        "targets":[
+                            {"id":"616", "type":"skill"},
+                            {"id":"605", "type":"skill"},
+                            {"id":"618", "type":"skill"},
+                            {"id":"617", "type":"skill"},
+                            {"id":"623", "type":"skill"},
+                            {"id":"624", "type":"skill"},
+                            {"id":"625", "type":"skill"}
+                        ]
+                    },
+                    {"id":"508",
+                        "description":"Developed and implemented enterprise-wide legacy-systems transformation approach using service-oriented integration (SOI)",
+                        "targets":[
+                            {"id":"615", "type":"skill"},
+                            {"id":"617", "type":"skill"},
+                            {"id":"624", "type":"skill"},
+                            {"id":"629", "type":"skill"},
+                            {"id":"614", "type":"skill"},
+                            {"id":"626", "type":"skill"}
+                        ]
+                    },
+                    {"id":"509",
+                        "description":"Implemented a Corporate Scorecard project to integrate 7 key systems to validate the SOI transformation strategy",
+                        "targets":[
+                            {"id":"615", "type":"skill"},
+                            {"id":"617", "type":"skill"},
+                            {"id":"624", "type":"skill"},
+                            {"id":"614", "type":"skill"},
+                            {"id":"629", "type":"skill"},
+                            {"id":"626", "type":"skill"}
+                        ]
+                    },
+                    {"id":"510",
+                        "description":"Developed corporate canonical data model to improve system interoperability.",
+                        "targets":[
+                            {"id":"617", "type":"skill"},
+                            {"id":"614", "type":"skill"}
+                        ]
+                    },
+                    {"id":"511",
+                        "description":"Implemented architecture governance that addressed IT weaknesses, replacing 135 inconsistent architecture rules in first month.",
+                        "targets":[
+                            {"id":"613", "type":"skill"},
+                            {"id":"623", "type":"skill"},
+                            {"id":"617", "type":"skill"},
+                            {"id":"626", "type":"skill"},
+                            {"id":"627", "type":"skill"},
+                            {"id":"628", "type":"skill"},
+                            {"id":"614", "type":"skill"}
+                        ]
+                    },
+                    {"id":"512",
+                        "description":"Developed scope, architecture, approach, and estimates for $100 million legacy transformation effort.",
+                        "targets":[
+                            {"id":"617", "type":"skill"},
+                            {"id":"624", "type":"skill"},
+                            {"id":"615", "type":"skill"},
+                            {"id":"628", "type":"skill"},
+                            {"id":"629", "type":"skill"},
+                            {"id":"614", "type":"skill"}
+                        ]
+                    },
+                    {"id":"513",
+                        "description":"Increased delivery efficiency by 30% through organizational alignment, restructuring, and less reliance on contingent workers.",
+                        "targets":[
+                            {"id":"610", "type":"skill"},
+                            {"id":"612", "type":"skill"},
+                            {"id":"617", "type":"skill"},
+                            {"id":"627", "type":"skill"}
+                        ]
+                    },
+                    {"id":"514",
+                        "description":"Increased visibility and communication within the department by flattening the organization and adjusting spans-of-control.",
+                        "targets":[
+                            {"id":"610", "type":"skill"},
+                            {"id":"612", "type":"skill"},
+                            {"id":"617", "type":"skill"},
+                            {"id":"627", "type":"skill"}
+                        ]
+                    },
+                    {"id":"515",
+                        "description":"Implemented and rolled-out new IT software development and project management processes to department.",
+                        "targets":[
+                            {"id":"610", "type":"skill"},
+                            {"id":"612", "type":"skill"},
+                            {"id":"617", "type":"skill"},
+                            {"id":"628", "type":"skill"},
+                            {"id":"627", "type":"skill"}
+                        ]
+                    },
+                    {"id":"516",
+                        "description":"Developed software public key infrastructure (cryptography) applications.",
+                        "targets":[
+                            {"id":"630", "type":"skill"},
+                            {"id":"601", "type":"skill"},
+                            {"id":"617", "type":"skill"},
+                            {"id":"631", "type":"skill"}
+                        ]
+                    },
+                    {"id":"517",
+                        "description":"Saved $2 million and 11 months by implementing first single-factor interest rate model in one month.",
+                        "targets":[
+                            {"id":"602", "type":"skill"},
+                            {"id":"604", "type":"skill"},
+                            {"id":"607", "type":"skill"},
+                            {"id":"608", "type":"skill"}
+                        ]
+                    },
+                    {"id":"518",
+                        "description":"Presented research on low-discrepancy sequences to improve the efficiency of Monte Carlo simulations.",
+                        "targets":[
+                            {"id":"602", "type":"skill"},
+                            {"id":"604", "type":"skill"}
+                        ]
+                    },
+                    {"id":"519",
+                        "description":"Developed small-sample statistical methods that allowed targeting practices to reduce collateral damage.",
+                        "targets":[
+                            {"id":"608", "type":"skill"},
+                            {"id":"609", "type":"skill"},
+                            {"id":"632", "type":"skill"}
+                        ]
+                    }
+                ]
+            },
+            {
+                "name":"skills",
+                "displayAs":"Skills",
+                "items":[
+                    {"id":"601", "name":"Java"},
+                    {"id":"602", "name":"C++"},
+                    {"id":"603", "name":"JNI"},
+                    {"id":"604", "name":"Numerical Algorithms"},
+                    {"id":"605", "name":"Fixed Income Finance"},
+                    {"id":"606", "name":"Distributed Computing"},
+                    {"id":"607", "name":"Optimization"},
+                    {"id":"608", "name":"Mathematical Modeling"},
+                    {"id":"609", "name":"Statistical Analyses"},
+                    {"id":"610", "name":"Organizational Leadership"},
+                    {"id":"611", "name":"Team Building"},
+                    {"id":"612", "name":"Organizational Management"},
+                    {"id":"613", "name":"Architecture Governance"},
+                    {"id":"614", "name":"Enterprise Architecture"},
+                    {"id":"615", "name":"Legacy Transformation"},
+                    {"id":"616", "name":"Software Methodology Development"},
+                    {"id":"617", "name":"Project Management"},
+                    {"id":"618", "name":"Customer Relationship Management"},
+                    {"id":"619", "name":"Java/Swing"},
+                    {"id":"620", "name":"JavaScript"},
+                    {"id":"621", "name":"jQuery"},
+                    {"id":"622", "name":"d3"},
+                    {"id":"623", "name":"Technical Writing"},
+                    {"id":"624", "name":"Business Analyses"},
+                    {"id":"625", "name":"Mortgage Finance"},
+                    {"id":"626", "name":"Enterprise Integration Patterns"},
+                    {"id":"627", "name":"Public Speaking"},
+                    {"id":"628", "name":"Corporate-Wide Approach Roll-Out"},
+                    {"id":"629", "name":"Service-Oriented Architecture"},
+                    {"id":"630", "name":"Public-Key Infrastructure"},
+                    {"id":"631", "name":"Web Application Development"},
+                    {"id":"632", "name":"Simulation Techniques"}
+                ]
+            },
+            {
+                "name":"responsibilities",
+                "displayAs":"Responsibilities",
+                "items":[
+                    {"id":"701", "name":"Strategy and funding for development of fixed-income trading and risk management system." },
+                    {"id":"702", "name":"Corporate architecture, architecture governance, legacy transformation, development principles and standards, proof-of-concept implementations of new technologies."},
+                    {"id":"703", "name":"Determination of capabilities, architecture, design, and development."},
+                    {"id":"704", "name":"Development of fixed-income models and analytics for trading and risk management (investments and guaranty business)."},
+                    {"id":"705", "name":"Implementation and integration of systems for capital markets division."},
+                    {"id":"706", "name":"Manage over 200 staff, $50 million initiative budget, 40 major projects."},
+                    {"id":"707", "name":"Design, development, and support for ALM and trading system for $750 billion fixed-income portfolio."},
+                    {"id":"708", "name":"Development and support of fixed-income research tools and systems." },
+                    {"id":"709", "name":"Managing relationship with trader desks and portfolio managers." },
+                    {"id":"710", "name":"Customer relationship management for advisory services." },
+                    {"id":"711", "name":"Managing relationship with Internal Audit, government regulators, and independent auditors"},
+                    {"id":"712", "name":"Development and support of internal public-key infrastructure and lab."},
+                    {"id":"713", "name":"Implementation of financial models and performance evaluation tools."},
+                    {"id":"714", "name":"Conduct research, develop solutions, and present to senior Naval leadership and operational staff."},
+                    {"id":"715", "name":"Conduct analyses of real-world Tomahawk cruise missile strikes to determine performance patterns."}
+                ]
+            },
+            {
+                "name":"open_source",
+                "displayAs":"Open Source",
+                "items":[
+                    {"id":"801",
+                        "name":"Diffusive",
+                        "description":"Java distributed computing framework.",
+                        "language":"Java",
+                        "url":"http://robphilipp.github.com/diffusive/"
+                    },
+                    {"id":"802",
+                        "name":"FreezeDry",
+                        "description":"Easy, flexible, Java persistence and serialization framework.",
+                        "language":"Java",
+                        "url":"http://freezedried.sourceforge.net/"
+                    }
+                ]
+            }
+        ]
+    }
+}

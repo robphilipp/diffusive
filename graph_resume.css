@@ -1,0 +1,36 @@
+svg .node {
+    font: 12px sans-serif;
+}
+svg .link {
+    stroke: rgb(194, 194, 194);
+    stroke-width: 2;
+}
+
+svg g.person {
+    fill: #294cc9;
+}
+svg g.education {
+    fill: #6b6ecf;
+}
+svg g.schools {
+    fill: #8ca252;
+}
+svg g.companies {
+    fill: #393b79;
+}
+svg g.positions {
+    fill: #db7609;
+}
+svg g.accomplishments {
+    fill: #499815;
+}
+svg g.skills {
+    fill: #9c9ede;
+}
+svg g.responsibilities {
+    fill: #414b96;
+}
+
+svg g.open_source {
+    fill: #7e3b96;
+}

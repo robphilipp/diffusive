@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" type="text/css" href="graph_resume.css" />
+
+    <script src="d3.js"></script>
+    <script src="graph_resume.js"></script>
+    <script src="utils.js"></script>
+</head>
+
+<body>
+<script>
+      var resume = GraphLayout( 1300, 1000, 250 );
+        resume.setNodeFormat( "open_source", function( node ) {
+            return node[ "name" ] + " (" + node[ "language" ] + ") " + node[ "url" ]; }
+        );
+      resume.load( "rob_philipp.json" );
+</script>
+</body>
+</html>
