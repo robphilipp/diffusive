@@ -15,20 +15,12 @@
  */
 package org.microtitan.diffusive.launcher;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import javassist.ClassPool;
 import javassist.NotFoundException;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -42,6 +34,12 @@ import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Launches the user application in a way that all method calls to methods annotated with {@code @Diffusive}
@@ -130,7 +128,6 @@ public class DiffusiveLauncher {
 	
 	/**
 	 * Creates a default method intercepter using the specified {@link Diffuser}
-	 * @param diffuser The diffuser used with the default method intercepter
 	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
 	 */
 	private static MethodIntercepterEditor createDefaultMethodIntercepter()
@@ -143,7 +140,7 @@ public class DiffusiveLauncher {
 	 * default set of delegation prefixes (defined in the {@link DiffusiveLoader} class), and
 	 * the default {@link DiffusiveTranslator}.
 	 */
-	public static final DiffusiveLoader createLoader()
+	public static DiffusiveLoader createLoader()
 	{
 		return createLoader( createDefaultConfiguration() );
 	}
@@ -154,7 +151,7 @@ public class DiffusiveLauncher {
 	 * default set of delegation prefixes (defined in the {@link DiffusiveLoader} class), and
 	 * the default {@link DiffusiveTranslator}.
 	 */
-	public static final DiffusiveLoader createLoader( final List< String > classPaths )
+	public static DiffusiveLoader createLoader( final List< String > classPaths )
 	{
 		return createLoader( createDefaultConfiguration(), classPaths );
 	}
@@ -170,7 +167,7 @@ public class DiffusiveLauncher {
 	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @return a {@link DiffusiveLoader}
 	 */
-	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations )
+	public static DiffusiveLoader createLoader( final Map< String, Object[] > configurations )
 	{
 		return createLoader( configurations, null );
 	}
@@ -187,7 +184,7 @@ public class DiffusiveLauncher {
 	 * @param classPaths The class paths to the application's jar file
 	 * @return a {@link DiffusiveLoader}
 	 */
-	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations, final List< String > classPaths )
+	public static DiffusiveLoader createLoader( final Map< String, Object[] > configurations, final List< String > classPaths )
 	{
 		return createLoader( configurations, classPaths, createDefaultTranslator( createDefaultMethodIntercepter() ) );
 	}
@@ -205,9 +202,9 @@ public class DiffusiveLauncher {
 	 * @param translator The translator used to modify the diffusive methods.
 	 * @return a {@link DiffusiveLoader}
 	 */
-	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations,
-													  final List< String > classPaths,
-													  final DiffusiveTranslator translator )
+	public static DiffusiveLoader createLoader( final Map< String, Object[] > configurations,
+											    final List< String > classPaths,
+												final DiffusiveTranslator translator )
 	{
 		// get the default class pool
 		final ClassPool pool = ClassPool.getDefault();
@@ -225,9 +222,9 @@ public class DiffusiveLauncher {
 		}
 		catch( Throwable exception )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Error loading the specified class" + Constants.NEW_LINE );
-			message.append( "  Loader: " + loader.getClass().getName() + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Error loading the specified class" ).append( Constants.NEW_LINE )
+			        .append( "  Loader: " ).append( loader.getClass().getName() ).append(Constants.NEW_LINE);
 
 			LOGGER.error( message.toString(), exception );
 			throw new IllegalArgumentException( message.toString(), exception );
@@ -251,10 +248,10 @@ public class DiffusiveLauncher {
 	 * @param translator The translator used to modify the diffusive methods.
 	 * @return a {@link DiffusiveLoader}
 	 */
-	public static final DiffusiveLoader createLoader( final Map< String, Object[] > configurations,
-													  final List< String > classPaths,
-													  final List< String > delegationPrefixes,
-													  final DiffusiveTranslator translator )
+	public static DiffusiveLoader createLoader( final Map< String, Object[] > configurations,
+												final List< String > classPaths,
+												final List< String > delegationPrefixes,
+												final DiffusiveTranslator translator )
 	{
 		// get the default class pool
 		final ClassPool pool = ClassPool.getDefault();
@@ -272,9 +269,9 @@ public class DiffusiveLauncher {
 		}
 		catch( Throwable exception )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Error loading the specified class" + Constants.NEW_LINE );
-			message.append( "  Loader: " + loader.getClass().getName() + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Error loading the specified class" ).append( Constants.NEW_LINE )
+			        .append("  Loader: ").append( loader.getClass().getName() ).append(Constants.NEW_LINE);
 
 			LOGGER.error( message.toString(), exception );
 			throw new IllegalArgumentException( message.toString(), exception );
@@ -305,19 +302,19 @@ public class DiffusiveLauncher {
 				
 				if( LOGGER.isInfoEnabled() )
 				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "Added Jar file to class pool's class path" + Constants.NEW_LINE );
-					message.append( "  Jar Class Path: " + classPath + Constants.NEW_LINE );
-					message.append( "  Class Pool: " + pool.toString() );
+					final StringBuilder message = new StringBuilder();
+					message.append( "Added Jar file to class pool's class path" ).append( Constants.NEW_LINE )
+					        .append( "  Jar Class Path: " ).append( classPath ).append( Constants.NEW_LINE )
+					        .append( "  Class Pool: " ).append( pool.toString() );
 					LOGGER.info( message.toString() );
 				}
 			}
 			catch( NotFoundException e ) 
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Unable to find Jar file when attempting to add it to class pool's class path" + Constants.NEW_LINE );
-				message.append( "  Jar Class Path: " + classPath + Constants.NEW_LINE );
-				message.append( "  Class Pool: " + pool.toString() );
+				final StringBuilder message = new StringBuilder();
+				message.append( "Unable to find Jar file when attempting to add it to class pool's class path" ).append( Constants.NEW_LINE )
+				        .append( "  Jar Class Path: " ).append( classPath ).append( Constants.NEW_LINE )
+				        .append( "  Class Pool: " ).append( pool.toString() );
 				LOGGER.warn( message.toString(), e );
 			}
 		}
@@ -328,8 +325,6 @@ public class DiffusiveLauncher {
 	 * objects constructor.
 	 * @param classNameToRun The name of the class for which to run the "main" method
 	 * @param programArguments The command-line arguments passed to the "main" method
-	 * @see DiffusiveLauncher#classNameToRun
-	 * @see DiffusiveLauncher#programArguments
 	 */
 	public void run( final String classNameToRun, final String...programArguments )
 	{
@@ -353,21 +348,21 @@ public class DiffusiveLauncher {
 		}
 		catch( Throwable exception )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Error running the specified class" + Constants.NEW_LINE );
-			message.append( "  Loader: " + loader.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Class Name: " + classNameToRun + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Error running the specified class" ).append( Constants.NEW_LINE )
+			        .append( "  Loader: " ).append( loader.getClass().getName() ).append( Constants.NEW_LINE )
+			        .append( "  Class Name: " ).append( classNameToRun ).append( Constants.NEW_LINE );
 			if( programArguments.length > 0 )
 			{
-				message.append( "  Program Arguments: " + Constants.NEW_LINE );
+				message.append( "  Program Arguments: " ).append( Constants.NEW_LINE );
 				for( String arg : programArguments )
 				{
-					message.append( "    " + arg + Constants.NEW_LINE );
+					message.append( "    " ).append( arg ).append( Constants.NEW_LINE );
 				}
 			}
 			else
 			{
-				message.append( "  Program Arguments: [none specified]" + Constants.NEW_LINE );
+				message.append( "  Program Arguments: [none specified]" ).append( Constants.NEW_LINE );
 			}
 			LOGGER.error( message.toString(), exception );
 			throw new IllegalArgumentException( message.toString(), exception );
@@ -403,16 +398,16 @@ public class DiffusiveLauncher {
 			   IllegalArgumentException | 
 			   InvocationTargetException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Unable to launch application" + Constants.NEW_LINE );
-			message.append( "  Name of class to run: " + classNameToRun + Constants.NEW_LINE );
-			message.append( "  Name of method to run: main" + Constants.NEW_LINE );
-			message.append( "  Program arguments (command line arguments): " );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Unable to launch application" ).append( Constants.NEW_LINE )
+			        .append( "  Name of class to run: " ).append( classNameToRun ).append( Constants.NEW_LINE )
+			        .append( "  Name of method to run: main" ).append( Constants.NEW_LINE )
+			        .append("  Program arguments (command line arguments): ");
 			if( programArguments.length > 0 )
 			{
 				for( String arg : programArguments )
 				{
-					message.append( Constants.NEW_LINE + "    " + arg );
+					message.append( Constants.NEW_LINE ).append( "    " ).append( arg );
 				}
 			}
 			else
@@ -468,7 +463,7 @@ public class DiffusiveLauncher {
 	 * @param options The options entered on the command-line by the user
 	 * @return The {@link RunMode} associated with the user-specified string.
 	 */
-	private static final RunMode validateRunMode( final OptionSpec< String > runModeSpec, final OptionSet options )
+	private static RunMode validateRunMode( final OptionSpec< String > runModeSpec, final OptionSet options )
 	{
 		final RunMode runMode = RunMode.getRunMode( runModeSpec.value( options ) );
 		if( runMode == null )
@@ -487,10 +482,10 @@ public class DiffusiveLauncher {
 	 * method matches up to that in the {@link RestfulDiffuserConfig} so that it
 	 * knows how to call the endpoint.
 	 * 
-	 * @param args
+	 * @param args Program arguments
 	 * @throws IOException 
 	 */
-	public static void main( String[] args ) throws IOException
+	public static void main( String...args ) throws IOException
 	{
 		// set up the command-line arguments
 		final OptionParser parser = new OptionParser();
@@ -556,7 +551,8 @@ public class DiffusiveLauncher {
 		String[] programArgs = new String[] {};
 		if( options.has( programArgSpec ) )
 		{
-			programArgs = programArgSpec.values( options ).toArray( new String[0] );
+            final List< String > values = programArgSpec.values( options );
+			programArgs = values.toArray( new String[ values.size() ] );
 		}
 
 		// start the timing for the run

@@ -42,7 +42,7 @@ public class ClassLoaderUtils {
 	
 	/**
 	 * Converts the {@link Class} into a {@code byte[]}.
-	 * @param clazz The {@link Class} to convert into a {@code byte[]}
+	 * @param className The {@link Class} to convert into a {@code byte[]}
 	 * @return a {@code byte[]} representation of the {@link Class}
 	 */
 	public static byte[] loadClassToByteArray( final String className )
@@ -64,9 +64,9 @@ public class ClassLoaderUtils {
 		}
 		catch( IOException e )
 		{
-        	final StringBuffer message = new StringBuffer();
-        	message.append( "Error writing out to the Class< ? > to a byte array." + Constants.NEW_LINE );
-        	message.append( "  Class: " + className );
+        	final StringBuilder message = new StringBuilder();
+        	message.append( "Error writing out to the Class< ? > to a byte array." ).append( Constants.NEW_LINE )
+        	        .append( "  Class: " ).append( className );
         	LOGGER.error( message.toString(), e );
         	throw new IllegalStateException( message.toString(), e );
 		}
@@ -77,7 +77,8 @@ public class ClassLoaderUtils {
 	/**
 	 * Converts the {@link Class} into a {@code byte[]}. The method allows you to load a {@link Class} file,
 	 * as a resource,that is found in a JAR file.
-	 * @param clazz The {@link Class} to convert into a {@code byte[]}
+	 * @param className The {@link Class} to convert into a {@code byte[]}
+     * @param classLoader The class loader to use for loading the specified class
 	 * @return a {@code byte[]} representation of the {@link Class}
 	 */
 	public static byte[] loadClassToByteArray( final String className, final URLClassLoader classLoader )
@@ -103,9 +104,9 @@ public class ClassLoaderUtils {
 		}
 		catch( IOException e )
 		{
-        	final StringBuffer message = new StringBuffer();
-        	message.append( "Error writing out to the Class< ? > to a byte array." + Constants.NEW_LINE );
-        	message.append( "  Class: " + className );
+        	final StringBuilder message = new StringBuilder();
+        	message.append( "Error writing out to the Class< ? > to a byte array." ).append( Constants.NEW_LINE )
+                    .append( "  Class: " ).append( className );
         	LOGGER.error( message.toString(), e );
         	throw new IllegalStateException( message.toString(), e );
 		}
