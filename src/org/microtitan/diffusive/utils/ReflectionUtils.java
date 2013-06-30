@@ -110,7 +110,7 @@ public class ReflectionUtils {
 				if( arrayDimension > 0 )
 				{
 					// grab the type of the array either a primitive or an object at this point
-					String arrayType = null;
+					String arrayType;
 					if( className.substring( arrayDimension, arrayDimension+1 ).equals( "L" ) )
 					{
 						arrayType = className.substring( arrayDimension+1 );

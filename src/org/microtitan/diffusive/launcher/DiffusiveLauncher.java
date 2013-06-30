@@ -465,7 +465,7 @@ public class DiffusiveLauncher {
 	 * @param options The options entered on the command-line by the user
 	 * @return The {@link RunMode} associated with the user-specified string.
 	 */
-	private static final RunMode validateRunMode( final OptionSpec< String > runModeSpec, final OptionSet options )
+	private static RunMode validateRunMode( final OptionSpec< String > runModeSpec, final OptionSet options )
 	{
 		final RunMode runMode = RunMode.getRunMode( runModeSpec.value( options ) );
 		if( runMode == null )
@@ -484,10 +484,10 @@ public class DiffusiveLauncher {
 	 * method matches up to that in the {@link RestfulDiffuserConfig} so that it
 	 * knows how to call the endpoint.
 	 * 
-	 * @param args
+	 * @param args Program arguments
 	 * @throws IOException 
 	 */
-	public static void main( String[] args ) throws IOException
+	public static void main( String...args ) throws IOException
 	{
 		// set up the command-line arguments
 		final OptionParser parser = new OptionParser();
@@ -551,7 +551,8 @@ public class DiffusiveLauncher {
 		String[] programArgs = new String[] {};
 		if( options.has( programArgSpec ) )
 		{
-			programArgs = programArgSpec.values( options ).toArray( new String[0] );
+            final List< String > values = programArgSpec.values( options );
+			programArgs = values.toArray( new String[ values.size() ] );
 		}
 
 		// start the timing for the run
