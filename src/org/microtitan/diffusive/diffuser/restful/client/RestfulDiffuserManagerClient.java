@@ -146,7 +146,7 @@ public class RestfulDiffuserManagerClient {
 		final ClientResponse createDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).put( ClientResponse.class, request );
 		
 		// parse the response into an Atom feed object and return it
-		CreateDiffuserResponse diffuserResponse = null;
+		CreateDiffuserResponse diffuserResponse;
 		try( InputStream response = createDiffuserResponse.getEntity( InputStream.class ) )
 		{
 			final Feed feed = abdera.getParser().< Feed >parse( response ).getRoot();
@@ -154,14 +154,14 @@ public class RestfulDiffuserManagerClient {
 		}
 		catch( ParseException | IOException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to parse the create-diffuser response into an Atom feed" + Constants.NEW_LINE );
-			message.append( "  Class Name: " + clazz.getName() + Constants.NEW_LINE );
-			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Failed to parse the create-diffuser response into an Atom feed" ).append( Constants.NEW_LINE )
+                    .append( "  Class Name: " ).append( clazz.getName() ).append( Constants.NEW_LINE )
+                    .append( "  Method Name: " ).append( methodName ).append( Constants.NEW_LINE )
+                    .append( "  Argument Type Names: " );
 			for( String name : argumentTypeNames )
 			{
-				message.append( "    " + name + Constants.NEW_LINE );
+				message.append( Constants.NEW_LINE ).append( "    " ).append( name );
 			}
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
@@ -206,15 +206,15 @@ public class RestfulDiffuserManagerClient {
 			}
 			catch( ParseException | IOException e )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Failed to parse the get-diffuser-list response into an Atom feed" + Constants.NEW_LINE );
+				final StringBuilder message = new StringBuilder();
+				message.append( "Failed to parse the get-diffuser-list response into an Atom feed" ).append( Constants.NEW_LINE );
 				LOGGER.error( message.toString(), e );
 				throw new IllegalStateException( message.toString(), e );
 			}
 		}
 		else
 		{
-			final StringBuffer message = new StringBuffer();
+			final StringBuilder message = new StringBuilder();
 			message.append( clientResponse.toString() );
 			LOGGER.warn( message.toString() );
 		}
@@ -274,15 +274,15 @@ public class RestfulDiffuserManagerClient {
 			}
 			catch( ParseException | IOException e )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Failed to parse the delete-diffuser response into an Atom feed" + Constants.NEW_LINE );
+				final StringBuilder message = new StringBuilder();
+				message.append( "Failed to parse the delete-diffuser response into an Atom feed" ).append( Constants.NEW_LINE );
 				LOGGER.error( message.toString(), e );
 				throw new IllegalStateException( message.toString(), e );
 			}
 		}
 		else
 		{
-			final StringBuffer message = new StringBuffer();
+			final StringBuilder message = new StringBuilder();
 			message.append( clientResponse.toString() );
 			LOGGER.warn( message.toString() );
 		}
@@ -291,12 +291,12 @@ public class RestfulDiffuserManagerClient {
 
 	/**
 	 * Executes the specified method 
-	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
 	 * @param clazz The {@link Class} containing the diffusive method 
 	 * @param methodName The name of the diffusive method
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
-	 * @param serializer The {@link Serializer} used to serialize and deserialize the object
+	 * @param serializer The {@link Serializer} used to serialize and de-serialize the object
 	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
 	 * underlying Atom feed.
 	 */
@@ -310,14 +310,15 @@ public class RestfulDiffuserManagerClient {
 		final String serializerType = SerializerFactory.SerializerType.getSerializerName( serializer.getClass() );
 		if( serializerType == null || serializerType.isEmpty() )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to execute method because specified serializer is invalid." );
-			message.append( "  Class Name: " + clazz.getName() + Constants.NEW_LINE );
-			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-			message.append( "  Available Serializer Types: " + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Failed to execute method because specified serializer is invalid." ).append( Constants.NEW_LINE )
+                    .append( "  Class Name: " ).append( clazz.getName() ).append( Constants.NEW_LINE )
+                    .append( "  Method Name: " ).append( methodName ).append( Constants.NEW_LINE )
+                    .append( "  Available Serializer Types: " );
 			for( SerializerFactory.SerializerType type : SerializerFactory.SerializerType.values() )
 			{
-				message.append( "    " + type.getName() + " (" + type.getSerialzierClass().getName() + ")" + Constants.NEW_LINE );
+				message.append( Constants.NEW_LINE )
+                        .append( "    " ).append( type.getName() ).append( " (" ).append( type.getSerialzierClass().getName() ).append( ")" );
 			}
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
@@ -333,12 +334,12 @@ public class RestfulDiffuserManagerClient {
 	/**
 	 * 
 	 * Executes the specified method 
-	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
 	 * @param clazz The {@link Class} containing the diffusive method 
 	 * @param methodName The name of the diffusive method
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
-	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
+	 * @param serializerType The name of the {@link Serializer} used to serialize and de-serialize the object
 	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
 	 * underlying Atom feed.
 	 */
@@ -385,14 +386,14 @@ public class RestfulDiffuserManagerClient {
 
 	/**
 	 * Executes the specified method 
-	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
 	 * @param clazz The {@link Class} containing the diffusive method 
 	 * @param methodName The name of the diffusive method
 	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
 	 * @param argumentValues The serialized value of each of the arguments passed to the diffusive method
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
-	 * @param serializerType The name of the {@link Serializer} used to serialize and deserialize the object
+	 * @param serializerType The name of the {@link Serializer} used to serialize and de-serialize the object
 	 * @return An {@link ExecuteDiffuserResponse} object containing the information about the result and the 
 	 * underlying Atom feed.
 	 */
@@ -405,7 +406,11 @@ public class RestfulDiffuserManagerClient {
 							   					  final String serializerType )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserSignature.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		final String signature = DiffuserSignature.createId(
+                returnTypeClazz,
+                clazz,
+                methodName,
+                argumentTypes.toArray( new Class< ? >[ argumentTypes.size() ] ) );
 		
 		// call the execute method
 		return executeMethod( signature, argumentTypes, argumentValues, serializedObject, clazz, serializerType );
@@ -436,7 +441,7 @@ public class RestfulDiffuserManagerClient {
 		
 		final String returnTypeClassName = DiffuserSignature.parse( signature ).getReturnTypeClassName();
 		
-		// create the diffeser-execute request
+		// create the diffuser-execute request
 		final ExecuteDiffuserRequest request = ExecuteDiffuserRequest.create( returnTypeClassName,
 																			  argumentTypeNames, 
 																			  argumentValues, 
@@ -464,7 +469,7 @@ public class RestfulDiffuserManagerClient {
 		final ClientResponse executeDiffuserResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).post( ClientResponse.class, request );
 		
 		// parse the response into an Atom feed object and return it
-		ExecuteDiffuserResponse diffuserResponse = null;
+		ExecuteDiffuserResponse diffuserResponse;
 		try( InputStream response = executeDiffuserResponse.getEntity( InputStream.class ) )
 		{
 			final Feed feed = abdera.getParser().< Feed >parse( response ).getRoot();
@@ -472,17 +477,17 @@ public class RestfulDiffuserManagerClient {
 		}
 		catch( ParseException | IOException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to parse the execute-diffuser response into an Atom feed" + Constants.NEW_LINE );
-			message.append( "  Signature: " + signature + Constants.NEW_LINE );
-			message.append( "  Request ID: " + request.getRequestId() + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Failed to parse the execute-diffuser response into an Atom feed" ).append( Constants.NEW_LINE )
+                    .append( "  Signature: " ).append( signature ).append( Constants.NEW_LINE )
+                    .append( "  Request ID: " ).append( request.getRequestId() ).append( Constants.NEW_LINE );
 			final DiffuserSignature diffuserId = DiffuserSignature.parse( signature );
-			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
-			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
-			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
+			message.append( "  Class Name: " ).append( diffuserId.getClassName() ).append( Constants.NEW_LINE )
+                    .append( "  Method Name: " ).append( diffuserId.getMethodName() ).append( Constants.NEW_LINE )
+                    .append( "  Argument Type Names: " ).append( Constants.NEW_LINE );
 			for( String name : diffuserId.getArgumentTypeNames() )
 			{
-				message.append( "    " + name + Constants.NEW_LINE );
+				message.append( Constants.NEW_LINE ).append( "    " ).append( name );
 			}
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
@@ -492,7 +497,7 @@ public class RestfulDiffuserManagerClient {
 
 	/**
 	 * Requests the result of the {@code executeMethod(...)} request
-	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
 	 * @param clazz The {@link Class} containing the diffusive method 
 	 * @param methodName The name of the diffusive method
 	 * @param requestId The request ID generated and returned after the method was executed
@@ -513,7 +518,7 @@ public class RestfulDiffuserManagerClient {
 
 	/**
 	 * Requests the result of the {@code executeMethod(...)} request
-	 * @param returnType The {@link Class} of the return type of the diffusive method
+	 * @param returnTypeClazz The {@link Class} of the return type of the diffusive method
 	 * @param clazz The {@link Class} containing the diffusive method 
 	 * @param methodName The name of the diffusive method
 	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
@@ -529,7 +534,11 @@ public class RestfulDiffuserManagerClient {
 							  final Serializer serializer )
 	{
 		// construct the signature from the specified parameters
-		final String signature = DiffuserSignature.createId( returnTypeClazz, clazz, methodName, argumentTypes.toArray( new Class< ? >[ 0 ] ) );
+		final String signature = DiffuserSignature.createId(
+                returnTypeClazz,
+                clazz,
+                methodName,
+                argumentTypes.toArray( new Class< ? >[ argumentTypes.size() ] ) );
 		
 		return ReflectionUtils.cast( returnTypeClazz, getResult( signature, requestId, serializer ) );
 	}
@@ -558,14 +567,14 @@ public class RestfulDiffuserManagerClient {
 			return null;
 		}
 		
-		Object object = null;
-		Feed feed = null;
+		Object object;
+		Feed feed;
 		try( InputStream response = resultResponse.getEntity( InputStream.class ) )
 		{
 			// the response is an Atom feed
 			feed = abdera.getParser().< Feed >parse( response ).getRoot();
 			
-			// grab the content from the entry and deserialize it
+			// grab the content from the entry and de-serialize it
 			final InputStream objectStream = feed.getEntries().get( 0 ).getContentStream();
 
 			final Class< ? > returnType = id.getReturnTypeClazz();
@@ -580,39 +589,34 @@ public class RestfulDiffuserManagerClient {
 		}
 		catch( ParseException | IOException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to parse the get-result response into an Atom feed" + Constants.NEW_LINE );
-			message.append( "  Signature: " + signature + Constants.NEW_LINE );
-			message.append( "  Request ID: " + requestId + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Failed to parse the get-result response into an Atom feed" ).append( Constants.NEW_LINE )
+                    .append( "  Signature: " ).append( signature ).append( Constants.NEW_LINE )
+                    .append( "  Request ID: " ).append( requestId ).append( Constants.NEW_LINE );
 			final DiffuserSignature diffuserId = DiffuserSignature.parse( signature );
-			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
-			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
-			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
+			message.append( "  Class Name: " ).append( diffuserId.getClassName() ).append( Constants.NEW_LINE )
+                    .append( "  Method Name: " ).append( diffuserId.getMethodName() ).append( Constants.NEW_LINE )
+                    .append( "  Argument Type Names: " );
 			for( String name : diffuserId.getArgumentTypeNames() )
 			{
-				message.append( "    " + name + Constants.NEW_LINE );
+				message.append( Constants.NEW_LINE ).append( "    " ).append( name );
 			}
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}
 		catch( Exception e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to deserialize the get-result response." + Constants.NEW_LINE );
-			message.append( "  Signature: " + signature + Constants.NEW_LINE );
-			message.append( "  Request ID: " + requestId + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Failed to deserialize the get-result response." ).append( Constants.NEW_LINE )
+                    .append( "  Signature: " ).append( signature ).append( Constants.NEW_LINE )
+                    .append( "  Request ID: " ).append( requestId ).append( Constants.NEW_LINE );
 			final DiffuserSignature diffuserId = DiffuserSignature.parse( signature );
-			message.append( "  Class Name: " + diffuserId.getClassName() + Constants.NEW_LINE );
-			message.append( "  Method Name: " + diffuserId.getMethodName() + Constants.NEW_LINE );
-			message.append( "  Argument Type Names: " + Constants.NEW_LINE );
+			message.append( "  Class Name: " ).append( diffuserId.getClassName() ).append( Constants.NEW_LINE )
+                    .append( "  Method Name: " ).append( diffuserId.getMethodName() ).append( Constants.NEW_LINE )
+                    .append( "  Argument Type Names: " );
 			for( String name : diffuserId.getArgumentTypeNames() )
 			{
-				message.append( "    " + name + Constants.NEW_LINE );
-			}
-			message.append( "  Feed: " + Constants.NEW_LINE );
-			if( feed != null )
-			{
-				message.append( "    " + feed.toString() );
+				message.append( Constants.NEW_LINE ).append( "    " ).append( name );
 			}
 			LOGGER.error( message.toString(), e );
 			throw new IllegalStateException( message.toString(), e );
@@ -635,7 +639,7 @@ public class RestfulDiffuserManagerClient {
 		final WebResource resource = client.resource( resultUri );
 		final ClientResponse resultResponse = resource.accept( MediaType.APPLICATION_ATOM_XML ).get( ClientResponse.class );
 
-		boolean isComplete = false;
+		boolean isComplete;
 		if( resultResponse.getStatus() == Status.NO_CONTENT.getStatusCode() )
 		{
 			isComplete = false;
@@ -646,10 +650,10 @@ public class RestfulDiffuserManagerClient {
 		}
 		else
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Invalid server respnse code: " + resultResponse.getStatus() + Constants.NEW_LINE );
-			message.append( "  Result ID: " + resultId + Constants.NEW_LINE );
-			message.append( "  Request URI: " + resultUri.toString() );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Invalid server response code: " ).append( resultResponse.getStatus() ).append( Constants.NEW_LINE )
+                    .append( "  Result ID: " ).append( resultId ).append( Constants.NEW_LINE )
+                    .append( "  Request URI: " ).append( resultUri.toString() );
 			LOGGER.error( message.toString() );
 			throw new IllegalStateException( message.toString() );
 		}

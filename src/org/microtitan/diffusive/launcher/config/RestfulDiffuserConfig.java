@@ -47,12 +47,6 @@ public class RestfulDiffuserConfig {
 	
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserConfig.class );
 	
-//	/**
-//	 * The name of the XML configuration file that is read to obtain the configuration settings that are needed
-//	 * by the RESTful diffuser
-//	 */
-//	public static final String XML_CONFIG_FILE_NAME = "restful_diffuser_config.xml";
-	
 	/**
 	 * Method that is called to configure the Diffusive framework. In particular, creates a 
 	 * {@link RestfulDiffuser} with the specified diffusion end-points and the class path URI
@@ -64,10 +58,9 @@ public class RestfulDiffuserConfig {
 	 * the location holding that diffuser.
 	 */
 	@DiffusiveConfiguration
-	public static final void configure( final String configFileName )
+	public static void configure( final String configFileName )
 	{
 		// read the RESTful diffuser config file into the configuration object
-//		final RestfulDiffuserConfigXml config = loadConfig( XML_CONFIG_FILE_NAME );
 		final RestfulDiffuserConfigXml config = loadConfig( configFileName );
 		
 		// now read the diffuser strategy configuration file into the strategy configuration object.
@@ -88,18 +81,18 @@ public class RestfulDiffuserConfig {
 	 * @param filename The name of the configuration file to read
 	 * @return The configuration object or null if the configuration file can't be read properly
 	 */
-	private static final RestfulDiffuserConfigXml loadConfig( final String filename )
+	private static RestfulDiffuserConfigXml loadConfig( final String filename )
 	{
-		RestfulDiffuserConfigXml config = null;
+		RestfulDiffuserConfigXml config;
 		try
 		{
 			config = new XmlPersistence().read( RestfulDiffuserConfigXml.class, filename );
 		}
 		catch( IllegalArgumentException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Unable to load or read configuration file" + Constants.NEW_LINE );
-			message.append( "  Configuration File Name: " + filename + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Unable to load or read configuration file" ).append( Constants.NEW_LINE )
+			        .append( "  Configuration File Name: " ).append( filename ).append( Constants.NEW_LINE );
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}
@@ -115,9 +108,9 @@ public class RestfulDiffuserConfig {
 	 * must extend the {@link DiffuserStrategyConfigXml} class.
 	 * @return The loaded {@link DiffuserStrategy}
 	 */
-	private static final DiffuserStrategy loadStrategy( final String fileName, final Class< ? extends DiffuserStrategyConfigXml > clazz )
+	private static DiffuserStrategy loadStrategy( final String fileName, final Class< ? extends DiffuserStrategyConfigXml > clazz )
 	{
-		DiffuserStrategy strategy = null;
+		DiffuserStrategy strategy;
 		try
 		{
 			// read the configuration file into the configuration object...
@@ -128,9 +121,9 @@ public class RestfulDiffuserConfig {
 		}
 		catch( IllegalArgumentException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Unable to load or read configuration file" + Constants.NEW_LINE );
-			message.append( "  Configuration File Name: " + fileName + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Unable to load or read configuration file" ).append( Constants.NEW_LINE )
+			        .append( "  Configuration File Name: " ).append( fileName ).append( Constants.NEW_LINE );
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}

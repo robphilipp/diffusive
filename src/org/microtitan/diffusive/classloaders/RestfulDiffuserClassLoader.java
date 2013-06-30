@@ -15,24 +15,23 @@
  */
 package org.microtitan.diffusive.classloaders;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 import javassist.Translator;
-
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.client.RestfulClientFactory;
 import org.microtitan.diffusive.launcher.DiffusiveLoader;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	
@@ -227,11 +226,11 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	 */
 	private static String createMessage( final String header, final String className, final ClassPool pool, final byte[] bytesRead )
 	{
-		final StringBuffer message = new StringBuffer();
-		message.append( header + Constants.NEW_LINE );
-		message.append( "  Class Name: " + className + Constants.NEW_LINE );
-		message.append( "  Class Pool: " + pool.toString() + Constants.NEW_LINE );
-		message.append( "  Bytes Read: " + bytesRead );
+		final StringBuilder message = new StringBuilder();
+		message.append( header ).append( Constants.NEW_LINE )
+                .append("  Class Name: ").append( className ).append( Constants.NEW_LINE )
+                .append("  Class Pool: ").append( pool.toString() ).append( Constants.NEW_LINE )
+                .append("  Bytes Read: ").append( bytesRead );
 		return message.toString();
 	}
 	
@@ -245,13 +244,17 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	 * @param classPaths The {@link URI} of the locations from which to load the class objects
 	 * @return The message
 	 */
-	private static String createMessage( final String header, final String className, final ClassPool pool, final byte[] bytesRead, final List< URI > classPaths )
+	private static String createMessage( final String header,
+                                         final String className,
+                                         final ClassPool pool,
+                                         final byte[] bytesRead,
+                                         final List< URI > classPaths )
 	{
-		final StringBuffer message = new StringBuffer( createMessage( header, className, pool, bytesRead ) );
+		final StringBuilder message = new StringBuilder( createMessage( header, className, pool, bytesRead ) );
 		message.append( "  Class Paths: " );
 		for( URI uri : classPaths )
 		{
-			message.append( Constants.NEW_LINE + "    " + uri.toString() );
+			message.append( Constants.NEW_LINE ).append( "    " ).append( uri.toString() );
 		}
 		return message.toString();
 	}

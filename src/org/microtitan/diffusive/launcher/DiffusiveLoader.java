@@ -175,10 +175,10 @@ public class DiffusiveLoader extends Loader {
 	{
 		if( configurationClasses.containsKey( className ) )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Replaced parameters of the configuration class: " + Constants.NEW_LINE );
-			message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
-			message.append( "  Parameters: " + parameters );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Replaced parameters of the configuration class: " ).append( Constants.NEW_LINE )
+                    .append( "  Configuration Class: " ).append( className ).append( Constants.NEW_LINE )
+                    .append( "  Parameters: " ).append( parameters.toString() );
 			LOGGER.info( message.toString() );
 		}
 		return configurationClasses.put( className, parameters );
@@ -212,7 +212,7 @@ public class DiffusiveLoader extends Loader {
 	 * loader, instead of this class loader.
 	 * @see #loadClassByDelegation(String)
 	 */
-	protected final static List< String > createDefaultDelegationPrefixes()
+	protected static List< String > createDefaultDelegationPrefixes()
 	{
 		final List< String > prefixes = new ArrayList<>();
 		prefixes.add( "org.apache.log4j." );
@@ -256,11 +256,11 @@ public class DiffusiveLoader extends Loader {
 			{
 				if( prefix.startsWith( delegationPrefix ) )
 				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "Attempting to a delegation prefix that is more specific than an existing delegation prefix." + Constants.NEW_LINE );
-					message.append( "Specified prefix not added, but behavior continues as expected." + Constants.NEW_LINE );
-					message.append( "  Specified Prefix: " + prefix + Constants.NEW_LINE );
-					message.append( "  Existing Prefix: " + delegationPrefix );
+					final StringBuilder message = new StringBuilder();
+					message.append( "Attempting to a delegation prefix that is more specific than an existing delegation prefix." ).append( Constants.NEW_LINE )
+                        .append( "Specified prefix not added, but behavior continues as expected." ).append( Constants.NEW_LINE )
+                        .append( "  Specified Prefix: " ).append( prefix ).append( Constants.NEW_LINE )
+                        .append( "  Existing Prefix: " ).append( delegationPrefix );
 					LOGGER.warn( message.toString() );
 					
 					// should act as if the delegation prefix was added, because the behavior is the same
@@ -271,11 +271,11 @@ public class DiffusiveLoader extends Loader {
 				}
 				else if( delegationPrefix.startsWith( prefix ) )
 				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "Attempting to a delegation prefix that is more general than an existing delegation prefix." + Constants.NEW_LINE );
-					message.append( "Specified prefix will be added, but the more specific one will be removed." + Constants.NEW_LINE );
-					message.append( "  Specified Prefix: " + prefix + Constants.NEW_LINE );
-					message.append( "  Existing Prefix: " + delegationPrefix );
+					final StringBuilder message = new StringBuilder();
+					message.append( "Attempting to a delegation prefix that is more general than an existing delegation prefix." ).append( Constants.NEW_LINE )
+                            .append( "Specified prefix will be added, but the more specific one will be removed." ).append( Constants.NEW_LINE )
+                            .append( "  Specified Prefix: " ).append( prefix ).append( Constants.NEW_LINE )
+                            .append( "  Existing Prefix: " ).append( delegationPrefix );
 					LOGGER.warn( message.toString() );
 					
 					// should act as if the delegation prefix was added, because the behavior is the same
@@ -431,18 +431,18 @@ public class DiffusiveLoader extends Loader {
 				}
 				if( configurationMethod == null )
 				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "Error finding a method annotated with @Configure" + Constants.NEW_LINE );
-					message.append( "  Configuration Class: " + className + Constants.NEW_LINE );
+					final StringBuilder message = new StringBuilder();
+					message.append( "Error finding a method annotated with @" ).append( DiffusiveConfiguration.class.getSimpleName() ).append( Constants.NEW_LINE )
+					        .append( "  Configuration Class: " ).append( className ).append( Constants.NEW_LINE );
 					LOGGER.warn( message.toString() );
 				}
 			}
 			catch( InvocationTargetException e )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Error invoking target method." + Constants.NEW_LINE );
-				message.append( "  Class Name: " + className + Constants.NEW_LINE );
-				message.append( "  Method Name: " + configurationMethod.getName() );
+				final StringBuilder message = new StringBuilder();
+				message.append( "Error invoking target method." ).append( Constants.NEW_LINE )
+                        .append( "  Class Name: " ).append( className ).append( Constants.NEW_LINE )
+                        .append( "  Method Name: " ).append( configurationMethod.getName() );
 				LOGGER.error( message.toString(), e );
 				throw new IllegalArgumentException( message.toString(), e );
 			}
