@@ -30,6 +30,7 @@ bin
 # Development environments #
 ############################
 .idea/*
+*.iml
 
 # OS generated files #
 ######################
