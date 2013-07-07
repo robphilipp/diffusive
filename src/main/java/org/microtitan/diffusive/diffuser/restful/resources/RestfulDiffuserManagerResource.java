@@ -255,10 +255,11 @@ public class RestfulDiffuserManagerResource {
 		{
 			try
 			{
-                final String jarRegex = "^[a-zA-z]{1}\\:\\/(\\S)*";
+//                final String windowsDirRegex = "^[a-zA-z]{1}\\:\\/(\\S)*";
+                final String windowsDirRegex = "^[a-zA-Z]:/(\\S)*";
 				final String baseDir = System.getProperty( "user.dir" ).replace( '\\', '/' );
 				URL baseUrl;
-				if( Pattern.matches( jarRegex, baseDir ) )
+				if( Pattern.matches( windowsDirRegex, baseDir ) )
 				{
 					baseUrl = new URL( "file", null, "///" + baseDir + "/" );
 				}
@@ -276,7 +277,7 @@ public class RestfulDiffuserManagerResource {
 							// jar path is absolute (unix, mac, or windows /C:/dddd...)
 							urls.add( new URL( "file", null, "//" + path ) );
 						}
-						else if( Pattern.matches( jarRegex, path ) )
+						else if( Pattern.matches( windowsDirRegex, path ) )
 						{
 							// jar path is absolute (windows C:/dddd...)
 							urls.add( new URL( "file", null, "///" + path ) );
@@ -305,7 +306,7 @@ public class RestfulDiffuserManagerResource {
 				message.append( "  Specified jar paths: " ).append( Constants.NEW_LINE );
 				for( String path : jarPaths )
 				{
-					message.append( "  Path: " ).append( path ).append( Constants.NEW_LINE );
+					message.append( "  Path: " ).append(path).append(Constants.NEW_LINE);
 				}
 				LOGGER.info( message.toString(), e );
 				throw new IllegalArgumentException( message.toString(), e );
@@ -358,10 +359,10 @@ public class RestfulDiffuserManagerResource {
 
 		// create the response
 		return Response.created( diffuserUri )
-                          .status( Status.OK )
-                          .location( diffuserUri )
-                          .entity( feed.toString() )
-                          .type( MediaType.APPLICATION_ATOM_XML )
+                          .status(Status.OK)
+                          .location(diffuserUri)
+                          .entity(feed.toString())
+                          .type(MediaType.APPLICATION_ATOM_XML)
                           .build();
 	}
 	
@@ -498,14 +499,14 @@ public class RestfulDiffuserManagerResource {
 		if( !requestArgTypes.equals( argumentTypes ) )
 		{
 			final StringBuilder message = new StringBuilder();
-			message.append( "The RESTful diffuser's argument types do not match those from the request" ).append( Constants.NEW_LINE );
-			message.append( "  Signature: " ).append( signature ).append( Constants.NEW_LINE );
-			message.append( "  Argument types based on DiffuserId (signature)" ).append( Constants.NEW_LINE );
+			message.append( "The RESTful diffuser's argument types do not match those from the request" ).append(Constants.NEW_LINE);
+			message.append( "  Signature: " ).append(signature).append(Constants.NEW_LINE);
+			message.append( "  Argument types based on DiffuserId (signature)" ).append(Constants.NEW_LINE);
 			for( String type : argumentTypes )
 			{
 				message.append( "    " ).append( type ).append( Constants.NEW_LINE );
 			}
-			message.append( "  Argument types based on the execute diffuser request" ).append( Constants.NEW_LINE );
+			message.append( "  Argument types based on the execute diffuser request" ).append(Constants.NEW_LINE);
 			for( String type : requestArgTypes )
 			{
 				message.append( "    " ).append( type ).append( Constants.NEW_LINE );
@@ -518,9 +519,9 @@ public class RestfulDiffuserManagerResource {
 		if( !request.getReturnType().equals( diffuserId.getReturnTypeClassName() ) )
 		{
 			final StringBuilder message = new StringBuilder();
-			message.append( "Error: diffused method's return type from the signature doesn't match the return type from the request" ).append( Constants.NEW_LINE );
-			message.append( "  " ).append( ExecuteDiffuserRequest.class.getSimpleName() ).append( "\'s return type: " ).append( request.getReturnType() ).append( Constants.NEW_LINE );
-			message.append( "  Signature's return type: " ).append( diffuserId.getReturnTypeClassName() );
+			message.append( "Error: diffused method's return type from the signature doesn't match the return type from the request" ).append(Constants.NEW_LINE);
+			message.append( "  " ).append(ExecuteDiffuserRequest.class.getSimpleName()).append("\'s return type: ").append(request.getReturnType()).append(Constants.NEW_LINE);
+			message.append( "  Signature's return type: " ).append(diffuserId.getReturnTypeClassName());
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
@@ -544,10 +545,10 @@ public class RestfulDiffuserManagerResource {
 			catch( IOException e )
 			{
 				final StringBuilder message = new StringBuilder();
-				message.append( "Error closing the ByteArrayInputStream for argument: " ).append( i ).append( Constants.NEW_LINE );
-				message.append( "  Signature (Key): " ).append( signature ).append( Constants.NEW_LINE );
-				message.append( "  Argument Number: " ).append( i ).append( Constants.NEW_LINE );
-				message.append( "  Argument Type: " ).append( argumentTypes.get( i ) ).append( Constants.NEW_LINE );
+				message.append( "Error closing the ByteArrayInputStream for argument: " ).append(i).append( Constants.NEW_LINE );
+				message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+				message.append( "  Argument Number: " ).append(i).append(Constants.NEW_LINE);
+				message.append( "  Argument Type: " ).append(argumentTypes.get(i)).append(Constants.NEW_LINE);
 				LOGGER.error( message.toString() );
 				throw new IllegalArgumentException( message.toString() );
 			}
@@ -559,10 +560,10 @@ public class RestfulDiffuserManagerResource {
 		if( !objectType.equals( diffuserId.getClassName() ) )
 		{
 			final StringBuilder message = new StringBuilder();
-			message.append( "Error occured while attempting to deserialize the result. The result's type specified in the request" ).append( Constants.NEW_LINE );
-			message.append( "does not match the result's type specified in the path signature." ).append( Constants.NEW_LINE );
-			message.append( "  Path Signature's Object Type: " ).append( diffuserId.getClassName() ).append( Constants.NEW_LINE );
-			message.append( "  Request Object Type: " ).append( request.getObjectType() ).append( Constants.NEW_LINE );
+			message.append( "Error occured while attempting to deserialize the result. The result's type specified in the request" ).append(Constants.NEW_LINE);
+			message.append( "does not match the result's type specified in the path signature." ).append(Constants.NEW_LINE);
+			message.append( "  Path Signature's Object Type: " ).append(diffuserId.getClassName()).append(Constants.NEW_LINE);
+			message.append( "  Request Object Type: " ).append(request.getObjectType()).append(Constants.NEW_LINE);
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
@@ -576,12 +577,12 @@ public class RestfulDiffuserManagerResource {
 		if( diffuserEntry == null )
 		{
 			final StringBuilder message = new StringBuilder();
-			message.append( "Could not find a RESTful diffuser with the specified key." ).append( Constants.NEW_LINE );
-			message.append( "  Signature (Key): " ).append( signature ).append( Constants.NEW_LINE );
-			message.append( "  Available diffusers:" ).append( Constants.NEW_LINE );
+			message.append( "Could not find a RESTful diffuser with the specified key." ).append(Constants.NEW_LINE);
+			message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+			message.append( "  Available diffusers:" ).append(Constants.NEW_LINE);
 			for( String key : diffusers.keySet() )
 			{
-				message.append( "  " ).append( key ).append( Constants.NEW_LINE );
+				message.append( "  " ).append(key).append(Constants.NEW_LINE);
 			}
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
@@ -671,12 +672,12 @@ public class RestfulDiffuserManagerResource {
 			if( LOGGER.isInfoEnabled() )
 			{
 				final StringBuilder message = new StringBuilder();
-				message.append( "Failed to load class from system class path, attempting to use URL class loader." ).append( Constants.NEW_LINE );
-				message.append( "  Signature (Key): " ).append( signature ).append( Constants.NEW_LINE );
-				message.append( "  Class Name: " ).append( classname ).append( Constants.NEW_LINE );
-				message.append( "  Class Loader: " ).append( this.getClass().getClassLoader().getClass().getName() ).append( Constants.NEW_LINE );
-				message.append( "  System Class Path: " ).append( Constants.NEW_LINE );
-				message.append( "    " ).append( System.getProperty( "java.class.path" ) );
+				message.append( "Failed to load class from system class path, attempting to use URL class loader." ).append(Constants.NEW_LINE);
+				message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+				message.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
+				message.append( "  Class Loader: " ).append(this.getClass().getClassLoader().getClass().getName()).append(Constants.NEW_LINE);
+				message.append( "  System Class Path: " ).append(Constants.NEW_LINE);
+				message.append( "    " ).append(System.getProperty("java.class.path"));
 				LOGGER.info( message.toString(), e );
 			}
 			
@@ -687,14 +688,14 @@ public class RestfulDiffuserManagerResource {
 			catch( ClassNotFoundException e2 )
 			{
 				final StringBuilder message = new StringBuilder();
-				message.append( "Failed to load class using URL class loader, attempting to use specific diffuser URL class loader." ).append( Constants.NEW_LINE );
-				message.append( "  Signature (Key): " ).append( signature ).append( Constants.NEW_LINE );
-				message.append( "  Class Name: " ).append( classname ).append( Constants.NEW_LINE );
-				message.append( "  Class Loader: " ).append( urlClassLoader.getClass().getName() ).append( Constants.NEW_LINE );
+				message.append( "Failed to load class using URL class loader, attempting to use specific diffuser URL class loader." ).append(Constants.NEW_LINE);
+				message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+				message.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
+				message.append( "  Class Loader: " ).append(urlClassLoader.getClass().getName()).append(Constants.NEW_LINE);
 				message.append( "  URL Class Path: " );
 				for( URL url : urlClassLoader.getURLs() )
 				{
-					message.append( Constants.NEW_LINE ).append( "    " ).append( url.toString() );
+					message.append( Constants.NEW_LINE ).append("    ").append(url.toString());
 				}
 				LOGGER.info( message.toString(), e2 );
 			
@@ -718,10 +719,10 @@ public class RestfulDiffuserManagerResource {
 						catch( ClassNotFoundException e1 )
 						{
 							final StringBuilder message2 = new StringBuilder();
-							message2.append( "Error loading class:" ).append( Constants.NEW_LINE );
-							message2.append( "  Signature (Key): " ).append( signature ).append( Constants.NEW_LINE );
-							message2.append( "  Class Name: " ).append( classname ).append( Constants.NEW_LINE );
-							message2.append( "  Class Loader: " ).append( loader.getClass().getName() );
+							message2.append( "Error loading class:" ).append(Constants.NEW_LINE);
+							message2.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+							message2.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
+							message2.append( "  Class Loader: " ).append(loader.getClass().getName());
 							LOGGER.error( message2.toString(), e1 );
 							throw new IllegalArgumentException( message2.toString(), e1 );
 						}
@@ -729,10 +730,10 @@ public class RestfulDiffuserManagerResource {
 						if( LOGGER.isDebugEnabled() )
 						{
 							final StringBuilder message2 = new StringBuilder();
-							message2.append( "Loaded class:" ).append( Constants.NEW_LINE );
-							message2.append( "  Signature (Key): " ).append( signature ).append( Constants.NEW_LINE );
-							message2.append( "  Class Name: " ).append( classname ).append( Constants.NEW_LINE );
-							message2.append( "  Class Loader: " ).append( loader.getClass().getName() );
+							message2.append( "Loaded class:" ).append(Constants.NEW_LINE);
+							message2.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+							message2.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
+							message2.append( "  Class Loader: " ).append(loader.getClass().getName());
 							LOGGER.debug( message2.toString() );
 						}
 					}
@@ -740,9 +741,9 @@ public class RestfulDiffuserManagerResource {
 				else
 				{
 	    			final StringBuilder message2 = new StringBuilder();
-	    			message2.append( "Error occured while attempting to deserialize the method's arguments. The Class for the argument's type not found." ).append( Constants.NEW_LINE );
-	    			message2.append( "  Signature (Key): " ).append( signature ).append( Constants.NEW_LINE );
-	    			message2.append( "  Class Name: " ).append( classname );
+	    			message2.append( "Error occured while attempting to deserialize the method's arguments. The Class for the argument's type not found." ).append(Constants.NEW_LINE);
+	    			message2.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+	    			message2.append( "  Class Name: " ).append(classname);
 	    			LOGGER.error( message2.toString() );
 	    			throw new IllegalArgumentException( message2.toString() );
 				}
@@ -769,9 +770,9 @@ public class RestfulDiffuserManagerResource {
 		catch( IOException e )
 		{
 			final StringBuilder message = new StringBuilder();
-			message.append( "Error closing the ByteArrayInputStream for the result." ).append( Constants.NEW_LINE );
-			message.append( "  Class Type: " ).append( clazz.getName() ).append( Constants.NEW_LINE );
-			message.append( "  Object Type: " ).append( request.getObjectType() ).append( Constants.NEW_LINE );
+			message.append( "Error closing the ByteArrayInputStream for the result." ).append(Constants.NEW_LINE);
+			message.append( "  Class Type: " ).append(clazz.getName()).append(Constants.NEW_LINE);
+			message.append( "  Object Type: " ).append(request.getObjectType()).append(Constants.NEW_LINE);
 			LOGGER.error( message.toString() );
 			throw new IllegalArgumentException( message.toString() );
 		}
@@ -868,10 +869,10 @@ public class RestfulDiffuserManagerResource {
 			{
 				final StringBuilder message = new StringBuilder();
 				message.append( "Error occured while attempting to close the byte array output stream for the serialized result result." );
-				message.append( "  Signature (Key): " ).append( signature ).append( Constants.NEW_LINE );
-				message.append( "  Result URI: " ).append( resultUri.toString() ).append( Constants.NEW_LINE );
-				message.append( "  Cache Key: " ).append( cacheKey ).append( Constants.NEW_LINE );
-				message.append( "  Creation Date: " ).append( date ).append( Constants.NEW_LINE );
+				message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+				message.append( "  Result URI: " ).append(resultUri.toString()).append(Constants.NEW_LINE);
+				message.append( "  Cache Key: " ).append(cacheKey).append(Constants.NEW_LINE);
+				message.append( "  Creation Date: " ).append(date).append(Constants.NEW_LINE);
 				LOGGER.error( message.toString() );
 				throw new IllegalArgumentException( message.toString() );
 			}
@@ -882,7 +883,7 @@ public class RestfulDiffuserManagerResource {
 
 				final Entry entry = Atom.createEntry();
 				entry.setId( requestId );
-				entry.setContent( "Failded to retrieve result." + Constants.NEW_LINE + e.getMessage(), MediaType.TEXT_PLAIN );
+				entry.setContent("Failded to retrieve result." + Constants.NEW_LINE + e.getMessage(), MediaType.TEXT_PLAIN);
 				feed.addEntry( entry );
 				
 				response = Response.created( resultUri )
@@ -1157,26 +1158,26 @@ public class RestfulDiffuserManagerResource {
 				if( configurationMethod == null )
 				{
 					final StringBuilder message = new StringBuilder();
-					message.append( "Error finding a method annotated with @DiffusiveServerConfiguration" ).append( Constants.NEW_LINE );
-					message.append( "  Configuration Class: " ).append( className ).append( Constants.NEW_LINE );
+					message.append( "Error finding a method annotated with @DiffusiveServerConfiguration" ).append(Constants.NEW_LINE);
+					message.append( "  Configuration Class: " ).append(className).append(Constants.NEW_LINE);
 					LOGGER.warn( message.toString() );
 				}
 			}
 			catch( InvocationTargetException | IllegalAccessException e )
 			{
 				final StringBuilder message = new StringBuilder();
-				message.append( "Error invoking target method." ).append( Constants.NEW_LINE );
-				message.append( "  Class Name: " ).append( className ).append( Constants.NEW_LINE );
-				message.append( "  Method Name: " ).append( configurationMethod.getName() );
+				message.append( "Error invoking target method." ).append(Constants.NEW_LINE);
+				message.append( "  Class Name: " ).append(className).append(Constants.NEW_LINE);
+				message.append( "  Method Name: " ).append(configurationMethod.getName());
 				LOGGER.error( message.toString(), e );
 				throw new IllegalArgumentException( message.toString(), e );
 			}
 			catch( ClassNotFoundException e )
 			{
 				final StringBuilder message = new StringBuilder();
-				message.append( "Unable to load the configuration class. " ).append( RestfulDiffuserServer.class.getName() );
-				message.append( " may not have been configured properly." ).append( Constants.NEW_LINE );
-				message.append( "  Configuration Class: " ).append( className ).append( Constants.NEW_LINE );
+				message.append( "Unable to load the configuration class. " ).append(RestfulDiffuserServer.class.getName());
+				message.append( " may not have been configured properly." ).append(Constants.NEW_LINE);
+				message.append( "  Configuration Class: " ).append(className).append(Constants.NEW_LINE);
 				LOGGER.warn( message.toString() );
 			}
 		}
