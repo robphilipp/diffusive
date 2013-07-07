@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.freezedry.persistence.utils.Constants;
+import org.microtitan.diffusive.Constants;
 
 /**
  * Cache that holds a maximum specified elements. When the maximum number of elements is

@@ -15,8 +15,6 @@
  */
 package org.microtitan.diffusive.containers;
 
-import org.freezedry.persistence.copyable.Copyable;
-
 /**
  * Simple class to represent the concept of a pair. 
  * 

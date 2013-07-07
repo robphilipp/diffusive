@@ -15,22 +15,14 @@
  */
 package org.microtitan.diffusive.diffuser.restful.client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
-
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.WebResource;
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
@@ -43,14 +35,17 @@ import org.microtitan.diffusive.diffuser.restful.response.ListDiffuserResponse;
 import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
-import org.microtitan.diffusive.diffuser.serializer.XmlPersistenceSerializer;
 import org.microtitan.diffusive.utils.ReflectionUtils;
-import org.microtitan.tests.Bean;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+//import org.microtitan.tests.Bean;
 
 /**
  * Client that wraps the RESTful API for interacting with RESTful diffusers in a convenient Java wrapper.
@@ -694,74 +689,74 @@ public class RestfulDiffuserManagerClient {
 		return argumentTypeNames;
 	}
 
-	public static void main( String[] args ) throws URISyntaxException, InterruptedException
-	{
-		DOMConfigurator.configure( "log4j.xml" );
-//		Logger.getRootLogger().setLevel( Level.DEBUG );
-
-		// create the Java API client to interact with the Restful Diffuser Manager Server
-		final RestfulDiffuserManagerClient managerClient = new RestfulDiffuserManagerClient( "http://localhost:8182/diffusers" );
-		
-		final Bean bean = new Bean();
-		
-		//
-		// create a diffuser
-		//
-		CreateDiffuserResponse createResponse = managerClient.createDiffuser( new ArrayList< URI >(), String.class, bean.getClass(), "getA" );
-		System.out.println( "Create getA: " + createResponse.toString() + Constants.NEW_LINE );
-		
-		// and another
-		createResponse = managerClient.createDiffuser( new ArrayList< URI >(), bean.getClass(), "setA", new Class< ? >[] { String.class } );
-		System.out.println( "Create setA: " + createResponse.toString() + Constants.NEW_LINE );
-
-		//
-		// list the diffusers
-		//
-		ListDiffuserResponse listResponse = managerClient.getDiffuserList();
-		System.out.println( listResponse.toString() + Constants.NEW_LINE );
-		
-		//
-		// delete a diffuser
-		//
-		DeleteDiffuserResponse deleteResponse = managerClient.deleteDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
-		System.out.println( "Delete setA: " + deleteResponse.toString() + Constants.NEW_LINE );
-
-		//
-		// list the diffusers
-		//
-		listResponse = managerClient.getDiffuserList();
-		System.out.println( listResponse.toString() + Constants.NEW_LINE );
-		
-		//
-		// execute some of the methods and grab their results
-		//
-		final Serializer serializer = new XmlPersistenceSerializer();
-		
-		// write the object to a byte array and the reconstitute the object
-		ExecuteDiffuserResponse executeResponse = null;
-		try( final ByteArrayOutputStream out = new ByteArrayOutputStream() )
-		{
-			serializer.serialize( bean, out );
-			out.flush();
-			executeResponse = managerClient.executeMethod( String.class, bean.getClass(), "getA", out.toByteArray(), serializer );
-			System.out.println( executeResponse.toString() );
-		}
-		catch( IOException e )
-		{
-			e.printStackTrace();
-		}
-
-		// grab the result of the call
-		final DiffuserSignature diffuserId = DiffuserSignature.parse( executeResponse.getSignature() );
-		final String methodName = diffuserId.getMethodName();
-		final Class< ? > clazz = diffuserId.getClazz();
-		String result = null;
-		do
-		{
-			result = managerClient.getResult( String.class, clazz, methodName, executeResponse.getRequestId(), serializer );
-			System.out.println( result );
-			Thread.sleep( 500 );
-		}
-		while( result == null );
-	}
+//	public static void main( String[] args ) throws URISyntaxException, InterruptedException
+//	{
+//		DOMConfigurator.configure( "log4j.xml" );
+////		Logger.getRootLogger().setLevel( Level.DEBUG );
+//
+//		// create the Java API client to interact with the Restful Diffuser Manager Server
+//		final RestfulDiffuserManagerClient managerClient = new RestfulDiffuserManagerClient( "http://localhost:8182/diffusers" );
+//
+//		final Bean bean = new Bean();
+//
+//		//
+//		// create a diffuser
+//		//
+//		CreateDiffuserResponse createResponse = managerClient.createDiffuser( new ArrayList< URI >(), String.class, bean.getClass(), "getA" );
+//		System.out.println( "Create getA: " + createResponse.toString() + Constants.NEW_LINE );
+//
+//		// and another
+//		createResponse = managerClient.createDiffuser( new ArrayList< URI >(), bean.getClass(), "setA", new Class< ? >[] { String.class } );
+//		System.out.println( "Create setA: " + createResponse.toString() + Constants.NEW_LINE );
+//
+//		//
+//		// list the diffusers
+//		//
+//		ListDiffuserResponse listResponse = managerClient.getDiffuserList();
+//		System.out.println( listResponse.toString() + Constants.NEW_LINE );
+//
+//		//
+//		// delete a diffuser
+//		//
+//		DeleteDiffuserResponse deleteResponse = managerClient.deleteDiffuser( bean.getClass(), "setA", new Class< ? >[] { String.class } );
+//		System.out.println( "Delete setA: " + deleteResponse.toString() + Constants.NEW_LINE );
+//
+//		//
+//		// list the diffusers
+//		//
+//		listResponse = managerClient.getDiffuserList();
+//		System.out.println( listResponse.toString() + Constants.NEW_LINE );
+//
+//		//
+//		// execute some of the methods and grab their results
+//		//
+//		final Serializer serializer = new XmlPersistenceSerializer();
+//
+//		// write the object to a byte array and the reconstitute the object
+//		ExecuteDiffuserResponse executeResponse = null;
+//		try( final ByteArrayOutputStream out = new ByteArrayOutputStream() )
+//		{
+//			serializer.serialize( bean, out );
+//			out.flush();
+//			executeResponse = managerClient.executeMethod( String.class, bean.getClass(), "getA", out.toByteArray(), serializer );
+//			System.out.println( executeResponse.toString() );
+//		}
+//		catch( IOException e )
+//		{
+//			e.printStackTrace();
+//		}
+//
+//		// grab the result of the call
+//		final DiffuserSignature diffuserId = DiffuserSignature.parse( executeResponse.getSignature() );
+//		final String methodName = diffuserId.getMethodName();
+//		final Class< ? > clazz = diffuserId.getClazz();
+//		String result = null;
+//		do
+//		{
+//			result = managerClient.getResult( String.class, clazz, methodName, executeResponse.getRequestId(), serializer );
+//			System.out.println( result );
+//			Thread.sleep( 500 );
+//		}
+//		while( result == null );
+//	}
 }
