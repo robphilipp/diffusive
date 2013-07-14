@@ -60,8 +60,6 @@ import org.apache.log4j.Logger;
 import org.freezedry.persistence.XmlPersistence;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
-import org.microtitan.diffusive.classloaders.RestfulClassLoader;
-import org.microtitan.diffusive.classloaders.RestfulDiffuserClassLoader;
 import org.microtitan.diffusive.classloaders.factories.ClassLoaderFactory;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
@@ -69,7 +67,6 @@ import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserInfo;
 import org.microtitan.diffusive.diffuser.restful.atom.Atom;
-import org.microtitan.diffusive.diffuser.restful.client.RestfulDiffuserManagerClient;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.resources.cache.FifoResultsCache;
@@ -82,7 +79,6 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
 import org.microtitan.diffusive.diffuser.strategy.load.TaskCpuLoadCalc;
-import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 import org.microtitan.diffusive.utils.ReflectionUtils;
 
 /**
