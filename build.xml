@@ -190,7 +190,7 @@
 		
 		<copy file="${java-libs}/${jersey-libs}/${grizzly_framework}" todir="${dist}/lib" />
 		<copy file="${java-libs}/${jersey-libs}/${grizzly_http}" todir="${dist}/lib" />
-		<copy file="${java-libs}/${jersey-libs}/${grizzly_http_server}" todir="${dist}/lib" />
+		<!--<copy file="${java-libs}/${jersey-libs}/${grizzly_http_server}" todir="${dist}/lib" />-->
 		<copy file="${java-libs}/${jersey-libs}/${jersey_grizzly}" todir="${dist}/lib" />
 		<copy file="${java-libs}/${jersey-libs}/${jersey-bundle}" todir="${dist}/lib" />
 
