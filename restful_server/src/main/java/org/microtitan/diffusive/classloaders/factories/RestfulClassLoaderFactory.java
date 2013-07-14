@@ -15,10 +15,10 @@
  */
 package org.microtitan.diffusive.classloaders.factories;
 
+import org.microtitan.diffusive.classloaders.RestfulClassLoader;
+
 import java.net.URI;
 import java.util.List;
-
-import org.microtitan.diffusive.classloaders.RestfulClassLoader;
 
 /**
  * Factory for creating RESTful class loaders. These are class loaders that go against a RESTful
