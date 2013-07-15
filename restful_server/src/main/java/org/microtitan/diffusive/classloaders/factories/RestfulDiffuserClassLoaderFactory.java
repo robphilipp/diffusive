@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.classloaders.RestfulDiffuserClassLoader;
-import org.microtitan.diffusive.converter.MethodIntercepterEditor;
+import org.microtitan.diffusive.converter.MethodInterceptorEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
@@ -86,8 +86,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
 	 * @param delegationPrefixes The list of prefixes to the fully qualified class name. Classes whose fully qualified class
 	 * names start with one of these prefixes are loaded by the parent class loader instead of this one.
-	 * @param parentLoader the parent class loader of this class loader
-	 * @param classPool the source of the class files
+	 * @param pool the source of the class files
 	 */
 	public void set( final Map< String, Object[] > configClasses, final List< String > delegationPrefixes, final ClassPool pool )
 	{
@@ -103,7 +102,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
 	 * with the @{@link DiffusiveConfiguration} annotation. Associated with each configuration class is
 	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
-	 * @param classPool the source of the class files
+	 * @param pool the source of the class files
 	 */
 	public void set( final Map< String, Object[] > configClasses, final ClassPool pool )
 	{
@@ -113,7 +112,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	
 	/**
 	 * Sets the specified parameters. None of the parameter objects should be null, and none of the lists should be empty. 
-	 * @param classPool the source of the class files
+	 * @param pool the source of the class files
 	 */
 	public void set( final ClassPool pool )
 	{
@@ -125,7 +124,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 * @param expressionEditor The expression editor containing the code that replaces the method call
 	 * @return A new translator for rewriting method calls to diffused methods
 	 */
-	private static DiffusiveTranslator createDefaultTranslator( final MethodIntercepterEditor expressionEditor )
+	private static DiffusiveTranslator createDefaultTranslator( final MethodInterceptorEditor expressionEditor )
 	{
 		return new BasicDiffusiveTranslator( expressionEditor );
 	}
@@ -134,11 +133,11 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	 * Creates a default method intercepter using the specified {@link Diffuser}
 	 * @param signature The base signature of the associated diffuser. Method calls with this signature won't be
 	 * diffused further.
-	 * @return creates and returns a {@link MethodIntercepterEditor} with a local {@link Diffuser}
+	 * @return creates and returns a {@link org.microtitan.diffusive.converter.MethodInterceptorEditor} with a local {@link Diffuser}
 	 */
-	private static MethodIntercepterEditor createDefaultMethodIntercepter( final String signature )
+	private static MethodInterceptorEditor createDefaultMethodIntercepter( final String signature )
 	{
-		return new MethodIntercepterEditor( signature );
+		return new MethodInterceptorEditor( signature );
 	}
 
 	/*

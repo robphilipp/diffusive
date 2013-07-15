@@ -15,15 +15,11 @@
  */
 package org.microtitan.diffusive.converter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
-
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.Diffusive;
@@ -31,6 +27,9 @@ import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
 import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Method interceptor editor is responsible for writing the method-call replacement code that is
@@ -41,9 +40,9 @@ import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManage
  * 
  * @author Robert Philipp
  */
-public class MethodIntercepterEditor extends ExprEditor {
+public class MethodInterceptorEditor extends ExprEditor {
 	
-	private static final Logger LOGGER = Logger.getLogger( MethodIntercepterEditor.class );
+	private static final Logger LOGGER = Logger.getLogger( MethodInterceptorEditor.class );
 
 	private final DiffuserSignature diffuserId;
 	private final boolean isUseSignature;
@@ -69,7 +68,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 	 * If the base signature is specified, and the method call is to a method that has the same signature,
 	 * then the method call is not replaced by a call to the diffuser's runObject(...) method.
 	 */
-	public MethodIntercepterEditor( final String baseSignature )
+	public MethodInterceptorEditor(final String baseSignature)
 	{
 		if( DiffuserSignature.isValid( baseSignature ) )
 		{
@@ -85,9 +84,9 @@ public class MethodIntercepterEditor extends ExprEditor {
 	
 	/**
 	 * Default no arg constructor that sets the {@link #isUseSignature} to false.
-	 * @see #MethodIntercepterEditor(String)
+	 * @see #MethodInterceptorEditor(String)
 	 */
-	public MethodIntercepterEditor()
+	public MethodInterceptorEditor()
 	{
 		this( null );
 	}

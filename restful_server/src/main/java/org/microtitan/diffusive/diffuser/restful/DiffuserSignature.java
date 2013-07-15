@@ -454,7 +454,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * where the "{@code class}" is the fully qualified class name; the method is the name of the method;
 	 * the arguments are all the fully qualified class names of the argument; and the {@code returnType}
 	 * is the fully qualified class name of the return type (which could be {@code void.class}.
-	 * @param signature2 The signature
+	 * @param signature The signature
 	 * @return true if the specified signature is a valid signature; false otherwise
 	 */
 	public static boolean isValid( final String signature )

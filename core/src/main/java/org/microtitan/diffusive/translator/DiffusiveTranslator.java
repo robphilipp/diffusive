@@ -19,7 +19,7 @@ import javassist.ClassPool;
 import javassist.Loader;
 import javassist.Translator;
 
-import org.microtitan.diffusive.converter.MethodIntercepterEditor;
+import org.microtitan.diffusive.converter.MethodInterceptorEditor;
 
 /**
  * Observer of the {@link Loader}, which calls the {@link #start(ClassPool)} and {@link #onLoad(ClassPool, String)}
@@ -32,15 +32,15 @@ import org.microtitan.diffusive.converter.MethodIntercepterEditor;
 public interface DiffusiveTranslator extends Translator {
 
 	/**
-	 * @return The {@link MethodIntercepterEditor} used to create the source code for the intercepted method call
+	 * @return The {@link org.microtitan.diffusive.converter.MethodInterceptorEditor} used to create the source code for the intercepted method call
 	 */
-	MethodIntercepterEditor getExpressionEditor();
+	MethodInterceptorEditor getExpressionEditor();
 	
 	/**
-	 * Sets the {@link MethodIntercepterEditor} used to create the source code for the intercepted method call
-	 * @param expressionEditor the {@link MethodIntercepterEditor} used to create the source code for the 
+	 * Sets the {@link org.microtitan.diffusive.converter.MethodInterceptorEditor} used to create the source code for the intercepted method call
+	 * @param expressionEditor the {@link org.microtitan.diffusive.converter.MethodInterceptorEditor} used to create the source code for the
 	 * intercepted method call
-	 * @return the {@link MethodIntercepterEditor} that was replaced by the specified one
+	 * @return the {@link org.microtitan.diffusive.converter.MethodInterceptorEditor} that was replaced by the specified one
 	 */
-	MethodIntercepterEditor setExpressionEditor( final MethodIntercepterEditor expressionEditor );
+	MethodInterceptorEditor setExpressionEditor( final MethodInterceptorEditor expressionEditor );
 }
