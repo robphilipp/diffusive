@@ -24,9 +24,8 @@ import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.Diffusive;
 import org.microtitan.diffusive.diffuser.Diffuser;
+import org.microtitan.diffusive.diffuser.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.KeyedDiffuserRepository;
-import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
-import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,7 @@ public class MethodInterceptorEditor extends ExprEditor {
 	 * there is one diffuser per diffuser method signature, and so we want to use the signature.
 	 * 
 	 * <p>Effectively, the rule-of-thumb is that for application-attached diffusers use the other constructor,
-	 * the one with no arguments; and for diffusers managed by the {@link RestfulDiffuserManagerResource} set
+	 * the one with no arguments; and for diffusers managed by the {@link org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource} set
 	 * the base signature to the signature associated with the diffuser that uses this method intercepter
 	 * to instrument method calls.
 	 * 

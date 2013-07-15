@@ -35,6 +35,7 @@ import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.diffuser.AbstractDiffuser;
+import org.microtitan.diffusive.diffuser.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.LocalDiffuser;
 import org.microtitan.diffusive.diffuser.restful.client.RestfulDiffuserManagerClient;
 import org.microtitan.diffusive.diffuser.restful.response.ExecuteDiffuserResponse;
@@ -329,7 +330,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 					@Override
 					public Object call() throws Exception
 					{
-						final DiffuserSignature diffuserId = DiffuserSignature.parse( executeResponseCopy.getSignature() );
+						final DiffuserSignature diffuserId = DiffuserSignature.parse(executeResponseCopy.getSignature());
 						final Class< ? > clazz = diffuserId.getClazz();
 						final List< Class< ? > > argumentTypes = diffuserId.getArgumentTypes();
 						if( argumentTypes != null && !argumentTypes.isEmpty() )

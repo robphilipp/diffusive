@@ -24,19 +24,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.diffuser.Diffuser;
-import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
-import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory.SerializerType;
-import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 
 /**
  * A request containing the information needed by the {@link org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer} to create a
  * new {@link org.microtitan.diffusive.diffuser.restful.RestfulDiffuser}. This method contains all the information needed to construct the
- * {@link org.microtitan.diffusive.diffuser.restful.DiffuserSignature}, and create the strategy with its end-points.
+ * {@link org.microtitan.diffusive.diffuser.DiffuserSignature}, and create the strategy with its end-points.
  *  
  * @author Robert Philipp
  */

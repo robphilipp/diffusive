@@ -24,7 +24,7 @@ import org.apache.abdera.model.Feed;
 import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
+import org.microtitan.diffusive.diffuser.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.restful.atom.AbderaFactory;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
@@ -32,7 +32,6 @@ import org.microtitan.diffusive.diffuser.restful.response.CreateDiffuserResponse
 import org.microtitan.diffusive.diffuser.restful.response.DeleteDiffuserResponse;
 import org.microtitan.diffusive.diffuser.restful.response.ExecuteDiffuserResponse;
 import org.microtitan.diffusive.diffuser.restful.response.ListDiffuserResponse;
-import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.utils.ReflectionUtils;
@@ -239,12 +238,12 @@ public class RestfulDiffuserManagerClient {
 	 */
 	public DeleteDiffuserResponse deleteDiffuser( final Class< ? > returnType, final Class< ? > clazz, final String methodName,  final Class< ? >...argumentTypes )
 	{
-		return deleteDiffuser( DiffuserSignature.createId( returnType, clazz, methodName, argumentTypes ) );
+		return deleteDiffuser( DiffuserSignature.createId(returnType, clazz, methodName, argumentTypes) );
 	}
 	
 	/**
 	 * Deletes the diffuser with a signature and return type that matches the specified information
-	 * @param signature a {@link org.microtitan.diffusive.diffuser.restful.DiffuserSignature} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link org.microtitan.diffusive.diffuser.DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to delete
 	 * @return An Atom feed containing the information about the deleted diffuser
 	 */
@@ -353,7 +352,7 @@ public class RestfulDiffuserManagerClient {
 	
 	/**
 	 * Executes the specified method 
-	 * @param signature a {@link org.microtitan.diffusive.diffuser.restful.DiffuserSignature} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link org.microtitan.diffusive.diffuser.DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to use to execute the method
 	 * @param serializedObject A {@code byte[]} representation of the object of the {@link Class} that contains 
 	 * the diffusive method being called
@@ -413,7 +412,7 @@ public class RestfulDiffuserManagerClient {
 
 	/**
 	 * Executes the specified method 
-	 * @param signature a {@link org.microtitan.diffusive.diffuser.restful.DiffuserSignature} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link org.microtitan.diffusive.diffuser.DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to use to execute the method
 	 * @param argumentTypes The {@link Class} for each of the formal method parameters of the diffusive method
 	 * @param argumentValues The serialized value of each of the arguments passed to the diffusive method
@@ -449,7 +448,7 @@ public class RestfulDiffuserManagerClient {
 	
 	/**
 	 * Executes the specified method 
-	 * @param signature a {@link org.microtitan.diffusive.diffuser.restful.DiffuserSignature} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link org.microtitan.diffusive.diffuser.DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to use to execute the method
 	 * @param request The {@link org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest} object containing the information needed to execute a diffusive method
 	 * @return An Atom feed that contains a URI from which to obtain the result. 
@@ -540,7 +539,7 @@ public class RestfulDiffuserManagerClient {
 
 	/**
 	 * Requests the result of the {@code executeMethod(...)} request
-	 * @param signature a {@link org.microtitan.diffusive.diffuser.restful.DiffuserSignature} signature (which is different from a Java signature because it includes
+	 * @param signature a {@link org.microtitan.diffusive.diffuser.DiffuserSignature} signature (which is different from a Java signature because it includes
 	 * the return type) of the diffuser to use to execute the method
 	 * @param requestId The request ID generated and returned after the method was executed
 	 * @param serializer The {@link org.microtitan.diffusive.diffuser.serializer.Serializer} used to serialize and deserialize the object
