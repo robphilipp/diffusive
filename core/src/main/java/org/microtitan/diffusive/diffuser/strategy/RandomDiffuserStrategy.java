@@ -89,10 +89,9 @@ public class RandomDiffuserStrategy extends AbstractDiffuserStrategy {
 		return Arrays.asList( getEndpoint( index ) );
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.freezedry.persistence.copyable.Copyable#getCopy()
-	 */
+    /**
+     * @return a cony of the {@link RandomDiffuserStrategy}
+     */
 	@Override
 	public RandomDiffuserStrategy getCopy()
 	{

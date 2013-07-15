@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.microtitan.diffusive.diffuser.restful.resources.cache;
+package org.microtitan.diffusive.diffuser.resources.cache;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
@@ -26,7 +25,7 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
  * The entry into the results cache. Each entry holds the results object and the
  * serializer name used for serializing and deserializing the result object.
  * 
- * @see org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache
+ * @see org.microtitan.diffusive.diffuser.resources.cache.ResultsCache
  * 
  * @author Robert Philipp
  */
@@ -36,7 +35,7 @@ public class ResultCacheEntry< T > {
 	private final String serializerType;
 
 	/**
-	 * Constructs the entry for the {@link org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache}
+	 * Constructs the entry for the {@link org.microtitan.diffusive.diffuser.resources.cache.ResultsCache}
 	 * @param result The {@link java.util.concurrent.Future} that can be queried for the result.
 	 * @param serializerType The name of the serializer used to serialize/deserialize
 	 * the result object (see {@link org.microtitan.diffusive.diffuser.serializer.SerializerFactory.SerializerType} for a list
@@ -49,7 +48,7 @@ public class ResultCacheEntry< T > {
 	}
 
 	/**
-	 * Constructs the entry for the {@link org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache}
+	 * Constructs the entry for the {@link org.microtitan.diffusive.diffuser.resources.cache.ResultsCache}
 	 * @param result The {@link java.util.concurrent.Future} that can be queried for the result.
 	 * @param serializer The serializer used to serialize/deserialize
 	 * the result object (see {@link org.microtitan.diffusive.diffuser.serializer.SerializerFactory} for a list

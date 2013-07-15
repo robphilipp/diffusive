@@ -41,7 +41,7 @@ import org.microtitan.diffusive.classloaders.factories.RestfulDiffuserClassLoade
 import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserApplication;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulClassPathResource;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
-import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
+import org.microtitan.diffusive.diffuser.resources.cache.ResultsCache;
 import org.microtitan.diffusive.diffuser.restful.server.config.RestfulDiffuserServerConfig;
 import org.microtitan.diffusive.diffuser.restful.server.config.ServerMode;
 import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;

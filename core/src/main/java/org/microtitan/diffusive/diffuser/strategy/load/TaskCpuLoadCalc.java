@@ -18,7 +18,7 @@ package org.microtitan.diffusive.diffuser.strategy.load;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 
-import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
+import org.microtitan.diffusive.diffuser.resources.cache.ResultsCache;
 
 /**
  * Load calculator that uses the number of tasks running in the cache divided by the number of

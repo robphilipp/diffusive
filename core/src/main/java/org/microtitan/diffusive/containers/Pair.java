@@ -164,10 +164,9 @@ public class Pair< F, S > implements Copyable< Pair< F, S > > {
 		return asString.toString();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.freezedry.persistence.copyable.Copyable#getCopy()
-	 */
+    /**
+     * @return a copy of the {@link Pair}
+     */
 	@Override
 	public Pair< F, S > getCopy()
 	{

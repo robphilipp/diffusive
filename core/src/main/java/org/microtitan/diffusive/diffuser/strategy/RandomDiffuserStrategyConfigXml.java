@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.freezedry.persistence.annotations.PersistCollection;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.launcher.config.ConfigUtils;
+import org.microtitan.diffusive.utils.ConfigUtils;
 
 /**
  * Holds the configuration for the diffuser strategies.

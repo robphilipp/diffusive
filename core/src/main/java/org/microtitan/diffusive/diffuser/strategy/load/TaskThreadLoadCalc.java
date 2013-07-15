@@ -18,7 +18,7 @@ package org.microtitan.diffusive.diffuser.strategy.load;
 import java.util.concurrent.ExecutorService;
 
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
+import org.microtitan.diffusive.diffuser.resources.cache.ResultsCache;
 
 /**
  * Calculates the load based on the number of running tasks (in the specified cache) divided

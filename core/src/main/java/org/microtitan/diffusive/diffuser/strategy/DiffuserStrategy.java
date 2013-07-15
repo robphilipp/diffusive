@@ -15,17 +15,18 @@
  */
 package org.microtitan.diffusive.diffuser.strategy;
 
+import org.microtitan.diffusive.containers.Copyable;
+
 import java.net.URI;
 import java.util.List;
 
-import org.freezedry.persistence.copyable.Copyable;
 
 /**
  * Interface that defines the strategy for selecting an end-point to which to send the run request.
  * 
  * @author Robert Philipp
  */
-public interface DiffuserStrategy extends Copyable< DiffuserStrategy >{
+public interface DiffuserStrategy extends Copyable< DiffuserStrategy > {
 
 	/**
 	 * @return A list of end-point to which to send the next run/execute request. Each subsequent call

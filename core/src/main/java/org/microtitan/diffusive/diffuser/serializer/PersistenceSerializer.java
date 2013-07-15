@@ -23,7 +23,7 @@ import java.io.OutputStreamWriter;
 
 import org.apache.log4j.Logger;
 import org.freezedry.persistence.Persistence;
-import org.freezedry.persistence.utils.Constants;
+import org.microtitan.diffusive.Constants;
 
 /**
  * Serializes objects into a serializes for specified by the {@link Persistence} engine, and deserializes

@@ -69,9 +69,9 @@ import org.microtitan.diffusive.diffuser.restful.RestfulDiffuserInfo;
 import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.diffuser.restful.request.CreateDiffuserRequest;
 import org.microtitan.diffusive.diffuser.restful.request.ExecuteDiffuserRequest;
-import org.microtitan.diffusive.diffuser.restful.resources.cache.FifoResultsCache;
-import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultCacheEntry;
-import org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache;
+import org.microtitan.diffusive.diffuser.resources.cache.FifoResultsCache;
+import org.microtitan.diffusive.diffuser.resources.cache.ResultCacheEntry;
+import org.microtitan.diffusive.diffuser.resources.cache.ResultsCache;
 import org.microtitan.diffusive.diffuser.restful.server.KeyedDiffusiveStrategyRepository;
 import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
@@ -141,7 +141,7 @@ public class RestfulDiffuserManagerResource {
 	 * Constructs the basic diffuser manager resource that allows clients to interact with the
 	 * diffuser created through this resource. 
 	 * @param executor The executor service to which tasks are submitted
-	 * @param resultsCache The cache holding the execution results in a {@link org.microtitan.diffusive.diffuser.restful.resources.cache.ResultCacheEntry}.
+	 * @param resultsCache The cache holding the execution results in a {@link org.microtitan.diffusive.diffuser.resources.cache.ResultCacheEntry}.
 	 * @param loadCalc The calculator that is used to calculate the load on this machine, and is
 	 * used to determine whether the diffuser will execute the task locally or diffuse it to a 
 	 * remote diffuser.
@@ -210,11 +210,11 @@ public class RestfulDiffuserManagerResource {
 	}
 	
 	/**
-	 * Creates a default {@link org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache} (a {@link org.microtitan.diffusive.diffuser.restful.resources.cache.FifoResultsCache}) with the specified
+	 * Creates a default {@link org.microtitan.diffusive.diffuser.resources.cache.ResultsCache} (a {@link org.microtitan.diffusive.diffuser.resources.cache.FifoResultsCache}) with the specified
 	 * maximum number of cached items.
 	 * @param maxResultsCached The maximum number of cached items.
-	 * @return a newly created {@link org.microtitan.diffusive.diffuser.restful.resources.cache.FifoResultsCache}
-	 * @see org.microtitan.diffusive.diffuser.restful.resources.cache.FifoResultsCache
+	 * @return a newly created {@link org.microtitan.diffusive.diffuser.resources.cache.FifoResultsCache}
+	 * @see org.microtitan.diffusive.diffuser.resources.cache.FifoResultsCache
 	 */
 	public static ResultsCache createResultsCache( final int maxResultsCached )
 	{
@@ -223,8 +223,8 @@ public class RestfulDiffuserManagerResource {
 	
 	/**
 	 * Creates a default {@link org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc} ({@link org.microtitan.diffusive.diffuser.strategy.load.TaskCpuLoadCalc}) with the specified
-	 * {@link org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache} used to determine how many tasks are currently executing.
-	 * @param cache The {@link org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache} used to determine how many tasks are currently executing
+	 * {@link org.microtitan.diffusive.diffuser.resources.cache.ResultsCache} used to determine how many tasks are currently executing.
+	 * @param cache The {@link org.microtitan.diffusive.diffuser.resources.cache.ResultsCache} used to determine how many tasks are currently executing
 	 * @return a newly created {@link org.microtitan.diffusive.diffuser.strategy.load.TaskCpuLoadCalc}
 	 * @see org.microtitan.diffusive.diffuser.strategy.load.TaskCpuLoadCalc
 	 */

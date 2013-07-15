@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.microtitan.diffusive.diffuser.restful.resources.cache;
+package org.microtitan.diffusive.diffuser.resources.cache;
 
 import org.microtitan.diffusive.cache.FifoCache;
 
@@ -54,7 +54,7 @@ public class FifoResultsCache extends FifoCache< String, ResultCacheEntry< Objec
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache#isRunning(java.lang.String)
+	 * @see ResultsCache#isRunning(java.lang.String)
 	 */
 	@Override
 	public synchronized boolean isRunning( final String key )
@@ -70,7 +70,7 @@ public class FifoResultsCache extends FifoCache< String, ResultCacheEntry< Objec
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.microtitan.diffusive.diffuser.restful.resources.cache.ResultsCache#numRunning()
+	 * @see ResultsCache#numRunning()
 	 */
 	@Override
 	public synchronized long getNumRunning()

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.microtitan.diffusive.diffuser.restful.resources.cache;
+package org.microtitan.diffusive.diffuser.resources.cache;
 
 import org.microtitan.diffusive.cache.Cache;
 
 /**
- * Cache for execution results. The keys are {@link String}s and the entry are {@link org.microtitan.diffusive.diffuser.restful.resources.cache.ResultCacheEntry}s
+ * Cache for execution results. The keys are {@link String}s and the entry are {@link org.microtitan.diffusive.diffuser.resources.cache.ResultCacheEntry}s
  * with an {@link Object} parameter type.
  * 
  * @author Robert Philipp
@@ -27,8 +27,7 @@ public interface ResultsCache extends Cache< String, ResultCacheEntry< Object > 
 
 	/**
 	 * Returns true if the task is still running; false otherwise
-	 * @param signature The signature of the task
-	 * @param requestId The ID associated with the request
+	 * @param key The signature of the task
 	 * @return true if the task is still running; false otherwise
 	 */
 	boolean isRunning(final String key);

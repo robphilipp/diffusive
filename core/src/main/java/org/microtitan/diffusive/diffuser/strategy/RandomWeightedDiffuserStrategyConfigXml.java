@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.freezedry.persistence.annotations.PersistMap;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.launcher.config.ConfigUtils;
+import org.microtitan.diffusive.utils.ConfigUtils;
 
 public class RandomWeightedDiffuserStrategyConfigXml implements DiffuserStrategyConfigXml {
 

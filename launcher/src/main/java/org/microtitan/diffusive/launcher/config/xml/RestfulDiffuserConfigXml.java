@@ -43,7 +43,7 @@ import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategyConfigXml;
 import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml;
 import org.microtitan.diffusive.diffuser.strategy.RandomWeightedDiffuserStrategyConfigXml;
 import org.microtitan.diffusive.launcher.DiffusiveLauncher;
-import org.microtitan.diffusive.launcher.config.ConfigUtils;
+import org.microtitan.diffusive.utils.ConfigUtils;
 import org.microtitan.diffusive.utils.NetworkUtils;
 
 /**

@@ -149,10 +149,9 @@ public class RandomWeightedDiffuserStrategy extends AbstractDiffuserStrategy {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.freezedry.persistence.copyable.Copyable#getCopy()
-	 */
+    /**
+     * @return a copy of the {@link RandomWeightedDiffuserStrategy}
+     */
 	@Override
 	public RandomWeightedDiffuserStrategy getCopy()
 	{

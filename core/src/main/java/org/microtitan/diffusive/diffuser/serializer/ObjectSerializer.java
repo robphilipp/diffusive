@@ -22,7 +22,7 @@ import java.io.OutputStream;
 
 import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 import org.apache.log4j.Logger;
-import org.freezedry.persistence.utils.Constants;
+import org.microtitan.diffusive.Constants;
 
 /**
  * Serializes objects into Java serializes form and deserializes them back into objects.

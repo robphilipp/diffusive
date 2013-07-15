@@ -15,19 +15,13 @@
  */
 package org.microtitan.diffusive.diffuser;
 
-import org.apache.abdera.model.Feed;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.containers.Copyable;
-import org.microtitan.diffusive.diffuser.restful.atom.Atom;
 import org.microtitan.diffusive.utils.ReflectionUtils;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -564,11 +558,10 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		// return
 		return new DiffuserSignature( returnClassName, className, methodName, argumentTypes );
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.freezedry.persistence.copyable.Copyable#getCopy()
-	 */
+
+    /**
+     * @return a copy of the {@link DiffuserSignature}
+     */
 	@Override
 	public DiffuserSignature getCopy()
 	{
@@ -653,7 +646,6 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	
 	private static String createObjectArray( final String arrayIdentifier, final String validName )
 	{
-//		return "((" + Pattern.quote( arrayIdentifier ) + ")+[L])?(" + validName + "(\\." + validName + ")*)+";
 		return "((" + Pattern.quote( arrayIdentifier ) + ")+[L])?" + createClassName( validName ) + "+";
 	}
 	
@@ -663,70 +655,70 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	}
 
 	
-	public static void main( String[] args ) throws IllegalArgumentException
-	{
-//		// parse
-//		final String validName = "[a-zA-Z]+[\\w]*";
-//		final String primitiveArray = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[ZBCDFIJS]";
-//		final String objectArray = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[L]";
-//		final String validClassName = "((" + primitiveArray + ")|((" + objectArray + ")?(" + validName + "(\\." + validName + ")*)+))";
-//		final String validMethodName = validName;
-//		final String argumentTypeList = "(" + validClassName + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + validClassName +")*)?";
-//		final String returnTypeClassName = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + validClassName + ")?";
-//		final String regex = "^" + 
-//								validClassName + 
-//								Pattern.quote( CLASS_METHOD_SEPARATOR )+ 
-//								validMethodName + 
-//								Pattern.quote( ARGUMENT_OPEN ) +
-//									argumentTypeList +
-//								Pattern.quote( ARGUMENT_CLOSE ) + 
-//								returnTypeClassName +
-//							 "$";
-//		
-////		final Pattern pattern = Pattern.compile( "^" + argumentTypeList + "$" );
-//		final Pattern pattern = Pattern.compile( regex );
-//		Matcher matcher = pattern.matcher( "java.lang.String:concat([I,[Ljava.lang.String,[I,[Zd)" );
-////		Matcher matcher = pattern.matcher( "[[[I,[Ljava[I" );
-//		if( matcher.find() )
-//		{
-//			System.out.println( matcher.group() );
-//		}
-//		else
-//		{
-//			System.out.println( "not found" );
-//		}
-//		System.exit( 0 );
-		
-//		System.out.println( int[].class.getName() );
-//		System.out.println( int.class.getName() );
-//		System.out.println( String[].class.getName() );
-		DOMConfigurator.configure( "log4j.xml" );
-		Logger.getRootLogger().setLevel( Level.DEBUG );
+//	public static void main( String[] args ) throws IllegalArgumentException
+//	{
+////		// parse
+////		final String validName = "[a-zA-Z]+[\\w]*";
+////		final String primitiveArray = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[ZBCDFIJS]";
+////		final String objectArray = "(" + Pattern.quote( ARRAY_IDENTIFIER ) + ")+[L]";
+////		final String validClassName = "((" + primitiveArray + ")|((" + objectArray + ")?(" + validName + "(\\." + validName + ")*)+))";
+////		final String validMethodName = validName;
+////		final String argumentTypeList = "(" + validClassName + "(" + Pattern.quote( ARGUMENT_SEPARATOR ) + validClassName +")*)?";
+////		final String returnTypeClassName = "(" + Pattern.quote( RETURN_TYPE_SEPARATOR ) + validClassName + ")?";
+////		final String regex = "^" +
+////								validClassName +
+////								Pattern.quote( CLASS_METHOD_SEPARATOR )+
+////								validMethodName +
+////								Pattern.quote( ARGUMENT_OPEN ) +
+////									argumentTypeList +
+////								Pattern.quote( ARGUMENT_CLOSE ) +
+////								returnTypeClassName +
+////							 "$";
+////
+//////		final Pattern pattern = Pattern.compile( "^" + argumentTypeList + "$" );
+////		final Pattern pattern = Pattern.compile( regex );
+////		Matcher matcher = pattern.matcher( "java.lang.String:concat([I,[Ljava.lang.String,[I,[Zd)" );
+//////		Matcher matcher = pattern.matcher( "[[[I,[Ljava[I" );
+////		if( matcher.find() )
+////		{
+////			System.out.println( matcher.group() );
+////		}
+////		else
+////		{
+////			System.out.println( "not found" );
+////		}
+////		System.exit( 0 );
 //
-//		System.out.println( "1   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
-//		System.out.println( "2   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
-//		System.out.println( "2a  " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String)-java.lang.Double" ).toString() );
-//		System.out.println( "3   " + DiffuserSignature.parse( "java.lang.String:concat()" ).toString() );
-////		System.out.println( "3a  " + DiffuserSignature.parse( "java.lang.String:concat();java.lang.Double" ).toString() );
-////		System.out.println( "4   " + DiffuserSignature.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
-////		System.out.println( "5   " + DiffuserSignature.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
-		System.out.println( "6   " + DiffuserSignature.parse( "java.lang.String:concat(!I)" ).toString() );
-		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(!!Ljava.lang.String,!I)" ).toString() );
-		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(!I,!Z)" ).toString() );
-//		System.out.println( "8   " + DiffuserSignature.parse( "java.lang.String:concat([I,[[Ljava.lang.String,[I,[Z,[L)" ).toString() );
-		
-		Feed feed = Atom.createFeed( URI.create( "http://microtitan.org/diffusers/java.lang.String:concat(!Ljava.lang.String,!I)-void" ), "test", Calendar.getInstance().getTime() );
-		System.out.println( feed.toString() );
-		
-		System.out.println( encodeType( "[[[Ljava.lang.Double" ) + ", " + decodeType( encodeType( "[[[Ljava.lang.Double" ) ) );
-		System.out.println( encodeType( "[Ljava.lang.Double" ) + ", " + decodeType( encodeType( "[Ljava.lang.Double" ) ) );
-		System.out.println( encodeType( "[I" ) + ", " + decodeType( encodeType( "[I" ) ) );
-		System.out.println( encodeType( "[Z" ) + ", " + decodeType( encodeType( "[Z" ) ) );
-		
-		DiffuserSignature sig = DiffuserSignature.parse( "!Ljava.lang.String:concat(!!Ljava.lang.String,!I,int,!Z)-!I" );
-		System.out.println( sig.toString() );
-		System.out.println( sig.getArgumentTypes() );
-		System.out.println( sig.getClazz() + ", " + sig.getClassName() );
-		System.out.println( sig.getReturnTypeClazz() + ", " + sig.getReturnTypeClassName() );
-	}
+////		System.out.println( int[].class.getName() );
+////		System.out.println( int.class.getName() );
+////		System.out.println( String[].class.getName() );
+//		DOMConfigurator.configure( "log4j.xml" );
+//		Logger.getRootLogger().setLevel( Level.DEBUG );
+////
+////		System.out.println( "1   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String,java.lang.String)" ).toString() );
+////		System.out.println( "2   " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String)" ).toString() );
+////		System.out.println( "2a  " + DiffuserSignature.parse( "java.lang.String:concat(java.lang.String)-java.lang.Double" ).toString() );
+////		System.out.println( "3   " + DiffuserSignature.parse( "java.lang.String:concat()" ).toString() );
+//////		System.out.println( "3a  " + DiffuserSignature.parse( "java.lang.String:concat();java.lang.Double" ).toString() );
+//////		System.out.println( "4   " + DiffuserSignature.parse( "java.lang.String:concat( java.lang.String, java.lang.String )" ).toString() );
+//////		System.out.println( "5   " + DiffuserSignature.parse( "java.lang.String:concat.test(java.lang.String,java.lang.String)" ).toString() );
+//		System.out.println( "6   " + DiffuserSignature.parse( "java.lang.String:concat(!I)" ).toString() );
+//		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(!!Ljava.lang.String,!I)" ).toString() );
+//		System.out.println( "7   " + DiffuserSignature.parse( "java.lang.String:concat(!I,!Z)" ).toString() );
+////		System.out.println( "8   " + DiffuserSignature.parse( "java.lang.String:concat([I,[[Ljava.lang.String,[I,[Z,[L)" ).toString() );
+//
+//		Feed feed = Atom.createFeed( URI.create( "http://microtitan.org/diffusers/java.lang.String:concat(!Ljava.lang.String,!I)-void" ), "test", Calendar.getInstance().getTime() );
+//		System.out.println( feed.toString() );
+//
+//		System.out.println( encodeType( "[[[Ljava.lang.Double" ) + ", " + decodeType( encodeType( "[[[Ljava.lang.Double" ) ) );
+//		System.out.println( encodeType( "[Ljava.lang.Double" ) + ", " + decodeType( encodeType( "[Ljava.lang.Double" ) ) );
+//		System.out.println( encodeType( "[I" ) + ", " + decodeType( encodeType( "[I" ) ) );
+//		System.out.println( encodeType( "[Z" ) + ", " + decodeType( encodeType( "[Z" ) ) );
+//
+//		DiffuserSignature sig = DiffuserSignature.parse( "!Ljava.lang.String:concat(!!Ljava.lang.String,!I,int,!Z)-!I" );
+//		System.out.println( sig.toString() );
+//		System.out.println( sig.getArgumentTypes() );
+//		System.out.println( sig.getClazz() + ", " + sig.getClassName() );
+//		System.out.println( sig.getReturnTypeClazz() + ", " + sig.getReturnTypeClassName() );
+//	}
 }

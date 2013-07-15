@@ -17,7 +17,6 @@ package org.microtitan.diffusive.diffuser;
 
 import java.lang.reflect.Method;
 
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 import org.microtitan.diffusive.diffuser.serializer.Serializer;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
@@ -40,7 +39,7 @@ import org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc;
  * {@link Diffuser}, which in turn would do the same.
  * 
  * @see LocalDiffuser
- * @see RestfulDiffuser
+ * @see org.microtitan.diffusive.diffuser.restful.RestfulDiffuser
  * 
  * @author Robert Philipp
  */

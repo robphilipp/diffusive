@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.microtitan.diffusive.launcher.config;
+package org.microtitan.diffusive.utils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
 
 /**
  * Simple utility methods that are used by the configuration classes
