@@ -33,7 +33,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
+import org.microtitan.diffusive.converter.MethodIntercepterEditor;
 import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
@@ -126,7 +126,7 @@ public class DiffusiveLauncher {
 	
 	/**
 	 * Creates a default method intercepter using the specified {@link org.microtitan.diffusive.diffuser.Diffuser}
-	 * @return creates and returns a {@link org.microtitan.diffusive.convertor.MethodIntercepterEditor} with a local {@link org.microtitan.diffusive.diffuser.Diffuser}
+	 * @return creates and returns a {@link org.microtitan.diffusive.converter.MethodIntercepterEditor} with a local {@link org.microtitan.diffusive.diffuser.Diffuser}
 	 */
 	private static MethodIntercepterEditor createDefaultMethodIntercepter()
 	{

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.microtitan.diffusive.convertor;
+package org.microtitan.diffusive.converter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +33,10 @@ import org.microtitan.diffusive.diffuser.restful.DiffuserSignature;
 import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 
 /**
- * Method intercepter editor is responsible for writing the method-call replacement code that is
+ * Method interceptor editor is responsible for writing the method-call replacement code that is
  * used to replace and method calls to methods annotated with {@link Diffusive}. The replacement
  * code uses a {@link Diffuser} to run the method instead of it running directly. The {@link Diffuser}
- * is taken from the {@link KeyedDiffuserRepository}, and then its {@link Diffuser#runObject(double, Class, Object, String, Object...)}
+ * is taken from the {@link KeyedDiffuserRepository}, and then its {@link Diffuser#runObject(double, Class, Object, String, Class, Object)}
  * method (or a derivative) is called with the appropriate information.
  * 
  * @author Robert Philipp
@@ -49,7 +49,7 @@ public class MethodIntercepterEditor extends ExprEditor {
 	private final boolean isUseSignature;
 	
 	/**
-	 * Constructs the method intercepter. 
+	 * Constructs the method interceptor.
 	 * 
 	 * If a base signature is specified, then the, {@link #isUseSignature} is set to true, and the
 	 * method call to the method is replaced by a diffuser that is attached to a specific 

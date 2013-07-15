@@ -23,7 +23,7 @@ import javassist.NotFoundException;
 
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
+import org.microtitan.diffusive.converter.MethodIntercepterEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
 
 /**
@@ -100,7 +100,7 @@ public class BasicDiffusiveTranslator implements DiffusiveTranslator {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.microtitan.diffusive.translator.DiffusiveTranslator#setExpressionEditor(org.microtitan.diffusive.convertor.MethodIntercepterEditor)
+	 * @see org.microtitan.diffusive.translator.DiffusiveTranslator#setExpressionEditor(org.microtitan.diffusive.converter.MethodIntercepterEditor)
 	 */
 	@Override
 	public MethodIntercepterEditor setExpressionEditor( final MethodIntercepterEditor expressionEditor )

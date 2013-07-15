@@ -19,7 +19,7 @@ import javassist.ClassPool;
 import javassist.Loader;
 import javassist.Translator;
 
-import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
+import org.microtitan.diffusive.converter.MethodIntercepterEditor;
 
 /**
  * Observer of the {@link Loader}, which calls the {@link #start(ClassPool)} and {@link #onLoad(ClassPool, String)}

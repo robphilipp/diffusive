@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
 import org.microtitan.diffusive.classloaders.RestfulDiffuserClassLoader;
-import org.microtitan.diffusive.convertor.MethodIntercepterEditor;
+import org.microtitan.diffusive.converter.MethodIntercepterEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
