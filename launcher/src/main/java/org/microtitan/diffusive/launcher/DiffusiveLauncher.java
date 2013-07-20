@@ -34,7 +34,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.converter.MethodInterceptorEditor;
-import org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
 
@@ -66,6 +65,8 @@ public class DiffusiveLauncher {
 	 * by the RESTful diffuser
 	 */
 	public static final String XML_CONFIG_FILE_NAME = "restful_diffuser_config.xml";
+
+    public static final String RESTFUL_DIFFUSER_CONFIG_CLASSNAME = "org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig";
 
 	private final DiffusiveLoader loader;
 
@@ -110,7 +111,8 @@ public class DiffusiveLauncher {
 	private static Map< String, Object[] > createDefaultConfiguration()
 	{
 		final Map< String, Object[] > configurations = new LinkedHashMap<>();
-		configurations.put( RestfulDiffuserConfig.class.getName(), new Object[] { XML_CONFIG_FILE_NAME } );
+//		configurations.put( RestfulDiffuserConfig.class.getName(), new Object[] { XML_CONFIG_FILE_NAME } );
+		configurations.put( RESTFUL_DIFFUSER_CONFIG_CLASSNAME , new Object[] { XML_CONFIG_FILE_NAME } );
 		return configurations;
 	}
 	
@@ -498,7 +500,7 @@ public class DiffusiveLauncher {
 		final OptionSpec< String > configFileSpec =
 				parser.accepts( "config-file" ).withRequiredArg().ofType( String.class ).defaultsTo( XML_CONFIG_FILE_NAME );
 		final OptionSpec< String > configClassSpec =
-				parser.accepts( "config-class" ).withRequiredArg().ofType( String.class ).defaultsTo( RestfulDiffuserConfig.class.getName() );
+				parser.accepts( "config-class" ).withRequiredArg().ofType( String.class ).defaultsTo( RESTFUL_DIFFUSER_CONFIG_CLASSNAME );
 		final OptionSpec< String > classNameSpec = 
 				parser.accepts( "execute-class" ).withRequiredArg().ofType( String.class ).defaultsTo( "org.microtitan.tests.montecarlo.VolumeCalc" );
 		final char pathSeparator = System.getProperty( "path.separator").charAt( 0 );

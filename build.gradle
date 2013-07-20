@@ -43,7 +43,6 @@ subprojects {
 		}
 	}
 
-	//task make_launcher_jar( type: Jar, dependsOn: build ) {
 	jar {
 		manifest {
 			attributes(

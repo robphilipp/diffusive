@@ -15,9 +15,6 @@
  */
 package org.microtitan.diffusive.launcher.config;
 
-import java.net.URI;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.freezedry.persistence.XmlPersistence;
 import org.microtitan.diffusive.Constants;
@@ -30,6 +27,9 @@ import org.microtitan.diffusive.diffuser.serializer.SerializerFactory;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategyConfigXml;
 import org.microtitan.diffusive.launcher.config.xml.RestfulDiffuserConfigXml;
+
+import java.net.URI;
+import java.util.List;
 
 /**
  * TODO figure out how best to allow the configuration of the diffuser strategy.
