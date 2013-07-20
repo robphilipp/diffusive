@@ -14,9 +14,10 @@ dependencies {
 }
 
 jar {
+	baseName = project.ext.app_name + "-" + "launcher"
 	manifest {
 		attributes(
-				"Main-Class": "org/microtitan/diffusive/launcher/DiffusiveLauncher",
+				"Main-Class": "org/microtitan/diffusive/launcher/DiffusiveLauncher"
 //                "Class-Path":jar_class_path
 		)
 	}

@@ -28,27 +28,30 @@ subprojects {
 		testCompile 'junit:junit:4.11'
 	}
 
+
+	sourceCompatibility = 1.7
+
 	project.ext {
-		sourceCompatibility = 1.7
 		version = '0.2.2'
-		app_name = 'Diffusive'
+		app_name = 'diffusive'
 	}
 
 	// sets the version number based on whether building the release or snapshot
-	gradle.taskGraph.whenReady { taskGraph ->
+	gradle.taskGraph.whenReady( { taskGraph ->
 		if( taskGraph.hasTask( release ) ) {
 			version = project.ext.version
 		} else {
 			version = project.ext.version + '-SNAPSHOT'
 		}
-	}
+	} )
 
 	jar {
+		baseName = project.ext.app_name;
 		manifest {
 			attributes(
-					"Implementation-Vendor": "Rob Philipp",
-					"Implementation-Title": project.ext.app_name,
-					"Implementation-Version": project.ext.version
+				"Implementation-Vendor": "Rob Philipp",
+				"Implementation-Title": project.ext.app_name,
+				"Implementation-Version": project.ext.version
 			)
 		}
 	}
@@ -56,6 +59,5 @@ subprojects {
 	task release {
 
 	}
-
 }
 

@@ -23,6 +23,7 @@ dependencies {
 
 //task make_launcher_jar( type: Jar, dependsOn: build ) {
 jar {
+	baseName = project.ext.app_name + "-" + "restful-server"
 	manifest {
 		attributes(
 				"Main-Class": "org/microtitan/diffusive/diffuser/restful/server/RestfulDiffuserServer",
