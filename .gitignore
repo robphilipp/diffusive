@@ -6,8 +6,9 @@
 ###################
 *.class
 Diffusive_v*
-dist
+#dist
 bin
+build
 
 # Packages #
 ############
@@ -31,6 +32,8 @@ bin
 ############################
 .idea/*
 *.iml
+gradle
+.gradle
 
 # OS generated files #
 ######################

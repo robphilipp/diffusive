@@ -19,21 +19,19 @@ dependencies {
 jar {
 	baseName = project.ext.app_name + "-" + "core"
 	manifest {
-//		attributes(
-//				"Main-Class": "org/microtitan/diffusive/launcher/DiffusiveLauncher",
+		attributes(
+				"Main-Class": "org/microtitan/diffusive/launcher/DiffusiveLauncher"
 //                "Class-Path":jar_class_path
-//		)
+		)
 	}
 }
 
-task make_annotations_jar
-
-make_annotations_jar << {
-	jar {
-		baseName = "rob-test"
-		manifest {
-
-		}
-	}
-//			include( "src/main/java/org/microtitan/diffusive/annotations/*.class" )
-}
+//task make_annotations_jar << {
+//	jar {
+//		baseName = "rob-test"
+//		manifest {
+//
+//		}
+//	}
+////			include( "src/main/java/org/microtitan/diffusive/annotations/*.class" )
+//}

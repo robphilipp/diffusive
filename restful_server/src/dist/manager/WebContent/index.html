@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <link rel="stylesheet" type="text/css" href="themes/jquery-ui-1.9.2.custom.css">
+
+    <!-- Le styles -->
+    <link href="scripts/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            position: relative;
+            padding-top: 81px;
+            padding-bottom: 20px;
+        }
+        div.sidebar-nav {
+            background: white;
+            border: none;
+            padding: 5px 0;
+        }
+        ul.header-nav-bar {
+            padding-left: 5px;
+            padding-top: 35px;
+        }
+    </style>
+    <link href="scripts/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/diffusive.css">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script src="scripts/jquery-1.9.1.js"></script>
+    <script src="scripts/ui/jquery-ui-1.9.2.custom.js"></script>
+    <script src="scripts/plugins/jquery.validate.js"></script>
+    <script src="scripts/bootstrap/js/bootstrap.js"></script>
+
+    <script src="scripts/diffuser-list.js"></script>
+    <script src="scripts/serializer-list.js"></script>
+    <script src="scripts/diffuser-form.js"></script>
+    <script type="text/javascript">
+        $( document ).ready( function() {
+
+            var serverUri = "";
+//            var serverUri = "http://192.168.1.8:8182";
+            var diffuserPath = "/diffusers";
+            var serializerPath = "/serializers";
+            var diffuserUri = serverUri + diffuserPath;
+
+            // grab the list of diffusers from the server and place it in the diffuser-list tab
+            getDiffuserList( diffuserUri, "diffuser-list" );
+            $( ".description-title" ).click( function() {
+                $( this ).next().toggle();
+            });
+
+            // create the diffuser form
+            new DiffuserForm( $( "#create-diffuser" ), serverUri, "create-diffuser-form", {
+                formId: "create-diffuser-form-2",
+                successCallback: function( data, textStatus, jqXHR ) {
+                    getDiffuserList( diffuserUri, "diffuser-list" );
+                    $( '#application-tabs a:first' ).tab( 'show' );
+                }
+            });
+
+            new DiffuserForm( $( "#tabs-3" ), serverUri, "create-diffuser-form-2", {
+                formId: "create-diffuser-form-3",
+                successCallback: function( data, textStatus, jqXHR ) {
+                    getDiffuserList( diffuserUri, "diffuser-list" );
+                    $( '#application-tabs a:first' ).tab( 'show' );
+                }
+            });
+
+            $( "a.scroll-offset" ).click( function() {
+                var element = $( this ).attr( "href" );
+                if( element ) {
+                    scrollToDiv( $( element ), 81 );
+                }
+                return false;
+            });
+
+        });
+    </script>
+
+    <title>Restful Diffuser Manager</title>
+</head>
+
+<body>
+
+<nav class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#"><img src="images/web_banner.png"></a>
+            <div class="nav-collapse collapse">
+                <ul class="nav header-nav-bar">
+                    <!--<li><a href="overview_guide.html">Overview</a></li>-->
+                    <!--<li><a href="quick_start.html">Quick Start</a></li>-->
+                    <!--<li><a href="javadoc/index.html" target="tab">Java Docs</a></li>-->
+                    <!--<li><a href="https://github.com/robphilipp/diffusive" target="tab">Code (git)</a></li>-->
+                    <!--<li><a href="downloads.html" target="tab">Downloads</a></li>-->
+                    <!--<li><a href="https://github.com/robphilipp/diffusive/wiki" target="tab">Wiki</a></li>-->
+                    <!--<li><a href="https://github.com/robphilipp/diffusive/issues" target="tab">Tickets</a></li>-->
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span11">
+            <div>
+                <!--<div id="tabs">-->
+                <ul class="nav nav-tabs" id="application-tabs">
+                    <li class="active"><a href="#diffuser-list" data-toggle="tab">Diffuser List</a></li>
+                    <li><a href="#create-diffuser" data-toggle="tab">Create Diffuser</a></li>
+                    <li><a href="#tabs-3" data-toggle="tab">Manage Diffusers</a></li>
+                </ul>
+
+                <!-- holds the list of the diffuser returned by the diffuser server -->
+                <div class="tab-content">
+                    <div class="tab-pane fade in active" id="diffuser-list"></div>
+
+                    <!-- holds the tab for creating diffusers -->
+                    <div class="tab-pane fade" id="create-diffuser"></div>
+
+                    <!-- will hold the diffuser network graph -->
+                    <div class="tab-pane fade" id="tabs-3">
+                        <p>And what to put here?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- extra space -->
+        <div class="span1"></div>
+    </div>
+</div>
+
+<!--<div class="container-fluid">-->
+    <!--<div class="row-fluid">-->
+        <!--<div class="span11">-->
+            <!--<div id="tabs">-->
+                <!--<ul>-->
+                    <!--<li><a href="#diffuser-list">Diffuser List</a></li>-->
+                    <!--<li><a href="#create-diffuser">Create Diffuser</a></li>-->
+                    <!--<li><a href="#tabs-3">Manage Diffusers</a></li>-->
+                <!--</ul>-->
+
+                <!--&lt;!&ndash; holds the list of the diffuser returned by the diffuser server &ndash;&gt;-->
+                <!--<div id="diffuser-list"></div>-->
+
+                <!--&lt;!&ndash; holds the tab for creating diffusers &ndash;&gt;-->
+                <!--<div id="create-diffuser"></div>-->
+
+                <!--&lt;!&ndash; will hold the diffuser network graph &ndash;&gt;-->
+                <!--<div id="tabs-3">-->
+                    <!--<p>And what to put here?</p>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; extra space &ndash;&gt;-->
+        <!--<div class="span1"></div>-->
+    <!--</div>-->
+<!--</div>-->
+</body>
+</html>

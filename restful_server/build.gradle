@@ -6,6 +6,8 @@
  * to get you started. For a quick start with Gradle have a look at the Java Quickstart
  * chapter in the Gradle Userguide available at /Users/rob/.gvm/gradle/1.6/docs/userguide/tutorial_java_projects.html
  */
+apply plugin: 'application'
+
 evaluationDependsOn( ':core' )
 
 dependencies {
@@ -20,6 +22,7 @@ dependencies {
 	compile 'com.sun.jersey:jersey-grizzly2:1.17.1'
 }
 
+mainClassName = "org/microtitan/diffusive/diffuser/restful/server/RestfulDiffuserServer"
 
 //task make_launcher_jar( type: Jar, dependsOn: build ) {
 jar {
