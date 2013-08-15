@@ -81,7 +81,7 @@ public class RestfulDiffuserServerConfigXml {
 	 * @return the threshold above which load the diffuser is to diffuse any tasks to
 	 * a remote diffuser.
 	 */
-	public double getLaodThreshold()
+	public double getLoadThreshold()
 	{
 		return loadThreshold;
 	}
@@ -120,9 +120,12 @@ public class RestfulDiffuserServerConfigXml {
 		}
 		catch( ClassNotFoundException e )
 		{
-			final String message = "Error: Failed to load class: " + strategyConfigClassName;
-			LOGGER.error( message, e );
-			throw new IllegalStateException( message, e );
+			final StringBuilder message = new StringBuilder();
+            message.append( "Error: Failed to load class: [" ).append( strategyConfigClassName )
+                    .append( "]" ).append(Constants.NEW_LINE)
+                    .append("Class Path: ").append(System.getProperty("java.class.path"));
+			LOGGER.error( message.toString(), e );
+			throw new IllegalStateException( message.toString(), e );
 		}
 		return strategyClazz;
 	}

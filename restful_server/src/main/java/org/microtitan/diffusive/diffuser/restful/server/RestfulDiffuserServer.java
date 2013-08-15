@@ -267,7 +267,13 @@ public class RestfulDiffuserServer {
 		
 		// set up the options based on the values from the command-line
 		final URI serverUri = URI.create( serverUriSpec.value( options ) );
-		final String configFileName = configDirSpec.value( options ) + configFileSpec.value( options ); 
+        String configDir = configDirSpec.value( options );
+        if( !configDir.endsWith( "/") )
+        {
+            configDir += "/";
+        }
+
+		final String configFileName = configDir + configFileSpec.value( options );
 		final String configClassName = configClassSpec.value( options );
 		List< String > classPaths = null;
 		if( options.has( classPathSpec ) )

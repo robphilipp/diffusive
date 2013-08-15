@@ -1145,8 +1145,8 @@ public class RestfulDiffuserManagerResource {
 				{
 					if( method.isAnnotationPresent( DiffusiveServerConfiguration.class ) )
 					{
-						// hold on the the method in case there is an invocation exception
-						// and to warn the user if no configuration method was found
+						// hold on to the method in case there is an invocation exception
+						// or to warn the user if no configuration method was found
 						configurationMethod = method;
 						method.invoke( null, className.getValue() );
 					}

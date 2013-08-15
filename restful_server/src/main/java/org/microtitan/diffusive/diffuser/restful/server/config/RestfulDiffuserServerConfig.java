@@ -19,8 +19,6 @@ import org.apache.log4j.Logger;
 import org.freezedry.persistence.XmlPersistence;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveServerConfiguration;
-import org.microtitan.diffusive.diffuser.restful.RestfulDiffuser;
-import org.microtitan.diffusive.diffuser.restful.resources.RestfulDiffuserManagerResource;
 import org.microtitan.diffusive.diffuser.restful.server.KeyedDiffusiveStrategyRepository;
 import org.microtitan.diffusive.diffuser.restful.server.config.xml.RestfulDiffuserServerConfigXml;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
@@ -54,7 +52,7 @@ public class RestfulDiffuserServerConfig {
 		// TODO create the resolve method or call a EndpointResolver class (preferred)
 		
 		// grab the load threshold
-		final double loadThreshold = config.getLaodThreshold();
+		final double loadThreshold = config.getLoadThreshold();
 		
 		// set up the strategy and the strategy repository
 		KeyedDiffusiveStrategyRepository.getInstance().setValues( strategy, loadThreshold );
