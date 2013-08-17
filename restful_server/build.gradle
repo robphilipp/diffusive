@@ -22,15 +22,15 @@ dependencies {
 	compile 'com.sun.jersey:jersey-grizzly2:1.17.1'
 }
 
+// set the main class for the application jar (used by the "application" plugin
 mainClassName = "org/microtitan/diffusive/diffuser/restful/server/RestfulDiffuserServer"
 
-//task make_launcher_jar( type: Jar, dependsOn: build ) {
+// create the jar file for the restful diffusive server with the main class specified
 jar {
 	baseName = project.ext.app_name + "-" + "restful-server"
 	manifest {
 		attributes(
-				"Main-Class": "org/microtitan/diffusive/diffuser/restful/server/RestfulDiffuserServer",
-//                "Class-Path":jar_class_path
+			"Main-Class": "org/microtitan/diffusive/diffuser/restful/server/RestfulDiffuserServer"
 		)
 	}
 }
