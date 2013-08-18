@@ -271,7 +271,7 @@ function DiffuserForm( parent, serverUri, formId, settings ) {
         // div containing the serializer name and option selection
         $div = $( "<div></div>" ).addClass( formElementName );
         $( "<p>Serializer Name: </p>", { id: serializerNameId } ).appendTo( $div );
-        var serializerListElem = $( "<select></select>", { id: config.serializerId } )
+        var serializerListElem = $( "<select></select>", { id: config.serializerId } );
         $div.append( serializerListElem );
         $div.appendTo( $form );
 
@@ -339,7 +339,6 @@ function DiffuserForm( parent, serverUri, formId, settings ) {
 
     /**
      * Adds an end-point item to the list of end-points
-     * @param selector The class selector into which the new list item will be appended
      * @return {*|jQuery|HTMLElement}
      */
     function createEndpointItem() {
