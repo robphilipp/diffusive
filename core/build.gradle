@@ -7,6 +7,9 @@
  * chapter in the Gradle Userguide available at /Users/rob/.gvm/gradle/1.6/docs/userguide/tutorial_java_projects.html
  */
 dependencies {
+	// diffusive annotations
+	compile project( ':annotations' )
+
 	// abdera atom/rss parser
 	compile 'org.apache.abdera:abdera-parser:1.1.3'
 
@@ -18,10 +21,4 @@ dependencies {
 //task make_launcher_jar( type: Jar, dependsOn: build ) {
 jar {
 	baseName = project.ext.app_name + "-" + "core"
-	manifest {
-		attributes(
-				"Main-Class": "org/microtitan/diffusive/launcher/DiffusiveLauncher"
-//                "Class-Path":jar_class_path
-		)
-	}
 }

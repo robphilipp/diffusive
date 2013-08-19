@@ -12,4 +12,4 @@
 
 
 // To declare projects as part of a multiproject build use the 'include' method
-include "core", "launcher", "restful_server", "diffusive_examples"
+include "annotations", "core", "launcher", "restful_server", "diffusive_examples"
