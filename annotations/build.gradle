@@ -9,10 +9,4 @@
 //task make_launcher_jar( type: Jar, dependsOn: build ) {
 jar {
 	baseName = project.ext.app_name + "-" + "annotations"
-	manifest {
-		attributes(
-				"Main-Class": "org/microtitan/diffusive/launcher/DiffusiveLauncher"
-//                "Class-Path":jar_class_path
-		)
-	}
 }
