@@ -20,6 +20,12 @@ dependencies {
 	// jersey JAX-RS implementation for REST web services server and client
 	compile 'com.sun.jersey:jersey-bundle:1.17.1'
 	compile 'com.sun.jersey:jersey-grizzly2:1.17.1'
+
+	runtime 'org.codehaus.jackson:jackson-jaxrs:1.9.3'
+	runtime 'org.codehaus.jackson:jackson-core-asl:1.9.3'
+
+	// json parsing and creation libraries
+	compile files( '../ext-libs/json-20120228.jar' )
 }
 
 // set the main class for the application jar (used by the "application" plugin

@@ -6,7 +6,6 @@
  * to get you started. For a quick start with Gradle have a look at the Java Quickstart
  * chapter in the Gradle Userguide available at /Users/rob/.gvm/gradle/1.6/docs/userguide/tutorial_java_projects.html
  */
-//task make_launcher_jar( type: Jar, dependsOn: build ) {
 jar {
 	baseName = project.ext.app_name + "-" + "annotations"
 }

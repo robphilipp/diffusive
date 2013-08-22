@@ -18,7 +18,6 @@ dependencies {
 	compile 'com.sun.jersey:jersey-grizzly2:1.17.1'
 }
 
-//task make_launcher_jar( type: Jar, dependsOn: build ) {
 jar {
 	baseName = project.ext.app_name + "-" + "core"
 }
