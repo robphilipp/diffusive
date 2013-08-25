@@ -42,7 +42,6 @@ import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategy;
 import org.microtitan.diffusive.diffuser.strategy.DiffuserStrategyConfigXml;
 import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml;
 import org.microtitan.diffusive.diffuser.strategy.RandomWeightedDiffuserStrategyConfigXml;
-import org.microtitan.diffusive.launcher.DiffusiveLauncher;
 import org.microtitan.diffusive.utils.ConfigUtils;
 import org.microtitan.diffusive.utils.NetworkUtils;
 
@@ -58,7 +57,11 @@ public class RestfulDiffuserConfigXml {
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserConfigXml.class );
 
 	/**
-	 * TODO this was moved from the DiffusiveLauncher, and may need to moved back
+	 * The directory containing the diffuser configuration file for the application-attached diffuser.
+	 */
+	public static final String XML_CONFIG_DIR = "config/launcher/";
+
+	/**
 	 * The name of the XML configuration file that is read to obtain the configuration settings that are needed
 	 * by the RESTful diffuser
 	 */
@@ -381,7 +384,7 @@ public class RestfulDiffuserConfigXml {
 				parser.accepts( "usage-mode" ).withRequiredArg().ofType( String.class ).defaultsTo( UsageMode.VALIDATE.getName() ).
 				describedAs( UsageMode.VALIDATE.getName() + "|" + UsageMode.GENERATE.getName() );
 		final OptionSpec< String > configDirSpec = 
-				parser.accepts( "config-dir" ).withRequiredArg().ofType( String.class ).defaultsTo( DiffusiveLauncher.XML_CONFIG_DIR );
+				parser.accepts( "config-dir" ).withRequiredArg().ofType( String.class ).defaultsTo( XML_CONFIG_DIR );
 //		final OptionSpec< String > configFileSpec =
 //				parser.accepts( "config-file" ).withRequiredArg().ofType( String.class ).defaultsTo( DiffusiveLauncher.XML_CONFIG_FILE_NAME );
 		final OptionSpec< String > configFileSpec =
