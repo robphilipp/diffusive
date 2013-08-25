@@ -56,7 +56,14 @@ import org.microtitan.diffusive.utils.NetworkUtils;
 public class RestfulDiffuserConfigXml {
 
 	private static final Logger LOGGER = Logger.getLogger( RestfulDiffuserConfigXml.class );
-	
+
+	/**
+	 * TODO this was moved from the DiffusiveLauncher, and may need to moved back
+	 * The name of the XML configuration file that is read to obtain the configuration settings that are needed
+	 * by the RESTful diffuser
+	 */
+	public static final String XML_CONFIG_FILE_NAME = "restful_diffuser_config.xml";
+
 	/**
 	 * The name of the XML configuration file holding the diffuser strategy configuration.
 	 * NOTE: This field is only used in the main(...) class for testing and to help create
@@ -375,8 +382,10 @@ public class RestfulDiffuserConfigXml {
 				describedAs( UsageMode.VALIDATE.getName() + "|" + UsageMode.GENERATE.getName() );
 		final OptionSpec< String > configDirSpec = 
 				parser.accepts( "config-dir" ).withRequiredArg().ofType( String.class ).defaultsTo( DiffusiveLauncher.XML_CONFIG_DIR );
-		final OptionSpec< String > configFileSpec = 
-				parser.accepts( "config-file" ).withRequiredArg().ofType( String.class ).defaultsTo( DiffusiveLauncher.XML_CONFIG_FILE_NAME );
+//		final OptionSpec< String > configFileSpec =
+//				parser.accepts( "config-file" ).withRequiredArg().ofType( String.class ).defaultsTo( DiffusiveLauncher.XML_CONFIG_FILE_NAME );
+		final OptionSpec< String > configFileSpec =
+				parser.accepts( "config-file" ).withRequiredArg().ofType( String.class ).defaultsTo( XML_CONFIG_FILE_NAME );
 		final OptionSpec< URI > classPathsSpec =
 				parser.accepts( "class-paths" ).withRequiredArg().ofType( URI.class ).withValuesSeparatedBy( ' ' ).defaultsTo( DEFAULT_SERVER_URI );
 		final OptionSpec< String > serializerSpec =

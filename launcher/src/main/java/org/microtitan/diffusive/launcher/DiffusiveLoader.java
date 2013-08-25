@@ -49,7 +49,6 @@ public class DiffusiveLoader extends Loader {
 	
 	private static final Logger LOGGER = Logger.getLogger( DiffusiveLoader.class );
 
-//	private final List< String > configurationClasses;
 	private final Map< String, Object[] > configurationClasses;
 	private final List< String > delegationPrefixes;
 	
@@ -426,7 +425,18 @@ public class DiffusiveLoader extends Loader {
 						// hold on the the method in case there is an invocation exception
 						// and to warn the user if no configuration method was found
 						configurationMethod = method;
-						method.invoke( null, className.getValue() );
+
+						// call the appropriate "invoke" method, depending on the number of
+						// arguments that the method requires
+						final Object[] arguments = className.getValue();
+						if( arguments.length == 0 )
+						{
+							method.invoke( null );
+						}
+						else
+						{
+							method.invoke( null, className.getValue() );
+						}
 					}
 				}
 				if( configurationMethod == null )

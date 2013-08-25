@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.converter.MethodInterceptorEditor;
+import org.microtitan.diffusive.launcher.config.LocalDiffuserConfig;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
 
@@ -60,14 +61,6 @@ public class DiffusiveLauncher {
 	 */
 	public static final String XML_CONFIG_DIR = "config/launcher/";
 
-	/**
-	 * The name of the XML configuration file that is read to obtain the configuration settings that are needed
-	 * by the RESTful diffuser
-	 */
-	public static final String XML_CONFIG_FILE_NAME = "restful_diffuser_config.xml";
-
-    public static final String RESTFUL_DIFFUSER_CONFIG_CLASSNAME = "org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig";
-
 	private final DiffusiveLoader loader;
 
 	/**
@@ -82,7 +75,7 @@ public class DiffusiveLauncher {
 	
 	/**
 	 * Constructs a {@link org.microtitan.diffusive.launcher.DiffusiveLauncher} that uses a default {@link org.microtitan.diffusive.launcher.DiffusiveLoader} to load classes,
-	 * rewrite diffusive methods, and delegate loading to the parent class loader. Uses a {@link org.microtitan.diffusive.diffuser.restful.RestfulDiffuser},
+	 * rewrite diffusive methods, and delegate loading to the parent class loader. Uses a {@link org.microtitan.diffusive.diffuser.Diffuser},
 	 * uses the default values from the {@link org.microtitan.diffusive.launcher.DiffusiveLoader} to determine which classes to load using the
 	 * parent class loader (logging, abdera, diffusive configuration annotation, etc).
 	 * @param configurationClasses the classes holding the configuration for the launcher. Associated with each configuration class is
@@ -91,29 +84,6 @@ public class DiffusiveLauncher {
 	public DiffusiveLauncher( final Map< String, Object[] > configurationClasses, final List< String > classPaths )
 	{
 		this( createLoader( configurationClasses, classPaths ) );
-	}
-	
-	/**
-	 * Constructs a {@link org.microtitan.diffusive.launcher.DiffusiveLauncher} that uses a default {@link org.microtitan.diffusive.launcher.DiffusiveLoader} to load classes,
-	 * rewrite diffusive methods, and delegate loading to the parent class loader. Uses a {@link org.microtitan.diffusive.diffuser.restful.RestfulDiffuser},
-	 * uses the default values from the {@link org.microtitan.diffusive.launcher.DiffusiveLoader} to determine which classes to load using the
-	 * parent class loader (logging, abdera, diffusive configuration annotation, etc).
-	 */
-	public DiffusiveLauncher()
-	{
-		this( createLoader() );
-	}
-	
-	/**
-	 * @return creates a default list of class names that have configuration items (methods used to configure
-	 * diffusive)
-	 */
-	private static Map< String, Object[] > createDefaultConfiguration()
-	{
-		final Map< String, Object[] > configurations = new LinkedHashMap<>();
-//		configurations.put( RestfulDiffuserConfig.class.getName(), new Object[] { XML_CONFIG_FILE_NAME } );
-		configurations.put( RESTFUL_DIFFUSER_CONFIG_CLASSNAME , new Object[] { XML_CONFIG_FILE_NAME } );
-		return configurations;
 	}
 	
 	/**
@@ -133,43 +103,6 @@ public class DiffusiveLauncher {
 	private static MethodInterceptorEditor createDefaultMethodIntercepter()
 	{
 		return new MethodInterceptorEditor();
-	}
-	
-	/**
-	 * @return a {@link org.microtitan.diffusive.launcher.DiffusiveLoader} that uses the default set of configuration class, the
-	 * default set of delegation prefixes (defined in the {@link org.microtitan.diffusive.launcher.DiffusiveLoader} class), and
-	 * the default {@link org.microtitan.diffusive.translator.DiffusiveTranslator}.
-	 */
-	public static DiffusiveLoader createLoader()
-	{
-		return createLoader( createDefaultConfiguration() );
-	}
-    
-	/**
-	 * @param classPaths The class paths to the application's jar file
-	 * @return a {@link org.microtitan.diffusive.launcher.DiffusiveLoader} that uses the default set of configuration class, the
-	 * default set of delegation prefixes (defined in the {@link org.microtitan.diffusive.launcher.DiffusiveLoader} class), and
-	 * the default {@link org.microtitan.diffusive.translator.DiffusiveTranslator}.
-	 */
-	public static DiffusiveLoader createLoader( final List< String > classPaths )
-	{
-		return createLoader( createDefaultConfiguration(), classPaths );
-	}
-    
-	/**
-	 * Creates a {@link org.microtitan.diffusive.launcher.DiffusiveLoader} the uses the specified list of configuration classes, the
-	 * default set of delegation prefixes (defined in the {@link org.microtitan.diffusive.launcher.DiffusiveLoader} class), and
-	 * the default {@link org.microtitan.diffusive.translator.DiffusiveTranslator}.
-	 * @param configurations A {@link java.util.List} containing the names of configuration classes that are
-	 * used for configuration. Because these need to be loaded by this class loader, they must all 
-	 * be static methods (i.e. the class shouldn't have already been loaded) and they must be annotated
-	 * with the @{@link org.microtitan.diffusive.annotations.DiffusiveConfiguration} annotation. Associated with each configuration class is
-	 * an {@code {@link Object}[]} containing any arguments the configuration method may need.
-	 * @return a {@link org.microtitan.diffusive.launcher.DiffusiveLoader}
-	 */
-	public static DiffusiveLoader createLoader( final Map< String, Object[] > configurations )
-	{
-		return createLoader( configurations, null );
 	}
 	
 	/**
@@ -477,11 +410,8 @@ public class DiffusiveLauncher {
 	}
 
 	/**
-	 * Make sure to run a {@link org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer} instance before calling this. And
-	 * make sure that the endpoint listed in the {@link org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer#DEFAULT_SERVER_URI}
-	 * method matches up to that in the {@link org.microtitan.diffusive.launcher.config.RestfulDiffuserConfig} so that it
-	 * knows how to call the endpoint.
-	 * 
+	 * The default settings will have the launcher use the {@link LocalDiffuserConfig} to run the local diffuser.
+	 *
 	 * @param args Program arguments
 	 * @throws java.io.IOException
 	 */
@@ -498,11 +428,11 @@ public class DiffusiveLauncher {
 		final OptionSpec< String > configDirSpec =
 				parser.accepts( "config-dir" ).withRequiredArg().ofType( String.class ).defaultsTo( XML_CONFIG_DIR );
 		final OptionSpec< String > configFileSpec =
-				parser.accepts( "config-file" ).withRequiredArg().ofType( String.class ).defaultsTo( XML_CONFIG_FILE_NAME );
+				parser.accepts( "config-file" ).withOptionalArg().ofType( String.class ).defaultsTo( "" );
 		final OptionSpec< String > configClassSpec =
-				parser.accepts( "config-class" ).withRequiredArg().ofType( String.class ).defaultsTo( RESTFUL_DIFFUSER_CONFIG_CLASSNAME );
-		final OptionSpec< String > classNameSpec = 
-				parser.accepts( "execute-class" ).withRequiredArg().ofType( String.class ).defaultsTo( "org.microtitan.tests.montecarlo.VolumeCalc" );
+				parser.accepts( "config-class" ).withRequiredArg().ofType( String.class ).defaultsTo( LocalDiffuserConfig.class.getName() );
+		final OptionSpec< String > classNameSpec =
+				parser.accepts( "execute-class" ).withRequiredArg().ofType( String.class ).defaultsTo( "org.microtitan.tests.montecarlo.ThreadedVolumeCalc" );
 		final char pathSeparator = System.getProperty( "path.separator").charAt( 0 );
 		final OptionSpec< String > classPathSpec =
 				parser.accepts( "class-path" ).withRequiredArg().ofType( String.class ).withValuesSeparatedBy( pathSeparator );
@@ -558,9 +488,21 @@ public class DiffusiveLauncher {
 		if( runMode == RunMode.DIFFUSED )
 		{
 			// grab the list of configuration classes for configuring the application attached diffuser
-			final String configFile = configDirSpec.value( options ) + configFileSpec.value( options );
+			// in some cases, like for the default LocalDiffuserConfig, there are no configuration files
+			// and so we must pass an empty argument list to the LocalDiffuserConfig
+			Object[] arguments;
+			final String configFile = configFileSpec.value( options );
+			if( configFile == null || configFile.isEmpty())
+			{
+				arguments = new Object[] {};
+			}
+			else
+			{
+				final String configFilePath = configDirSpec.value( options ) + configFile;
+				arguments = new Object[] { configFilePath };
+			}
 			final Map< String, Object[] > configurationClasses = new LinkedHashMap<>();
-			configurationClasses.put( configClassSpec.value( options ), new Object[] { configFile } );
+			configurationClasses.put( configClassSpec.value( options ), arguments );
 
 			// run the application for the specified class
 			final DiffusiveLauncher launcher = new DiffusiveLauncher( configurationClasses, classPaths );
