@@ -498,7 +498,8 @@ public class DiffusiveLauncher {
 			}
 			else
 			{
-				final String configFilePath = configDirSpec.value( options ) + configFile;
+				final String configDir = configDirSpec.value( options );
+				final String configFilePath = configDir + (configDir.endsWith( "/" ) ? "" : "/") + configFile;
 				arguments = new Object[] { configFilePath };
 			}
 			final Map< String, Object[] > configurationClasses = new LinkedHashMap<>();

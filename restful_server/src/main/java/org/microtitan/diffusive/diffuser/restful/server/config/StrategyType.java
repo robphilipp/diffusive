@@ -15,7 +15,6 @@
  */
 package org.microtitan.diffusive.diffuser.restful.server.config;
 
-import org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer;
 import org.microtitan.diffusive.diffuser.strategy.RandomDiffuserStrategyConfigXml;
 import org.microtitan.diffusive.diffuser.strategy.RandomWeightedDiffuserStrategyConfigXml;
 
