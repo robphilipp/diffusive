@@ -23,6 +23,7 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.abdera.Abdera;
+import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.parser.ParseException;
 import org.apache.log4j.Logger;
@@ -98,10 +99,24 @@ public class RestfulClassReader {
 		byte[] classBytes = null;
 		try( InputStream response = classResponse.getEntity( InputStream.class ) )
 		{
+			// grab the feed
 			final Feed feed = abdera.getParser().< Feed >parse( response ).getRoot();
 
+			// grab the entries, and throw an exception if there are no entries
+			final List< Entry > entries = feed.getEntries();
+			if( entries == null || entries.isEmpty() )
+			{
+				final StringBuilder message = new StringBuilder();
+				message.append( "Message has no class data. Somethings seems to have gone with the class server." ).append( Constants.NEW_LINE );
+				message.append( "  Class Name: " ).append( className ).append( Constants.NEW_LINE );
+				message.append( "  Base URI: " ).append( uri ).append( Constants.NEW_LINE );
+				message.append( "  Feed: " ).append( feed.toString() );
+				LOGGER.error( message.toString() );
+				throw new IllegalStateException( message.toString() );
+			}
+
 			// grab the content from the entry and convert it to a byte array
-			final InputStream objectStream = feed.getEntries().get( 0 ).getContentStream();
+			final InputStream objectStream = entries.get( 0 ).getContentStream();
 			classBytes = new byte[ objectStream.available() ];
 			objectStream.read( classBytes );
 		}
