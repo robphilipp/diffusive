@@ -80,8 +80,8 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	 * @param classPaths The class paths on a remote server needed for loading classes that aren't 
 	 * locally available 
 	 * @param loadThreshold The load threshold above which the {@link org.microtitan.diffusive.diffuser.restful.RestfulDiffuser} will forward execution
-	 * of the task to remote diffuser. The load threshold must be in the interval {@code (0.0, infinity]}
-	 * @see DiffuserLoadCalc
+	 * of the task to remote diffuser. The load threshold must be in the interval {@code &#40;0.0, infinity]}
+	 * @see org.microtitan.diffusive.diffuser.strategy.load.DiffuserLoadCalc
 	 */
 	public RestfulDiffuser( final Serializer serializer, 
 							final DiffuserStrategy strategy, 
@@ -94,9 +94,9 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		
 		if( loadThreshold <= 0.0 )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "The load threshold must be greater than 0.0" + Constants.NEW_LINE );
-			message.append( "  Specified Load Threshold: " + loadThreshold );
+			final StringBuilder message = new StringBuilder();
+			message.append( "The load threshold must be greater than 0.0" ).append( Constants.NEW_LINE );
+			message.append( "  Specified Load Threshold: " ).append( loadThreshold );
 			throw new IllegalArgumentException( message.toString() );
 		}
 		this.loadThreshold = loadThreshold;
@@ -113,17 +113,17 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		// have the same number of elements.
 		if( !CollectionUtils.sizesMatch( argTypes, arguments ) )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "The number of arguments and argument types for the method do not match." + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "The number of arguments and argument types for the method do not match." ).append( Constants.NEW_LINE );
 			message.append( Constants.NEW_LINE );
-			message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+			message.append( "  Containing Class: " ).append( object.getClass().getName() ).append( Constants.NEW_LINE );
+			message.append( "  Method Name: " ).append( methodName ).append( Constants.NEW_LINE );
 			message.append( "  Arguments: " );
 			if( arguments.length > 0 )
 			{
 				for( int i = 0; i < arguments.length; ++i )
 				{
-					message.append( Constants.NEW_LINE + "    " + arguments[ i ].getClass().getName() );
+					message.append( Constants.NEW_LINE ).append( "    " ).append( arguments[ i ].getClass().getName() );
 					if( argTypes[ i ].isPrimitive() )
 					{
 						message.append( " (primitive)" );
@@ -146,26 +146,26 @@ public class RestfulDiffuser extends AbstractDiffuser {
 		{
 			if( LOGGER.isInfoEnabled() )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( RestfulDiffuser.class.getName() + " will call the runObject(...) method on the local diffuser: " + Constants.NEW_LINE );
-				message.append( "  Diffuser Name: " + LocalDiffuser.class.getName() + Constants.NEW_LINE + "  Reason: " );
+				final StringBuilder message = new StringBuilder();
+				message.append( RestfulDiffuser.class.getName() ).append( " will call the runObject(...) method on the local diffuser: " ).append( Constants.NEW_LINE );
+				message.append( "  Diffuser Name: " ).append( LocalDiffuser.class.getName() ).append( Constants.NEW_LINE ).append( "  Reason: " );
 				if( load < loadThreshold )
 				{
-					message.append( "the load (" + load + ") was less than the load threshold (" + loadThreshold + ")." );
+					message.append( "the load (" ).append( load ).append( ") was less than the load threshold (" ).append( loadThreshold ).append( ")." );
 				}
 				else if( strategy.isEmpty() )
 				{
 					message.append( "the RESTful diffuser was not assigned any client end-points." );
 				}
 				message.append( Constants.NEW_LINE );
-				message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
-				message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+				message.append( "  Containing Class: " ).append( object.getClass().getName() ).append( Constants.NEW_LINE );
+				message.append( "  Method Name: " ).append( methodName ).append( Constants.NEW_LINE );
 				message.append( "  Arguments: " );
 				if( arguments != null && arguments.length > 0 )
 				{
 					for( int i = 0; i < arguments.length; ++i )
 					{
-						message.append( Constants.NEW_LINE + "    " + arguments[ i ].getClass().getName() );
+						message.append( Constants.NEW_LINE ).append( "    " ).append( arguments[ i ].getClass().getName() );
 						if( argTypes[ i ].isPrimitive() )
 						{
 							message.append( " (primitive)" );
@@ -190,17 +190,17 @@ public class RestfulDiffuser extends AbstractDiffuser {
 
 			if( LOGGER.isInfoEnabled() )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( RestfulDiffuser.class.getName() + " will call the runObject(...) method on the remote diffusers: " + Constants.NEW_LINE );
+				final StringBuilder message = new StringBuilder();
+				message.append( RestfulDiffuser.class.getName() ).append( " will call the runObject(...) method on the remote diffusers: " ).append( Constants.NEW_LINE );
 				message.append( Constants.NEW_LINE );
-				message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
-				message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+				message.append( "  Containing Class: " ).append( object.getClass().getName() ).append( Constants.NEW_LINE );
+				message.append( "  Method Name: " ).append( methodName ).append( Constants.NEW_LINE );
 				message.append( "  Arguments: " );
 				if( arguments.length > 0 )
 				{
 					for( int i = 0; i < arguments.length; ++i )
 					{
-						message.append( Constants.NEW_LINE + "    " + arguments[ i ].getClass().getName() );
+						message.append( Constants.NEW_LINE ).append( "    " ).append( arguments[ i ].getClass().getName() );
 						if( argTypes[ i ].isPrimitive() )
 						{
 							message.append( " (primitive)" );
@@ -211,14 +211,14 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				{
 					message.append( "[none]" );
 				}
-				message.append( Constants.NEW_LINE + "  End-points: " );
+				message.append( Constants.NEW_LINE ).append( "  End-points: " );
 				if( endpoints.size() > 1 )
 				{
 					message.append( "[redundant calls to diffusers]" );
 				}
 				for( URI endpoint : endpoints )
 				{
-					message.append( Constants.NEW_LINE + "    " + endpoint.toString() );
+					message.append( Constants.NEW_LINE ).append( "    " ).append( endpoint.toString() );
 				}
 
 				LOGGER.info( message.toString() );
@@ -245,7 +245,7 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				client.createDiffuser( classPaths, returnType, object.getClass(), methodName, argTypes );
 				
 				// execute the method on the diffuser
-				ExecuteDiffuserResponse executeResponse = null;
+				ExecuteDiffuserResponse executeResponse;
 				try( final ByteArrayOutputStream out = new ByteArrayOutputStream() )
 				{
 					// serialize the object into the byte[] output stream and flush it
@@ -277,21 +277,21 @@ public class RestfulDiffuser extends AbstractDiffuser {
 							}
 							catch( IOException e )
 							{
-								final StringBuffer message = new StringBuffer();
-								message.append( "I/O error occured attempting to flush the byte[] output stream holding a serialized argument in" + Constants.NEW_LINE );
-								message.append( "preparation for calling the execute(...) method on the client." + Constants.NEW_LINE );
-								message.append( "  Client Endpoint: " + endpoint.toString() + Constants.NEW_LINE );
-								message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-								message.append( "  Argument Value: " + argument + Constants.NEW_LINE );
-								message.append( "  Argument Type: " + argument.getClass().getName() + Constants.NEW_LINE );
-								message.append( "  Argument Types: " + Constants.NEW_LINE );
+								final StringBuilder message = new StringBuilder();
+								message.append( "I/O error occured attempting to flush the byte[] output stream holding a serialized argument in" ).append( Constants.NEW_LINE );
+								message.append( "preparation for calling the execute(...) method on the client." ).append( Constants.NEW_LINE );
+								message.append( "  Client Endpoint: " ).append( endpoint.toString() ).append( Constants.NEW_LINE );
+								message.append( "  Method Name: " ).append( methodName ).append( Constants.NEW_LINE );
+								message.append( "  Argument Value: " ).append( argument ).append( Constants.NEW_LINE );
+								message.append( "  Argument Type: " ).append( argument.getClass().getName() ).append( Constants.NEW_LINE );
+								message.append( "  Argument Types: " ).append( Constants.NEW_LINE );
 								for( int i = 0; i < numArguments; ++i )
 								{
-									message.append( "    " + argTypes[ i ].getName() + Constants.NEW_LINE );
+									message.append( "    " ).append( argTypes[ i ].getName() ).append( Constants.NEW_LINE );
 								}
-								message.append( "  Return Type: " + returnType.getName() + Constants.NEW_LINE );
-								message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
-								message.append( "  Serializer: " + serializer.getClass().getName() + Constants.NEW_LINE );
+								message.append( "  Return Type: " ).append( returnType.getName() ).append( Constants.NEW_LINE );
+								message.append( "  Containing Class: " ).append( object.getClass().getName() ).append( Constants.NEW_LINE );
+								message.append( "  Serializer: " ).append( serializer.getClass().getName() ).append( Constants.NEW_LINE );
 								
 								LOGGER.error( message.toString(), e );
 								throw new IllegalArgumentException( message.toString(), e );
@@ -304,19 +304,19 @@ public class RestfulDiffuser extends AbstractDiffuser {
 				}
 				catch( IOException e )
 				{
-					final StringBuffer message = new StringBuffer();
-					message.append( "I/O error occured attempting to flush the byte[] output stream holding the serialized object in" + Constants.NEW_LINE );
-					message.append( "preparation for calling the execute(...) method on the client." + Constants.NEW_LINE );
-					message.append( "  Client Endpoint: " + endpoint.toString() + Constants.NEW_LINE );
-					message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-					message.append( "  Argument Types: " + (numArguments == 0 ? "[none]" : "" ) + Constants.NEW_LINE );
+					final StringBuilder message = new StringBuilder();
+					message.append( "I/O error occured attempting to flush the byte[] output stream holding the serialized object in" ).append( Constants.NEW_LINE );
+					message.append( "preparation for calling the execute(...) method on the client." ).append( Constants.NEW_LINE );
+					message.append( "  Client Endpoint: " ).append( endpoint.toString() ).append( Constants.NEW_LINE );
+					message.append( "  Method Name: " ).append( methodName ).append( Constants.NEW_LINE );
+					message.append( "  Argument Types: " ).append( (numArguments == 0 ? "[none]" : "") ).append( Constants.NEW_LINE );
 					for( int i = 0; i < numArguments; ++i )
 					{
-						message.append( "    " + argTypes[ i ].getName() + Constants.NEW_LINE );
+						message.append( "    " ).append( argTypes[ i ].getName() ).append( Constants.NEW_LINE );
 					}
-					message.append( "  Return Type: " + returnType.getName() + Constants.NEW_LINE );
-					message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
-					message.append( "  Serializer: " + serializer.getClass().getName() + Constants.NEW_LINE );
+					message.append( "  Return Type: " ).append( returnType.getName() ).append( Constants.NEW_LINE );
+					message.append( "  Containing Class: " ).append( object.getClass().getName() ).append( Constants.NEW_LINE );
+					message.append( "  Serializer: " ).append( serializer.getClass().getName() ).append( Constants.NEW_LINE );
 					
 					LOGGER.error( message.toString() );
 					throw new IllegalArgumentException( message.toString() );
@@ -474,10 +474,10 @@ public class RestfulDiffuser extends AbstractDiffuser {
 	@Override
 	public String toString()
 	{
-		final StringBuffer buffer = new StringBuffer();
-		buffer.append( "Serializer: " + serializer.toString() + Constants.NEW_LINE );
-		buffer.append( "Strategy: " + strategy.getClass().getName() + Constants.NEW_LINE );
-		buffer.append( "  " + strategy.toString() );
+		final StringBuilder buffer = new StringBuilder();
+		buffer.append( "Serializer: " ).append( serializer.toString() ).append( Constants.NEW_LINE );
+		buffer.append( "Strategy: " ).append( strategy.getClass().getName() ).append( Constants.NEW_LINE );
+		buffer.append( "  " ).append( strategy.toString() );
 		return buffer.toString();
 	}
 	
