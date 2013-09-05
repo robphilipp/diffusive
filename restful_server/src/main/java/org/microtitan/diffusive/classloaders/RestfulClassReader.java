@@ -46,6 +46,11 @@ public class RestfulClassReader {
 	private final Abdera abdera;
 	private final Client client;
 
+	/**
+	 * Constructor for the RESTful class reader.
+	 * @param abdera The ATOM feed reader
+	 * @param client The Jersy JAX-RS client
+	 */
 	public RestfulClassReader( final Abdera abdera, final Client client )
 	{
 		this.abdera = abdera;

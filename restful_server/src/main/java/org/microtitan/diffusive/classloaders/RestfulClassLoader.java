@@ -88,7 +88,7 @@ public class RestfulClassLoader extends ClassLoader {
 	 * the {@code byte} array containing the serialized {@link Class} object.
 	 * @param className The fully-qualified class name
 	 * @param bytes The serialized {@link Class} object
-	 * @return
+	 * @return Returns the {@link Class} object for the specified name and object data
 	 */
 	public Class< ? > getClazz( final String className, final byte[] bytes )
 	{

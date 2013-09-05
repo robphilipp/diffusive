@@ -33,6 +33,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class loader that overrides the {@link #findClass(String)} method, using the {@link RestfulClassReader} to read a
+ * byte stream of the {@link Class} object's data if the javassist class' {@link #findClass(String)} method can't
+ * load the class.
+ *
+ * @author Robert Philipp
+ */
 public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	
 	private static Logger LOGGER = Logger.getLogger( RestfulDiffuserClassLoader.class );
@@ -145,7 +152,7 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 	 * @see org.microtitan.diffusive.classloaders.RestfulClassLoader#findClass(java.lang.String)
 	 */
 	@Override
-	public Class< ? > findClass( String className ) throws ClassNotFoundException
+	public Class< ? > findClass( final String className ) throws ClassNotFoundException
 	{
 		Class< ? > clazz = null;
 		try
@@ -230,7 +237,7 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 		message.append( header ).append( Constants.NEW_LINE )
                 .append("  Class Name: ").append( className ).append( Constants.NEW_LINE )
                 .append("  Class Pool: ").append( pool.toString() ).append( Constants.NEW_LINE )
-                .append("  Bytes Read: ").append( bytesRead );
+                .append("  Bytes Read: ").append( bytesRead.toString() );
 		return message.toString();
 	}
 	
