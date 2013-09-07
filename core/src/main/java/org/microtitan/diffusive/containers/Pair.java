@@ -158,7 +158,7 @@ public class Pair< F, S > implements Copyable< Pair< F, S > > {
 	@Override
 	public String toString()
 	{
-		final StringBuffer asString = new StringBuffer( "[" );
+		final StringBuilder asString = new StringBuilder( "[" );
 		asString.append( (first != null ? first.toString() : "[null]" ) ).append( ", " );
 		asString.append( (second != null ? second.toString() : "[null]" ) ).append( "]" );
 		return asString.toString();
@@ -170,6 +170,6 @@ public class Pair< F, S > implements Copyable< Pair< F, S > > {
 	@Override
 	public Pair< F, S > getCopy()
 	{
-		return new Pair< F, S >( this );
+		return new Pair<>( this );
 	}
 }

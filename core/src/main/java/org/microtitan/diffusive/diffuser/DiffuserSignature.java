@@ -216,7 +216,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
 	 * @return a diffuser ID string for a method that doesn't have a return value
 	 */
-	public static final String createId( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	public static String createId( final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
 		return createId( void.class, clazz, methodName, argumentTypes );
 	}
@@ -229,7 +229,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
 	 * @return a diffuser ID string
 	 */
-	public static final String createId( final Class< ? > returnType, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
+	public static String createId( final Class< ? > returnType, final Class< ? > clazz, final String methodName, final Class< ? >...argumentTypes )
 	{
 		final List< String > argumentTypeNames = new ArrayList<>();
 		for( Class< ? > argType : argumentTypes )
@@ -248,7 +248,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param argumentTypes The class names of the arguments passed to the method
 	 * @return the diffuser ID string based on the specified values
 	 */
-	public static final String createId( final String containingClassName, 
+	public static String createId( final String containingClassName,
 			 							 final String methodName, 
 			 							 final List< String > argumentTypes )
 	{
@@ -263,15 +263,15 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param argumentTypes The class names of the arguments passed to the method
 	 * @return the diffuser ID string based on the specified values
 	 */
-	public static final String createId( final String returnType, 
+	public static String createId( final String returnType,
 										 final String containingClassName, 
 										 final String methodName, 
 										 final List< String > argumentTypes )
 	{
 		// create the name/id for the diffuser
-		final StringBuffer buffer = new StringBuffer();
-		buffer.append( containingClassName + CLASS_METHOD_SEPARATOR );
-		buffer.append( methodName + ARGUMENT_OPEN );
+		final StringBuilder buffer = new StringBuilder();
+		buffer.append( containingClassName ).append( CLASS_METHOD_SEPARATOR );
+		buffer.append( methodName ).append( ARGUMENT_OPEN );
 		for( int i = 0; i < argumentTypes.size(); ++i )
 		{
 			buffer.append( encodeType( argumentTypes.get( i ) ) );
@@ -281,7 +281,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 			}
 		}
 		buffer.append( ARGUMENT_CLOSE );
-		buffer.append( RETURN_TYPE_SEPARATOR + returnType );
+		buffer.append( RETURN_TYPE_SEPARATOR ).append( returnType );
 		
 		// attempt to URL encode the signature
 		return buffer.toString();
@@ -295,7 +295,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param className The name of the array class
 	 * @return The encode class name
 	 */
-	public static final String encodeType( final String className )
+	public static String encodeType( final String className )
 	{
 		return encodeType( className, true );
 	}
@@ -308,7 +308,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param className The name of the array class
 	 * @return The encode class name
 	 */
-	public static final String decodeType( final String className )
+	public static String decodeType( final String className )
 	{
 		return encodeType( className, false );
 	}
@@ -320,14 +320,14 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * {@link #ENCODED_ARRAY_IDENTIFIER} (={@value #ENCODED_ARRAY_IDENTIFIER}) and set to false to decode from
 	 * from {@link #ENCODED_ARRAY_IDENTIFIER} (={@value #ENCODED_ARRAY_IDENTIFIER}) to
 	 * {@link #ARRAY_IDENTIFIER} (={@value #ARRAY_IDENTIFIER})
-	 * @return
+	 * @return the array class name in its decoded form
 	 */
 	private static String encodeType( final String className, final boolean encode )
 	{
 		final String arrayIdentifier = ( encode ? ARRAY_IDENTIFIER : ENCODED_ARRAY_IDENTIFIER );
 		final String encodedArrayIdentifier = ( encode ? ENCODED_ARRAY_IDENTIFIER : ARRAY_IDENTIFIER );
 		
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		
 		final String primitiveArray = createPrimitiveArray( arrayIdentifier );
 		final String objectArray = createObjectArray( arrayIdentifier, VALID_NAME );
@@ -380,7 +380,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
 	 * @return a {@link DiffuserSignature} for a method that doesn't have a return value
 	 */
-	public static final synchronized DiffuserSignature create( final Class< ? > clazz, 
+	public static synchronized DiffuserSignature create( final Class< ? > clazz,
 														final String methodName, 
 														final Class< ? >...argumentTypes )
 	{
@@ -395,7 +395,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param argumentTypes The {@link Class} objects of the arguments passed into the diffused method
 	 * @return a {@link DiffuserSignature}
 	 */
-	public static final synchronized DiffuserSignature create( final Class< ? > returnType, 
+	public static synchronized DiffuserSignature create( final Class< ? > returnType,
 														final Class< ? > clazz, 
 														final String methodName, 
 														final Class< ? >...argumentTypes )
@@ -417,7 +417,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param argumentTypes The class names of the arguments passed to the method
 	 * @return the {@link DiffuserSignature} based on the specified values
 	 */
-	public static final synchronized DiffuserSignature create( final String containingClassName, 
+	public static synchronized DiffuserSignature create( final String containingClassName,
 														final String methodName, 
 														final List< String > argumentTypes )
 	{
@@ -432,7 +432,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param argumentTypes The class names of the arguments passed to the method
 	 * @return the {@link DiffuserSignature} based on the specified values
 	 */
-	public static final synchronized DiffuserSignature create( final String returnType, 
+	public static synchronized DiffuserSignature create( final String returnType,
 														final String containingClassName, 
 														final String methodName, 
 														final List< String > argumentTypes )
@@ -470,7 +470,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param signature The diffuser ID string representing the signature
 	 * @return a {@link DiffuserSignature} object based on the specified diffuser ID string
 	 */
-	public static final synchronized DiffuserSignature parse( final String signature )
+	public static synchronized DiffuserSignature parse( final String signature )
 	{
 		return parse( signature, true );
 	}
@@ -486,12 +486,12 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	 * @param isFirstPass true if this is first pass, which if fails, strips out the spaces and tries again
 	 * @return a {@link DiffuserSignature} object based on the specified diffuser ID string
 	 */
-	private static final synchronized DiffuserSignature parse( final String signature, boolean isFirstPass )
+	private static synchronized DiffuserSignature parse( final String signature, boolean isFirstPass )
 	{
-		String className = null;
-		String methodName = null;
-		String returnClassName = null;
-		List< String > argumentTypes = null;
+		String className;
+		String methodName;
+		String returnClassName;
+		List< String > argumentTypes;
 		
 		// parse
 		Matcher matcher = REGEX_PATTERN.matcher( signature );
@@ -537,17 +537,17 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 		}
 		else
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to parse signature: Invalid DiffuserId" + Constants.NEW_LINE );
-			message.append( "  Specified DiffuserId: " + signature + Constants.NEW_LINE );
-			message.append( "  Regex: " + REGEX + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Failed to parse signature: Invalid DiffuserId" ).append( Constants.NEW_LINE );
+			message.append( "  Specified DiffuserId: " ).append( signature ).append( Constants.NEW_LINE );
+			message.append( "  Regex: " ).append( REGEX ).append( Constants.NEW_LINE );
 			if( isFirstPass )
 			{
 				try
 				{
 					final DiffuserSignature sig = DiffuserSignature.parse( signature.replaceAll( "\\s", "" ), false );
-					message.append( Constants.NEW_LINE + "  Hint: try removing spaces from signature" + Constants.NEW_LINE );
-					message.append( "  Recommended DiffuserId: " + sig.getId() );
+					message.append( Constants.NEW_LINE ).append( "  Hint: try removing spaces from signature" ).append( Constants.NEW_LINE );
+					message.append( "  Recommended DiffuserId: " ).append( sig.getId() );
 				}
 				catch( IllegalArgumentException e ) {}
 			}
@@ -575,20 +575,7 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	@Override
 	public boolean equals( final Object object )
 	{
-		if( !(object instanceof DiffuserSignature) )
-		{
-			return false;
-		}
-		
-		final DiffuserSignature id = (DiffuserSignature)object;
-		if( signature.equals( id.signature ) )
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return object instanceof DiffuserSignature && signature.equals( ((DiffuserSignature)object).signature );
 	}
 
 	/* (non-Javadoc)
@@ -614,21 +601,21 @@ public class DiffuserSignature implements Copyable< DiffuserSignature > {
 	@Override
 	public String toString()
 	{
-		final StringBuffer buffer = new StringBuffer();
-		buffer.append( "ID: " + getId() + Constants.NEW_LINE );
-		buffer.append( "  Class Name: " + className + Constants.NEW_LINE );
-		buffer.append( "  Method Name: " + methodName + Constants.NEW_LINE );
-		buffer.append( "  Return Class Name: " + returnTypeClassName + Constants.NEW_LINE );
+		final StringBuilder buffer = new StringBuilder();
+		buffer.append( "ID: " ).append( getId() ).append( Constants.NEW_LINE );
+		buffer.append( "  Class Name: " ).append( className ).append( Constants.NEW_LINE );
+		buffer.append( "  Method Name: " ).append( methodName ).append( Constants.NEW_LINE );
+		buffer.append( "  Return Class Name: " ).append( returnTypeClassName ).append( Constants.NEW_LINE );
 		if( argumentTypes == null || argumentTypes.isEmpty() )
 		{
-			buffer.append( "  [No Method Arguements] " + Constants.NEW_LINE );
+			buffer.append( "  [No Method Arguements] " ).append( Constants.NEW_LINE );
 		}
 		else
 		{
-			buffer.append( "  Argument Type List" + Constants.NEW_LINE );
+			buffer.append( "  Argument Type List" ).append( Constants.NEW_LINE );
 			for( String argumentType : argumentTypes )
 			{
-				buffer.append( "    " + argumentType + Constants.NEW_LINE );
+				buffer.append( "    " ).append( argumentType ).append( Constants.NEW_LINE );
 			}
 		}
 		return buffer.toString();

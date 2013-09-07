@@ -41,17 +41,17 @@ public class LocalDiffuser extends AbstractDiffuser {
 		// have the same number of elements.
 		if( !CollectionUtils.sizesMatch( argTypes, arguments ) )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "The number of arguments and argument types for the method do not match." + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "The number of arguments and argument types for the method do not match." ).append ( Constants.NEW_LINE );
 			message.append( Constants.NEW_LINE );
-			message.append( "  Containing Class: " + object.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Method Name: " + methodName + Constants.NEW_LINE );
+			message.append( "  Containing Class: " ).append ( object.getClass().getName() ).append ( Constants.NEW_LINE );
+			message.append( "  Method Name: " ).append ( methodName ).append ( Constants.NEW_LINE );
 			message.append( "  Arguments: " );
 			if( arguments.length > 0 )
 			{
 				for( int i = 0; i < arguments.length; ++i )
 				{
-					message.append( Constants.NEW_LINE + "    " + arguments[ i ].getClass().getName() );
+					message.append( Constants.NEW_LINE ).append ( "    " ).append ( arguments[ i ].getClass().getName() );
 					if( argTypes[ i ].isPrimitive() )
 					{
 						message.append( " (primitive)" );
@@ -69,7 +69,7 @@ public class LocalDiffuser extends AbstractDiffuser {
 		final Class< ? > clazz = object.getClass();
 		
 		// attempt to call the method
-		Object returnResult = null;
+		Object returnResult;
 		Object returnValue = null;
 		try
 		{
@@ -87,19 +87,19 @@ public class LocalDiffuser extends AbstractDiffuser {
 
 			if( LOGGER.isDebugEnabled() )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Diffused method call to:" + Constants.NEW_LINE );
-				message.append( "  Diffuser: " + LocalDiffuser.class.getName() + Constants.NEW_LINE );
-				message.append( "  Class of Object to Run: " + object.getClass().getName() + Constants.NEW_LINE );
-				message.append( "  Name of Method to Run: " + methodName + Constants.NEW_LINE );
+				final StringBuilder message = new StringBuilder();
+				message.append( "Diffused method call to:" ).append ( Constants.NEW_LINE );
+				message.append( "  Diffuser: " ).append ( LocalDiffuser.class.getName() ).append ( Constants.NEW_LINE );
+				message.append( "  Class of Object to Run: " ).append ( object.getClass().getName() ).append ( Constants.NEW_LINE );
+				message.append( "  Name of Method to Run: " ).append ( methodName ).append ( Constants.NEW_LINE );
 				if( returnResult == null )
 				{
-					message.append( "  Returned Result Object: [null]" + Constants.NEW_LINE );
+					message.append( "  Returned Result Object: [null]" ).append ( Constants.NEW_LINE );
 				}
 				else
 				{
-					message.append( "  Returned Result Object: " + returnResult.getClass().getName() + Constants.NEW_LINE );
-					message.append( "  Returned Result Value: " + returnResult.toString() );
+					message.append( "  Returned Result Object: " ).append ( returnResult.getClass().getName() ).append ( Constants.NEW_LINE );
+					message.append( "  Returned Result Value: " ).append ( returnResult.toString() );
 				}
 				LOGGER.debug( message.toString() );
 				System.out.println( message.toString() );
@@ -107,36 +107,36 @@ public class LocalDiffuser extends AbstractDiffuser {
 		}
 		catch( ClassCastException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Return type from the method and the intended result type do not match." + Constants.NEW_LINE );
-			message.append( "  Expected Return Type: " + returnType.getName() + Constants.NEW_LINE );
-			message.append( "  Actual Return Type: " + returnValue.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Expected Return Type Class Loader: " + returnType.getClassLoader() + Constants.NEW_LINE );
-			message.append( "  Actual Return Type Class Loader: " + returnValue.getClass().getClassLoader() );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Return type from the method and the intended result type do not match." ).append ( Constants.NEW_LINE );
+			message.append( "  Expected Return Type: " ).append ( returnType.getName() ).append ( Constants.NEW_LINE );
+			message.append( "  Actual Return Type: " ).append ( returnValue == null ? "[null]" : returnValue.getClass().getName() ).append ( Constants.NEW_LINE );
+			message.append( "  Expected Return Type Class Loader: " ).append ( returnType.getClassLoader() ).append ( Constants.NEW_LINE );
+			message.append( "  Actual Return Type Class Loader: " ).append ( returnValue == null ? "[null]" : returnValue.getClass().getClassLoader() );
 			LOGGER.error( message.toString(), e );
 			
 			throw new IllegalStateException( message.toString(), e );
 		}
 		catch( NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Diffuser is unable to invoke the method on the object:" + Constants.NEW_LINE );
-			message.append( "  Diffuser: " + LocalDiffuser.class.getName() + Constants.NEW_LINE );
-			message.append( "  Class of Object to Run: " + object.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Name of Method to Run: " + methodName + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Diffuser is unable to invoke the method on the object:" ).append ( Constants.NEW_LINE );
+			message.append( "  Diffuser: " ).append ( LocalDiffuser.class.getName() ).append ( Constants.NEW_LINE );
+			message.append( "  Class of Object to Run: " ).append ( object.getClass().getName() ).append ( Constants.NEW_LINE );
+			message.append( "  Name of Method to Run: " ).append ( methodName ).append ( Constants.NEW_LINE );
 			message.append( "  Method Arguments: " );
 			if( argTypes != null )
 			{
 				for( Class< ? > param : argTypes )
 				{
-					message.append( Constants.NEW_LINE + "    " + param.getName() );
+					message.append( Constants.NEW_LINE ).append ( "    " ).append ( param.getName() );
 				}
 			}
 			else
 			{
 				message.append( "[none]" );
 			}
-			message.append( Constants.NEW_LINE + "  Return Type: " );
+			message.append( Constants.NEW_LINE ).append ( "  Return Type: " );
 			if( returnType != null )
 			{
 				message.append( returnType.getName() );
@@ -145,7 +145,7 @@ public class LocalDiffuser extends AbstractDiffuser {
 			{
 				message.append( "void" );
 			}
-			message.append( Constants.NEW_LINE + "  Containing Object: " + object.toString() );
+			message.append( Constants.NEW_LINE ).append ( "  Containing Object: " ).append ( object.toString() );
 			LOGGER.error( message.toString(), e );
 			
 			throw new IllegalArgumentException( message.toString(), e );

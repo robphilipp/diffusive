@@ -54,7 +54,7 @@ public class KeyedDiffuserRepository {
 	public static class SharedRegistry {}
 	static 
 	{
-		instances = new HashMap< Object, KeyedDiffuserRepository >();
+		instances = new HashMap<>();
 	}
 	
 	// the diffusers and their associated keys
@@ -109,7 +109,7 @@ public class KeyedDiffuserRepository {
 	 */
 	public static KeyedDiffuserRepository associate( Object key, Object newKey )
 	{
-		KeyedDiffuserRepository instance = null;
+		KeyedDiffuserRepository instance;
 		synchronized( instances )
 		{
 			// "per key" singleton
@@ -136,7 +136,7 @@ public class KeyedDiffuserRepository {
 						newKeyString = (String)newKey;
 					}
 					
-					StringBuffer message = new StringBuffer();
+					StringBuilder message = new StringBuilder();
 					message.append( "Created a new association between keys:" ).append( Constants.NEW_LINE );
 					message.append( "  Existing key: " ).append( keyString ).append( Constants.NEW_LINE );
 					message.append( "  New key: " ).append( newKeyString );
@@ -159,7 +159,7 @@ public class KeyedDiffuserRepository {
 					newKeyString = (String)newKey;
 				}
 				
-				StringBuffer message = new StringBuffer();
+				StringBuilder message = new StringBuilder();
 				message.append( "Unable to create association between keys. Creating an association requires" ); 
 				message.append( Constants.NEW_LINE );
 				message.append( "that the \"existing key\" is a key in the registry, which it isn't." );
@@ -271,13 +271,13 @@ public class KeyedDiffuserRepository {
 		final Diffuser diffuser = diffusers.get( key );
 		if( diffuser == null )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Diffuser with specified key not found." + Constants.NEW_LINE );
-			message.append( "  Specified Key: " + key + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Diffuser with specified key not found." ).append( Constants.NEW_LINE );
+			message.append( "  Specified Key: " ).append( key ).append( Constants.NEW_LINE );
 			message.append( "  Available Keys:" );
 			for( String diffKey : diffusers.keySet() )
 			{
-				message.append( Constants.NEW_LINE + "    " + diffKey );
+				message.append( Constants.NEW_LINE ).append( "    " ).append( diffKey );
 			}
 			LOGGER.warn( message.toString() );
 		}

@@ -15,7 +15,11 @@
  */
 package org.microtitan.diffusive.diffuser;
 
-
+/**
+ * Abstract diffuser that implements the convenience methods, {@link #runObject(double, Class, Object, String)}
+ * and {@link #runObject(double, Class, Object, String, Class[], Object...)} so that the sub classes only need to implement
+ * {@link #runObject(double, Class, Object, String, Class[], Object...)}.
+ */
 public abstract class AbstractDiffuser implements Diffuser {
 
 	/*
