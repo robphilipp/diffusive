@@ -21,6 +21,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Basic utils to assist in reflection
+ */
 public class ReflectionUtils {
 	
 	private static final Logger LOGGER = Logger.getLogger( ReflectionUtils.class );
@@ -218,39 +221,6 @@ public class ReflectionUtils {
 	public static Class< ? > getPrimitive( final String classname )
 	{
 		return TYPE_MAP.get( classname );
-//		if( Integer.TYPE.toString().equals( classname ) )
-//		{
-//			return Integer.TYPE;
-//		}
-//		if( Double.TYPE.toString().equals( classname ) )
-//		{
-//			return Double.TYPE;
-//		}
-//		if( Float.TYPE.toString().equals( classname ) )
-//		{
-//			return Float.TYPE;
-//		}
-//		if( Long.TYPE.toString().equals( classname ) )
-//		{
-//			return Long.TYPE;
-//		}
-//		if( Short.TYPE.toString().equals( classname ) )
-//		{
-//			return Short.TYPE;
-//		}
-//		if( Boolean.TYPE.toString().equals( classname ) )
-//		{
-//			return Boolean.TYPE;
-//		}
-//		if( Character.TYPE.toString().equals( classname ) )
-//		{
-//			return Character.TYPE;
-//		}
-//		if( Byte.TYPE.toString().equals( classname ) )
-//		{
-//			return Byte.TYPE;
-//		}
-//		return null;
 	}
 	
 }

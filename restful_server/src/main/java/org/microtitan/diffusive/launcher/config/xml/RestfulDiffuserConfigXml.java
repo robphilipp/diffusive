@@ -72,7 +72,7 @@ public class RestfulDiffuserConfigXml {
 	 * NOTE: This field is only used in the main(...) class for testing and to help create
 	 * configuration files for strategies 
 	 */
-	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_diffuser_strategy.xml";
+//	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_diffuser_strategy.xml";
 //	public static final String XML_STRATEGY_CONFIG_FILE_NAME = "random_weighted_diffuser_strategy.xml";
 	
 	/**
@@ -80,7 +80,7 @@ public class RestfulDiffuserConfigXml {
 	 * NOTE: This field is only used in the main(...) class for testing and to help create
 	 * configuration files for strategies 
 	 */
-	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomDiffuserStrategyConfigXml.class.getName();
+//	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomDiffuserStrategyConfigXml.class.getName();
 //	public static final String XML_STRATEGY_CONFIG_CLASS_NAME = RandomWeightedDiffuserStrategyConfigXml.class.getName();
 
 	/**
@@ -214,7 +214,7 @@ public class RestfulDiffuserConfigXml {
 	@SuppressWarnings( "unchecked" )
 	public Class< ? extends DiffuserStrategyConfigXml > getDiffuserStrategyConfigClass()
 	{
-		Class< ? extends DiffuserStrategyConfigXml > strategyClazz = null;
+		Class< ? extends DiffuserStrategyConfigXml > strategyClazz;
 		try
 		{
 			strategyClazz = (Class< ? extends DiffuserStrategyConfigXml >)Class.forName( strategyConfigClassName );
@@ -262,14 +262,14 @@ public class RestfulDiffuserConfigXml {
 	@Override
 	public String toString()
 	{
-		final StringBuffer rep = new StringBuffer();
-		rep.append( "Class Path List:" + Constants.NEW_LINE );
+		final StringBuilder rep = new StringBuilder();
+		rep.append( "Class Path List:" ).append( Constants.NEW_LINE );
 		for( String path : classPathList )
 		{
-			rep.append( "  " + path + Constants.NEW_LINE );
+			rep.append( "  " ).append( path ).append( Constants.NEW_LINE );
 		}
-		rep.append( "Load Threshold: " + loadThreshold + Constants.NEW_LINE );
-		rep.append( "Serializer Name: " + serializerName + Constants.NEW_LINE );
+		rep.append( "Load Threshold: " ).append( loadThreshold ).append( Constants.NEW_LINE );
+		rep.append( "Serializer Name: " ).append( serializerName ).append( Constants.NEW_LINE );
 		
 		return rep.toString();
 	}
@@ -314,7 +314,7 @@ public class RestfulDiffuserConfigXml {
 	 * @param options The parsed command-line optoins
 	 * @return The {@link org.microtitan.diffusive.launcher.config.xml.RestfulDiffuserConfigXml.UsageMode}
 	 */
-	private static final UsageMode validateUsageMode( final OptionSpec< String > modeSpec, final OptionSet options )
+	private static UsageMode validateUsageMode( final OptionSpec< String > modeSpec, final OptionSet options )
 	{
 		final UsageMode mode = UsageMode.getMode( modeSpec.value( options ) );
 		if( mode == null )
@@ -327,7 +327,7 @@ public class RestfulDiffuserConfigXml {
 		return mode;
 	}
 	
-	private static final SerializerType validateSerializerType( final OptionSpec< String > serializerSpec, final OptionSet options )
+	private static SerializerType validateSerializerType( final OptionSpec< String > serializerSpec, final OptionSet options )
 	{
 		final SerializerType serializerType = SerializerType.getSerializerType( serializerSpec.value( options ) );
 		if( serializerType == null )
@@ -346,7 +346,7 @@ public class RestfulDiffuserConfigXml {
 	 * @param options The command-line options
 	 * @return The {@link org.microtitan.diffusive.diffuser.restful.server.config.StrategyType}
 	 */
-	private static final StrategyType validateStrategyType( final OptionSpec< String > strategySpec, final OptionSet options )
+	private static StrategyType validateStrategyType( final OptionSpec< String > strategySpec, final OptionSet options )
 	{
 		final StrategyType strategy = StrategyType.getStrategyType( strategySpec.value( options ) );
 		if( strategy == null )
@@ -359,7 +359,7 @@ public class RestfulDiffuserConfigXml {
 		return strategy;
 	}
 	
-	private static final List< String > convertUri( final List< URI > uris )
+	private static List< String > convertUri( final List< URI > uris )
 	{
 		final List< String > uriStrings = new ArrayList<>();
 		for( final URI uri : uris )
@@ -497,7 +497,7 @@ public class RestfulDiffuserConfigXml {
 			
 			new XmlPersistence().write( xmlStrategyConfig, strategyConfigFile );
 			System.out.println( "Wrote strategy configuration file: " + strategyConfigFile );
-			System.out.println( xmlStrategyConfig.toString() );
+			System.out.println( xmlStrategyConfig == null ? "[null]" : xmlStrategyConfig.toString() );
 		}
 		else if( usageMode == UsageMode.VALIDATE )
 		{
