@@ -96,6 +96,6 @@ public class ReflectionUtilsTest {
 	@Test
 	public void testGetPrimitive() throws Exception
 	{
-
+		org.junit.Assert.assertEquals( "int", ReflectionUtils.getPrimitive( Integer.class.getName() ), int.class );
 	}
 }

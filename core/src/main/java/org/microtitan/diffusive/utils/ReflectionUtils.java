@@ -27,20 +27,7 @@ import org.apache.log4j.Logger;
 public class ReflectionUtils {
 	
 	private static final Logger LOGGER = Logger.getLogger( ReflectionUtils.class );
-	
-	private static Map< String, Class< ? > > TYPE_MAP = new HashMap<>();
-	static {
-		TYPE_MAP.put( void.class.getName(), void.class );
-		TYPE_MAP.put( int.class.getName(), int.class );
-		TYPE_MAP.put( short.class.getName(), short.class );
-		TYPE_MAP.put( long.class.getName(), long.class );
-		TYPE_MAP.put( double.class.getName(), double.class );
-		TYPE_MAP.put( float.class.getName(), float.class );
-		TYPE_MAP.put( byte.class.getName(), byte.class );
-		TYPE_MAP.put( char.class.getName(), char.class );
-		TYPE_MAP.put( boolean.class.getName(), boolean.class );
-	}
-	
+
 	private static Map< Class< ? >, Class< ? > > WRAP_MAP = new HashMap<>();
 	static {
 		WRAP_MAP.put( void.class, Void.class );
@@ -52,6 +39,22 @@ public class ReflectionUtils {
 		WRAP_MAP.put( byte.class, Byte.class );
 		WRAP_MAP.put( char.class, Character.class );
 		WRAP_MAP.put( boolean.class, Boolean.class );
+	}
+
+	private static Map< String, Class< ? > > TYPE_MAP = new HashMap<>();
+	static {
+		for( Class< ? > entry : WRAP_MAP.keySet() )
+		{
+			TYPE_MAP.put( entry.getName(), entry );
+		}
+	}
+
+	private static Map< String, Class< ? > > PRIMITIVE_TYPE_MAP = new HashMap<>();
+	static {
+		for( Map.Entry< Class< ? >, Class< ? > > entry : WRAP_MAP.entrySet() )
+		{
+			PRIMITIVE_TYPE_MAP.put( entry.getValue().getName(), entry.getKey() );
+		}
 	}
 	
 	// invert the wrapped map
@@ -220,7 +223,7 @@ public class ReflectionUtils {
 	 */
 	public static Class< ? > getPrimitive( final String classname )
 	{
-		return TYPE_MAP.get( classname );
+		return PRIMITIVE_TYPE_MAP.get( classname );
 	}
 	
 }
