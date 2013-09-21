@@ -97,5 +97,7 @@ public class ReflectionUtilsTest {
 	public void testGetPrimitive() throws Exception
 	{
 		org.junit.Assert.assertEquals( "int", ReflectionUtils.getPrimitive( Integer.class.getName() ), int.class );
+		org.junit.Assert.assertEquals( "double", ReflectionUtils.getPrimitive( Double.class.getName() ), double.class );
+		org.junit.Assert.assertEquals( "boolean", ReflectionUtils.getPrimitive( Boolean.class.getName() ), boolean.class );
 	}
 }

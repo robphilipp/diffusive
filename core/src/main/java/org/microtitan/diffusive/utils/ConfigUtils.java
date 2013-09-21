@@ -34,7 +34,7 @@ public class ConfigUtils {
 
 	/**
 	 * @return a {@link java.util.List} of {@link java.net.URI} that hold the location of end-points to which the
-	 * local {@link org.microtitan.diffusive.diffuser.restful.RestfulDiffuser} can diffuse method calls.
+	 * local {@link org.microtitan.diffusive.diffuser.Diffuser} can diffuse method calls.
 	 */
 	public static List< URI > createEndpointList( final Collection< String > clientEndpoints )
 	{
