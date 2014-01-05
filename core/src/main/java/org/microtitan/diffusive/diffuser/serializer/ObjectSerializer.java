@@ -46,11 +46,11 @@ public class ObjectSerializer implements Serializer {
 		}
 		catch( IOException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Unable to serialize object to output stream:" + Constants.NEW_LINE );
-			message.append( "  Output Stream Type: " + output.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Object Type: " + object.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Object: " + object.toString() + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Unable to serialize object to output stream:" ).append( Constants.NEW_LINE );
+			message.append( "  Output Stream Type: " ).append( output.getClass().getName() ).append( Constants.NEW_LINE );
+			message.append( "  Object Type: " ).append( object.getClass().getName() ).append( Constants.NEW_LINE );
+			message.append( "  Object: " ).append( object.toString() ).append( Constants.NEW_LINE );
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}
@@ -66,17 +66,17 @@ public class ObjectSerializer implements Serializer {
 		// read the input stream into an object. we use the the (apache commons-io) ClassLoaderObjectInputStream
 		// to read the object because we need to be able to use the same class loader that loaded the class in
 		// the first place (for example, the RestfulClassLoader).
-		T object = null;
+		T object;
 		try( final ClassLoaderObjectInputStream in = new ClassLoaderObjectInputStream( clazz.getClassLoader(), input ) )
 		{
 			object = clazz.cast( in.readObject() );
 		}
 		catch( IOException | ClassNotFoundException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Unable to serialize object to output stream:" + Constants.NEW_LINE );
-			message.append( "  Input Stream Type: " + input.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Object Type: " + clazz.getName() + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Unable to serialize object to output stream:" ).append( Constants.NEW_LINE );
+			message.append( "  Input Stream Type: " ).append( input.getClass().getName() ).append( Constants.NEW_LINE );
+			message.append( "  Object Type: " ).append( clazz.getName() ).append( Constants.NEW_LINE );
 			LOGGER.error( message.toString(), e );
 			throw new IllegalArgumentException( message.toString(), e );
 		}

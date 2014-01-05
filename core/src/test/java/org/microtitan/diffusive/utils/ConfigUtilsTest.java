@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,12 +33,7 @@ public class ConfigUtilsTest {
 	@Test
 	public void testCreateEndpointList() throws Exception
 	{
-		final List< String > endpoints = new ArrayList<>();
-		endpoints.add( "http://localhost:80/this/is/a/path" );
-		final List<URI> uri = ConfigUtils.createEndpointList( endpoints );
-
-		final List< URI > referenceEndpoints = new ArrayList<>();
-		referenceEndpoints.add( URI.create( "http://localhost:80/this/is/a/path" ) );
+		final List<URI> uri = ConfigUtils.createEndpointList( Arrays.asList( "http://localhost:80/this/is/a/path" ) );
 
 		org.junit.Assert.assertThat( "lists equal", uri, new Matcher<List<URI>>() {
 			@Override
