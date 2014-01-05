@@ -24,7 +24,7 @@ dependencies {
 	runtime 'org.codehaus.jackson:jackson-core-asl:1.9.3'
 
 	// json parsing and creation libraries
-	compile files( '../ext-libs/json-20120228.jar' )
+	compile 'org.apache.geronimo.bundles:json:20090211_1'
 }
 
 // set the main class for the application jar (used by the "application" plugin

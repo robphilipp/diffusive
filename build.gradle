@@ -22,7 +22,7 @@ subprojects {
 		compile 'org.apache.commons:commons-io:1.3.2'
 
 		// freezedry persistence JAR
-		compile files( '../ext-libs/FreezeDry_0.2.6.jar' )
+		compile 'com.closure-sys:freezedry:0.2.9'
 
 		// for testing
 		testCompile 'junit:junit:4.11'
