@@ -13,37 +13,38 @@ subprojects {
 		compile 'log4j:log4j:1.2.17'
 
 		// javassit byte-code engineering library used to divert diffused methods at class load time
-		compile 'javassist:javassist:3.12.1.GA'
+        compile 'org.javassist:javassist:3.18.2-GA'
+//        compile 'javassist:javassist:3.12.1.GA'
 
 		// command line options parsing library
-		compile 'net.sf.jopt-simple:jopt-simple:4.5'
+		compile 'net.sf.jopt-simple:jopt-simple:4.7'
 
 		// apache commons
 		compile 'org.apache.commons:commons-io:1.3.2'
 
 		// freezedry persistence JAR
-		compile 'com.closure-sys:freezedry:0.2.9'
+		compile 'com.closure-sys:freezedry:0.3.1'
 
 		// for testing
 		testCompile 'junit:junit:4.11'
 	}
 
 
-	sourceCompatibility = 1.7
+	sourceCompatibility = 1.8
 
 	project.ext {
-		version = '0.2.2'
+//		version = '0.2.2'
 		app_name = 'diffusive'
 	}
 
 	// sets the version number based on whether building the release or snapshot
-	gradle.taskGraph.whenReady( { taskGraph ->
-		if( taskGraph.hasTask( release ) ) {
-			version = project.ext.version
-		} else {
-			version = project.ext.version + '-SNAPSHOT'
-		}
-	} )
+//	gradle.taskGraph.whenReady( { taskGraph ->
+//		if( taskGraph.hasTask( release ) ) {
+//			version = project.ext.version
+//		} else {
+//			version = project.ext.version + '-SNAPSHOT'
+//		}
+//	} )
 
 	jar {
 		baseName = project.ext.app_name;
@@ -51,7 +52,7 @@ subprojects {
 			attributes(
 				"Implementation-Vendor": "Rob Philipp",
 				"Implementation-Title": project.ext.app_name,
-				"Implementation-Version": project.ext.version
+//				"Implementation-Version": project.ext.version
 			)
 		}
 	}

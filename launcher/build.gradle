@@ -9,7 +9,7 @@
 apply plugin: 'application'
 
 dependencies {
-	compile project( ':core' )
+    compile project( ':core' )
 }
 
 mainClassName = "org/microtitan/diffusive/launcher/DiffusiveLauncher"
@@ -21,4 +21,11 @@ jar {
 				"Main-Class": "org/microtitan/diffusive/launcher/DiffusiveLauncher"
 		)
 	}
+
+    // package into an executable jar
+    from {
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
 }

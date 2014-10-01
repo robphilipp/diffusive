@@ -35,7 +35,7 @@ public class LocalDiffuser extends AbstractDiffuser {
 	 * @see org.microtitan.diffusive.diffuser.Diffuser#runObject(double, java.lang.Class, java.lang.Object, java.lang.String, java.lang.Class<?>[], java.lang.Object[])
 	 */
 	@Override
-	public Object runObject( final double laod, final Class< ? > returnType, final Object object, final String methodName, final Class< ? >[] argTypes, final Object...arguments )
+	public Object runObject( final double load, final Class< ? > returnType, final Object object, final String methodName, final Class< ? >[] argTypes, final Object...arguments )
 	{
 		// check to make sure that if argTypes and arguments aren't both empty or null, that they 
 		// have the same number of elements.

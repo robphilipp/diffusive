@@ -10,7 +10,7 @@ dependencies {
 	// diffusive annotations
 	compile project( ':annotations' )
 
-	// abdera atom/rss parser
+    // abdera atom/rss parser
 	compile 'org.apache.abdera:abdera-parser:1.1.3'
 
 	// jersey JAX-RS implementation for REST web services server and client
