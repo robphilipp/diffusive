@@ -14,7 +14,6 @@ subprojects {
 
 		// javassit byte-code engineering library used to divert diffused methods at class load time
         compile 'org.javassist:javassist:3.18.2-GA'
-//        compile 'javassist:javassist:3.12.1.GA'
 
 		// command line options parsing library
 		compile 'net.sf.jopt-simple:jopt-simple:4.7'

@@ -128,17 +128,17 @@ public class MethodInterceptorEditor extends ExprEditor {
 			{
 				// write the code to replace the method call with a Diffusive call
 				// TODO replace this with a logger, which will require adding a logger field
-//				code.append( "    System.out.println( \"(diffused): " ).append( className ).append( "." ).append( methodName ).append( "\" );\n" );
-//				code.append( "    System.out.println( \"  Class Loader Name: \" ).append( $0.getClass().getClassLoader().getClass().getName() );\n" );
-//				code.append( "    System.out.println( \"  Class Loader Instance: \" ).append( $0.getClass().getClassLoader().toString() );\n" );
-//				code.append( "    System.out.println( \"  Object: \" ).append( $0.getClass().getName() );\n" );
-//				int i = 1;
-//				for( CtClass arg : methodCall.getMethod().getParameterTypes() )
-//				{
-//					code.append( "    System.out.println( \"  Method Param: value=\" ).append( $" ).append( i ).append( " ).append( \"; type=" ).append( arg.getName() ).append( "\" );\n" );
-//					++i;
-//				}
-//				code.append( "    System.out.println( \"  Return: \" ).append( $type.getName() );\n" );
+				code.append( "    System.out.println( \"(diffused): " ).append( className ).append( "." ).append( methodName ).append( "\" );\n" );
+				code.append( "    System.out.println( \"  Class Loader Name: " ).append( "\" + $0.getClass().getClassLoader().getClass().getName() );\n" );
+				code.append( "    System.out.println( \"  Class Loader Instance: " ).append( "\" + $0.getClass().getClassLoader().toString() );\n" );
+				code.append( "    System.out.println( \"  Object: " ).append( "\" + $0.getClass().getName() );\n" );
+				int i = 1;
+				for( CtClass arg : methodCall.getMethod().getParameterTypes() )
+				{
+                    code.append("    System.out.println( \"  Method Param: value=\" + $" ).append( i ).append(" + \" ; type=").append( arg.getName() ).append( "\" );\n" );
+					++i;
+				}
+				code.append( "    System.out.println( \"  Return: " ).append( "\" + $type.getName() );\n" );
 
 				// make the appropriate call to the diffuser repository to get the diffuser: either use
 				// the signature or use the default diffuser (recall that for the application-attached
@@ -163,14 +163,14 @@ public class MethodInterceptorEditor extends ExprEditor {
 					final String signature = DiffuserSignature.createId( returnType, className, methodName, argumentTypes );
 					
 					// spit out the signature and the base method associated with the diffuser
-//					code.append( "    System.out.println( \"  Diffused Signature: " ).append( signature ).append( "\" );\n" );
-//					code.append( "    System.out.println( \"  Base Signature Used in Repository: " ).append( diffuserId.getId() ).append( "\" );\n" );
+					code.append( "    System.out.println( \"  Diffused Signature: " ).append( signature ).append( "\" );\n" );
+					code.append( "    System.out.println( \"  Base Signature Used in Repository: " ).append( diffuserId.getId() ).append( "\" );\n" );
 
 					// make the call to grab the diffuser to ensure that it is actually returning a diffuser.
 					// we do this because if the class loader for the diffusion is different from the class loader of the
 					// restful diffuser resource manager, then it returns null, and we want to see this.
 					final String getDiffuser = repoClassName + "." + getInstance + ".getDiffuser( \"" + diffuserId.getId() + "\" )";
-//					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " ).append (getDiffuser ).append (" );\n" );
+					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " ).append (getDiffuser ).append (" );\n" );
 					
 					// the actual Diffusive call
 					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $sig, $args );";
