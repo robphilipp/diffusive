@@ -6,6 +6,19 @@
  * to get you started. For a quick start with Gradle have a look at the Java Quickstart
  * chapter in the Gradle Userguide available at /Users/rob/.gvm/gradle/1.6/docs/userguide/tutorial_java_projects.html
  */
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'eu.appsatori:gradle-fatjar-plugin:0.3'
+    }
+}
+
+// for fatjar
+apply plugin: 'eu.appsatori.fatjar'
+
 apply plugin: 'application'
 
 dependencies {
@@ -14,7 +27,7 @@ dependencies {
 
 mainClassName = "org/microtitan/diffusive/launcher/DiffusiveLauncher"
 
-jar {
+fatJar {
 	baseName = project.ext.app_name + "-" + "launcher"
 	manifest {
 		attributes(
@@ -22,10 +35,10 @@ jar {
 		)
 	}
 
-    // package into an executable jar
-    from {
-        configurations.runtime.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
+//    // package into an executable jar
+//    from {
+//        configurations.runtime.collect {
+//            it.isDirectory() ? it : zipTree(it)
+//        }
+//    }
 }
