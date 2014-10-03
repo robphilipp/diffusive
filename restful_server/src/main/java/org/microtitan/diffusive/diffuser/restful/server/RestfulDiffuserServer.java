@@ -113,7 +113,7 @@ public class RestfulDiffuserServer {
 	 */
 	private static HttpServer createHttpServer( final URI serverUri, final RestfulDiffuserApplication application )
 	{
-		HttpServer server = null;
+		HttpServer server;
 		try
 		{
 			// create an HTTP handler that assigns the specified application  
@@ -124,19 +124,17 @@ public class RestfulDiffuserServer {
 		}
 		catch( IOException e )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Failed to start Grizzly web server." + Constants.NEW_LINE );
-			message.append( "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
-			LOGGER.error( message.toString(), e );
-			throw new IllegalStateException( message.toString(), e );
+			final StringBuilder message = new StringBuilder();
+            message.append( "Failed to start Grizzly web server." ).append( Constants.NEW_LINE );
+            message.append( "  Server URI: " ).append( serverUri.toString() ).append( Constants.NEW_LINE );
+            LOGGER.error( message.toString(), e );
+            throw new IllegalStateException( message.toString(), e );
 		}
 		
 		if( LOGGER.isDebugEnabled() )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Started Grizzly web server." + Constants.NEW_LINE );
-			message.append( "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
-			LOGGER.debug( message.toString() );
+            LOGGER.debug( "Started Grizzly web server." + Constants.NEW_LINE
+                    + "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
 		}
 		return server;
 	}
@@ -286,15 +284,15 @@ public class RestfulDiffuserServer {
 		final String diffuserManagerResource = diffuserManagerResourceSpec.value( options );
 		
 		// report the options used
-		final StringBuffer buffer = new StringBuffer( Constants.NEW_LINE + "Configuration Items" + Constants.NEW_LINE );
-		buffer.append( "  Server URI: " + serverUri.toString() + Constants.NEW_LINE );
-		buffer.append( "  Config File: " + configFileName + Constants.NEW_LINE );
-		buffer.append( "  Config Class: " + configClassName + Constants.NEW_LINE );
+		final StringBuilder buffer = new StringBuilder( Constants.NEW_LINE + "Configuration Items" + Constants.NEW_LINE );
+		buffer.append("  Server URI: ").append(serverUri.toString()).append(Constants.NEW_LINE);
+		buffer.append("  Config File: ").append(configFileName).append(Constants.NEW_LINE);
+		buffer.append("  Config Class: ").append(configClassName).append(Constants.NEW_LINE);
 		if( classPaths != null )
 		{
 			for( String classPath : classPaths )
 			{
-				buffer.append( "    " + classPath + Constants.NEW_LINE );
+				buffer.append("    ").append(classPath).append(Constants.NEW_LINE);
 			}
 		}
 		buffer.append( "  Max Threads: " + maxThreads + Constants.NEW_LINE );

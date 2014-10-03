@@ -6,6 +6,19 @@
  * to get you started. For a quick start with Gradle have a look at the Java Quickstart
  * chapter in the Gradle Userguide available at /Users/rob/.gvm/gradle/1.6/docs/userguide/tutorial_java_projects.html
  */
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'eu.appsatori:gradle-fatjar-plugin:0.3'
+    }
+}
+
+// for fatjar
+apply plugin: 'eu.appsatori.fatjar'
+
 apply plugin: 'application'
 
 evaluationDependsOn( ':core' )
@@ -17,8 +30,8 @@ dependencies {
 	compile 'org.apache.abdera:abdera-parser:1.1.3'
 
 	// jersey JAX-RS implementation for REST web services server and client
-	compile 'com.sun.jersey:jersey-bundle:1.17.1'
-	compile 'com.sun.jersey:jersey-grizzly2:1.17.1'
+    compile 'com.sun.jersey:jersey-bundle:1.18.1'
+    compile 'com.sun.jersey:jersey-grizzly2:1.18.1'
 
 	runtime 'org.codehaus.jackson:jackson-jaxrs:1.9.3'
 	runtime 'org.codehaus.jackson:jackson-core-asl:1.9.3'
@@ -28,10 +41,11 @@ dependencies {
 }
 
 // set the main class for the application jar (used by the "application" plugin
-mainClassName = "org/microtitan/diffusive/diffuser/restful/server/RestfulDiffuserServer"
+mainClassName = "org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer"
 
 // create the jar file for the restful diffusive server with the main class specified
-jar {
+// $ gradle fatJar
+fatJar {
 	baseName = project.ext.app_name + "-" + "restful-server"
 	manifest {
 		attributes(
@@ -39,4 +53,3 @@ jar {
 		)
 	}
 }
-
