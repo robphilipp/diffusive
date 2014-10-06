@@ -17,10 +17,7 @@ package org.microtitan.diffusive.launcher;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -217,6 +214,7 @@ public class DiffusiveLoader extends Loader {
 		prefixes.add( "org.apache.log4j." );
 		prefixes.add( "org.apache.commons.logging." );
 		prefixes.add( "org.apache.abdera." );
+		prefixes.add( "org.slf4j." );
 		
 		// we want to make sure that the DiffusiveConfiguration annotation is loaded
 		// by the default app class loader, and NOT this one.
@@ -414,6 +412,7 @@ public class DiffusiveLoader extends Loader {
 		for( Map.Entry< String, Object[] > className : configurationClasses.entrySet() )
 		{
 			final Class< ? > setupClazz = loadClass( className.getKey() );
+			final Object[] arguments = className.getValue();
 			Method configurationMethod = null;
 			try
 			{
@@ -428,7 +427,6 @@ public class DiffusiveLoader extends Loader {
 
 						// call the appropriate "invoke" method, depending on the number of
 						// arguments that the method requires
-						final Object[] arguments = className.getValue();
 						if( arguments.length == 0 )
 						{
 							method.invoke( null );
@@ -451,11 +449,41 @@ public class DiffusiveLoader extends Loader {
 			{
 				final StringBuilder message = new StringBuilder();
 				message.append( "Error invoking target method." ).append( Constants.NEW_LINE )
-                        .append( "  Class Name: " ).append( className ).append( Constants.NEW_LINE )
-                        .append( "  Method Name: " ).append( configurationMethod.getName() );
+                        .append( "  Class Name: " ).append( className.getKey() ).append( Constants.NEW_LINE )
+                        .append( "  Method Name: " ).append(configurationMethod.getName());
 				LOGGER.error( message.toString(), e );
 				throw new IllegalArgumentException( message.toString(), e );
 			}
+            catch( IllegalArgumentException e )
+            {
+                final StringBuilder error = new StringBuilder();
+                error.append( "Error invoking target method." ).append( Constants.NEW_LINE )
+                        .append( "  Class Name: " ).append( className.getKey() ).append( Constants.NEW_LINE );
+                if( configurationMethod != null )
+                {
+                    error.append( "  Method Name: " ).append( configurationMethod.getName() ).append( Constants.NEW_LINE );
+                    if( configurationMethod.getParameterTypes().length > 0 )
+					{
+						Arrays.asList( configurationMethod.getParameterTypes() )
+								.forEach(param -> error.append( "    Expected Param Type: " ).append(param.getName()).append(Constants.NEW_LINE));
+					}
+					else
+					{
+						error.append( "    Expected Parameters: [none]" );
+					}
+					if( arguments.length > 0 )
+					{
+						Arrays.asList( arguments )
+								.forEach( param -> error.append( "    Specified Param Type: " ).append( param.getClass().getName() ).append( Constants.NEW_LINE ) );
+					}
+					else
+					{
+						error.append( "    Specified Parameters: [none]" );
+					}
+                }
+                LOGGER.error( error.toString(), e );
+                throw new IllegalArgumentException( error.toString(), e );
+            }
 		}
 	}
 	

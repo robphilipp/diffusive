@@ -284,7 +284,7 @@ public class DiffusiveLauncher {
 			final StringBuilder message = new StringBuilder();
 			message.append( "Error running the specified class" ).append( Constants.NEW_LINE )
                     .append( "  Loader: " ).append( loader.getClass().getName() ).append( Constants.NEW_LINE )
-                    .append( "  Class Name: " ).append( classNameToRun );
+                    .append( "  Class Name: " ).append( classNameToRun ).append( Constants.NEW_LINE );
 			if( programArguments.length > 0 )
 			{
 				message.append( Constants.NEW_LINE ).append( "  Program Arguments: " );
