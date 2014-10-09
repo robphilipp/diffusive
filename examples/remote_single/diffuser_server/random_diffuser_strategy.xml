@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <RandomDiffuserStrategyConfigXml>
-	<clientEndpoints></clientEndpoints>
+	<clientEndpoints>
+		<endPoint>http://192.168.33.10:8182/diffusers</endPoint>
+	</clientEndpoints>
 	<randomSeed>0</randomSeed>
 </RandomDiffuserStrategyConfigXml>

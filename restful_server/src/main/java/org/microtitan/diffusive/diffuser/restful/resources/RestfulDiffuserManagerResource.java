@@ -83,7 +83,7 @@ import org.microtitan.diffusive.utils.ReflectionUtils;
 
 /**
  * Use the {@link org.microtitan.diffusive.diffuser.restful.client.RestfulDiffuserManagerClient} for testing this resource against the server, which is
- * either started with the {@link org.microtitan.diffusive.launcher.DiffusiveLauncher} or the {@link org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer}.
+ * either started with the {@code DiffusiveLauncher} or the {@link org.microtitan.diffusive.diffuser.restful.server.RestfulDiffuserServer}.
  * 
  * @author rob
  *
@@ -646,8 +646,8 @@ public class RestfulDiffuserManagerResource {
 	 */
 	private synchronized Class< ? > getClass( final String classname, final String signature )
 	{
-//		// if the specified class name represents a primitive, then return that, otherwise begin the search for the 
-//		// class through the various class loaders
+		// if the specified class name represents a primitive, then return that, otherwise begin the search for the
+		// class through the various class loaders
 //		Class< ? > clazz = ReflectionUtils.getPrimitive( classname );
 //		if( clazz != null )
 //		{

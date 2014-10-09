@@ -89,7 +89,7 @@ public class ThreadedVolumeCalc extends VolumeCalc {
 				@Override
 				public Double call() throws Exception
 				{
-					return ThreadedVolumeCalc.super.calcVolume( iteration, maxIterations );
+					return ThreadedVolumeCalc.this.calcVolume( iteration, maxIterations );
 				}
 			} );
 		}
@@ -117,7 +117,7 @@ public class ThreadedVolumeCalc extends VolumeCalc {
 		}
 		catch( ExecutionException e )
 		{
-			final StringBuffer message = new StringBuffer();
+			final StringBuilder message = new StringBuilder();
 			message.append( "Error: volumes=" + Constants.NEW_LINE );
 			for( double volume : volumes )
 			{
