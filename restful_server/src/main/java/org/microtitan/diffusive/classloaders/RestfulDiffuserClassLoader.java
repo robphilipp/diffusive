@@ -195,7 +195,7 @@ public class RestfulDiffuserClassLoader extends DiffusiveLoader {
 					// grab the modified class from the class pool
 					final byte[] classfile = classPool.get( className ).toBytecode();
 					
-					// define the class (actually load it into the JVM
+					// define the class (actually load it into the JVM)
 					clazz = defineClass( className, classfile, 0, classfile.length );
 				}
 				catch( CannotCompileException e )

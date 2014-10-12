@@ -15,14 +15,12 @@
  */
 package org.microtitan.diffusive.diffuser.restful.resources;
 
-import java.io.ByteArrayInputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import org.apache.abdera.model.Entry;
+import org.apache.abdera.model.Feed;
+import org.apache.log4j.Logger;
+import org.microtitan.diffusive.Constants;
+import org.microtitan.diffusive.diffuser.restful.atom.Atom;
+import org.microtitan.diffusive.utils.ClassLoaderUtils;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -32,13 +30,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
-
-import org.apache.abdera.model.Entry;
-import org.apache.abdera.model.Feed;
-import org.apache.log4j.Logger;
-import org.microtitan.diffusive.Constants;
-import org.microtitan.diffusive.diffuser.restful.atom.Atom;
-import org.microtitan.diffusive.utils.ClassLoaderUtils;
+import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The JAX-RS resource that provides {@code byte[]} representations of a specified class. The 
@@ -90,7 +89,7 @@ public class RestfulClassPathResource {
 	public RestfulClassPathResource( final List< URL > classPaths )
 	{
 		// create the class loader for the additional jars that hold the classes for the diffusive methods
-		final URL[] urls = classPaths.toArray( new URL[0] );
+		final URL[] urls = classPaths.toArray( new URL[ classPaths.size() ] );
 		urlClassLoader = new URLClassLoader( urls, this.getClass().getClassLoader() );
 		
 		// create the cache for the class byte[]
@@ -127,12 +126,12 @@ public class RestfulClassPathResource {
 		if( classBytes == null || classBytes.length == 0 )
 		{
 			// create the error message for the response
-			final StringBuffer message = new StringBuffer();
-			message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "  Class Loader: " ).append( urlClassLoader.getClass().getName() ).append( Constants.NEW_LINE );
 			message.append( "  Class Path Searched: " );
 			for( URL url : urlClassLoader.getURLs() )
 			{
-				message.append( Constants.NEW_LINE + "    " + url.toString() );
+				message.append( Constants.NEW_LINE ).append( "    " ).append( url.toString() );
 			}
 
 			// create an error entry
@@ -195,11 +194,11 @@ public class RestfulClassPathResource {
 					if( LOGGER.isInfoEnabled() )
 					{
 						message = new StringBuffer();
-						message.append("Loaded class using URL class loader (class not found on system class path)." + Constants.NEW_LINE);
-						message.append("  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE);
+						message.append( "Loaded class using URL class loader (class not found on system class path)." ).append( Constants.NEW_LINE );
+						message.append( "  Class Loader: " ).append( urlClassLoader.getClass().getName() ).append( Constants.NEW_LINE );
 						message.append("  Class Path Searched: ");
 						for (URL url : urlClassLoader.getURLs()) {
-							message.append(Constants.NEW_LINE + "    " + url.toString());
+							message.append( Constants.NEW_LINE ).append( "    " ).append( url.toString() );
 						}
 						LOGGER.info(message.toString());
 					}
@@ -210,13 +209,13 @@ public class RestfulClassPathResource {
 				else
 				{
 					message = new StringBuffer();
-					message.append( "Failed to load class using URL class loader and class not found on system class path." + Constants.NEW_LINE );
-					message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
-					message.append( "  System Class Path: " + System.getProperty( "java.class.path" ) );
+					message.append( "Failed to load class using URL class loader and class not found on system class path." ).append( Constants.NEW_LINE );
+					message.append( "  Class Loader: " ).append( urlClassLoader.getClass().getName() ).append( Constants.NEW_LINE );
+					message.append( "  System Class Path: " ).append( System.getProperty( "java.class.path" ) );
 					message.append( "  Class Path Searched: " );
 					for( URL url : urlClassLoader.getURLs() )
 					{
-						message.append( Constants.NEW_LINE + "    " + url.toString() );
+						message.append( Constants.NEW_LINE ).append( "    " ).append( url.toString() );
 					}
 					LOGGER.info( message.toString() );
 				}
@@ -225,10 +224,10 @@ public class RestfulClassPathResource {
 			{
 				if( LOGGER.isInfoEnabled() )
 				{
-					message.append("Loaded class from system class path." + Constants.NEW_LINE);
-					message.append("  Class Name: " + className + Constants.NEW_LINE);
-					message.append("  Class Loader: " + this.getClass().getClassLoader().getClass().getName() + Constants.NEW_LINE);
-					message.append("  Class Path: " + System.getProperty("java.class.path"));
+					message.append( "Loaded class from system class path." ).append( Constants.NEW_LINE );
+					message.append( "  Class Name: " ).append( className ).append( Constants.NEW_LINE );
+					message.append( "  Class Loader: " ).append( this.getClass().getClassLoader().getClass().getName() ).append( Constants.NEW_LINE );
+					message.append( "  Class Path: " ).append( System.getProperty( "java.class.path" ) );
 					LOGGER.info(message.toString());
 				}
 
