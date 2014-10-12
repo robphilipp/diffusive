@@ -15,16 +15,10 @@
  */
 package org.microtitan.diffusive.translator;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.Loader;
-import javassist.NotFoundException;
-
+import javassist.*;
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.converter.MethodInterceptorEditor;
-import org.microtitan.diffusive.diffuser.Diffuser;
 
 /**
  * Observer of the {@link Loader}, which calls the {@link #start(ClassPool)} and {@link #onLoad(ClassPool, String)}
@@ -51,43 +45,7 @@ public class BasicDiffusiveTranslator implements DiffusiveTranslator {
 	{
 		this.expressionEditor = expressionEditor;
 	}
-	
-	/**
-	 * Constructor that sets as its default expression editor, the {@link org.microtitan.diffusive.converter.MethodInterceptorEditor} with
-	 * the specified {@link Diffuser}.
-	 * @param diffuser the specified {@link Diffuser}
-	 */
-	public BasicDiffusiveTranslator( final Diffuser diffuser )
-	{
-		this.expressionEditor = createDefaultMethodIntercepter( /*diffuser*/ );
-	}
 
-	/**
-	 * Constructor that sets as its default expression editor, the {@link org.microtitan.diffusive.converter.MethodInterceptorEditor}
-	 */
-	public BasicDiffusiveTranslator()
-	{
-		this( createDefaultMethodIntercepter() );
-	}
-	
-	/*
-	 * Creates a default method intercepter using the specified {@link Diffuser}
-	 * @param diffuser The diffuser used with the default method intercepter
-	 * @return creates and returns a {@link MethodInterceptorEditor} with a local {@link Diffuser}
-	 */
-	private static MethodInterceptorEditor createDefaultMethodIntercepter( /*final Diffuser diffuser*/ )
-	{
-		return new MethodInterceptorEditor( /*diffuser*/ );
-	}
-	
-//	/*
-//	 * @return creates and returns a {@link MethodInterceptorEditor} with a local {@link Diffuser}
-//	 */
-//	private static MethodInterceptorEditor createDefaultMethodIntercepter()
-//	{
-//		return createDefaultMethodIntercepter( new LocalDiffuser() );
-//	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see org.microtitan.diffusive.translator.DiffusiveTranslator#getExpressionEditor()
@@ -132,6 +90,20 @@ public class BasicDiffusiveTranslator implements DiffusiveTranslator {
 			// attempts to read the class file from the source (throws a NotFoundException if
 			// the class file cannot be found)
 			final CtClass ctClass = pool.get( classname );
+
+			if( LOGGER.isInfoEnabled() )
+			{
+				final StringBuilder message = new StringBuilder();
+				message.append( "Read class file from source: " ).append( Constants.NEW_LINE )
+						.append( "  Class Name: " ).append( classname ).append( Constants.NEW_LINE )
+						.append( "  Class Pool: " ).append( pool.toString() ).append( Constants.NEW_LINE )
+						.append( "  Methods: " ).append( Constants.NEW_LINE );
+				for( CtMethod method: ctClass.getMethods() )
+				{
+					message.append( "    " ).append( method.getName() ).append( "; " ).append( method.getSignature() ).append( Constants.NEW_LINE );
+				}
+				LOGGER.info( message.toString() );
+			}
 			
 			// sets the expression editor used to replace the calls to @Diffusive methods with
 			// a Diffuser (throws a CannotCompileException if it fails to compile the
@@ -141,30 +113,30 @@ public class BasicDiffusiveTranslator implements DiffusiveTranslator {
 			// log the interception
 			if( LOGGER.isDebugEnabled() )
 			{
-				final StringBuffer message = new StringBuffer();
-				message.append( "Intercepted the loading of:" + Constants.NEW_LINE );
-				message.append( "  Class Name: " + classname + Constants.NEW_LINE );
-				message.append( "  Class Pool: " + pool.toString() );
-				LOGGER.debug( message.toString() );
+				LOGGER.debug(
+						"Intercepted the loading of:" + Constants.NEW_LINE +
+						"  Class Name: " + classname + Constants.NEW_LINE +
+						"  Class Pool: " + pool.toString()
+				);
 			}
 		}
 		catch( NotFoundException exception )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Attempted to intercept the loading of the class: " + classname + Constants.NEW_LINE );
-			message.append( "But could not find its class file to load." + Constants.NEW_LINE );
-			message.append( "  Class Pool: " + pool.toString() );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Attempted to intercept the loading of the class: " ).append( classname ).append( Constants.NEW_LINE );
+			message.append( "But could not find its class file to load." ).append( Constants.NEW_LINE );
+			message.append( "  Class Pool: " ).append( pool.toString() );
 			LOGGER.debug( message.toString() );
 			
 			throw new IllegalArgumentException( message.toString(), exception );
 		}
 		catch( CannotCompileException exception )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Attempted to intercept the loading of the class: " + classname + Constants.NEW_LINE );
-			message.append( "But could not compile the replacement source code produced by the expression editor." + Constants.NEW_LINE );
-			message.append( "  Expression Editor: " + expressionEditor.getClass().getName() + Constants.NEW_LINE );
-			message.append( "  Class Pool: " + pool.toString() );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Attempted to intercept the loading of the class: " ).append( classname ).append( Constants.NEW_LINE );
+			message.append( "But could not compile the replacement source code produced by the expression editor." ).append( Constants.NEW_LINE );
+			message.append( "  Expression Editor: " ).append( expressionEditor.getClass().getName() ).append( Constants.NEW_LINE );
+			message.append( "  Class Pool: " ).append( pool.toString() );
 			LOGGER.debug( message.toString() );
 			
 			throw new IllegalArgumentException( message.toString(), exception );

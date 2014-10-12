@@ -118,10 +118,10 @@ public class ThreadedVolumeCalc extends VolumeCalc {
 		catch( ExecutionException e )
 		{
 			final StringBuilder message = new StringBuilder();
-			message.append( "Error: volumes=" + Constants.NEW_LINE );
+			message.append( "Error: volumes=" ).append( Constants.NEW_LINE );
 			for( double volume : volumes )
 			{
-				message.append( "  " + volume );
+				message.append( "  " ).append( volume );
 			}
 			throw new IllegalStateException( message.toString(), e );
 		}

@@ -660,40 +660,68 @@ public class RestfulDiffuserManagerResource {
         try
         {
         	clazz = ReflectionUtils.getClazz( classname, false );
+
+			if( LOGGER.isInfoEnabled() ) {
+				final StringBuilder message = new StringBuilder();
+				message.append("Loaded class from system class path.").append(Constants.NEW_LINE);
+				message.append("  Signature (Key): ").append(signature).append(Constants.NEW_LINE);
+				message.append("  Class Name: ").append(classname).append(Constants.NEW_LINE);
+				message.append("  Class Loader: ").append(this.getClass().getClassLoader().getClass().getName()).append(Constants.NEW_LINE);
+				message.append("  System Class Path: ").append(Constants.NEW_LINE);
+				message.append("    ").append(System.getProperty("java.class.path"));
+				LOGGER.info(message.toString());
+			}
         }
         catch( IllegalArgumentException e )
 		{
 			// log the fact that we couldn't load the class from the system class path,
 			// and that we're going to use the URL class loader to attempt to load the class
-			if( LOGGER.isInfoEnabled() )
-			{
-				final StringBuilder message = new StringBuilder();
-				message.append( "Failed to load class from system class path, attempting to use URL class loader." ).append(Constants.NEW_LINE);
-				message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
-				message.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
-				message.append( "  Class Loader: " ).append(this.getClass().getClassLoader().getClass().getName()).append(Constants.NEW_LINE);
-				message.append( "  System Class Path: " ).append(Constants.NEW_LINE);
-				message.append( "    " ).append(System.getProperty("java.class.path"));
-				LOGGER.info( message.toString(), e );
-			}
+//			if( LOGGER.isInfoEnabled() )
+//			{
+//				final StringBuilder message = new StringBuilder();
+//				message.append( "Failed to load class from system class path, attempting to use URL class loader." ).append(Constants.NEW_LINE);
+//				message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+//				message.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
+//				message.append( "  Class Loader: " ).append(this.getClass().getClassLoader().getClass().getName()).append(Constants.NEW_LINE);
+//				message.append( "  System Class Path: " ).append(Constants.NEW_LINE);
+//				message.append( "    " ).append(System.getProperty("java.class.path"));
+//				LOGGER.info( message.toString(), e );
+//			}
 			
 			try
 			{
 				clazz = Class.forName( classname, true, urlClassLoader );
+
+				if( LOGGER.isInfoEnabled() )
+				{
+					final StringBuilder message = new StringBuilder();
+					message.append( "Loaded class from URL class loader (failed to load class from system class path)." ).append(Constants.NEW_LINE);
+					message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+					message.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
+					message.append( "  Class Loader: " ).append(this.getClass().getClassLoader().getClass().getName()).append(Constants.NEW_LINE);
+					message.append( "  System Class Path: " ).append(Constants.NEW_LINE);
+					message.append( "    " ).append(System.getProperty("java.class.path"));
+					message.append( "  URL Class Path: " );
+					for( URL url : urlClassLoader.getURLs() )
+					{
+						message.append( Constants.NEW_LINE ).append("    ").append(url.toString());
+					}
+					LOGGER.info( message.toString() );
+				}
 			}
 			catch( ClassNotFoundException e2 )
 			{
-				final StringBuilder message = new StringBuilder();
-				message.append( "Failed to load class using URL class loader, attempting to use specific diffuser URL class loader." ).append(Constants.NEW_LINE);
-				message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
-				message.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
-				message.append( "  Class Loader: " ).append(urlClassLoader.getClass().getName()).append(Constants.NEW_LINE);
-				message.append( "  URL Class Path: " );
-				for( URL url : urlClassLoader.getURLs() )
-				{
-					message.append( Constants.NEW_LINE ).append("    ").append(url.toString());
-				}
-				LOGGER.info( message.toString(), e2 );
+//				final StringBuilder message = new StringBuilder();
+//				message.append( "Failed to load class using URL class loader, attempting to use specific diffuser URL class loader." ).append(Constants.NEW_LINE);
+//				message.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+//				message.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
+//				message.append( "  Class Loader: " ).append(urlClassLoader.getClass().getName()).append(Constants.NEW_LINE);
+//				message.append( "  URL Class Path: " );
+//				for( URL url : urlClassLoader.getURLs() )
+//				{
+//					message.append( Constants.NEW_LINE ).append("    ").append(url.toString());
+//				}
+//				LOGGER.info( message.toString(), e2 );
 			
 				// grab the diffuser entry associated with the specified signature, and if an
 				// entry exists, then we can grab the class path URI list from it and use it
@@ -711,6 +739,16 @@ public class RestfulDiffuserManagerResource {
 						try
 						{
 							clazz = Class.forName( classname, true, loader );
+
+							if( LOGGER.isDebugEnabled() )
+							{
+								final StringBuilder message2 = new StringBuilder();
+								message2.append( "Loaded class:" ).append(Constants.NEW_LINE);
+								message2.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
+								message2.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
+								message2.append( "  Class Loader: " ).append(loader.getClass().getName());
+								LOGGER.debug( message2.toString() );
+							}
 						}
 						catch( ClassNotFoundException e1 )
 						{
@@ -721,16 +759,6 @@ public class RestfulDiffuserManagerResource {
 							message2.append( "  Class Loader: " ).append(loader.getClass().getName());
 							LOGGER.error( message2.toString(), e1 );
 							throw new IllegalArgumentException( message2.toString(), e1 );
-						}
-						
-						if( LOGGER.isDebugEnabled() )
-						{
-							final StringBuilder message2 = new StringBuilder();
-							message2.append( "Loaded class:" ).append(Constants.NEW_LINE);
-							message2.append( "  Signature (Key): " ).append(signature).append(Constants.NEW_LINE);
-							message2.append( "  Class Name: " ).append(classname).append(Constants.NEW_LINE);
-							message2.append( "  Class Loader: " ).append(loader.getClass().getName());
-							LOGGER.debug( message2.toString() );
 						}
 					}
 				}
@@ -812,7 +840,7 @@ public class RestfulDiffuserManagerResource {
 	 * @param uriInfo Information about the request URI and the JAX-RS application.
 	 * @param signature The signature of the {@link org.microtitan.diffusive.diffuser.restful.RestfulDiffuser} corresponding to a specific method.
 	 * The signatures are created using the {@link org.microtitan.diffusive.diffuser.DiffuserSignature} class.
-	 * @param requestId The result ID corresponding to the result.
+	 * @param resultId The result ID corresponding to the result.
 	 * @return An {@link javax.ws.rs.core.Response} object that contains a string version of the Atom feed holding the result.
 	 * The {@code content} of the Atom feed contains the {@code byte[]} version of the serialized result object. 
 	 */
@@ -820,7 +848,7 @@ public class RestfulDiffuserManagerResource {
 	@Produces( MediaType.APPLICATION_ATOM_XML )
 	public Response getResult( @Context final UriInfo uriInfo, 
 							   @PathParam( SIGNATURE ) final String signature,
-							   @PathParam( RESULT_ID ) final String requestId )
+							   @PathParam( RESULT_ID ) final String resultId )
 	{
 		// create the URI to the newly created diffuser
 		final URI resultUri = uriInfo.getAbsolutePathBuilder().build();
@@ -830,7 +858,7 @@ public class RestfulDiffuserManagerResource {
 
 		Response response;
 		ResultCacheEntry< Object > result;
-		final String cacheKey = createResultsCacheId( signature, requestId );
+		final String cacheKey = createResultsCacheId( signature, resultId );
 		
 		// the result can either have been cached already, or the task can still be running,
 		// or it just isn't found, and we report the error
@@ -850,7 +878,7 @@ public class RestfulDiffuserManagerResource {
 				final Entry entry = Atom.createEntry();
 				
 				final ByteArrayInputStream input = new ByteArrayInputStream( output.toByteArray() );
-				entry.setId( requestId );
+				entry.setId( resultId );
 				entry.setContent( input, MediaType.APPLICATION_OCTET_STREAM );
 				feed.addEntry( entry );
 				
@@ -878,7 +906,7 @@ public class RestfulDiffuserManagerResource {
 				final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
 
 				final Entry entry = Atom.createEntry();
-				entry.setId( requestId );
+				entry.setId( resultId );
 				entry.setContent("Failded to retrieve result." + Constants.NEW_LINE + e.getMessage(), MediaType.TEXT_PLAIN);
 				feed.addEntry( entry );
 				
@@ -899,7 +927,7 @@ public class RestfulDiffuserManagerResource {
 			final Feed feed = Atom.createFeed( resultUri, cacheKey, date, uriInfo.getBaseUri() );
 
 			final Entry entry = Atom.createEntry();
-			entry.setId( requestId );
+			entry.setId( resultId );
 			entry.setContent( "Failded to retrieve result.", MediaType.TEXT_PLAIN );
 			feed.addEntry( entry );
 			

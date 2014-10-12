@@ -17,6 +17,7 @@ package org.microtitan.diffusive.converter;
 
 import javassist.CannotCompileException;
 import javassist.CtClass;
+import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
@@ -106,25 +107,44 @@ public class MethodInterceptorEditor extends ExprEditor {
 		}
 		return isBaseMethod;
 	}
-	
-	/*
+
+	/**
 	 * (non-Javadoc)
 	 * @see javassist.expr.ExprEditor#edit(javassist.expr.MethodCall)
 	 */
 	@Override
 	public void edit( final MethodCall methodCall )
 	{
+		// grab the class and method names for the called method
 		final String className = methodCall.getClassName();
 		final String methodName = methodCall.getMethodName();
+
+		// grab the method from the method call. if the method doesn't exist, then
+		// it isn't a diffused method, so we leave it unchanged
+		CtMethod method;
+		try
+		{
+			method = getMethod( methodCall );
+
+		}
+		catch( NotFoundException exception )
+		{
+			final String header = "The method associated with the diffusive method call, or its parameter types, could not be found.";
+			final String message = createMessage( header, className, methodName, methodCall );
+			LOGGER.warn( message );
+			return;
+		}
+
+		// create the code that replaces the call the the method.
 		final StringBuilder code = new StringBuilder();
 		try
 		{
-			// if the method itself is annotated with @Diffusive, AND, the method making the call does not have the base 
+			// if the method itself is annotated with @Diffusive, AND, the method making the call does not have the base
 			// signature, then we want to diffuse it further. recall that the base signature is the signature associated 
 			// with the diffuser that is responsible for calling the method, and that means the method came from a remote 
 			// address space, and shouldn't be diffused. however, if the signatures aren't equal, then it is valid to be 
 			// diffused as a nested diffusion.
-			if( methodCall.getMethod().getAnnotation( Diffusive.class ) != null && !isBaseMethod( className, methodName ) )
+			if( method.getAnnotation( Diffusive.class ) != null && !isBaseMethod( className, methodName ) )
 			{
 				// write the code to replace the method call with a Diffusive call
 				// TODO replace this with a logger, which will require adding a logger field
@@ -132,8 +152,12 @@ public class MethodInterceptorEditor extends ExprEditor {
 				code.append( "    System.out.println( \"  Class Loader Name: " ).append( "\" + $0.getClass().getClassLoader().getClass().getName() );\n" );
 				code.append( "    System.out.println( \"  Class Loader Instance: " ).append( "\" + $0.getClass().getClassLoader().toString() );\n" );
 				code.append( "    System.out.println( \"  Object: " ).append( "\" + $0.getClass().getName() );\n" );
+
+				// grab the parameter types
+				final CtClass[] parametertypes = getParameterTypes(methodCall);
+
 				int i = 1;
-				for( CtClass arg : methodCall.getMethod().getParameterTypes() )
+				for( CtClass arg : parametertypes )
 				{
                     code.append("    System.out.println( \"  Method Param: value=\" + $" ).append( i ).append(" + \" ; type=").append( arg.getName() ).append( "\" );\n" );
 					++i;
@@ -151,13 +175,13 @@ public class MethodInterceptorEditor extends ExprEditor {
 				{
 					// get the parameter types
 					final List< String > argumentTypes = new ArrayList<>();
-					for( CtClass arg : methodCall.getMethod().getParameterTypes() )
+					for( CtClass arg : parametertypes )
 					{
 						argumentTypes.add( arg.getName() );
 					}
 					
 					// grab the class name of the return type
-					final String returnType = methodCall.getMethod().getReturnType().getName();
+					final String returnType = getReturnType( methodCall ).getName();
 	
 					// create the signature of the method call
 					final String signature = DiffuserSignature.createId( returnType, className, methodName, argumentTypes );
@@ -182,11 +206,11 @@ public class MethodInterceptorEditor extends ExprEditor {
 					// we do this because if the class loader for the diffusion is different from the class loader of the
 					// restful diffuser resource manager, then it returns null, and we want to see this.
 					final String getDiffuser = repoClassName + "." + getInstance + ".getDiffuser()";
-					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " ).append (getDiffuser ).append (" );\n" );
+					code.append( "    System.out.println( \"  Diffuser from Repository: \" + " ).append( getDiffuser ).append (" );\n" );
 					
 					// the actual Diffusive call
 					final String diffusiveCall = getDiffuser + ".runObject( " + Double.MAX_VALUE + ", $type, $0, \"" + methodName + "\", $sig, $args );";
-					code.append( "    $_ = ($r)" ).append (diffusiveCall );
+					code.append( "    $_ = ($r)" ).append( diffusiveCall );
 				}
 				
 				// make the call to replace the code in the method call
@@ -231,7 +255,81 @@ public class MethodInterceptorEditor extends ExprEditor {
 			throw new IllegalArgumentException( message, exception );
 		}
 	}
-	
+
+
+	/**
+	 * Returns the {@link javassist.CtMethod} associated with the method call. Throws an
+	 * {@link java.lang.IllegalArgumentException} if the method cannot be found.
+	 * @param methodCall The {@link javassist.expr.MethodCall}
+	 * @return The {@link javassist.CtMethod} associated with the method call.
+	 */
+	private CtMethod getMethod( final MethodCall methodCall ) throws NotFoundException
+	{
+		CtMethod method;
+		try
+		{
+			method = methodCall.getMethod();
+		}
+		catch( NotFoundException exception )
+		{
+			final String className = methodCall.getClassName();
+			final String methodName = methodCall.getMethodName();
+			final String header = "The method could not be found.";
+			final String message = createMessage( header, className, methodName, methodCall );
+			LOGGER.error( message, exception );
+			throw new NotFoundException( message, exception );
+		}
+		return method;
+	}
+
+	/**
+	 * Returns the parameter types associated with the method call
+	 * @param methodCall The {@link javassist.expr.MethodCall}
+	 * @return the parameter types associated with the method call
+	 */
+	private CtClass[] getParameterTypes( final MethodCall methodCall ) throws NotFoundException
+	{
+		CtClass[] parametertypes;
+		try
+		{
+			parametertypes = getMethod( methodCall ).getParameterTypes();
+		}
+		catch( NotFoundException exception )
+		{
+			final String className = methodCall.getClassName();
+			final String methodName = methodCall.getMethodName();
+			final String header = "The parameter types associated with the diffusive method call could not be found.";
+			final String message = createMessage( header, className, methodName, methodCall );
+			LOGGER.error( message, exception );
+			throw new NotFoundException( message, exception );
+		}
+		return parametertypes;
+	}
+
+	/**
+	 * Returns the method's return type as a {@link javassist.CtClass}
+	 * @param methodCall The {@link javassist.expr.MethodCall}
+	 * @return The method's return type
+	 */
+	private CtClass getReturnType( final MethodCall methodCall ) throws NotFoundException
+	{
+		CtClass returnClass;
+		try
+		{
+			returnClass = getMethod( methodCall ).getReturnType();
+		}
+		catch( NotFoundException exception )
+		{
+			final String className = methodCall.getClassName();
+			final String methodName = methodCall.getMethodName();
+			final String header = "The return type associated with the diffusive method call could not be found.";
+			final String message = createMessage( header, className, methodName, methodCall );
+			LOGGER.error( message, exception );
+			throw new NotFoundException( message, exception );
+		}
+		return returnClass;
+	}
+
 	/**
 	 * Creates a message for the process of instrumenting the method call.
 	 * @param header The explanation of the message
@@ -242,14 +340,14 @@ public class MethodInterceptorEditor extends ExprEditor {
 	 */
 	private static String createMessage( final String header, final String className, final String methodName, final MethodCall methodCall )
 	{
-		final StringBuilder message = new StringBuilder();
-		message.append( header ).append (Constants.NEW_LINE );
-		message.append( "  Class Name: " ).append (className ).append (Constants.NEW_LINE );
-		message.append( "  Method Name: " ).append (methodName ).append (Constants.NEW_LINE );
-		message.append( "  Source Method: " ).append (methodCall.where().getName() ).append (Constants.NEW_LINE );
-		message.append( "  Source File: " ).append (methodCall.getFileName() ).append (Constants.NEW_LINE );
-		message.append( "  Line Number: " ).append (methodCall.getLineNumber() );
-		return message.toString();
+		return header + Constants.NEW_LINE +
+				"  Class Name: " + className + Constants.NEW_LINE +
+				"  Method Name: " + methodName + Constants.NEW_LINE +
+				"  Method In Super Class: " + methodCall.isSuper() + Constants.NEW_LINE +
+				"  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE +
+				"  Source Method Signature: " + methodCall.where().getSignature() + Constants.NEW_LINE +
+				"  Source File: " + methodCall.getFileName() + Constants.NEW_LINE +
+				"  Line Number: " + methodCall.getLineNumber() + Constants.NEW_LINE;
 	}
 	
 	/**
@@ -263,15 +361,15 @@ public class MethodInterceptorEditor extends ExprEditor {
 	 */
 	private static String createMessage( final String header, final Class< ? > annotation, final String className, final String methodName, final MethodCall methodCall )
 	{
-		final StringBuilder message = new StringBuilder();
-		message.append( header ).append (Constants.NEW_LINE );
-		message.append( "  Annotation Class Name: " ).append (annotation.getName() ).append (Constants.NEW_LINE );
-		message.append( "  Class Name: " ).append (className ).append (Constants.NEW_LINE );
-		message.append( "  Method Name: " ).append (methodName ).append (Constants.NEW_LINE );
-		message.append( "  Source Method: " ).append (methodCall.where().getName() ).append (Constants.NEW_LINE );
-		message.append( "  Source File: " ).append (methodCall.getFileName() ).append (Constants.NEW_LINE );
-		message.append( "  Line Number: " ).append (methodCall.getLineNumber() );
-		return message.toString();
+		return header + Constants.NEW_LINE +
+				"  Annotation Class Name: " + annotation.getName() + Constants.NEW_LINE +
+				"  Class Name: " + className + Constants.NEW_LINE +
+				"  Method Name: " + methodName + Constants.NEW_LINE +
+				"  Method In Super Class: " + methodCall.isSuper() + Constants.NEW_LINE +
+				"  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE +
+				"  Source Method Signature: " + methodCall.where().getSignature() + Constants.NEW_LINE +
+				"  Source File: " + methodCall.getFileName() + Constants.NEW_LINE +
+				"  Line Number: " + methodCall.getLineNumber() + Constants.NEW_LINE;
 	}
 
 	/**
@@ -285,14 +383,14 @@ public class MethodInterceptorEditor extends ExprEditor {
 	 */
 	private static String createMessage( final String header, final String className, final String methodName, final MethodCall methodCall, final String code )
 	{
-		final StringBuilder message = new StringBuilder();
-		message.append( header ).append( Constants.NEW_LINE );
-		message.append( "  Class Name: " ).append( className ).append( Constants.NEW_LINE );
-		message.append( "  Method Name: " ).append( methodName ).append( Constants.NEW_LINE );
-		message.append( "  Source Method: " ).append( methodCall.where().getName() ).append( Constants.NEW_LINE );
-		message.append( "  Source File: " ).append( methodCall.getFileName() ).append( Constants.NEW_LINE );
-		message.append( "  Line Number: " ).append( methodCall.getLineNumber() );
-		message.append( "  Replacement Code: " ).append( Constants.NEW_LINE ).append( code );
-		return message.toString();
+		return header + Constants.NEW_LINE +
+				"  Class Name: " + className + Constants.NEW_LINE +
+				"  Method Name: " + methodName + Constants.NEW_LINE +
+				"  Method In Super Class: " + methodCall.isSuper() + Constants.NEW_LINE +
+				"  Source Method: " + methodCall.where().getName() + Constants.NEW_LINE +
+				"  Source Method Signature: " + methodCall.where().getSignature() + Constants.NEW_LINE +
+				"  Source File: " + methodCall.getFileName() + Constants.NEW_LINE +
+				"  Line Number: " + methodCall.getLineNumber() +
+				"  Replacement Code: " + Constants.NEW_LINE + code + Constants.NEW_LINE;
 	}
 }

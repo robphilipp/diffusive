@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <RestfulDiffuserConfigXml>
 	<classPathList>
-		<classPath>http://192.168.1.144:8182/classpath</classPath>
+		<classPath>http://192.168.1.15:8182/classpath</classPath>
 	</classPathList>
 	<loadThreshold>0.75</loadThreshold>
 	<serializerName>persistence_xml</serializerName>

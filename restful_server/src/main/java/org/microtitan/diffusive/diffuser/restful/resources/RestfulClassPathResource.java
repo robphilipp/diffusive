@@ -85,7 +85,6 @@ public class RestfulClassPathResource {
 	/**
 	 * 
 	 * @param classPaths holds a list of {@link java.net.URL} to JAR files that must be loaded in order to execute
-	 * (see {@link #createJarClassPath(java.util.List)} for a convenient method to create this list).
 	 * diffuser methods, and that will get sent to other remote diffusers
 	 */
 	public RestfulClassPathResource( final List< URL > classPaths )
@@ -124,7 +123,7 @@ public class RestfulClassPathResource {
 		// Diffuser servers don't know about incoming servers, only end points to which it sends work.
 		// NOTE: does this effect how I deal with the cache...can these be cached or not?
 
-		Response response = null;
+		Response response;
 		if( classBytes == null || classBytes.length == 0 )
 		{
 			// create the error message for the response
@@ -180,39 +179,59 @@ public class RestfulClassPathResource {
 		// if the class hasn't been stored in the cache, then load the resource
 		if( classBytes == null || classBytes.length == 0 )
 		{
-			// find the class and convert it to a byte[] for transport across the network
+			// on the system class path, find the class and convert it to a byte[] for transport across the network
 			classBytes = ClassLoaderUtils.loadClassToByteArray( className );
 			StringBuffer message = new StringBuffer();
+
+			// if the class isn't on the system class path, then attempt the URL class loader
 			if( classBytes == null || classBytes.length == 0 )
 			{
-				message.append( "Could not find class on system class path. Attempting URL class loader." + Constants.NEW_LINE );
-				message.append( "  Class Name: " + className + Constants.NEW_LINE );
-				message.append( "  Class Loader: " + this.getClass().getClassLoader().getClass().getName() + Constants.NEW_LINE );
-				message.append( "  Class Path: " + System.getProperty( "java.class.path" ) );
-				LOGGER.info( message.toString() );
-				
 				// attempt to use the url class loader to create the bytes
 				classBytes = ClassLoaderUtils.loadClassToByteArray( className, urlClassLoader );
-				if( classBytes == null || classBytes.length == 0 )
+
+				// if the URL class loader has the class, add it to the cache, otherwise report the error
+				if( classBytes != null && classBytes.length != 0 )
+				{
+					if( LOGGER.isInfoEnabled() )
+					{
+						message = new StringBuffer();
+						message.append("Loaded class using URL class loader (class not found on system class path)." + Constants.NEW_LINE);
+						message.append("  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE);
+						message.append("  Class Path Searched: ");
+						for (URL url : urlClassLoader.getURLs()) {
+							message.append(Constants.NEW_LINE + "    " + url.toString());
+						}
+						LOGGER.info(message.toString());
+					}
+
+					// cache the class bytes
+					classByteArrayCache.put( className, classBytes );
+				}
+				else
 				{
 					message = new StringBuffer();
-					message.append( "Could not load class using URL class loader" + Constants.NEW_LINE );
+					message.append( "Failed to load class using URL class loader and class not found on system class path." + Constants.NEW_LINE );
 					message.append( "  Class Loader: " + urlClassLoader.getClass().getName() + Constants.NEW_LINE );
+					message.append( "  System Class Path: " + System.getProperty( "java.class.path" ) );
 					message.append( "  Class Path Searched: " );
 					for( URL url : urlClassLoader.getURLs() )
 					{
 						message.append( Constants.NEW_LINE + "    " + url.toString() );
 					}
-					LOGGER.error( message.toString() );
-				}
-				else
-				{
-					// cache the class bytes
-					classByteArrayCache.put( className, classBytes );
+					LOGGER.info( message.toString() );
 				}
 			}
 			else
 			{
+				if( LOGGER.isInfoEnabled() )
+				{
+					message.append("Loaded class from system class path." + Constants.NEW_LINE);
+					message.append("  Class Name: " + className + Constants.NEW_LINE);
+					message.append("  Class Loader: " + this.getClass().getClassLoader().getClass().getName() + Constants.NEW_LINE);
+					message.append("  Class Path: " + System.getProperty("java.class.path"));
+					LOGGER.info(message.toString());
+				}
+
 				// cache the class bytes
 				classByteArrayCache.put( className, classBytes );
 			}
