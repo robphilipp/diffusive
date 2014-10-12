@@ -72,6 +72,8 @@ public class ThreadedVolumeCalc extends VolumeCalc {
 	@Override
 	public List< Double > calcVolumes( final int numSimulations, final long maxIterations )
 	{
+		final long start = System.currentTimeMillis();
+
 		// create the executor service to which we submit our calculations
 		final ExecutorService executor = Executors.newFixedThreadPool( Math.min( numThreads, Math.min( numSimulations, 1000 ) ) );
 		final CompletionService< Double > completionService = new ExecutorCompletionService<>( executor );
@@ -81,17 +83,7 @@ public class ThreadedVolumeCalc extends VolumeCalc {
 		for( int i = 0; i < numSimulations; ++i )
 		{
 			final long iteration = i;	// the iteration number must be final to be seen by inner class
-			completionService.submit( new Callable< Double >() {
-				/*
-				 * (non-Javadoc)
-				 * @see java.util.concurrent.Callable#call()
-				 */
-				@Override
-				public Double call() throws Exception
-				{
-					return ThreadedVolumeCalc.this.calcVolume( iteration, maxIterations );
-				}
-			} );
+			completionService.submit( () -> ThreadedVolumeCalc.this.calcVolume( iteration, maxIterations ) );
 		}
 
 		// wait for the tasks to complete and then add the result to the list of volumes
@@ -130,6 +122,8 @@ public class ThreadedVolumeCalc extends VolumeCalc {
 			// done, shutdown the thread pool (program won't exit until the thread pool resources are shut down.
 			executor.shutdown();
 		}
+		final double elapsedTime = (double)(System.currentTimeMillis() - start) / 1000;
+		LOGGER.info( "Volume: " + mean( volumes ) + " +- " + variance( volumes ) + " (n=" + volumes.size() + "; " + elapsedTime + " s)" );
 		return volumes;
 	}
 
