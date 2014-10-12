@@ -102,7 +102,7 @@ public class BasicDiffusiveTranslator implements DiffusiveTranslator {
 				{
 					message.append( "    " ).append( method.getName() ).append( "; " ).append( method.getSignature() ).append( Constants.NEW_LINE );
 				}
-				LOGGER.info( message.toString() );
+				LOGGER.debug( message.toString() );
 			}
 			
 			// sets the expression editor used to replace the calls to @Diffusive methods with
