@@ -15,15 +15,8 @@
  */
 package org.microtitan.diffusive.classloaders.factories;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import javassist.ClassPool;
 import javassist.expr.ExprEditor;
-
 import org.apache.log4j.Logger;
 import org.microtitan.diffusive.Constants;
 import org.microtitan.diffusive.annotations.DiffusiveConfiguration;
@@ -32,6 +25,12 @@ import org.microtitan.diffusive.converter.MethodInterceptorEditor;
 import org.microtitan.diffusive.diffuser.Diffuser;
 import org.microtitan.diffusive.translator.BasicDiffusiveTranslator;
 import org.microtitan.diffusive.translator.DiffusiveTranslator;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Factory for creating {@link RestfulDiffuserClassLoader} objects. Use the {@code set(...)} methods to set the parameters
@@ -147,7 +146,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 	@Override
 	public RestfulDiffuserClassLoader create( final ClassLoader parentLoader, final String signature, final List< URI > classPaths )
 	{
-		RestfulDiffuserClassLoader loader = null;
+		RestfulDiffuserClassLoader loader;
 		// everything is set
 		if( configClasses != null && !configClasses.isEmpty() && delegationPrefixes != null && !delegationPrefixes.isEmpty() )
 		{
@@ -168,9 +167,7 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 		// invalid configuration
 		else
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Invalid factory configuration: should never reach this point!" );
-			throw new IllegalStateException( message.toString() );
+			throw new IllegalStateException( "Invalid factory configuration: should never reach this point!" );
 		}
 		
 		// set up the class loader with the translator
@@ -180,9 +177,9 @@ public class RestfulDiffuserClassLoaderFactory implements ClassLoaderFactory {
 		}
 		catch( Throwable exception )
 		{
-			final StringBuffer message = new StringBuffer();
-			message.append( "Error loading the specified class" + Constants.NEW_LINE );
-			message.append( "  Loader: " + loader.getClass().getName() + Constants.NEW_LINE );
+			final StringBuilder message = new StringBuilder();
+			message.append( "Error loading the specified class" ).append( Constants.NEW_LINE )
+					.append( "  Loader: " ).append( loader.getClass().getName() ).append( Constants.NEW_LINE );
 
 			LOGGER.error( message.toString(), exception );
 			throw new IllegalArgumentException( message.toString(), exception );

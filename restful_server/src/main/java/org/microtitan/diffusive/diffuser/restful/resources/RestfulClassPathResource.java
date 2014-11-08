@@ -137,7 +137,7 @@ public class RestfulClassPathResource {
 			// create an error entry
 			final Entry entry = Atom.createEntry();
 			entry.setId( resultKey );
-			entry.setContent( "Failded to load class result." + Constants.NEW_LINE + message.toString(), MediaType.TEXT_PLAIN );
+			entry.setContent( "Failed to load class result." + Constants.NEW_LINE + message.toString(), MediaType.TEXT_PLAIN );
 			feed.addEntry( entry );
 			
 			response = Response.status( Status.NOT_FOUND )
